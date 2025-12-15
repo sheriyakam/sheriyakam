@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions, TextInput, Alert, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar, CheckCircle, Smartphone } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../../constants/theme';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { completeBookingByPartner } from '../../../constants/bookingStore';
+import JobMap from '../../../components/JobMap';
 
 const { width } = Dimensions.get('window');
 
@@ -14,28 +15,30 @@ export default function JobDetails() {
 
     const [otpModalVisible, setOtpModalVisible] = useState(false);
     const [otp, setOtp] = useState('');
+    const [hours, setHours] = useState('1');
     const [loading, setLoading] = useState(false);
 
-    // Parse params if they are passed as strings or individual fields
-    // In a real app, we might fetch job by params.id from a store/API
     const job = {
         id: params.id,
-        customer: params.customer,
+        customerName: params.customerName || params.customer,
+        phone: params.customerPhone,
         service: params.service,
         address: params.address,
         price: params.price,
         date: params.date,
         distance: params.distance,
-        // Mock coordinates for map (Calicut center approx + random offset if we had real data)
-        // For now, let's just use a fixed location or derived if possible.
-        // Let's use Calicut coordinates as base
-        latitude: 11.2588,
-        longitude: 75.7804,
-        otp: '1234' // Mock OTP for this job
+        // Mock coordinates for map
+        latitude: params.latitude ? parseFloat(params.latitude) : 11.2588,
+        longitude: params.longitude ? parseFloat(params.longitude) : 75.7804,
+        status: params.status || 'accepted'
     };
 
     const handleCall = () => {
-        Linking.openURL(`tel:+919876543210`);
+        if (job.phone) {
+            Linking.openURL(`tel:${job.phone}`);
+        } else {
+            Alert.alert("Info", "Phone number not available");
+        }
     };
 
     const handleDirections = () => {
@@ -57,13 +60,16 @@ export default function JobDetails() {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            // Verify against job OTP (mocked as 1234 for now if not passed) or checking the one we added to job object
-            if (otp === '1234') {
+
+            const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1);
+
+            if (result.success) {
                 setOtpModalVisible(false);
-                alert("Job Marked as Completed!");
-                router.replace('/partner/dashboard');
+                Alert.alert("Success", "Job Marked as Completed! Customer has been notified for payment.", [
+                    { text: "OK", onPress: () => router.replace('/partner') }
+                ]);
             } else {
-                alert("Invalid OTP! Ask customer for the code.");
+                alert(result.message || "Invalid OTP! Ask customer for the code.");
                 setOtp('');
             }
         }, 1000);
@@ -81,88 +87,72 @@ export default function JobDetails() {
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-
-                {/* Customer Info Card */}
+                {/* Customer Card */}
                 <View style={styles.card}>
                     <View style={styles.customerHeader}>
                         <View style={styles.avatar}>
-                            <Text style={styles.avatarText}>{job.customer?.charAt(0)}</Text>
+                            <Text style={styles.avatarText}>
+                                {job.customerName ? job.customerName.charAt(0).toUpperCase() : 'C'}
+                            </Text>
                         </View>
                         <View>
-                            <Text style={styles.customerName}>{job.customer}</Text>
+                            <Text style={styles.customerName}>{job.customerName}</Text>
                             <Text style={styles.serviceName}>{job.service}</Text>
                         </View>
                         <View style={styles.statusBadge}>
-                            <Text style={styles.statusText}>Accepted</Text>
+                            <Text style={styles.statusText}>{job.status.toUpperCase()}</Text>
                         </View>
                     </View>
 
                     <View style={styles.divider} />
 
                     <View style={styles.detailRow}>
-                        <Clock size={16} color={COLORS.textSecondary} />
-                        <Text style={styles.detailText}>{job.date}</Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                        <MapPin size={16} color={COLORS.textSecondary} />
-                        <Text style={styles.detailText}>{job.distance} away</Text>
+                        <Calendar size={16} color={COLORS.textSecondary} />
+                        <Text style={styles.detailText}>{job.date || 'Today'}</Text>
                     </View>
 
                     <View style={styles.actionButtons}>
                         <TouchableOpacity style={styles.callBtn} onPress={handleCall}>
                             <Phone size={20} color={COLORS.primary} />
-                            <Text style={styles.callBtnText}>Call</Text>
+                            <Text style={styles.callBtnText}>Call Customer</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.directionBtn} onPress={handleDirections}>
                             <Navigation size={20} color="#fff" />
-                            <Text style={styles.directionBtnText}>Directions</Text>
+                            <Text style={styles.directionBtnText}>Get Directions</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* Address Section */}
+                {/* Location & Map */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Service Location</Text>
+                    <Text style={styles.sectionTitle}>Location</Text>
                     <View style={styles.addressCard}>
-                        <MapPin size={24} color={COLORS.accent} style={{ marginTop: 2 }} />
+                        <MapPin size={24} color={COLORS.accent} />
                         <Text style={styles.addressText}>{job.address}</Text>
                     </View>
                 </View>
 
-                {/* Map View */}
-                {Platform.OS !== 'web' ? (
-                    <View style={styles.mapContainer}>
-                        <MapView
-                            style={styles.map}
-                            provider={PROVIDER_DEFAULT}
-                            initialRegion={{
-                                latitude: job.latitude,
-                                longitude: job.longitude,
-                                latitudeDelta: 0.01,
-                                longitudeDelta: 0.01,
-                            }}
-                        >
-                            <Marker
-                                coordinate={{ latitude: job.latitude, longitude: job.longitude }}
-                                title={job.customer}
-                                description={job.service}
-                            />
-                        </MapView>
-                    </View>
-                ) : (
-                    <TouchableOpacity style={styles.webMapPlaceholder} onPress={handleDirections}>
-                        <Text style={{ color: COLORS.accent }}>Open in Google Maps</Text>
-                    </TouchableOpacity>
-                )}
+                <View style={styles.mapContainer}>
+                    {Platform.OS === 'web' ? (
+                        <TouchableOpacity style={styles.webMapPlaceholder} onPress={handleDirections}>
+                            <MapPin size={40} color={COLORS.primary} />
+                            <Text style={{ marginTop: 8, color: COLORS.textSecondary }}>Open in Google Maps</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <JobMap latitude={job.latitude} longitude={job.longitude} />
+                    )}
+                </View>
 
-                {/* Job Completion Actions */}
+                {/* Footer Buttons */}
                 <View style={styles.footerActions}>
-                    <TouchableOpacity style={styles.completeBtn} onPress={() => setOtpModalVisible(true)}>
+                    <TouchableOpacity
+                        style={styles.completeBtn}
+                        onPress={() => setOtpModalVisible(true)}
+                    >
                         <CheckCircle size={20} color="#fff" />
                         <Text style={styles.completeBtnText}>Mark Job Completed</Text>
                     </TouchableOpacity>
                 </View>
-
             </ScrollView>
 
             {/* OTP Modal */}
@@ -171,22 +161,29 @@ export default function JobDetails() {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Complete Job</Text>
                         <Text style={styles.modalText}>
-                            Ask the customer for the OTP to confirm job completion.
+                            Enter working hours and OTP from customer to confirm completion.
                         </Text>
 
                         <View style={styles.otpInputContainer}>
-                            <Text style={styles.otpLabel}>Enter 4-Digit OTP</Text>
+                            <Text style={styles.otpLabel}>Hours Worked</Text>
+                            <TextInput
+                                style={[styles.otpInput, { fontSize: 18, marginBottom: 16 }]}
+                                value={hours}
+                                onChangeText={setHours}
+                                keyboardType="numeric"
+                                placeholder="1"
+                                placeholderTextColor={COLORS.textTertiary}
+                            />
+
+                            <Text style={styles.otpLabel}>Customer OTP (4-Digit)</Text>
                             <TextInput
                                 style={styles.otpInput}
                                 value={otp}
-                                onChangeText={(text) => {
-                                    if (text.length <= 4) setOtp(text.replace(/[^0-9]/g, ''));
-                                }}
+                                onChangeText={(t) => setOtp(t.replace(/[^0-9]/g, '').slice(0, 4))}
                                 keyboardType="numeric"
-                                maxLength={4}
                                 placeholder="0000"
+                                maxLength={4}
                                 placeholderTextColor={COLORS.textTertiary}
-                                autoFocus
                             />
                         </View>
 
@@ -374,10 +371,6 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
         marginBottom: SPACING.xl,
     },
-    map: {
-        width: '100%',
-        height: '100%',
-    },
     webMapPlaceholder: {
         height: 150,
         backgroundColor: '#eee',
@@ -408,7 +401,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    // Modal Styles
     modalOverlay: {
         position: 'absolute',
         top: 0,
@@ -463,7 +455,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: COLORS.primary,
         textAlign: 'center',
-        letterSpacing: 8,
+        letterSpacing: 2,
     },
     verifyBtn: {
         backgroundColor: COLORS.success,

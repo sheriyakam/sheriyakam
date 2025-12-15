@@ -47,12 +47,12 @@ const ServiceCard = ({
 
             {/* Content Section */}
             <View style={styles.content}>
-                <View style={styles.header}>
-                    <Text numberOfLines={1} style={styles.name}>{name}</Text>
-                    {isEmergency && <Zap size={16} color={COLORS.danger} fill={COLORS.danger} />}
+                <View style={[styles.header, { alignItems: 'flex-start' }]}>
+                    <Text style={styles.name}>{name}</Text>
+                    {isEmergency && <Zap size={16} color={COLORS.danger} fill={COLORS.danger} style={{ marginTop: 4 }} />}
                 </View>
 
-                <Text numberOfLines={1} style={styles.specialty}>{specialty}</Text>
+                <Text style={styles.specialty}>{specialty}</Text>
 
                 <View style={styles.metaContainer}>
                     <View style={styles.metaItem}>

@@ -1,240 +1,101 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Switch, ActivityIndicator, Platform, Modal, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Switch, ActivityIndicator, Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING } from '../../constants/theme';
-import { MapPin, Clock, DollarSign, Calendar, ChevronRight, CheckCircle, MessageSquare, Award } from 'lucide-react-native';
+import { MapPin, Clock, DollarSign, Calendar, ChevronRight, CheckCircle, MessageSquare, Phone, Navigation, User } from 'lucide-react-native';
 
-import { getCurrentPartner, logoutPartner, togglePartnerAvailability, getSupervisorForPartner, getCommunityMuteStatus } from '../../constants/partnerStore';
-import ChatWidget from '../../components/ChatWidget';
-import NotificationPopup from '../../components/NotificationPopup';
+import { getCurrentPartner, logoutPartner, togglePartnerAvailability } from '../../constants/partnerStore';
 
-const MOCK_REQUESTS = [
-    // Electrician Jobs
-    {
-        id: 'req1',
-        customer: 'Alice Smith',
-        service: 'Emergency Repair',
-        serviceType: 'Electrician',
-        address: 'Calicut Beach Road, Kozhikode',
-        distance: '1.2 km',
-        price: '₹500',
-        date: 'Today, 2:00 PM',
-        status: 'open'
-    },
-    {
-        id: 'req2',
-        customer: 'Bob Brown',
-        service: 'Fan Installation',
-        serviceType: 'Electrician',
-        address: 'Mavoor Road, Kozhikode',
-        distance: '3.5 km',
-        price: '₹350',
-        date: 'Tomorrow, 10:00 AM',
-        status: 'open'
-    },
-    {
-        id: 'req3',
-        customer: 'City Cafe',
-        service: 'Wiring Check',
-        serviceType: 'Electrician',
-        address: 'Mananchira, Kozhikode',
-        distance: '0.8 km',
-        price: '₹800',
-        date: 'Today, 4:30 PM',
-        status: 'open'
-    },
-    {
-        id: 'req4',
-        customer: 'Villa 42',
-        service: 'Switch Replacement',
-        serviceType: 'Electrician',
-        address: 'Chevayur, Kozhikode',
-        distance: '4.2 km',
-        price: '₹250',
-        date: 'Today, 6:00 PM',
-        status: 'open'
-    },
+import { getBookings, bookingEvents, acceptBookingByPartner } from '../../constants/bookingStore';
 
-    // AC Jobs
-    {
-        id: 'ac1',
-        customer: 'David Green',
-        service: 'AC Cleaning',
-        serviceType: 'AC',
-        address: 'Thondayad, Kozhikode',
-        distance: '2.0 km',
-        price: '₹1200',
-        date: 'Today, 5:00 PM',
-        status: 'open'
-    },
-    {
-        id: 'ac2',
-        customer: 'Tech Park',
-        service: 'AC Gas Filling',
-        serviceType: 'AC',
-        address: 'Cyber Park, Kozhikode',
-        distance: '8.5 km',
-        price: '₹2500',
-        date: 'Tomorrow, 11:00 AM',
-        status: 'open'
-    },
-
-    // Inverter Jobs
-    {
-        id: 'inv1',
-        customer: 'Sarah White',
-        service: 'Inverter Battery Check',
-        serviceType: 'Inverter',
-        address: 'Feroke, Kozhikode',
-        distance: '12 km',
-        price: '₹400',
-        date: 'Today, 3:00 PM',
-        status: 'open'
-    },
-    {
-        id: 'inv2',
-        customer: 'Grand Residence',
-        service: 'New Inverter Setup',
-        serviceType: 'Inverter',
-        address: 'Medical College, Kozhikode',
-        distance: '5.5 km',
-        price: '₹8000',
-        date: 'Tomorrow, 9:30 AM',
-        status: 'open'
-    },
-
-    // CCTV Jobs
-    {
-        id: 'cctv1',
-        customer: 'Office Complex',
-        service: 'CCTV Installation',
-        serviceType: 'CCTV',
-        address: 'Hilite City, Kozhikode',
-        distance: '5.0 km',
-        price: '₹5000',
-        date: 'Tomorrow, 9:00 AM',
-        status: 'open'
-    },
-    {
-        id: 'cctv2',
-        customer: 'Metro Store',
-        service: 'Camera Signal Loss',
-        serviceType: 'CCTV',
-        address: 'SM Street, Kozhikode',
-        distance: '1.0 km',
-        price: '₹600',
-        date: 'Today, 1:00 PM',
-        status: 'open'
-    },
-
-    // Home Automation Jobs
-    {
-        id: 'auto1',
-        customer: 'Luxury Villa',
-        service: 'Smart Switch Setup',
-        serviceType: 'Home Automation',
-        address: 'Bypass Road, Kozhikode',
-        distance: '6.5 km',
-        price: '₹1500',
-        date: 'Sat, 10:00 AM',
-        status: 'open'
-    },
-    {
-        id: 'auto2',
-        customer: 'Mr. Rahul',
-        service: 'Gate Automation Fix',
-        serviceType: 'Home Automation',
-        address: 'Palazhi, Kozhikode',
-        distance: '7.0 km',
-        price: '₹2000',
-        date: 'Sun, 2:00 PM',
-        status: 'open'
-    }
-];
-
-import {
-    getOpenRequests,
-    getPartnerJobs,
-    acceptBookingByPartner,
-    completeBookingByPartner,
-    bookingEvents
-} from '../../constants/bookingStore';
-
-// ... (other imports)
+const MOCK_REQUESTS = getBookings();
 
 export default function PartnerDashboard() {
     const router = useRouter();
     const currentPartner = getCurrentPartner();
-    const [activeTab, setActiveTab] = useState('new');
-    const [availableJobs, setAvailableJobs] = useState([]);
+    const [activeTab, setActiveTab] = useState('new'); // 'new' | 'my'
     const [myJobs, setMyJobs] = useState([]);
     const [isAvailable, setIsAvailable] = useState(currentPartner?.isAvailable ?? true);
 
-    // OTP Modal State
-    const [otpModalVisible, setOtpModalVisible] = useState(false);
-    const [otpInput, setOtpInput] = useState('');
-    const [selectedJob, setSelectedJob] = useState(null);
-    const [loading, setLoading] = useState(false);
-
-    // ... (notification logic remains same)
-
-    const loadJobs = () => {
-        setAvailableJobs(getOpenRequests());
-        setMyJobs(getPartnerJobs());
+    const handleToggle = () => {
+        const newState = togglePartnerAvailability();
+        setIsAvailable(newState);
     };
 
-    React.useEffect(() => {
-        loadJobs();
-        bookingEvents.on('change', loadJobs);
-        return () => bookingEvents.off('change', loadJobs);
-    }, []);
+    const refreshData = () => {
+        const allBookings = getBookings();
 
-    // ... (handleToggle etc)
+        // Filter Open Jobs logic
+        const openJobs = allBookings.filter(job =>
+            job.status === 'open' &&
+            currentPartner?.serviceTypes?.includes(job.serviceType) &&
+            parseFloat(job.distance) <= (currentPartner?.location?.radius || 10)
+        );
+        setAvailableJobs(openJobs);
+
+        // Filter My Jobs logic
+        const myJobsList = allBookings.filter(job =>
+            (job.status === 'accepted' || job.status === 'completed') &&
+            (job.partnerName === currentPartner?.name) // Ensure we claim the job in store
+        );
+        setMyJobs(myJobsList);
+    };
+
+    const [availableJobs, setAvailableJobs] = useState([]);
+
+    useEffect(() => {
+        refreshData();
+        bookingEvents.on('change', refreshData);
+        return () => bookingEvents.off('change', refreshData);
+    }, [currentPartner]);
+
+    if (!currentPartner) {
+        // Redirect to login if accessed directly without session (simple protection)
+        // In a real app we'd use a layout/context guard
+        setTimeout(() => router.replace('/partner/auth'), 0);
+        return <View style={styles.container}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+    }
+
+    const handleLogout = () => {
+        logoutPartner();
+        router.replace('/partner/auth');
+    };
 
     const acceptJob = (job) => {
-        const confirmAccept = () => {
-            const success = acceptBookingByPartner(job.id, currentPartner?.name);
-            if (success) {
-                Alert.alert('Success', 'Job accepted! You can now contact the customer.');
-                // Auto switch to my jobs
-                setActiveTab('my');
-            }
-        };
-
-        if (Platform.OS === 'web') {
-            if (window.confirm(`Accept job for ${job.customerName}?`)) confirmAccept();
-        } else {
-            Alert.alert(
-                'Accept Job',
-                `Accept service for ${job.customerName}?`,
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Accept', onPress: confirmAccept }
-                ]
-            );
-        }
+        Alert.alert(
+            'Accept Job',
+            `Are you sure you want to accept the service for ${job.customerName}?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Accept',
+                    onPress: () => {
+                        const success = acceptBookingByPartner(job.id, currentPartner.name);
+                        if (success) {
+                            Alert.alert('Success', 'Job accepted! You can now contact the customer.');
+                            // Store event will trigger refreshData
+                        } else {
+                            Alert.alert('Error', 'Could not accept job. It may have been taken.');
+                        }
+                    }
+                }
+            ]
+        );
     };
 
-    const handleCompletePress = (job) => {
-        setSelectedJob(job);
-        setOtpInput('');
-        setOtpModalVisible(true);
-    };
+    const openMap = (address) => {
+        const query = encodeURIComponent(address);
+        const url = Platform.select({
+            ios: `maps:0,0?q=${query}`,
+            android: `geo:0,0?q=${query}`,
+            web: `https://www.google.com/maps/search/?api=1&query=${query}`
+        });
 
-    const submitOtp = () => {
-        if (!otpInput || otpInput.length !== 4) {
-            Alert.alert('Error', 'Please enter 4-digit OTP');
-            return;
-        }
-
-        const result = completeBookingByPartner(selectedJob.id, otpInput);
-        if (result.success) {
-            setOtpModalVisible(false);
-            Alert.alert('Success', 'Job marked as COMPLETED!');
-        } else {
-            Alert.alert('Verification Failed', 'Incorrect OTP. Please ask the customer for the correct code.');
-        }
+        Linking.openURL(url).catch(err => {
+            console.error("Error opening map:", err);
+            Alert.alert("Error", "Could not open map.");
+        });
     };
 
     const renderJobItem = ({ item }) => (
@@ -242,7 +103,7 @@ export default function PartnerDashboard() {
             <View style={styles.cardHeader}>
                 <View>
                     <Text style={styles.serviceTitle}>{item.service}</Text>
-                    <Text style={styles.customerName}>{item.customerName || item.customer}</Text>
+                    <Text style={styles.customerName}>{item.customerName}</Text>
                 </View>
                 <View style={styles.priceTag}>
                     <Text style={styles.priceText}>₹{item.price}</Text>
@@ -262,22 +123,45 @@ export default function PartnerDashboard() {
                     <Calendar size={16} color={COLORS.textSecondary} />
                     <Text style={styles.infoText}>{item.date}</Text>
                 </View>
+
+                {/* Contact & Navigation for Accepted Jobs */}
+                {activeTab !== 'new' && (
+                    <View style={styles.contactSection}>
+                        <View style={styles.divider} />
+                        <View style={styles.contactRow}>
+                            <Phone size={18} color={COLORS.primary} />
+                            <Text style={styles.contactText}>{item.customerPhone || 'No number'}</Text>
+                            <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${item.customerPhone}`)}>
+                                <Text style={styles.callBtnText}>Call</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity style={styles.navBtn} onPress={() => openMap(item.address)}>
+                            <Navigation size={16} color="#fff" />
+                            <Text style={styles.navBtnText}>Navigate to Location</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
 
-            {item.status === 'open' ? (
+            {activeTab === 'new' ? (
                 <TouchableOpacity style={styles.acceptButton} onPress={() => acceptJob(item)}>
                     <Text style={styles.acceptButtonText}>Accept Job</Text>
                 </TouchableOpacity>
-            ) : item.status === 'accepted' ? (
-                <TouchableOpacity style={styles.completeButton} onPress={() => handleCompletePress(item)}>
-                    <CheckCircle size={16} color="#fff" />
-                    <Text style={styles.completeButtonText}>Complete Service</Text>
-                </TouchableOpacity>
             ) : (
-                <View style={styles.completedBadge}>
-                    <CheckCircle size={16} color={COLORS.success} />
-                    <Text style={styles.completedText}>Completed</Text>
-                </View>
+                item.status === 'completed' ? (
+                    <View style={[styles.statusButton, { backgroundColor: COLORS.success, opacity: 0.8 }]}>
+                        <CheckCircle size={16} color="#fff" />
+                        <Text style={styles.statusButtonText}>Completed</Text>
+                    </View>
+                ) : (
+                    <TouchableOpacity
+                        style={styles.statusButton}
+                        onPress={() => router.push({ pathname: `/partner/job/${item.id}`, params: item })}
+                    >
+                        <CheckCircle size={16} color="#fff" />
+                        <Text style={styles.statusButtonText}>Mark Job Completed</Text>
+                    </TouchableOpacity>
+                )
             )}
         </View>
     );
@@ -299,8 +183,11 @@ export default function PartnerDashboard() {
                     >
                         <MessageSquare size={24} color={COLORS.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-                        <Text style={{ color: COLORS.danger }}>Logout</Text>
+                    <TouchableOpacity
+                        onPress={() => router.push('/partner/profile')}
+                        style={styles.actionBtn}
+                    >
+                        <User size={24} color={COLORS.textPrimary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -354,57 +241,13 @@ export default function PartnerDashboard() {
                     </View>
                 }
             />
-            {/* Notification Popup */}
-            <NotificationPopup
-                visible={notification.visible}
-                title={notification.title}
-                message={notification.message}
-                type={notification.type}
-                onPress={handleNotificationPress}
-                onClose={() => setNotification(prev => ({ ...prev, visible: false }))}
-            />
-
-            <ChatWidget />
-
-            {/* OTP Modal */}
-            <Modal
-                visible={otpModalVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setOtpModalVisible(false)}
+            {/* Floating Chat Button */}
+            <TouchableOpacity
+                style={styles.fabChat}
+                onPress={() => router.push('/partner/messages')}
             >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Complete Service</Text>
-                        <Text style={styles.modalSubtitle}>Enter the OTP provided by the customer to verify service completion.</Text>
-
-                        <TextInput
-                            style={styles.otpInput}
-                            placeholder="Ex: 1234"
-                            placeholderTextColor={COLORS.textTertiary}
-                            keyboardType="number-pad"
-                            maxLength={4}
-                            value={otpInput}
-                            onChangeText={setOtpInput}
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity
-                                style={[styles.modalBtn, { backgroundColor: COLORS.bgSecondary }]}
-                                onPress={() => setOtpModalVisible(false)}
-                            >
-                                <Text style={{ color: COLORS.textSecondary }}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalBtn, { backgroundColor: COLORS.success }]}
-                                onPress={submitOtp}
-                            >
-                                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Verify & Complete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+                <MessageSquare size={24} color="#fff" />
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -584,121 +427,65 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.bgSecondary,
         borderRadius: 8,
     },
-    certificateCard: {
-        marginHorizontal: SPACING.lg,
-        marginBottom: SPACING.md,
-        backgroundColor: '#FFFBE6', // Light gold/yellow background
-        borderRadius: 12,
-        padding: SPACING.md,
-        borderWidth: 1,
-        borderColor: '#D4AF37', // Gold border
+    contactSection: {
+        marginTop: SPACING.sm,
     },
-    certificateHeader: {
+    divider: {
+        height: 1,
+        backgroundColor: COLORS.border,
+        marginVertical: SPACING.sm,
+    },
+    contactRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginBottom: SPACING.sm,
         gap: 8,
-        marginBottom: 8,
     },
-    certificateTitle: {
+    contactText: {
         fontSize: 16,
+        color: COLORS.textPrimary,
         fontWeight: 'bold',
-        color: '#856404',
+        flex: 1,
     },
-    certificateBody: {
-        alignItems: 'center',
+    callBtn: {
+        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 6,
     },
-    certificateText: {
-        color: '#856404',
-        textAlign: 'center',
-        marginBottom: 8,
-    },
-    ratingText: {
-        fontSize: 24,
+    callBtnText: {
+        color: COLORS.primary,
         fontWeight: 'bold',
-        marginBottom: 4,
+        fontSize: 14,
     },
-    scoreText: {
-        color: COLORS.textSecondary,
-        fontSize: 12,
-    },
-    completeButton: {
-        backgroundColor: COLORS.success,
-        padding: 12,
-        borderRadius: 8,
+    navBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: COLORS.accent,
+        padding: 10,
+        borderRadius: 8,
         gap: 8,
     },
-    completeButtonText: {
+    navBtnText: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 16,
-    },
-    completedBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        padding: 12,
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: COLORS.success,
-    },
-    completedText: {
-        color: COLORS.success,
-        fontWeight: 'bold',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    modalContent: {
-        backgroundColor: COLORS.bgPrimary,
-        width: '100%',
-        maxWidth: 340,
-        padding: 24,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: 8,
-    },
-    modalSubtitle: {
         fontSize: 14,
-        color: COLORS.textSecondary,
-        marginBottom: 20,
     },
-    otpInput: {
-        backgroundColor: COLORS.bgSecondary,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        padding: 16,
-        fontSize: 24,
-        fontWeight: 'bold',
-        letterSpacing: 8,
-        textAlign: 'center',
-        color: COLORS.textPrimary,
-        marginBottom: 24,
-    },
-    modalActions: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    modalBtn: {
-        flex: 1,
-        padding: 14,
-        borderRadius: 12,
+    fabChat: {
+        position: 'absolute',
+        bottom: 30,
+        right: 20,
+        backgroundColor: COLORS.primary,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         alignItems: 'center',
         justifyContent: 'center',
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
 });

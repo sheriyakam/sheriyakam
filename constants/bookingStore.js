@@ -1,26 +1,55 @@
-import { EventEmitter } from 'events';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Simple Event Emitter for React Native compatibility
+class SimpleEventEmitter {
+    constructor() {
+        this.listeners = {};
+    }
+
+    on(event, callback) {
+        if (!this.listeners[event]) {
+            this.listeners[event] = [];
+        }
+        this.listeners[event].push(callback);
+    }
+
+    off(event, callback) {
+        if (!this.listeners[event]) return;
+        this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+    }
+
+    emit(event, data) {
+        if (!this.listeners[event]) return;
+        this.listeners[event].forEach(callback => callback(data));
+    }
+}
 
 // Event emitter for real-time updates between screens
-export const bookingEvents = new EventEmitter();
+export const bookingEvents = new SimpleEventEmitter();
 
-let bookings = [
+// Initial Mock Data (Used if storage is empty)
+const INITIAL_BOOKINGS = [
     {
         id: 'b1',
-        customerName: 'You', // For customer view
+        customerName: 'Alice Smith',
+        customerPhone: '+91 98765 43210',
         partnerName: null,
         service: 'Emergency Repair Specialist',
         serviceType: 'Electrician',
         date: 'Today',
         time: '2:00 PM',
-        status: 'open', // open, accepted, completed, cancelled
+        status: 'open',
         price: 500,
         address: 'Calicut Beach Road, Kozhikode',
         distance: '1.2 km',
-        otp: '4582'
+        otp: '4582',
+        paymentStatus: 'pending',
+        finalPrice: 500
     },
     {
         id: 'b2',
-        customerName: 'You',
+        customerName: 'Mohammed Fasil',
+        customerPhone: '+91 90876 54321',
         partnerName: null,
         service: 'AC Service Expert',
         serviceType: 'AC',
@@ -30,23 +59,57 @@ let bookings = [
         price: 1200,
         address: 'Mavoor Road, Kozhikode',
         distance: '3.5 km',
-        otp: '1290'
+        otp: '1290',
+        paymentStatus: 'pending',
+        finalPrice: 1200
     },
     {
         id: 'b3',
-        customerName: 'You',
+        customerName: 'Sneha Gupta',
+        customerPhone: '+91 87654 32109',
         partnerName: 'John Electrician',
         service: 'Wiring Check',
         serviceType: 'Electrician',
         date: 'Yesterday',
         time: '4:30 PM',
-        status: 'Completed',
+        status: 'completed',
         price: 800,
         address: 'Mananchira, Kozhikode',
         distance: '0.8 km',
-        otp: '7777'
+        otp: '7777',
+        paymentStatus: 'pending',
+        finalPrice: 800
     }
 ];
+
+let bookings = [...INITIAL_BOOKINGS];
+
+// Persistence Helpers
+const STORAGE_KEY = 'sheriyakam_bookings_v1';
+
+const saveData = async () => {
+    try {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+    } catch (e) {
+        console.error('Failed to save bookings', e);
+    }
+};
+
+const loadData = async () => {
+    try {
+        const json = await AsyncStorage.getItem(STORAGE_KEY);
+        if (json) {
+            bookings = JSON.parse(json);
+            // Notify listeners that data has loaded/changed
+            bookingEvents.emit('change');
+        }
+    } catch (e) {
+        console.error('Failed to load bookings', e);
+    }
+};
+
+// Start Loading Data immediately
+loadData();
 
 export const getBookings = () => bookings;
 
@@ -66,17 +129,26 @@ export const acceptBookingByPartner = (id, partnerName) => {
         booking.status = 'accepted';
         booking.partnerName = partnerName;
         bookingEvents.emit('change');
+        saveData(); // Persist
         return true;
     }
     return false;
 };
 
-export const completeBookingByPartner = (id, enteredOtp) => {
+export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
         if (booking.otp === enteredOtp) {
-            booking.status = 'completed'; // Case sensitive check in UI?
+            booking.status = 'completed';
+
+            // Pricing Logic: Base price covers 1 hour. Extra hours = 100rs/hr
+            const extraHours = Math.max(0, hoursWorked - 1);
+            booking.finalPrice = booking.price + (extraHours * 100);
+            booking.hoursWorked = hoursWorked;
+            booking.paymentStatus = 'pending'; // Customer needs to pay
+
             bookingEvents.emit('change');
+            saveData(); // Persist
             return { success: true };
         } else {
             return { success: false, message: 'Invalid OTP' };
@@ -85,10 +157,49 @@ export const completeBookingByPartner = (id, enteredOtp) => {
     return { success: false, message: 'Booking not found' };
 };
 
+export const payBooking = (id, method) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+        booking.paymentStatus = 'paid';
+        booking.paymentMethod = method; // 'cash' or 'online'
+        bookingEvents.emit('change');
+        saveData(); // Persist
+        return true;
+    }
+    return false;
+};
+
 export const cancelBooking = (id) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
         booking.status = 'Cancelled';
         bookingEvents.emit('change');
+        saveData(); // Persist
     }
+};
+
+export const createBooking = (newBooking) => {
+    const id = 'b' + (Date.now());
+    const booking = {
+        ...newBooking,
+        id,
+        status: 'open',
+        paymentStatus: 'pending',
+        finalPrice: newBooking.price || 0,
+        // Add minimal mocks if missing
+        customerPhone: newBooking.customerPhone || '+91 00000 00000',
+        distance: '2.0 km',
+        otp: Math.floor(1000 + Math.random() * 9000).toString()
+    };
+    bookings.push(booking);
+    bookingEvents.emit('change');
+    saveData();
+    return booking;
+};
+
+// Reset function for debug/testing
+export const resetBookings = async () => {
+    bookings = [...INITIAL_BOOKINGS];
+    await AsyncStorage.removeItem(STORAGE_KEY);
+    bookingEvents.emit('change');
 };

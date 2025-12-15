@@ -132,15 +132,15 @@ const styles = StyleSheet.create({
     chatName: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        color: '#FFFFFF', // Force White
     },
     chatTime: {
         fontSize: 12,
-        color: COLORS.textTertiary,
+        color: '#A1A1AA', // Force Light Grey
     },
     chatRole: {
         fontSize: 12,
-        color: COLORS.primary,
+        color: '#3B82F6', // Force Blue
         fontWeight: '500',
         marginBottom: 2,
     },

@@ -36,13 +36,6 @@ export default function PartnerAuth() {
     const passwordRef = useRef(null);
     const otpRef = useRef(null);
 
-    React.useEffect(() => {
-        if (showOtp) {
-            // Small timeout to allow render
-            setTimeout(() => otpRef.current?.focus(), 100);
-        }
-    }, [showOtp]);
-
     const toggleService = (type) => {
         if (serviceTypes.includes(type)) {
             setServiceTypes(serviceTypes.filter(t => t !== type));

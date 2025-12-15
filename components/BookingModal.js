@@ -26,13 +26,37 @@ const BookingModal = ({ service, visible, onClose }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [date, setDate] = useState(new Date());
 
+    // Helper to get slots
+    const getAvailableSlots = (dateStr) => {
+        const slotDefinitions = [
+            { id: 'Morning', label: 'Morning', sub: '8 AM - 11 AM', endHour: 11 },
+            { id: 'Afternoon', label: 'Afternoon', sub: '12 PM - 3 PM', endHour: 15 },
+            { id: 'Evening', label: 'Evening', sub: '4 PM - 7 PM', endHour: 19 }
+        ];
+
+        if (dateStr !== 'Today') return slotDefinitions;
+
+        const currentHour = new Date().getHours();
+        return slotDefinitions.filter(slot => currentHour < slot.endHour);
+    };
+
     // Reset state when modal opens
     React.useEffect(() => {
         if (visible) {
             setStep(1);
-            setSelectedDate('Today');
+
+            const currentHour = new Date().getHours();
+            // If after 7 PM (19), default to Tomorrow
+            const initialDate = currentHour >= 19 ? 'Tomorrow' : 'Today';
+            setSelectedDate(initialDate);
+
+            // Auto-select first available slot
+            const slots = getAvailableSlots(initialDate);
+            if (slots.length > 0) {
+                setSelectedSlot(slots[0].id);
+            }
+
             setCustomDate('');
-            setSelectedSlot('Morning');
             setSelectedImage(null);
             setDate(new Date());
             setShowDatePicker(false);
@@ -42,7 +66,17 @@ const BookingModal = ({ service, visible, onClose }) => {
     if (!service) return null;
 
     const isEmergency = service.name.toLowerCase().includes('emergency');
-    const availableDays = isEmergency ? ['Today'] : ['Today', 'Tomorrow', 'Pick Date'];
+
+    // Determine available days
+    const currentHour = new Date().getHours();
+    const isTodayOver = currentHour >= 19; // 7 PM
+
+    let availableDays = [];
+    if (isEmergency) {
+        availableDays = isTodayOver ? ['Tomorrow'] : ['Today'];
+    } else {
+        availableDays = isTodayOver ? ['Tomorrow', 'Pick Date'] : ['Today', 'Tomorrow', 'Pick Date'];
+    }
 
     const onDateChange = (event, selectedDate) => {
         setShowDatePicker(false);
@@ -51,6 +85,20 @@ const BookingModal = ({ service, visible, onClose }) => {
             const formattedDate = selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
             setSelectedDate('Custom');
             setCustomDate(formattedDate);
+
+            // Auto Select for Custom Date (All slots available)
+            setSelectedSlot('Morning');
+        }
+    };
+
+    const handleDaySelect = (day) => {
+        setSelectedDate(day);
+        setCustomDate('');
+
+        // Auto select first slot
+        const slots = getAvailableSlots(day);
+        if (slots.length > 0) {
+            setSelectedSlot(slots[0].id);
         }
     };
 
@@ -192,8 +240,7 @@ const BookingModal = ({ service, visible, onClose }) => {
                                                             if (isCustom) {
                                                                 setShowDatePicker(true);
                                                             } else {
-                                                                setSelectedDate(day);
-                                                                setCustomDate('');
+                                                                handleDaySelect(day);
                                                             }
                                                         }}
                                                         isDate
@@ -219,14 +266,23 @@ const BookingModal = ({ service, visible, onClose }) => {
                                             <Text style={styles.label}>Preferred Time</Text>
                                         </View>
                                         <View style={styles.chipGroup}>
-                                            {['Morning', 'Afternoon', 'Evening'].map(slot => (
-                                                <SelectionChip
-                                                    key={slot}
-                                                    label={slot}
-                                                    selected={selectedSlot === slot}
-                                                    onClick={() => setSelectedSlot(slot)}
-                                                />
-                                            ))}
+                                            {(() => {
+                                                const slots = getAvailableSlots(selectedDate);
+
+                                                if (slots.length === 0) {
+                                                    return <Text style={{ color: COLORS.textTertiary, fontStyle: 'italic' }}>No slots available for Today. Please choose Tomorrow.</Text>;
+                                                }
+
+                                                return slots.map(slot => (
+                                                    <SelectionChip
+                                                        key={slot.id}
+                                                        label={slot.label}
+                                                        // subLabel removed as per request
+                                                        selected={selectedSlot === slot.id}
+                                                        onClick={() => setSelectedSlot(slot.id)}
+                                                    />
+                                                ));
+                                            })()}
                                         </View>
                                     </View>
 
@@ -400,6 +456,11 @@ const styles = StyleSheet.create({
     },
     chipTextUnselected: {
         color: COLORS.textTertiary,
+    },
+    chipSubLabel: {
+        fontSize: 10,
+        color: COLORS.textTertiary, // Should ideally be handled if subLabel exists, but we removed it from usage
+        marginTop: 2
     },
     input: {
         backgroundColor: 'rgba(255,255,255,0.05)',

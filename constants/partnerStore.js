@@ -34,7 +34,7 @@ let partners = [
         serviceTypes: ['AC'],
         location: { lat: 11.2500, lng: 75.7800 },
         taluk: 'Thamarassery',
-        joinDate: '2025-06-01', // < 1 year (Dec 2025 - June 2025 = 6 months)
+        joinDate: '2024-05-20', // < 1 year
         performanceScore: 75 // Good
     }
 ];
@@ -64,19 +64,6 @@ export const togglePartnerAvailability = () => {
         return currentPartner.isAvailable; // Return new status
     }
     return false;
-    return false;
-};
-
-export const toggleCommunityMute = () => {
-    if (currentPartner) {
-        currentPartner.isCommunityMuted = !currentPartner.isCommunityMuted;
-        return currentPartner.isCommunityMuted;
-    }
-    return false;
-};
-
-export const getCommunityMuteStatus = () => {
-    return currentPartner?.isCommunityMuted || false;
 };
 
 export const addPartner = (partner) => {

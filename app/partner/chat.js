@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TextInput, FlatList, KeyboardAvoidingView, Plat
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, SPACING } from '../../constants/theme';
-import { Send, ArrowLeft, Phone, User as UserIcon, Users, Bell, BellOff } from 'lucide-react-native';
-import { getCurrentPartner, getSupervisorForPartner, toggleCommunityMute, getCommunityMuteStatus } from '../../constants/partnerStore';
+import { Send, ArrowLeft, Phone, User as UserIcon, Users } from 'lucide-react-native';
+import { getCurrentPartner, getSupervisorForPartner } from '../../constants/partnerStore';
 
 export default function PartnerChat() {
     const router = useRouter();
@@ -12,15 +12,6 @@ export default function PartnerChat() {
     const { type, name, subtitle } = params;
 
     const currentPartner = getCurrentPartner();
-
-    useEffect(() => {
-        if (!currentPartner) {
-            router.replace('/partner/auth');
-        }
-    }, [currentPartner]);
-
-    if (!currentPartner) return null;
-
     const supervisor = getSupervisorForPartner(currentPartner);
 
     const chatTitle = name || supervisor.name;
@@ -29,7 +20,6 @@ export default function PartnerChat() {
 
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const [isMuted, setIsMuted] = useState(getCommunityMuteStatus());
     const flatListRef = useRef(null);
 
     useEffect(() => {
@@ -93,23 +83,9 @@ export default function PartnerChat() {
                     <Text style={styles.headerTitle}>{chatTitle}</Text>
                     <Text style={styles.headerSubtitle}>{chatSubtitle}</Text>
                 </View>
-                {chatType === 'supervisor' ? (
+                {chatType === 'supervisor' && (
                     <TouchableOpacity style={styles.phoneBtn}>
                         <Phone size={24} color={COLORS.primary} />
-                    </TouchableOpacity>
-                ) : (
-                    <TouchableOpacity
-                        style={styles.phoneBtn}
-                        onPress={() => {
-                            const newStatus = toggleCommunityMute();
-                            setIsMuted(newStatus);
-                        }}
-                    >
-                        {isMuted ? (
-                            <BellOff size={24} color={COLORS.textSecondary} />
-                        ) : (
-                            <Bell size={24} color={COLORS.primary} />
-                        )}
                     </TouchableOpacity>
                 )}
             </View>
@@ -154,8 +130,6 @@ export default function PartnerChat() {
                         placeholder={chatType === 'community' ? "Message community..." : "Message supervisor..."}
                         placeholderTextColor={COLORS.textTertiary}
                         multiline
-                        returnKeyType="send"
-                        onSubmitEditing={handleSend}
                     />
                     <TouchableOpacity onPress={handleSend} style={styles.sendBtn} disabled={!message.trim()}>
                         <Send size={20} color="#fff" />

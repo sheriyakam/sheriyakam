@@ -1,117 +1,107 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Calendar, Clock, MapPin, Search } from 'lucide-react-native';
+import { ArrowLeft, Calendar, Clock, MapPin, Search, CreditCard } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import RescheduleModal from '../components/RescheduleModal';
 import ReviewModal from '../components/ReviewModal';
 import CancelModal from '../components/CancelModal';
+import PaymentModal from '../components/PaymentModal';
 
-const MOCK_BOOKINGS = [
-    {
-        id: '1',
-        service: 'Emergency Repair Specialist',
-        date: 'Today',
-        time: 'Morning',
-        status: 'Upcoming',
-        price: 500,
-        address: 'Home - Calicut'
-    },
-    {
-        id: '2',
-        service: 'AC Service Expert',
-        date: 'Dec 12',
-        time: 'Afternoon',
-        status: 'Completed',
-        price: 550,
-        address: 'Office - Calicut'
-    },
-    {
-        id: '3',
-        service: 'Wiring Check',
-        date: 'Nov 28',
-        time: 'Evening',
-        status: 'Cancelled',
-        price: 450,
-        address: 'Home - Calicut'
-    }
-];
-
-import { getBookings, bookingEvents } from '../constants/bookingStore';
+import { getBookings, bookingEvents, payBooking } from '../constants/bookingStore';
 
 export default function BookingsScreen() {
     const router = useRouter();
-    const [bookings, setBookings] = useState([]);
+    const [bookings, setBookings] = useState(getBookings());
     const [activeTab, setActiveTab] = useState('Upcoming');
-    const [rescheduleBooking, setRescheduleBooking] = useState(null);
 
+    // Modals
+    const [rescheduleBooking, setRescheduleBooking] = useState(null);
     const [cancelBooking, setCancelBooking] = useState(null);
     const [reviewBooking, setReviewBooking] = useState(null);
+    const [paymentBooking, setPaymentBooking] = useState(null);
 
+    // Sync with store
     useEffect(() => {
-        const load = () => {
-            setBookings([...getBookings()]);
-        };
-        load();
-        bookingEvents.on('change', load);
-        return () => bookingEvents.off('change', load);
+        const updateBookings = () => setBookings([...getBookings()]);
+        bookingEvents.on('change', updateBookings);
+        return () => bookingEvents.off('change', updateBookings);
     }, []);
 
-    const filteredBookings = bookings
-        .filter(b => {
-            const status = b.status.toLowerCase();
-            if (activeTab === 'Upcoming') return status === 'open' || status === 'accepted';
-            return status === activeTab.toLowerCase();
-        })
-        .sort((a, b) => {
-            // Show accepted first
-            if (a.status === 'accepted' && b.status !== 'accepted') return -1;
-            if (a.status !== 'accepted' && b.status === 'accepted') return 1;
-            return 0;
+    // Live Time Check Logic
+    const getFilteredBookings = () => {
+        const now = new Date();
+        const currentHour = now.getHours();
+
+        return bookings.filter(b => {
+            // Status mapping for tabs
+            // 'Upcoming' includes 'open', 'accepted'
+            // 'Completed' includes 'completed'
+            // 'Cancelled' includes 'Cancelled'
+
+            let tabMatch = false;
+            if (activeTab === 'Upcoming') tabMatch = (b.status === 'open' || b.status === 'accepted');
+            else if (activeTab === 'Completed') tabMatch = (b.status === 'completed');
+            else if (activeTab === 'Cancelled') tabMatch = (b.status === 'Cancelled');
+
+            if (!tabMatch) return false;
+
+            // Time filtering for 'Today' bookings
+            if (activeTab === 'Upcoming' && b.date === 'Today') {
+                if (b.time === 'Morning' && currentHour >= 12) return false;
+                if (b.time === 'Afternoon' && currentHour >= 17) return false;
+            }
+
+            return true;
         });
+    };
+
+    const filteredBookings = getFilteredBookings();
 
     const handleCancelBooking = (reason) => {
         if (!cancelBooking) return;
-        // In real app, call store method
+        // In real app, call cancelBooking(id) from store
+        // For now, local update logic is handled by store events if we implemented cancel in store
+        // Let's assume store handles it, or just log it
+        console.log(`Cancelling booking ${cancelBooking.id}`);
         setCancelBooking(null);
+    };
+
+    const handlePayment = (method) => {
+        if (paymentBooking) {
+            payBooking(paymentBooking.id, method);
+            setPaymentBooking(null);
+            Alert.alert("Success", "Payment Successful!");
+        }
     };
 
     const BookingCard = ({ booking }) => {
         const getStatusColor = (status) => {
-            switch (status.toLowerCase()) {
-                case 'upcoming': return COLORS.accent;
-                case 'open': return COLORS.textSecondary;
-                case 'accepted': return COLORS.primary;
+            switch (status) {
+                case 'open':
+                case 'accepted': return COLORS.accent;
                 case 'completed': return COLORS.success;
-                case 'cancelled': return COLORS.danger;
+                case 'Cancelled': return COLORS.danger;
                 default: return COLORS.textSecondary;
             }
         };
 
-        const isAccepted = booking.status.toLowerCase() === 'accepted';
+        const displayStatus = booking.status === 'open' ? 'Requested' :
+            booking.status === 'accepted' ? 'Accepted' :
+                booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
 
         return (
-            <View style={[styles.card, isAccepted && styles.acceptedCard]}>
+            <View style={styles.card}>
                 <View style={styles.cardHeader}>
                     <Text style={styles.serviceName}>{booking.service}</Text>
                     <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) + '20' }]}>
                         <Text style={[styles.statusText, { color: getStatusColor(booking.status) }]}>
-                            {booking.status === 'open' ? 'Requested' : booking.status}
+                            {displayStatus}
                         </Text>
                     </View>
                 </View>
-
-                {isAccepted && (
-                    <View style={styles.otpContainer}>
-                        <Text style={styles.otpTitle}>Service OTP</Text>
-                        <Text style={styles.otpCode}>{booking.otp}</Text>
-                        <Text style={styles.otpInstruction}>
-                            Share this code with the partner ONLY after the service is completed.
-                        </Text>
-                    </View>
-                )}
 
                 <View style={styles.divider} />
 
@@ -131,18 +121,27 @@ export default function BookingsScreen() {
                     <Text style={styles.detailText}>{booking.address}</Text>
                 </View>
 
+                {/* OTP Display for Active Jobs */}
+                {(booking.status === 'open' || booking.status === 'accepted') && booking.otp && (
+                    <View style={styles.otpContainer}>
+                        <Text style={styles.otpLabel}>Share OTP with Partner:</Text>
+                        <Text style={styles.otpValue}>{booking.otp}</Text>
+                    </View>
+                )}
+
                 <View style={styles.cardFooter}>
                     <View>
                         <Text style={styles.priceLabel}>Total Amount</Text>
-                        <Text style={styles.priceValue}>₹{booking.price}</Text>
+                        <Text style={styles.priceValue}>₹{booking.finalPrice || booking.price}</Text>
+                        {booking.paymentStatus === 'paid' && <Text style={{ color: COLORS.success, fontSize: 10, fontWeight: 'bold' }}>PAID</Text>}
                     </View>
-                    {(booking.status === 'open' || booking.status === 'Upcoming') && (
+
+                    {/* Actions */}
+                    {(booking.status === 'open' || booking.status === 'accepted') && (
                         <View style={styles.actionButtons}>
                             <TouchableOpacity
                                 style={styles.cancelBtn}
-                                onPress={() => {
-                                    setCancelBooking(booking);
-                                }}
+                                onPress={() => setCancelBooking(booking)}
                             >
                                 <Text style={styles.cancelBtnText}>Cancel</Text>
                             </TouchableOpacity>
@@ -155,7 +154,18 @@ export default function BookingsScreen() {
                         </View>
                     )}
 
-                    {booking.status.toLowerCase() === 'completed' && (
+                    {/* Pay Button for Completed Jobs */}
+                    {booking.status === 'completed' && booking.paymentStatus !== 'paid' && (
+                        <TouchableOpacity
+                            style={styles.payBtn}
+                            onPress={() => setPaymentBooking(booking)}
+                        >
+                            <CreditCard size={14} color="#000" />
+                            <Text style={styles.payBtnText}>Pay Now</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {booking.status === 'completed' && booking.paymentStatus === 'paid' && (
                         <TouchableOpacity
                             style={styles.reviewBtn}
                             onPress={() => setReviewBooking(booking)}
@@ -208,31 +218,31 @@ export default function BookingsScreen() {
                 }
             />
 
-
             <RescheduleModal
                 booking={rescheduleBooking}
                 visible={!!rescheduleBooking}
                 onClose={() => setRescheduleBooking(null)}
-                onConfirm={() => {
-                    // Refresh logic if needed
-                    setRescheduleBooking(null);
-                }}
+                onConfirm={() => setRescheduleBooking(null)}
             />
 
             <ReviewModal
                 booking={reviewBooking}
                 visible={!!reviewBooking}
                 onClose={() => setReviewBooking(null)}
-                onSubmit={(reviewData) => {
-                    console.log("Review Submitted:", reviewData);
-                    // Here you would send data to backend
-                }}
+                onSubmit={(reviewData) => console.log("Review Submitted:", reviewData)}
             />
 
             <CancelModal
                 visible={!!cancelBooking}
                 onClose={() => setCancelBooking(null)}
                 onSubmit={handleCancelBooking}
+            />
+
+            <PaymentModal
+                visible={!!paymentBooking}
+                amount={paymentBooking?.finalPrice || 0}
+                onClose={() => setPaymentBooking(null)}
+                onPaymentComplete={handlePayment}
             />
         </SafeAreaView>
     );
@@ -293,41 +303,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 16,
     },
-    acceptedCard: {
-        borderColor: COLORS.primary,
-        borderWidth: 2,
-        backgroundColor: 'rgba(37, 99, 235, 0.05)',
-    },
-    otpContainer: {
-        backgroundColor: COLORS.bgSecondary,
-        padding: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        borderStyle: 'dashed',
-    },
-    otpTitle: {
-        color: COLORS.textSecondary,
-        fontSize: 12,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: 4,
-    },
-    otpCode: {
-        color: COLORS.primary,
-        fontSize: 32,
-        fontWeight: 'bold',
-        letterSpacing: 8,
-        marginBottom: 8,
-    },
-    otpInstruction: {
-        color: COLORS.danger,
-        fontSize: 12,
-        textAlign: 'center',
-        fontWeight: '500',
-    },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -374,6 +349,29 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         marginBottom: 16,
+    },
+    otpContainer: {
+        marginBottom: 16,
+        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+        padding: 8,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        borderWidth: 1,
+        borderColor: COLORS.gold
+    },
+    otpLabel: {
+        color: COLORS.gold,
+        fontWeight: 'bold',
+        fontSize: 12
+    },
+    otpValue: {
+        color: COLORS.gold,
+        fontWeight: 'bold',
+        fontSize: 16,
+        letterSpacing: 2
     },
     cardFooter: {
         flexDirection: 'row',
@@ -448,4 +446,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 14,
     },
+    payBtn: {
+        backgroundColor: COLORS.accent,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+    },
+    payBtnText: {
+        color: '#000',
+        fontWeight: 'bold',
+        fontSize: 14
+    }
 });
