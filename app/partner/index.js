@@ -71,6 +71,7 @@ export default function PartnerDashboard() {
                 {
                     text: 'Accept',
                     onPress: () => {
+                        console.log('Accepting job:', job.id);
                         const success = acceptBookingByPartner(job.id, currentPartner.name);
                         if (success) {
                             Alert.alert('Success', 'Job accepted! You can now contact the customer.');
