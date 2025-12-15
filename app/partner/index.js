@@ -179,12 +179,6 @@ export default function PartnerDashboard() {
                 </View>
                 <View style={styles.headerActions}>
                     <TouchableOpacity
-                        onPress={() => router.push('/partner/messages')}
-                        style={styles.actionBtn}
-                    >
-                        <MessageSquare size={24} color={COLORS.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
                         onPress={() => router.push('/partner/profile')}
                         style={styles.actionBtn}
                     >
