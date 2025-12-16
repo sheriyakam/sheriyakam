@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING } from '../../constants/theme';
-import { addPartner, findPartner, findPartnerByPhone, approvePartner, getPartners, loginPartner } from '../../constants/partnerStore';
+import { addPartner, findPartner, findPartnerByPhone, approvePartner, getPartners, loginPartner, initializePartnerSession } from '../../constants/partnerStore';
 import { User, Mail, Phone, Lock, MapPin } from 'lucide-react-native';
 import PartnerLocationSelect from '../../components/PartnerLocationSelect';
 
@@ -14,6 +14,28 @@ export default function PartnerAuth() {
     const { theme } = useTheme();
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [checkingSession, setCheckingSession] = useState(true);
+
+    useEffect(() => {
+        checkSession();
+    }, []);
+
+    const checkSession = async () => {
+        const session = await initializePartnerSession();
+        if (session) {
+            router.replace('/partner');
+        } else {
+            setCheckingSession(false);
+        }
+    };
+
+    if (checkingSession) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+            </View>
+        );
+    }
 
     // Form State
     const [fullName, setFullName] = useState('');

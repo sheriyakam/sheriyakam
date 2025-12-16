@@ -1,5 +1,6 @@
 // Simple in-memory store for partner data
 // In a real app, this would be a database
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Initial mock data
 const supervisors = {
@@ -48,12 +49,35 @@ let currentPartner = null;
 
 export const getPartners = () => partners;
 
-export const loginPartner = (partner) => {
+export const loginPartner = async (partner) => {
     currentPartner = partner;
+    try {
+        await AsyncStorage.setItem('partner_session', JSON.stringify(partner));
+    } catch (e) {
+        console.error('Failed to save partner session', e);
+    }
 };
 
-export const logoutPartner = () => {
+export const logoutPartner = async () => {
     currentPartner = null;
+    try {
+        await AsyncStorage.removeItem('partner_session');
+    } catch (e) {
+        console.error('Failed to remove partner session', e);
+    }
+};
+
+export const initializePartnerSession = async () => {
+    try {
+        const session = await AsyncStorage.getItem('partner_session');
+        if (session) {
+            currentPartner = JSON.parse(session);
+            return currentPartner;
+        }
+    } catch (e) {
+        console.error('Failed to load partner session', e);
+    }
+    return null;
 };
 
 export const getCurrentPartner = () => currentPartner;
