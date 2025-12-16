@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING } from '../../constants/theme';
 import { addPartner, findPartner, findPartnerByPhone, approvePartner, getPartners, loginPartner, initializePartnerSession } from '../../constants/partnerStore';
-import { User, Mail, Phone, Lock, MapPin } from 'lucide-react-native';
+import { User, Mail, Phone, Lock, MapPin, Globe, Camera, Gamepad2 } from 'lucide-react-native';
 import PartnerLocationSelect from '../../components/PartnerLocationSelect';
 
 import { useTheme } from '../../context/ThemeContext';
@@ -323,6 +323,33 @@ export default function PartnerAuth() {
                         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{isLogin ? (showOtp ? 'Verify & Login' : 'Get OTP') : 'Apply Now'}</Text>}
                     </TouchableOpacity>
 
+                    {/* Social Login UI */}
+                    <View style={styles.socialContainer}>
+                        <View style={styles.dividerContainer}>
+                            <View style={styles.dividerLine} />
+                            <Text style={styles.dividerText}>or continue with</Text>
+                            <View style={styles.dividerLine} />
+                        </View>
+                        <View style={styles.socialButtonsRow}>
+                            {/* Google */}
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#DB4437' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
+                                <Mail size={20} color="#fff" />
+                            </TouchableOpacity>
+                            {/* Facebook */}
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#4267B2' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
+                                <Globe size={20} color="#fff" />
+                            </TouchableOpacity>
+                            {/* Instagram */}
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#E1306C' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
+                                <Camera size={20} color="#fff" />
+                            </TouchableOpacity>
+                            {/* Discord */}
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#5865F2' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
+                                <Gamepad2 size={20} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
                     <View style={styles.switchContainer}>
                         {isLogin ? (
                             <TouchableOpacity
@@ -492,4 +519,39 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         marginBottom: 8,
     },
+    socialContainer: {
+        marginTop: SPACING.lg,
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: SPACING.md,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: COLORS.border,
+    },
+    dividerText: {
+        marginHorizontal: SPACING.md,
+        color: COLORS.textTertiary,
+        fontSize: 12,
+    },
+    socialButtonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: SPACING.md,
+    },
+    socialBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+    }
 });
