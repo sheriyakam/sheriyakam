@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING } from '../../constants/theme';
 import { addPartner, findPartner, findPartnerByPhone, approvePartner, getPartners, loginPartner, initializePartnerSession } from '../../constants/partnerStore';
-import { User, Mail, Phone, Lock, MapPin, Globe, Camera, Gamepad2 } from 'lucide-react-native';
+import { User, Mail, Phone, Lock, MapPin } from 'lucide-react-native';
 import PartnerLocationSelect from '../../components/PartnerLocationSelect';
 
 import { useTheme } from '../../context/ThemeContext';
@@ -29,13 +29,7 @@ export default function PartnerAuth() {
         }
     };
 
-    if (checkingSession) {
-        return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
-            </View>
-        );
-    }
+
 
     // Form State
     const [fullName, setFullName] = useState('');
@@ -159,6 +153,14 @@ export default function PartnerAuth() {
             }
         }
     };
+
+    if (checkingSession) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -332,20 +334,9 @@ export default function PartnerAuth() {
                         </View>
                         <View style={styles.socialButtonsRow}>
                             {/* Google */}
-                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#DB4437' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#DB4437', width: '80%', flexDirection: 'row', gap: 10 }]} onPress={() => Alert.alert('Coming Soon', 'Google login is under development.')}>
                                 <Mail size={20} color="#fff" />
-                            </TouchableOpacity>
-                            {/* Facebook */}
-                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#4267B2' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
-                                <Globe size={20} color="#fff" />
-                            </TouchableOpacity>
-                            {/* Instagram */}
-                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#E1306C' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
-                                <Camera size={20} color="#fff" />
-                            </TouchableOpacity>
-                            {/* Discord */}
-                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#5865F2' }]} onPress={() => Alert.alert('Coming Soon', 'Social login is under development.')}>
-                                <Gamepad2 size={20} color="#fff" />
+                                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Continue with Google</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -543,9 +534,8 @@ const styles = StyleSheet.create({
         gap: SPACING.md,
     },
     socialBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        height: 48,
+        borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 2,
