@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, Alert, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Calendar, Clock, MapPin, Search, CreditCard } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
@@ -28,6 +28,18 @@ export default function BookingsScreen() {
         const updateBookings = () => setBookings([...getBookings()]);
         bookingEvents.on('change', updateBookings);
         return () => bookingEvents.off('change', updateBookings);
+    }, []);
+
+    // Refresh Logic
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        // Simulate network request or fetching fresh data from store
+        setTimeout(() => {
+            setBookings([...getBookings()]);
+            setRefreshing(false);
+        }, 1000);
     }, []);
 
     // Live Time Check Logic
@@ -215,6 +227,9 @@ export default function BookingsScreen() {
                         <Search size={48} color={COLORS.textTertiary} />
                         <Text style={styles.emptyText}>No {activeTab.toLowerCase()} bookings found</Text>
                     </View>
+                }
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
                 }
             />
 

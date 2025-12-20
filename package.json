@@ -20,6 +20,7 @@
     "expo-location": "~19.0.8",
     "expo-router": "~6.0.17",
     "expo-status-bar": "~3.0.9",
+    "firebase": "^12.6.0",
     "lucide-react-native": "^0.556.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
