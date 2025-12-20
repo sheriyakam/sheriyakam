@@ -16,8 +16,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { X, CheckCircle, Calendar, Clock, Camera, Image as ImageIcon } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { COLORS, SPACING } from '../constants/theme';
+import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'expo-router';
 
 const BookingModal = ({ service, visible, onClose }) => {
+    const { user } = useAuth();
+    const router = useRouter();
     const [step, setStep] = useState(1);
     const [selectedDate, setSelectedDate] = useState('Today');
     const [customDate, setCustomDate] = useState('');
@@ -103,6 +107,29 @@ const BookingModal = ({ service, visible, onClose }) => {
     };
 
     const handleSubmit = () => {
+        // Check if user is logged in
+        if (!user) {
+            // Close the booking modal
+            onClose();
+            // Redirect to login page
+            Alert.alert(
+                'Login Required',
+                'Please login or sign up to confirm your booking.',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel'
+                    },
+                    {
+                        text: 'Login / Sign Up',
+                        onPress: () => router.push('/auth/login')
+                    }
+                ]
+            );
+            return;
+        }
+
+        // User is logged in, proceed with booking
         setStep(2); // Show success
     };
 
