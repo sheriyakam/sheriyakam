@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
 
@@ -16,8 +17,18 @@ export const AuthProvider = ({ children }) => {
         }
     ]);
 
-    const login = (userData) => {
+    const login = async (userData) => {
         setUser(userData);
+
+        // Check if this is a new user (first time login)
+        const userKey = `user_${userData.email}_first_login`;
+        const hasLoggedInBefore = await AsyncStorage.getItem(userKey);
+
+        if (!hasLoggedInBefore) {
+            // New user - clear bookings to start fresh
+            await AsyncStorage.removeItem('sheriyakam_bookings_v1');
+            await AsyncStorage.setItem(userKey, 'true');
+        }
     };
 
     const register = (userData) => {
@@ -41,8 +52,10 @@ export const AuthProvider = ({ children }) => {
         return foundUser;
     };
 
-    const logout = () => {
+    const logout = async () => {
         setUser(null);
+        // Optional: Clear bookings on logout for privacy
+        // await AsyncStorage.removeItem('sheriyakam_bookings_v1');
     };
 
     return (
