@@ -68,7 +68,13 @@ const ServiceCard = ({
                 {/* Price & Action */}
                 <View style={styles.footer}>
                     <Text style={styles.price}>₹{price}</Text>
-                    <TouchableOpacity style={styles.bookBtn} onPress={onPress}>
+                    <TouchableOpacity
+                        style={styles.bookBtn}
+                        onPress={(e) => {
+                            e?.stopPropagation?.();
+                            onPress();
+                        }}
+                    >
                         <Text style={styles.bookBtnText}>Book</Text>
                     </TouchableOpacity>
                 </View>
