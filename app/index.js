@@ -230,21 +230,20 @@ export default function HomeScreen() {
         { opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }
       ]}>
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.logoContainer} onPress={() => setMenuVisible(true)}>
-            <Image
-              source={require('../assets/icon.png')}
-              style={styles.logo}
-            />
+          <View style={styles.leftSection}>
+            <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+              <MenuIcon size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
             <View style={[
               styles.nameWrapper,
               theme === 'dark' && styles.nameWrapperDark
             ]}>
               <Text style={[styles.appName, dynamicStyles.appName]}>
-                <Text style={{ color: '#001F3F', fontSize: 28, fontWeight: 'bold' }}>Sheri</Text>
-                <Text style={{ color: '#2563EB', fontSize: 28, fontWeight: 'bold' }}>yakam</Text>
+                <Text style={{ color: '#001F3F', fontSize: 20, fontWeight: 'bold' }}>Sheri</Text>
+                <Text style={{ color: '#2563EB', fontSize: 20, fontWeight: 'bold' }}>yakam</Text>
               </Text>
             </View>
-          </TouchableOpacity>
+          </View>
           <TouchableOpacity
             style={[styles.headerLocationBtn, dynamicStyles.headerLocationBtn]}
             onPress={() => setLocationVisible(true)}
@@ -359,16 +358,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // marginBottom: SPACING.lg, // Removed as it is now in sticky header
   },
-  logoContainer: {
+  leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
-  logo: {
-    width: 32,
-    height: 32,
+  menuButton: {
+    padding: 8,
     borderRadius: 8,
   },
   appName: {
