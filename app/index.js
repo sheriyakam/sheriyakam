@@ -3,8 +3,10 @@ import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, Touch
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, MapPin, Menu as MenuIcon, ChevronDown } from 'lucide-react-native';
 import * as Location from 'expo-location';
+import { useRouter } from 'expo-router';
 import { SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import ServiceCard from '../components/ServiceCard';
 import BookingModal from '../components/BookingModal';
 import MenuModal from '../components/MenuModal';
@@ -94,13 +96,40 @@ const MOCK_SERVICES = [
 ];
 
 export default function HomeScreen() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [selectedService, setSelectedService] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
   const [locationName, setLocationName] = useState('Calicut, Kerala');
   const [locationCoords, setLocationCoords] = useState(null);
 
-  const { colors, theme } = useTheme();
+  const { theme, colors } = useTheme();
+
+  // Handle service click with authentication check
+  const handleServiceClick = (service) => {
+    if (!user) {
+      // User not logged in - show alert
+      Alert.alert(
+        'Login Required',
+        'Please login or sign up to book a service.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Login / Sign Up',
+            onPress: () => router.push('/auth/login')
+          }
+        ]
+      );
+      return;
+    }
+
+    // User is logged in - open booking modal
+    setSelectedService(service);
+  };
 
   // Animation Refs
   const headerOpacity = useRef(new Animated.Value(0)).current;
@@ -292,7 +321,7 @@ export default function HomeScreen() {
                 {...emergencyService}
                 fullWidth
                 isEmergency
-                onPress={() => setSelectedService(emergencyService)}
+                onPress={() => handleServiceClick(emergencyService)}
               />
             </View>
           )}
@@ -306,7 +335,7 @@ export default function HomeScreen() {
               <ServiceCard
                 key={service.id}
                 {...service}
-                onPress={() => setSelectedService(service)}
+                onPress={() => handleServiceClick(service)}
               />
             ))}
           </View>
