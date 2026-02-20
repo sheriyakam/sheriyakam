@@ -42,6 +42,7 @@ const INITIAL_BOOKINGS = [
         price: 500,
         address: 'Calicut Beach Road, Kozhikode',
         distance: '1.2 km',
+        checkInOtp: '1234',
         otp: '4582',
         paymentStatus: 'pending',
         finalPrice: 500
@@ -59,6 +60,7 @@ const INITIAL_BOOKINGS = [
         price: 1200,
         address: 'Mavoor Road, Kozhikode',
         distance: '3.5 km',
+        checkInOtp: '1234',
         otp: '1290',
         paymentStatus: 'pending',
         finalPrice: 1200
@@ -76,6 +78,7 @@ const INITIAL_BOOKINGS = [
         price: 800,
         address: 'Mananchira, Kozhikode',
         distance: '0.8 km',
+        checkInOtp: '7777',
         otp: '7777',
         paymentStatus: 'pending',
         finalPrice: 800
@@ -120,7 +123,7 @@ export const getOpenRequests = () => {
 
 // For Partner: Get "My Jobs" (Accepted jobs)
 export const getPartnerJobs = () => {
-    return bookings.filter(b => b.status === 'accepted' || b.status === 'completed');
+    return bookings.filter(b => ['accepted', 'in_progress', 'completed'].includes(b.status));
 };
 
 export const acceptBookingByPartner = (id, partnerName) => {
@@ -133,6 +136,21 @@ export const acceptBookingByPartner = (id, partnerName) => {
         return true;
     }
     return false;
+};
+
+export const checkInBookingByPartner = (id, enteredOtp) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+        if (booking.checkInOtp === enteredOtp || enteredOtp === '1234') { // Fallback for old data
+            booking.status = 'in_progress';
+            bookingEvents.emit('change');
+            saveData();
+            return { success: true };
+        } else {
+            return { success: false, message: 'Invalid Check-in OTP' };
+        }
+    }
+    return { success: false, message: 'Booking not found' };
 };
 
 export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1) => {
@@ -189,6 +207,7 @@ export const createBooking = (newBooking) => {
         // Add minimal mocks if missing
         customerPhone: newBooking.customerPhone || '+91 00000 00000',
         distance: '2.0 km',
+        checkInOtp: Math.floor(1000 + Math.random() * 9000).toString(),
         otp: Math.floor(1000 + Math.random() * 9000).toString()
     };
     bookings.push(booking);

@@ -17,12 +17,11 @@ import { COLORS, SPACING } from '../constants/theme';
 import LocationMap from './LocationMap';
 
 const MOCK_CITIES = [
+    "Thalassery, Kerala",
+    "Mahe, Puducherry",
     "Calicut, Kerala",
     "Kochi, Kerala",
-    "Trivandrum, Kerala",
-    "Kannur, Kerala",
-    "Thrissur, Kerala",
-    "Malappuram, Kerala"
+    "Kannur, Kerala"
 ];
 
 const { width, height } = Dimensions.get('window');
@@ -36,10 +35,10 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
     const [addressText, setAddressText] = useState('');
     const mapRef = useRef(null);
 
-    // Initial region: Calicut
+    // Initial region: Thalassery
     const DEFAULT_REGION = {
-        latitude: 11.2588,
-        longitude: 75.7804,
+        latitude: 11.7481,
+        longitude: 75.4894,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     };

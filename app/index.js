@@ -25,7 +25,17 @@ const MOCK_SERVICES = [
   },
   {
     id: 2,
-    name: "Professional Wiring Expert",
+    name: "Fan Repair",
+    rating: 4.6,
+    specialty: "Ceiling & Exhaust Fans",
+    distance: "2.1 km",
+    time: "1 hr",
+    price: 250,
+    image: require('../assets/images/light_fan.png')
+  },
+  {
+    id: 3,
+    name: "Wiring",
     rating: 4.5,
     specialty: "Wiring & Installation",
     distance: "3.0 km",
@@ -34,8 +44,18 @@ const MOCK_SERVICES = [
     image: require('../assets/images/wiring.png')
   },
   {
-    id: 3,
-    name: "Inverter Technician",
+    id: 4,
+    name: "DB Maintenance",
+    rating: 4.7,
+    specialty: "Distribution Boards",
+    distance: "2.5 km",
+    time: "1 hr",
+    price: 350,
+    image: require('../assets/images/switch.png')
+  },
+  {
+    id: 5,
+    name: "Inverter Service",
     rating: 5.0,
     specialty: "Inverter & UPS",
     distance: "0.8 km",
@@ -44,8 +64,8 @@ const MOCK_SERVICES = [
     image: require('../assets/images/inverter.png')
   },
   {
-    id: 4,
-    name: "AC Service Expert",
+    id: 6,
+    name: "AC Service",
     rating: 4.2,
     specialty: "Air Conditioning",
     distance: "5.0 km",
@@ -54,31 +74,11 @@ const MOCK_SERVICES = [
     image: require('../assets/images/ac.png')
   },
   {
-    id: 5,
-    name: "Switch / Fuse Replacement",
-    rating: 4.7,
-    specialty: "Electrical Maintenance",
-    distance: "2.1 km",
-    time: "1 hr",
-    price: 350,
-    image: require('../assets/images/switch.png')
-  },
-  {
-    id: 6,
-    name: "Light / Fan Installation",
-    rating: 4.6,
-    specialty: "Installation Services",
-    distance: "4.2 km",
-    time: "1 hr",
-    price: 400,
-    image: require('../assets/images/light_fan.png')
-  },
-  {
     id: 7,
-    name: "CCTV Technician",
+    name: "CCTV Setup",
     rating: 4.9,
     specialty: "Security Systems",
-    distance: "2.5 km",
+    distance: "4.2 km",
     time: "1 hr",
     price: 550,
     image: require('../assets/images/cctv.png')
@@ -101,7 +101,7 @@ export default function HomeScreen() {
   const [selectedService, setSelectedService] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
-  const [locationName, setLocationName] = useState('Calicut, Kerala');
+  const [locationName, setLocationName] = useState('Thalassery, Kerala');
   const [locationCoords, setLocationCoords] = useState(null);
 
   const { theme, colors } = useTheme();

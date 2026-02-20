@@ -54,7 +54,7 @@ export default function BookingsScreen() {
             // 'Cancelled' includes 'Cancelled'
 
             let tabMatch = false;
-            if (activeTab === 'Upcoming') tabMatch = (b.status === 'open' || b.status === 'accepted');
+            if (activeTab === 'Upcoming') tabMatch = (['open', 'accepted', 'in_progress'].includes(b.status));
             else if (activeTab === 'Completed') tabMatch = (b.status === 'completed');
             else if (activeTab === 'Cancelled') tabMatch = (b.status === 'Cancelled');
 
@@ -94,6 +94,7 @@ export default function BookingsScreen() {
             switch (status) {
                 case 'open':
                 case 'accepted': return COLORS.accent;
+                case 'in_progress': return COLORS.gold;
                 case 'completed': return COLORS.success;
                 case 'Cancelled': return COLORS.danger;
                 default: return COLORS.textSecondary;
@@ -102,7 +103,8 @@ export default function BookingsScreen() {
 
         const displayStatus = booking.status === 'open' ? 'Requested' :
             booking.status === 'accepted' ? 'Accepted' :
-                booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+                booking.status === 'in_progress' ? 'Work in Progress' :
+                    booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
 
         return (
             <View style={styles.card}>
@@ -134,10 +136,17 @@ export default function BookingsScreen() {
                 </View>
 
                 {/* OTP Display for Active Jobs */}
-                {(booking.status === 'open' || booking.status === 'accepted') && booking.otp && (
+                {(booking.status === 'open' || booking.status === 'accepted') && booking.checkInOtp && (
                     <View style={styles.otpContainer}>
-                        <Text style={styles.otpLabel}>Share OTP with Partner:</Text>
-                        <Text style={styles.otpValue}>{booking.otp}</Text>
+                        <Text style={styles.otpLabel}>Check-In OTP:</Text>
+                        <Text style={styles.otpValue}>{booking.checkInOtp || booking.otp}</Text>
+                    </View>
+                )}
+
+                {booking.status === 'in_progress' && booking.otp && (
+                    <View style={[styles.otpContainer, { borderColor: COLORS.accent, backgroundColor: 'rgba(37, 99, 235, 0.1)' }]}>
+                        <Text style={[styles.otpLabel, { color: COLORS.accent }]}>Completion OTP:</Text>
+                        <Text style={[styles.otpValue, { color: COLORS.accent }]}>{booking.otp}</Text>
                     </View>
                 )}
 

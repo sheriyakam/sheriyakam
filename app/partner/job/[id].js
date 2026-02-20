@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions, TextInput, Alert, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar, CheckCircle, Smartphone } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../../constants/theme';
-import { completeBookingByPartner } from '../../../constants/bookingStore';
+import { completeBookingByPartner, checkInBookingByPartner, getPartnerJobs } from '../../../constants/bookingStore';
 import JobMap from '../../../components/JobMap';
 
 const { width } = Dimensions.get('window');
@@ -14,11 +14,12 @@ export default function JobDetails() {
     const router = useRouter();
 
     const [otpModalVisible, setOtpModalVisible] = useState(false);
+    const [modalType, setModalType] = useState('complete'); // 'checkin' | 'complete'
     const [otp, setOtp] = useState('');
     const [hours, setHours] = useState('1');
     const [loading, setLoading] = useState(false);
 
-    const job = {
+    const [liveJob, setLiveJob] = useState({
         id: params.id,
         customerName: params.customerName || params.customer,
         phone: params.customerPhone,
@@ -31,7 +32,17 @@ export default function JobDetails() {
         latitude: params.latitude ? parseFloat(params.latitude) : 11.2588,
         longitude: params.longitude ? parseFloat(params.longitude) : 75.7804,
         status: params.status || 'accepted'
-    };
+    });
+
+    useEffect(() => {
+        const allJobs = getPartnerJobs();
+        const updatedJob = allJobs.find(j => j.id === params.id);
+        if (updatedJob) {
+            setLiveJob(prev => ({ ...prev, status: updatedJob.status }));
+        }
+    }, [otpModalVisible]);
+
+    const job = liveJob;
 
     const handleCall = () => {
         if (job.phone) {
@@ -61,16 +72,28 @@ export default function JobDetails() {
         setTimeout(() => {
             setLoading(false);
 
-            const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1);
-
-            if (result.success) {
-                setOtpModalVisible(false);
-                Alert.alert("Success", "Job Marked as Completed! Customer has been notified for payment.", [
-                    { text: "OK", onPress: () => router.replace('/partner') }
-                ]);
+            if (modalType === 'checkin') {
+                const result = checkInBookingByPartner(job.id, otp);
+                if (result.success) {
+                    setOtpModalVisible(false);
+                    setOtp('');
+                    setLiveJob({ ...job, status: 'in_progress' });
+                    Alert.alert("Success", "Checked In! Status is now Work In Progress.");
+                } else {
+                    alert(result.message || "Invalid Check-In OTP!");
+                    setOtp('');
+                }
             } else {
-                alert(result.message || "Invalid OTP! Ask customer for the code.");
-                setOtp('');
+                const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1);
+                if (result.success) {
+                    setOtpModalVisible(false);
+                    Alert.alert("Success", "Job Marked as Completed! Customer has been notified for payment.", [
+                        { text: "OK", onPress: () => router.replace('/partner') }
+                    ]);
+                } else {
+                    alert(result.message || "Invalid OTP! Ask customer for the code.");
+                    setOtp('');
+                }
             }
         }, 1000);
     };
@@ -145,13 +168,30 @@ export default function JobDetails() {
 
                 {/* Footer Buttons */}
                 <View style={styles.footerActions}>
-                    <TouchableOpacity
-                        style={styles.completeBtn}
-                        onPress={() => setOtpModalVisible(true)}
-                    >
-                        <CheckCircle size={20} color="#fff" />
-                        <Text style={styles.completeBtnText}>Mark Job Completed</Text>
-                    </TouchableOpacity>
+                    {(job.status === 'accepted' || job.status === 'open') && (
+                        <TouchableOpacity
+                            style={[styles.completeBtn, { backgroundColor: COLORS.primary }]}
+                            onPress={() => {
+                                setModalType('checkin');
+                                setOtpModalVisible(true);
+                            }}
+                        >
+                            <Navigation size={20} color="#fff" />
+                            <Text style={styles.completeBtnText}>Arrived - Enter Check-In OTP</Text>
+                        </TouchableOpacity>
+                    )}
+                    {job.status === 'in_progress' && (
+                        <TouchableOpacity
+                            style={styles.completeBtn}
+                            onPress={() => {
+                                setModalType('complete');
+                                setOtpModalVisible(true);
+                            }}
+                        >
+                            <CheckCircle size={20} color="#fff" />
+                            <Text style={styles.completeBtnText}>Mark Job Completed</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </ScrollView>
 
@@ -159,23 +199,33 @@ export default function JobDetails() {
             {otpModalVisible && (
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Complete Job</Text>
+                        <Text style={styles.modalTitle}>
+                            {modalType === 'checkin' ? 'Check-In to Job' : 'Complete Job'}
+                        </Text>
                         <Text style={styles.modalText}>
-                            Enter working hours and OTP from customer to confirm completion.
+                            {modalType === 'checkin'
+                                ? 'Enter the Check-In OTP provided by the customer to start the job.'
+                                : 'Enter working hours and Completion OTP from customer to confirm completion.'}
                         </Text>
 
                         <View style={styles.otpInputContainer}>
-                            <Text style={styles.otpLabel}>Hours Worked</Text>
-                            <TextInput
-                                style={[styles.otpInput, { fontSize: 18, marginBottom: 16 }]}
-                                value={hours}
-                                onChangeText={setHours}
-                                keyboardType="numeric"
-                                placeholder="1"
-                                placeholderTextColor={COLORS.textTertiary}
-                            />
+                            {modalType === 'complete' && (
+                                <>
+                                    <Text style={styles.otpLabel}>Hours Worked</Text>
+                                    <TextInput
+                                        style={[styles.otpInput, { fontSize: 18, marginBottom: 16 }]}
+                                        value={hours}
+                                        onChangeText={setHours}
+                                        keyboardType="numeric"
+                                        placeholder="1"
+                                        placeholderTextColor={COLORS.textTertiary}
+                                    />
+                                </>
+                            )}
 
-                            <Text style={styles.otpLabel}>Customer OTP (4-Digit)</Text>
+                            <Text style={styles.otpLabel}>
+                                {modalType === 'checkin' ? 'Check-In OTP (4-Digit)' : 'Completion OTP (4-Digit)'}
+                            </Text>
                             <TextInput
                                 style={styles.otpInput}
                                 value={otp}

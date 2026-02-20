@@ -60,6 +60,9 @@ export default function PartnerAuth() {
     const [location, setLocation] = useState(null);
     const [showLocationModal, setShowLocationModal] = useState(false);
 
+    // License State
+    const [licenseUploaded, setLicenseUploaded] = useState(false);
+
     // OTP State
     const [showOtp, setShowOtp] = useState(false);
     const [otp, setOtp] = useState('');
@@ -137,8 +140,8 @@ export default function PartnerAuth() {
     };
 
     const handleSignup = async () => {
-        if (!fullName || !email || !phone || !password || serviceTypes.length === 0 || !location) {
-            Alert.alert('Error', 'Please fill all fields, select services, and set location');
+        if (!fullName || !email || !phone || !password || serviceTypes.length === 0 || !location || !licenseUploaded) {
+            Alert.alert('Error', 'Please fill all fields, select services, set location, and upload your Government Electrical License.');
             return;
         }
 
@@ -393,6 +396,39 @@ export default function PartnerAuth() {
                                                 </Text>
                                             </View>
                                             {location && <CheckCircle size={20} color={COLORS.success} style={{ marginRight: 12 }} />}
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    {/* License Upload Field */}
+                                    <View style={{ marginBottom: SPACING.md }}>
+                                        <View style={styles.sectionHeader}>
+                                            <Briefcase size={16} color={COLORS.primary} />
+                                            <Text style={[styles.label, { color: colors.textPrimary }]}>
+                                                Government Electrical License
+                                            </Text>
+                                        </View>
+                                        <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
+                                            ⚠️ Required: Upload PDF or Image of your certificate
+                                        </Text>
+                                        <TouchableOpacity
+                                            style={[styles.inputGroup, licenseUploaded && { borderColor: COLORS.success, borderWidth: 2 }]}
+                                            onPress={() => {
+                                                Alert.alert('Upload Document', 'Simulating document upload...', [
+                                                    { text: 'Cancel', style: 'cancel' },
+                                                    { text: 'Mock Upload', onPress: () => setLicenseUploaded(true) }
+                                                ]);
+                                            }}
+                                        >
+                                            <Shield size={20} color={licenseUploaded ? COLORS.success : colors.textTertiary} style={styles.inputIcon} />
+                                            <View style={{ flex: 1, padding: SPACING.md, justifyContent: 'center' }}>
+                                                <Text style={{
+                                                    color: licenseUploaded ? colors.textPrimary : colors.textTertiary,
+                                                    fontSize: 16
+                                                }}>
+                                                    {licenseUploaded ? "License Uploaded" : "Tap to upload license"}
+                                                </Text>
+                                            </View>
+                                            {licenseUploaded && <CheckCircle size={20} color={COLORS.success} style={{ marginRight: 12 }} />}
                                         </TouchableOpacity>
                                     </View>
                                 </>
