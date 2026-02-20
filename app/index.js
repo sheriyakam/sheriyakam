@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, TouchableOpacity, Alert, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Zap, MapPin, Menu as MenuIcon, ChevronDown } from 'lucide-react-native';
+import { Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield, Briefcase } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { SPACING } from '../constants/theme';
@@ -273,14 +273,24 @@ export default function HomeScreen() {
               </Text>
             </View>
           </View>
-          <TouchableOpacity
-            style={[styles.headerLocationBtn, dynamicStyles.headerLocationBtn]}
-            onPress={() => setLocationVisible(true)}
-          >
-            <MapPin size={20} color={colors.accent} />
-            <Text style={[styles.headerLocationText, dynamicStyles.headerLocationText]} numberOfLines={1}>{locationName}</Text>
-            <ChevronDown size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
+          <View style={styles.rightSection}>
+            <TouchableOpacity
+              style={[styles.headerLocationBtn, dynamicStyles.headerLocationBtn]}
+              onPress={() => setLocationVisible(true)}
+            >
+              <MapPin size={16} color={colors.accent} />
+              <Text style={[styles.headerLocationText, dynamicStyles.headerLocationText]} numberOfLines={1}>{locationName}</Text>
+              <ChevronDown size={14} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.joinPartnerBtn}
+              onPress={() => router.push('/partner/auth')}
+            >
+              <Briefcase size={14} color="#000" />
+              <Text style={styles.joinPartnerText}>Join Partner</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Animated.View>
 
@@ -292,9 +302,9 @@ export default function HomeScreen() {
           { opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }
         ]}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>Find expert</Text>
+            <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>Book an Electrician</Text>
             <Text style={[styles.headerSubtitle, dynamicStyles.headerSubtitle]}>
-              <Text style={{ color: colors.accent }}>electricians</Text> in Kerala
+              in <Text style={{ color: colors.accent }}>60 Seconds</Text>
             </Text>
           </View>
         </Animated.View>
@@ -338,6 +348,30 @@ export default function HomeScreen() {
                 onPress={() => handleServiceClick(service)}
               />
             ))}
+          </View>
+
+          {/* Why Sheriyakam Section */}
+          <View style={styles.whySection}>
+            <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: SPACING.lg, textAlign: 'center' }]}>
+              Why Sheriyakam?
+            </Text>
+            <View style={styles.whyGrid}>
+              <View style={[styles.whyCard, { backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff' }]}>
+                <Shield size={32} color={colors.accent} />
+                <Text style={[styles.whyCardTitle, { color: colors.textPrimary }]}>Verified Partners</Text>
+                <Text style={[styles.whyCardText, { color: colors.textSecondary }]}>All electricians are licensed</Text>
+              </View>
+              <View style={[styles.whyCard, { backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff' }]}>
+                <CheckCircle size={32} color={COLORS.success} />
+                <Text style={[styles.whyCardTitle, { color: colors.textPrimary }]}>OTP-Locked Safety</Text>
+                <Text style={[styles.whyCardText, { color: colors.textSecondary }]}>Secure job start/end</Text>
+              </View>
+              <View style={[styles.whyCard, { backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff' }]}>
+                <Zap size={32} color={COLORS.gold} />
+                <Text style={[styles.whyCardTitle, { color: colors.textPrimary }]}>Upfront Pricing</Text>
+                <Text style={[styles.whyCardText, { color: colors.textSecondary }]}>No hidden charges</Text>
+              </View>
+            </View>
           </View>
 
         </Animated.View>
@@ -470,5 +504,51 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingHorizontal: 8,
     paddingVertical: 4,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  joinPartnerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  joinPartnerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  whySection: {
+    paddingVertical: SPACING.xl,
+    marginTop: SPACING.xl,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+  },
+  whyGrid: {
+    gap: SPACING.md,
+  },
+  whyCard: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: SPACING.lg,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    textAlign: 'center',
+  },
+  whyCardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: SPACING.md,
+    marginBottom: 4,
+  },
+  whyCardText: {
+    fontSize: 14,
   },
 });
