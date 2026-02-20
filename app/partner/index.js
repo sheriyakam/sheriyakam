@@ -14,7 +14,7 @@ const MOCK_REQUESTS = getBookings();
 export default function PartnerDashboard() {
     const router = useRouter();
     const currentPartner = getCurrentPartner();
-    const [activeTab, setActiveTab] = useState('new'); // 'new' | 'my'
+    const [activeTab, setActiveTab] = useState('new'); // 'new' | 'my' | 'earnings'
     const [myJobs, setMyJobs] = useState([]);
     const [isAvailable, setIsAvailable] = useState(currentPartner?.isAvailable ?? true);
 
@@ -167,6 +167,38 @@ export default function PartnerDashboard() {
         </View>
     );
 
+    const renderEarningsTab = () => {
+        const completedJobs = myJobs.filter(j => j.status === 'completed');
+        const totalEarnings = completedJobs.reduce((sum, job) => sum + (job.finalPrice || job.price || 0), 0);
+        const commission = totalEarnings * 0.10; // 10% commission
+        const payout = totalEarnings - commission;
+
+        return (
+            <View style={styles.earningsContainer}>
+                <View style={styles.earningsCard}>
+                    <DollarSign size={32} color={COLORS.success} />
+                    <Text style={styles.earningsAmount}>₹{payout.toFixed(2)}</Text>
+                    <Text style={styles.earningsLabel}>Your Total Payout</Text>
+
+                    <View style={styles.earningsDivider} />
+
+                    <View style={styles.earningsRow}>
+                        <Text style={styles.earningsText}>Total Revenue:</Text>
+                        <Text style={styles.earningsText}>₹{totalEarnings.toFixed(2)}</Text>
+                    </View>
+                    <View style={styles.earningsRow}>
+                        <Text style={styles.earningsText}>Sheriyakam Fee (10%):</Text>
+                        <Text style={[styles.earningsText, { color: COLORS.danger }]}>-₹{commission.toFixed(2)}</Text>
+                    </View>
+                    <View style={styles.earningsRow}>
+                        <Text style={styles.earningsText}>Completed Jobs:</Text>
+                        <Text style={styles.earningsText}>{completedJobs.length}</Text>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
@@ -218,24 +250,32 @@ export default function PartnerDashboard() {
                     <Text style={[styles.tabText, activeTab === 'my' && styles.activeTabText]}>My Jobs</Text>
                     {myJobs.length > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{myJobs.length}</Text></View>}
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'earnings' && styles.activeTab, { marginRight: 0 }]}
+                    onPress={() => setActiveTab('earnings')}
+                >
+                    <Text style={[styles.tabText, activeTab === 'earnings' && styles.activeTabText]}>Earnings</Text>
+                </TouchableOpacity>
             </View>
 
             {/* List */}
-            <FlatList
-                data={activeTab === 'new' ? (isAvailable ? availableJobs : []) : myJobs}
-                keyExtractor={item => item.id}
-                renderItem={renderJobItem}
-                contentContainerStyle={styles.listContent}
-                ListEmptyComponent={
-                    <View style={styles.emptyState}>
-                        <Text style={styles.emptyText}>
-                            {!isAvailable && activeTab === 'new'
-                                ? "You are currently offline. Go online to see requests."
-                                : `No ${activeTab === 'new' ? 'new requests' : 'active jobs'} found.`}
-                        </Text>
-                    </View>
-                }
-            />
+            {activeTab === 'earnings' ? renderEarningsTab() : (
+                <FlatList
+                    data={activeTab === 'new' ? (isAvailable ? availableJobs : []) : myJobs}
+                    keyExtractor={item => item.id}
+                    renderItem={renderJobItem}
+                    contentContainerStyle={styles.listContent}
+                    ListEmptyComponent={
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyText}>
+                                {!isAvailable && activeTab === 'new'
+                                    ? "You are currently offline. Go online to see requests."
+                                    : `No ${activeTab === 'new' ? 'new requests' : 'active jobs'} found.`}
+                            </Text>
+                        </View>
+                    }
+                />
+            )}
             {/* Floating Chat Button */}
             <TouchableOpacity
                 style={styles.fabChat}
@@ -483,4 +523,43 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
     },
+    earningsContainer: {
+        padding: SPACING.lg,
+    },
+    earningsCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 12,
+        padding: SPACING.xl,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    earningsAmount: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: COLORS.success,
+        marginTop: SPACING.sm,
+    },
+    earningsLabel: {
+        fontSize: 14,
+        color: COLORS.textSecondary,
+        marginBottom: SPACING.lg,
+    },
+    earningsDivider: {
+        height: 1,
+        backgroundColor: COLORS.border,
+        width: '100%',
+        marginBottom: SPACING.lg,
+    },
+    earningsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: SPACING.sm,
+    },
+    earningsText: {
+        fontSize: 16,
+        color: COLORS.textPrimary,
+        fontWeight: '500',
+    }
 });

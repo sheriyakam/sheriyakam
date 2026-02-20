@@ -18,12 +18,16 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [step, setStep] = useState(1);
+    const [issueType, setIssueType] = useState(null); // 'technical' | 'behavioral' | null
+    const [wantsRevisit, setWantsRevisit] = useState(false);
 
     useEffect(() => {
         if (visible) {
             setStep(1);
             setRating(0);
             setComment('');
+            setIssueType(null);
+            setWantsRevisit(false);
         }
     }, [visible]);
 
@@ -31,10 +35,20 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
 
     const handleSubmit = () => {
         if (rating === 0) return;
+
         // Mock submission
         setStep(2);
+
+        // Simulate sending red flag if 1 or 2 stars and technical issue
+        if ((rating === 1 || rating === 2) && issueType === 'technical') {
+            console.log("RED FLAG TICKET CREATED in Admin Dashboard.");
+            if (wantsRevisit) {
+                console.log("Re-visit requested by user at cost 0.");
+            }
+        }
+
         if (onSubmit) {
-            onSubmit({ bookingId: booking.id, rating, comment });
+            onSubmit({ bookingId: booking.id, rating, comment, issueType, wantsRevisit });
         }
     };
 
@@ -81,6 +95,39 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
 
                                     <Text style={styles.label}>Rate your experience</Text>
                                     <StarRating />
+
+                                    {(rating === 1 || rating === 2) && (
+                                        <View style={styles.disputeSection}>
+                                            <Text style={styles.disputeLabel}>Was the issue technical or behavioral?</Text>
+                                            <View style={styles.disputeButtons}>
+                                                <TouchableOpacity
+                                                    style={[styles.disputeBtn, issueType === 'technical' && styles.disputeBtnActive]}
+                                                    onPress={() => setIssueType('technical')}
+                                                >
+                                                    <Text style={[styles.disputeBtnText, issueType === 'technical' && styles.disputeBtnTextActive]}>Technical</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    style={[styles.disputeBtn, issueType === 'behavioral' && styles.disputeBtnActive]}
+                                                    onPress={() => setIssueType('behavioral')}
+                                                >
+                                                    <Text style={[styles.disputeBtnText, issueType === 'behavioral' && styles.disputeBtnTextActive]}>Behavioral</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                            {issueType === 'technical' && (
+                                                <View style={styles.revisitBox}>
+                                                    <Text style={styles.revisitText}>A Red Flag ticket will be generated for the Admin.</Text>
+                                                    <TouchableOpacity
+                                                        style={[styles.revisitBtn, wantsRevisit && styles.revisitBtnActive]}
+                                                        onPress={() => setWantsRevisit(!wantsRevisit)}
+                                                    >
+                                                        <Text style={[styles.revisitBtnText, wantsRevisit && styles.revisitBtnTextActive]}>
+                                                            {wantsRevisit ? "Re-visit Requested" : "Request Re-visit (₹0)"}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            )}
+                                        </View>
+                                    )}
 
                                     <Text style={styles.label}>Share your feedback</Text>
                                     <TextInput
@@ -226,6 +273,74 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
         width: '100%',
     },
+    disputeSection: {
+        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.2)',
+    },
+    disputeLabel: {
+        fontSize: 14,
+        color: COLORS.danger,
+        fontWeight: 'bold',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    disputeButtons: {
+        flexDirection: 'row',
+        gap: 12,
+        marginBottom: 12,
+    },
+    disputeBtn: {
+        flex: 1,
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.danger,
+        alignItems: 'center',
+    },
+    disputeBtnActive: {
+        backgroundColor: COLORS.danger,
+    },
+    disputeBtnText: {
+        color: COLORS.danger,
+        fontWeight: 'bold',
+    },
+    disputeBtnTextActive: {
+        color: '#fff',
+    },
+    revisitBox: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    revisitText: {
+        fontSize: 12,
+        color: COLORS.textSecondary,
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    revisitBtn: {
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.accent,
+        width: '100%',
+        alignItems: 'center',
+    },
+    revisitBtnActive: {
+        backgroundColor: COLORS.accent,
+    },
+    revisitBtnText: {
+        color: COLORS.accent,
+        fontWeight: 'bold',
+    },
+    revisitBtnTextActive: {
+        color: '#fff',
+    }
 });
 
 export default ReviewModal;

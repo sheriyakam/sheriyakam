@@ -43,6 +43,12 @@ const ServiceCard = ({
                     <Star size={12} color={isEmergency ? "#fff" : "#000"} fill={isEmergency ? "#fff" : "#000"} />
                     <Text style={[styles.badgeText, isEmergency && { color: '#fff' }]}>{rating}</Text>
                 </View>
+
+                {rating >= 4.8 && (
+                    <View style={styles.topRatedBadge}>
+                        <Text style={styles.topRatedText}>Top Rated</Text>
+                    </View>
+                )}
             </View>
 
             {/* Content Section */}
@@ -183,6 +189,26 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
     },
+    topRatedBadge: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        backgroundColor: '#1E40AF', // Deep blue for premium feel
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+    },
+    topRatedText: {
+        color: '#ffffff',
+        fontSize: 10,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    }
 });
 
 export default ServiceCard;

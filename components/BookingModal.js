@@ -346,6 +346,29 @@ const BookingModal = ({ service, visible, onClose }) => {
                                         )}
                                     </View>
 
+                                    {/* Price Estimator */}
+                                    <View style={styles.section}>
+                                        <Text style={styles.label}>Price Estimate</Text>
+                                        <View style={styles.priceContainer}>
+                                            <View style={styles.priceRow}>
+                                                <Text style={styles.priceText}>Base Fare</Text>
+                                                <Text style={styles.priceValue}>₹{service.price}</Text>
+                                            </View>
+                                            <View style={styles.priceRow}>
+                                                <Text style={styles.priceText}>Est. Material Cost</Text>
+                                                <Text style={styles.priceValue}>₹{Math.round(service.price * 0.2)}</Text>
+                                            </View>
+                                            <View style={styles.priceDivider} />
+                                            <View style={styles.priceRow}>
+                                                <Text style={styles.priceTotalText}>Estimated Total</Text>
+                                                <Text style={styles.priceTotalValue}>₹{service.price + Math.round(service.price * 0.2)}</Text>
+                                            </View>
+                                        </View>
+                                        <Text style={styles.disclaimerText}>
+                                            * Final price may vary based on actual wire length or materials used.
+                                        </Text>
+                                    </View>
+
                                 </ScrollView>
                                 <View style={styles.footer}>
                                     <TouchableOpacity
@@ -600,6 +623,49 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
         width: '100%',
     },
+    priceContainer: {
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 12,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        marginBottom: 8,
+    },
+    priceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    priceText: {
+        fontSize: 14,
+        color: COLORS.textSecondary,
+    },
+    priceValue: {
+        fontSize: 14,
+        color: COLORS.textPrimary,
+        fontWeight: '500',
+    },
+    priceDivider: {
+        height: 1,
+        backgroundColor: COLORS.border,
+        marginVertical: 8,
+    },
+    priceTotalText: {
+        fontSize: 16,
+        color: COLORS.textPrimary,
+        fontWeight: 'bold',
+    },
+    priceTotalValue: {
+        fontSize: 16,
+        color: COLORS.accent,
+        fontWeight: 'bold',
+    },
+    disclaimerText: {
+        fontSize: 12,
+        color: COLORS.textTertiary,
+        fontStyle: 'italic',
+        marginTop: 4,
+    }
 });
 
 export default BookingModal;

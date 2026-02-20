@@ -135,11 +135,17 @@ export default function BookingsScreen() {
                     <Text style={styles.detailText}>{booking.address}</Text>
                 </View>
 
-                {/* OTP Display for Active Jobs */}
+                {/* Notifications & OTP Display for Active Jobs */}
+                {booking.status === 'accepted' && (
+                    <View style={styles.notificationAlert}>
+                        <Text style={styles.notificationText}>Electrician {booking.partnerName || 'assigned'} is 5 minutes away.</Text>
+                    </View>
+                )}
+
                 {(booking.status === 'open' || booking.status === 'accepted') && booking.checkInOtp && (
                     <View style={styles.otpContainer}>
-                        <Text style={styles.otpLabel}>Check-In OTP:</Text>
-                        <Text style={styles.otpValue}>{booking.checkInOtp || booking.otp}</Text>
+                        <Text style={styles.otpLabel}>Security Alert:</Text>
+                        <Text style={styles.otpText}>Your Safety OTP is <Text style={styles.otpValue}>{booking.checkInOtp || booking.otp}</Text>. Do not share it until the technician arrives.</Text>
                     </View>
                 )}
 
@@ -377,25 +383,39 @@ const styles = StyleSheet.create({
     otpContainer: {
         marginBottom: 16,
         backgroundColor: 'rgba(234, 179, 8, 0.1)',
-        padding: 8,
+        padding: 12,
         borderRadius: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
         borderWidth: 1,
         borderColor: COLORS.gold
     },
     otpLabel: {
         color: COLORS.gold,
         fontWeight: 'bold',
-        fontSize: 12
+        fontSize: 12,
+        marginBottom: 4,
+    },
+    otpText: {
+        color: COLORS.gold,
+        fontSize: 12,
+        lineHeight: 18,
     },
     otpValue: {
-        color: COLORS.gold,
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 14,
         letterSpacing: 2
+    },
+    notificationAlert: {
+        backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue color mapping typically
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#3b82f6',
+        marginBottom: 8,
+    },
+    notificationText: {
+        color: '#3b82f6',
+        fontSize: 12,
+        fontWeight: 'bold',
     },
     cardFooter: {
         flexDirection: 'row',
