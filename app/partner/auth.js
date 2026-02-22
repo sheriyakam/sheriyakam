@@ -214,334 +214,328 @@ export default function PartnerAuth() {
                                     Grow Your Business with AI
                                 </Text>
                                 <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-                                    Join{!isLogin && (
-                                        <View style={styles.heroContent}>
-                                            <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
-                                                Grow Your Business with AI
-                                            </Text>
-                                            <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-                                                Join 10,000+ professionals earning with smart job matching
-                                            </Text>
-                                        </View>
-                                    )}
-                            </View>
-
-                    {/* Benefits Section - Only show on signup */}
-                        {!isLogin && (
-                            <View style={styles.benefitsSection}>
-                                <Text style={[styles.benefitsTitle, { color: colors.textPrimary }]}>
-                                    <Zap size={20} color={COLORS.accent} /> AI-Powered Benefits
+                                    Join 10,000+ professionals earning with smart job matching
                                 </Text>
-                                <View style={styles.benefitsGrid}>
-                                    <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
-                                        <TrendingUp size={24} color={COLORS.success} />
-                                        <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Smart Matching</Text>
-                                        <Text style={[styles.benefitText, { color: colors.textTertiary }]}>AI finds jobs near you</Text>
-                                    </View>
-                                    <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
-                                        <DollarSign size={24} color={COLORS.accent} />
-                                        <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Higher Earnings</Text>
-                                        <Text style={[styles.benefitText, { color: colors.textTertiary }]}>₹25k-60k/month</Text>
-                                    </View>
-                                    <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
-                                        <Clock size={24} color={COLORS.primary} />
-                                        <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Instant Bookings</Text>
-                                        <Text style={[styles.benefitText, { color: colors.textTertiary }]}>Real-time alerts</Text>
-                                    </View>
-                                    <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
-                                        <Star size={24} color={COLORS.gold} />
-                                        <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Build Reputation</Text>
-                                        <Text style={[styles.benefitText, { color: colors.textTertiary }]}>Rating system</Text>
-                                    </View>
-                                </View>
                             </View>
                         )}
+                    </View>
 
-                        {/* Form Container */}
-                        <View style={[styles.formContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#fff' }]}>
-                            <Text style={[styles.title, { color: colors.textPrimary }]}>
-                                {isLogin ? 'Partner Login' : 'Become a Partner'}
+                    {/* Benefits Section - Only show on signup */}
+                    {!isLogin && (
+                        <View style={styles.benefitsSection}>
+                            <Text style={[styles.benefitsTitle, { color: colors.textPrimary }]}>
+                                <Zap size={20} color={COLORS.accent} /> AI-Powered Benefits
                             </Text>
-                            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                                {isLogin ? 'Welcome back! Manage your bookings and earnings.' : 'Start earning more with AI-powered job matching'}
-                            </Text>
-
-                            {!isLogin && (
-                                <View style={styles.inputGroup}>
-                                    <User size={20} color={colors.textTertiary} style={styles.inputIcon} />
-                                    <TextInput
-                                        style={[styles.input, { color: colors.textPrimary }]}
-                                        placeholder="Full Name"
-                                        placeholderTextColor={colors.textTertiary}
-                                        value={fullName}
-                                        onChangeText={setFullName}
-                                        returnKeyType="next"
-                                        onSubmitEditing={() => phoneRef.current?.focus()}
-                                        blurOnSubmit={false}
-                                    />
+                            <View style={styles.benefitsGrid}>
+                                <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
+                                    <TrendingUp size={24} color={COLORS.success} />
+                                    <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Smart Matching</Text>
+                                    <Text style={[styles.benefitText, { color: colors.textTertiary }]}>AI finds jobs near you</Text>
                                 </View>
-                            )}
+                                <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
+                                    <DollarSign size={24} color={COLORS.accent} />
+                                    <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Higher Earnings</Text>
+                                    <Text style={[styles.benefitText, { color: colors.textTertiary }]}>₹25k-60k/month</Text>
+                                </View>
+                                <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
+                                    <Clock size={24} color={COLORS.primary} />
+                                    <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Instant Bookings</Text>
+                                    <Text style={[styles.benefitText, { color: colors.textTertiary }]}>Real-time alerts</Text>
+                                </View>
+                                <View style={[styles.benefitCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
+                                    <Star size={24} color={COLORS.gold} />
+                                    <Text style={[styles.benefitTitle, { color: colors.textPrimary }]}>Build Reputation</Text>
+                                    <Text style={[styles.benefitText, { color: colors.textTertiary }]}>Rating system</Text>
+                                </View>
+                            </View>
+                        </View>
+                    )}
 
+                    {/* Form Container */}
+                    <View style={[styles.formContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#fff' }]}>
+                        <Text style={[styles.title, { color: colors.textPrimary }]}>
+                            {isLogin ? 'Partner Login' : 'Become a Partner'}
+                        </Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                            {isLogin ? 'Welcome back! Manage your bookings and earnings.' : 'Start earning more with AI-powered job matching'}
+                        </Text>
+
+                        {!isLogin && (
                             <View style={styles.inputGroup}>
-                                <Phone size={20} color={colors.textTertiary} style={styles.inputIcon} />
+                                <User size={20} color={colors.textTertiary} style={styles.inputIcon} />
                                 <TextInput
-                                    ref={phoneRef}
                                     style={[styles.input, { color: colors.textPrimary }]}
-                                    placeholder="Mobile Number"
+                                    placeholder="Full Name"
                                     placeholderTextColor={colors.textTertiary}
-                                    keyboardType="phone-pad"
-                                    value={phone}
-                                    onChangeText={setPhone}
-                                    returnKeyType={isLogin ? "go" : "next"}
-                                    onSubmitEditing={() => isLogin ? handleLogin() : emailRef.current?.focus()}
+                                    value={fullName}
+                                    onChangeText={setFullName}
+                                    returnKeyType="next"
+                                    onSubmitEditing={() => phoneRef.current?.focus()}
                                     blurOnSubmit={false}
                                 />
                             </View>
+                        )}
 
-                            {!isLogin && (
+                        <View style={styles.inputGroup}>
+                            <Phone size={20} color={colors.textTertiary} style={styles.inputIcon} />
+                            <TextInput
+                                ref={phoneRef}
+                                style={[styles.input, { color: colors.textPrimary }]}
+                                placeholder="Mobile Number"
+                                placeholderTextColor={colors.textTertiary}
+                                keyboardType="phone-pad"
+                                value={phone}
+                                onChangeText={setPhone}
+                                returnKeyType={isLogin ? "go" : "next"}
+                                onSubmitEditing={() => isLogin ? handleLogin() : emailRef.current?.focus()}
+                                blurOnSubmit={false}
+                            />
+                        </View>
+
+                        {!isLogin && (
+                            <>
+                                {/* AI-Enhanced Service Selection */}
+                                <View style={styles.serviceSelectionContainer}>
+                                    <View style={styles.sectionHeader}>
+                                        <Zap size={16} color={COLORS.accent} />
+                                        <Text style={[styles.label, { color: colors.textPrimary }]}>
+                                            Your Expertise (Select up to 3)
+                                        </Text>
+                                    </View>
+                                    <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
+                                        💡 AI Tip: More services = More job opportunities
+                                    </Text>
+                                    <View style={styles.servicesGrid}>
+                                        {allServices.map((service) => {
+                                            const Icon = service.icon;
+                                            const isSelected = serviceTypes.includes(service.id);
+                                            return (
+                                                <TouchableOpacity
+                                                    key={service.id}
+                                                    style={[
+                                                        styles.serviceChip,
+                                                        {
+                                                            backgroundColor: isSelected
+                                                                ? service.color
+                                                                : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+                                                            borderColor: isSelected ? service.color : colors.border
+                                                        }
+                                                    ]}
+                                                    onPress={() => toggleService(service.id)}
+                                                >
+                                                    <Icon size={24} color={isSelected ? '#fff' : service.color} />
+                                                    <Text style={[
+                                                        styles.serviceChipText,
+                                                        { color: isSelected ? '#fff' : colors.textPrimary }
+                                                    ]}>
+                                                        {service.id}
+                                                    </Text>
+                                                    <Text style={[
+                                                        styles.serviceEarning,
+                                                        { color: isSelected ? 'rgba(255,255,255,0.9)' : colors.textTertiary }
+                                                    ]}>
+                                                        {service.earning}
+                                                    </Text>
+                                                    {isSelected && (
+                                                        <CheckCircle size={20} color="#fff" style={styles.checkIcon} />
+                                                    )}
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                    </View>
+                                    <Text style={[styles.selectionCount, { color: colors.accent }]}>
+                                        Selected: {serviceTypes.length}/3
+                                    </Text>
+                                </View>
+
+                                <View style={styles.inputGroup}>
+                                    <Mail size={20} color={colors.textTertiary} style={styles.inputIcon} />
+                                    <TextInput
+                                        ref={emailRef}
+                                        style={[styles.input, { color: colors.textPrimary }]}
+                                        placeholder="Email Address"
+                                        placeholderTextColor={colors.textTertiary}
+                                        keyboardType="email-address"
+                                        autoCapitalize="none"
+                                        value={email}
+                                        onChangeText={setEmail}
+                                        returnKeyType="next"
+                                        onSubmitEditing={() => passwordRef.current?.focus()}
+                                        blurOnSubmit={false}
+                                    />
+                                </View>
+
+                                {/* AI-Enhanced Location Selection */}
+                                <View style={{ marginBottom: SPACING.md }}>
+                                    <View style={styles.sectionHeader}>
+                                        <MapPin size={16} color={COLORS.success} />
+                                        <Text style={[styles.label, { color: colors.textPrimary }]}>
+                                            Service Area (10km radius)
+                                        </Text>
+                                    </View>
+                                    <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
+                                        🎯 AI will send you jobs within 10km
+                                    </Text>
+                                    <TouchableOpacity
+                                        style={[styles.inputGroup, location && { borderColor: COLORS.success, borderWidth: 2 }]}
+                                        onPress={() => setShowLocationModal(true)}
+                                    >
+                                        <MapPin size={20} color={location ? COLORS.success : colors.textTertiary} style={styles.inputIcon} />
+                                        <View style={{ flex: 1, padding: SPACING.md, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                color: location ? colors.textPrimary : colors.textTertiary,
+                                                fontSize: 16
+                                            }}>
+                                                {location ? location.address : "Tap to set location on map"}
+                                            </Text>
+                                        </View>
+                                        {location && <CheckCircle size={20} color={COLORS.success} style={{ marginRight: 12 }} />}
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* License Upload Field */}
+                                <View style={{ marginBottom: SPACING.md }}>
+                                    <View style={styles.sectionHeader}>
+                                        <Briefcase size={16} color={COLORS.primary} />
+                                        <Text style={[styles.label, { color: colors.textPrimary }]}>
+                                            Government Electrical License
+                                        </Text>
+                                    </View>
+                                    <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
+                                        ⚠️ Required: Upload PDF or Image of your certificate
+                                    </Text>
+                                    <TouchableOpacity
+                                        style={[styles.inputGroup, licenseUploaded && { borderColor: COLORS.success, borderWidth: 2 }]}
+                                        onPress={() => {
+                                            Alert.alert('Upload Document', 'Simulating document upload...', [
+                                                { text: 'Cancel', style: 'cancel' },
+                                                { text: 'Mock Upload', onPress: () => setLicenseUploaded(true) }
+                                            ]);
+                                        }}
+                                    >
+                                        <Shield size={20} color={licenseUploaded ? COLORS.success : colors.textTertiary} style={styles.inputIcon} />
+                                        <View style={{ flex: 1, padding: SPACING.md, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                color: licenseUploaded ? colors.textPrimary : colors.textTertiary,
+                                                fontSize: 16
+                                            }}>
+                                                {licenseUploaded ? "License Uploaded" : "Tap to upload license"}
+                                            </Text>
+                                        </View>
+                                        {licenseUploaded && <CheckCircle size={20} color={COLORS.success} style={{ marginRight: 12 }} />}
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        )}
+
+                        {isLogin && showOtp && (
+                            <View style={styles.inputGroup}>
+                                <Lock size={20} color={colors.textTertiary} style={styles.inputIcon} />
+                                <TextInput
+                                    ref={otpRef}
+                                    style={[styles.input, { color: colors.textPrimary }]}
+                                    placeholder="Enter OTP (1234)"
+                                    placeholderTextColor={colors.textTertiary}
+                                    keyboardType="number-pad"
+                                    value={otp}
+                                    onChangeText={setOtp}
+                                    maxLength={4}
+                                    returnKeyType="go"
+                                    onSubmitEditing={handleLogin}
+                                />
+                            </View>
+                        )}
+
+                        {!isLogin && (
+                            <View style={styles.inputGroup}>
+                                <Lock size={20} color={colors.textTertiary} style={styles.inputIcon} />
+                                <TextInput
+                                    ref={passwordRef}
+                                    style={[styles.input, { color: colors.textPrimary }]}
+                                    placeholder="Password"
+                                    placeholderTextColor={colors.textTertiary}
+                                    secureTextEntry
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    returnKeyType="go"
+                                    onSubmitEditing={handleSignup}
+                                />
+                            </View>
+                        )}
+
+                        <TouchableOpacity
+                            style={[styles.button, { backgroundColor: COLORS.accent }]}
+                            onPress={isLogin ? handleLogin : handleSignup}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color="#000" />
+                            ) : (
                                 <>
-                                    {/* AI-Enhanced Service Selection */}
-                                    <View style={styles.serviceSelectionContainer}>
-                                        <View style={styles.sectionHeader}>
-                                            <Zap size={16} color={COLORS.accent} />
-                                            <Text style={[styles.label, { color: colors.textPrimary }]}>
-                                                Your Expertise (Select up to 3)
-                                            </Text>
-                                        </View>
-                                        <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
-                                            💡 AI Tip: More services = More job opportunities
-                                        </Text>
-                                        <View style={styles.servicesGrid}>
-                                            {allServices.map((service) => {
-                                                const Icon = service.icon;
-                                                const isSelected = serviceTypes.includes(service.id);
-                                                return (
-                                                    <TouchableOpacity
-                                                        key={service.id}
-                                                        style={[
-                                                            styles.serviceChip,
-                                                            {
-                                                                backgroundColor: isSelected
-                                                                    ? service.color
-                                                                    : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
-                                                                borderColor: isSelected ? service.color : colors.border
-                                                            }
-                                                        ]}
-                                                        onPress={() => toggleService(service.id)}
-                                                    >
-                                                        <Icon size={24} color={isSelected ? '#fff' : service.color} />
-                                                        <Text style={[
-                                                            styles.serviceChipText,
-                                                            { color: isSelected ? '#fff' : colors.textPrimary }
-                                                        ]}>
-                                                            {service.id}
-                                                        </Text>
-                                                        <Text style={[
-                                                            styles.serviceEarning,
-                                                            { color: isSelected ? 'rgba(255,255,255,0.9)' : colors.textTertiary }
-                                                        ]}>
-                                                            {service.earning}
-                                                        </Text>
-                                                        {isSelected && (
-                                                            <CheckCircle size={20} color="#fff" style={styles.checkIcon} />
-                                                        )}
-                                                    </TouchableOpacity>
-                                                );
-                                            })}
-                                        </View>
-                                        <Text style={[styles.selectionCount, { color: colors.accent }]}>
-                                            Selected: {serviceTypes.length}/3
-                                        </Text>
-                                    </View>
-
-                                    <View style={styles.inputGroup}>
-                                        <Mail size={20} color={colors.textTertiary} style={styles.inputIcon} />
-                                        <TextInput
-                                            ref={emailRef}
-                                            style={[styles.input, { color: colors.textPrimary }]}
-                                            placeholder="Email Address"
-                                            placeholderTextColor={colors.textTertiary}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            returnKeyType="next"
-                                            onSubmitEditing={() => passwordRef.current?.focus()}
-                                            blurOnSubmit={false}
-                                        />
-                                    </View>
-
-                                    {/* AI-Enhanced Location Selection */}
-                                    <View style={{ marginBottom: SPACING.md }}>
-                                        <View style={styles.sectionHeader}>
-                                            <MapPin size={16} color={COLORS.success} />
-                                            <Text style={[styles.label, { color: colors.textPrimary }]}>
-                                                Service Area (10km radius)
-                                            </Text>
-                                        </View>
-                                        <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
-                                            🎯 AI will send you jobs within 10km
-                                        </Text>
-                                        <TouchableOpacity
-                                            style={[styles.inputGroup, location && { borderColor: COLORS.success, borderWidth: 2 }]}
-                                            onPress={() => setShowLocationModal(true)}
-                                        >
-                                            <MapPin size={20} color={location ? COLORS.success : colors.textTertiary} style={styles.inputIcon} />
-                                            <View style={{ flex: 1, padding: SPACING.md, justifyContent: 'center' }}>
-                                                <Text style={{
-                                                    color: location ? colors.textPrimary : colors.textTertiary,
-                                                    fontSize: 16
-                                                }}>
-                                                    {location ? location.address : "Tap to set location on map"}
-                                                </Text>
-                                            </View>
-                                            {location && <CheckCircle size={20} color={COLORS.success} style={{ marginRight: 12 }} />}
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    {/* License Upload Field */}
-                                    <View style={{ marginBottom: SPACING.md }}>
-                                        <View style={styles.sectionHeader}>
-                                            <Briefcase size={16} color={COLORS.primary} />
-                                            <Text style={[styles.label, { color: colors.textPrimary }]}>
-                                                Government Electrical License
-                                            </Text>
-                                        </View>
-                                        <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
-                                            ⚠️ Required: Upload PDF or Image of your certificate
-                                        </Text>
-                                        <TouchableOpacity
-                                            style={[styles.inputGroup, licenseUploaded && { borderColor: COLORS.success, borderWidth: 2 }]}
-                                            onPress={() => {
-                                                Alert.alert('Upload Document', 'Simulating document upload...', [
-                                                    { text: 'Cancel', style: 'cancel' },
-                                                    { text: 'Mock Upload', onPress: () => setLicenseUploaded(true) }
-                                                ]);
-                                            }}
-                                        >
-                                            <Shield size={20} color={licenseUploaded ? COLORS.success : colors.textTertiary} style={styles.inputIcon} />
-                                            <View style={{ flex: 1, padding: SPACING.md, justifyContent: 'center' }}>
-                                                <Text style={{
-                                                    color: licenseUploaded ? colors.textPrimary : colors.textTertiary,
-                                                    fontSize: 16
-                                                }}>
-                                                    {licenseUploaded ? "License Uploaded" : "Tap to upload license"}
-                                                </Text>
-                                            </View>
-                                            {licenseUploaded && <CheckCircle size={20} color={COLORS.success} style={{ marginRight: 12 }} />}
-                                        </TouchableOpacity>
-                                    </View>
+                                    {!isLogin && <Zap size={20} color="#000" />}
+                                    <Text style={styles.buttonText}>
+                                        {isLogin ? (showOtp ? 'Verify & Login' : 'Get OTP') : 'Apply Now - Start Earning!'}
+                                    </Text>
                                 </>
                             )}
+                        </TouchableOpacity>
 
-                            {isLogin && showOtp && (
-                                <View style={styles.inputGroup}>
-                                    <Lock size={20} color={colors.textTertiary} style={styles.inputIcon} />
-                                    <TextInput
-                                        ref={otpRef}
-                                        style={[styles.input, { color: colors.textPrimary }]}
-                                        placeholder="Enter OTP (1234)"
-                                        placeholderTextColor={colors.textTertiary}
-                                        keyboardType="number-pad"
-                                        value={otp}
-                                        onChangeText={setOtp}
-                                        maxLength={4}
-                                        returnKeyType="go"
-                                        onSubmitEditing={handleLogin}
-                                    />
-                                </View>
-                            )}
-
-                            {!isLogin && (
-                                <View style={styles.inputGroup}>
-                                    <Lock size={20} color={colors.textTertiary} style={styles.inputIcon} />
-                                    <TextInput
-                                        ref={passwordRef}
-                                        style={[styles.input, { color: colors.textPrimary }]}
-                                        placeholder="Password"
-                                        placeholderTextColor={colors.textTertiary}
-                                        secureTextEntry
-                                        value={password}
-                                        onChangeText={setPassword}
-                                        returnKeyType="go"
-                                        onSubmitEditing={handleSignup}
-                                    />
-                                </View>
-                            )}
-
+                        {/* Social Login */}
+                        <View style={styles.socialContainer}>
+                            <View style={styles.dividerContainer}>
+                                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                                <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or continue with</Text>
+                                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                            </View>
                             <TouchableOpacity
-                                style={[styles.button, { backgroundColor: COLORS.accent }]}
-                                onPress={isLogin ? handleLogin : handleSignup}
-                                disabled={loading}
+                                style={styles.googleBtn}
+                                onPress={() => Alert.alert('Coming Soon', 'Google login is under development.')}
                             >
-                                {loading ? (
-                                    <ActivityIndicator color="#000" />
-                                ) : (
-                                    <>
-                                        {!isLogin && <Zap size={20} color="#000" />}
-                                        <Text style={styles.buttonText}>
-                                            {isLogin ? (showOtp ? 'Verify & Login' : 'Get OTP') : 'Apply Now - Start Earning!'}
-                                        </Text>
-                                    </>
-                                )}
+                                <Mail size={20} color="#fff" />
+                                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Continue with Google</Text>
                             </TouchableOpacity>
+                        </View>
 
-                            {/* Social Login */}
-                            <View style={styles.socialContainer}>
-                                <View style={styles.dividerContainer}>
-                                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                                    <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or continue with</Text>
-                                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                                </View>
+                        <View style={styles.switchContainer}>
+                            {isLogin ? (
                                 <TouchableOpacity
-                                    style={styles.googleBtn}
-                                    onPress={() => Alert.alert('Coming Soon', 'Google login is under development.')}
+                                    style={[styles.becomePartnerBtn, { backgroundColor: COLORS.accent }]}
+                                    onPress={() => setIsLogin(!isLogin)}
                                 >
-                                    <Mail size={20} color="#fff" />
-                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Continue with Google</Text>
+                                    <Briefcase size={20} color="#000" />
+                                    <Text style={styles.becomePartnerText}>BECOME A PARTNER</Text>
                                 </TouchableOpacity>
-                            </View>
-
-                            <View style={styles.switchContainer}>
-                                {isLogin ? (
-                                    <TouchableOpacity
-                                        style={[styles.becomePartnerBtn, { backgroundColor: COLORS.accent }]}
-                                        onPress={() => setIsLogin(!isLogin)}
-                                    >
-                                        <Briefcase size={20} color="#000" />
-                                        <Text style={styles.becomePartnerText}>BECOME A PARTNER</Text>
+                            ) : (
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text style={[styles.switchText, { color: colors.textTertiary }]}>Already have an account? </Text>
+                                    <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+                                        <Text style={[styles.switchLink, { color: COLORS.accent }]}>Login</Text>
                                     </TouchableOpacity>
-                                ) : (
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={[styles.switchText, { color: colors.textTertiary }]}>Already have an account? </Text>
-                                        <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-                                            <Text style={[styles.switchLink, { color: COLORS.accent }]}>Login</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                            </View>
-
-                            {/* Dev Tool */}
-                            <TouchableOpacity onPress={devApproveLast} style={{ marginTop: 40, alignItems: 'center' }}>
-                                <Text style={{ color: colors.textTertiary, fontSize: 11 }}>[Dev: Approve Last Signup]</Text>
-                            </TouchableOpacity>
+                                </View>
+                            )}
                         </View>
 
-                        {/* Trust Indicators */}
-                        <View style={styles.trustSection}>
-                            <View style={styles.trustItem}>
-                                <Text style={[styles.trustNumber, { color: COLORS.accent }]}>10,000+</Text>
-                                <Text style={[styles.trustLabel, { color: colors.textTertiary }]}>Active Partners</Text>
-                            </View>
-                            <View style={styles.trustItem}>
-                                <Text style={[styles.trustNumber, { color: COLORS.success }]}>4.8★</Text>
-                                <Text style={[styles.trustLabel, { color: colors.textTertiary }]}>Partner Rating</Text>
-                            </View>
-                            <View style={styles.trustItem}>
-                                <Text style={[styles.trustNumber, { color: COLORS.primary }]}>₹35k</Text>
-                                <Text style={[styles.trustLabel, { color: colors.textTertiary }]}>Avg. Monthly</Text>
-                            </View>
+                        {/* Dev Tool */}
+                        <TouchableOpacity onPress={devApproveLast} style={{ marginTop: 40, alignItems: 'center' }}>
+                            <Text style={{ color: colors.textTertiary, fontSize: 11 }}>[Dev: Approve Last Signup]</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Trust Indicators */}
+                    <View style={styles.trustSection}>
+                        <View style={styles.trustItem}>
+                            <Text style={[styles.trustNumber, { color: COLORS.accent }]}>10,000+</Text>
+                            <Text style={[styles.trustLabel, { color: colors.textTertiary }]}>Active Partners</Text>
                         </View>
+                        <View style={styles.trustItem}>
+                            <Text style={[styles.trustNumber, { color: COLORS.success }]}>4.8★</Text>
+                            <Text style={[styles.trustLabel, { color: colors.textTertiary }]}>Partner Rating</Text>
+                        </View>
+                        <View style={styles.trustItem}>
+                            <Text style={[styles.trustNumber, { color: COLORS.primary }]}>₹35k</Text>
+                            <Text style={[styles.trustLabel, { color: colors.textTertiary }]}>Avg. Monthly</Text>
+                        </View>
+                    </View>
                 </Animated.View>
             </ScrollView>
 
