@@ -233,6 +233,17 @@ const MenuModal = ({ visible, onClose }) => {
                             )}
                         </View>
 
+                        {/* Admin Section */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: COLORS.danger }]}>ADMINISTRATION</Text>
+                            <MenuItem
+                                icon={Shield}
+                                label="Admin Command Center"
+                                subtitle="Manage partners and betas"
+                                onPress={() => { router.push('/admin'); onClose(); }}
+                            />
+                        </View>
+
                         {/* App Section */}
                         <View style={styles.section}>
                             <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>APP</Text>
