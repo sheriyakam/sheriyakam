@@ -292,20 +292,26 @@ const BookingModal = ({ service, visible, onClose }) => {
                                         <View style={styles.labelRow}>
                                             <Clock size={16} color={COLORS.textTertiary} />
                                             <Text style={styles.label}>Preferred Time</Text>
+                                            {selectedDate === 'Today' && (
+                                                <View style={styles.liveTimeBadge}>
+                                                    <View style={styles.liveDot} />
+                                                    <Text style={styles.liveTimeText}>Now: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                                                </View>
+                                            )}
                                         </View>
                                         <View style={styles.chipGroup}>
                                             {(() => {
                                                 const slots = getAvailableSlots(selectedDate);
 
                                                 if (slots.length === 0) {
-                                                    return <Text style={{ color: COLORS.textTertiary, fontStyle: 'italic' }}>No slots available for Today. Please choose Tomorrow.</Text>;
+                                                    return <Text style={{ color: COLORS.danger, fontStyle: 'italic', fontSize: 13 }}>All slots passed for Today. Please pick Tomorrow.</Text>;
                                                 }
 
                                                 return slots.map(slot => (
                                                     <SelectionChip
                                                         key={slot.id}
                                                         label={slot.label}
-                                                        // subLabel removed as per request
+                                                        subLabel={slot.sub}
                                                         selected={selectedSlot === slot.id}
                                                         onClick={() => setSelectedSlot(slot.id)}
                                                     />
@@ -665,7 +671,28 @@ const styles = StyleSheet.create({
         color: COLORS.textTertiary,
         fontStyle: 'italic',
         marginTop: 4,
-    }
+    },
+    liveTimeBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        marginLeft: 'auto',
+        gap: 4,
+    },
+    liveDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#22c55e',
+    },
+    liveTimeText: {
+        fontSize: 11,
+        fontWeight: 'bold',
+        color: '#22c55e',
+    },
 });
 
 export default BookingModal;
