@@ -4,6 +4,21 @@
     "devCommand": "npx expo start --web",
     "installCommand": "npm install",
     "framework": null,
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache, no-store, must-revalidate"
+                },
+                {
+                    "key": "Pragma",
+                    "value": "no-cache"
+                }
+            ]
+        }
+    ],
     "rewrites": [
         {
             "source": "/(.*)",
