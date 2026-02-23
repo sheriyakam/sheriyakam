@@ -10,7 +10,7 @@ import ReviewModal from '../components/ReviewModal';
 import CancelModal from '../components/CancelModal';
 import PaymentModal from '../components/PaymentModal';
 
-import { getBookings, bookingEvents, payBooking } from '../constants/bookingStore';
+import { getBookings, bookingEvents, payBooking, cancelBooking as cancelBookingInStore } from '../constants/bookingStore';
 
 export default function BookingsScreen() {
     const router = useRouter();
@@ -74,19 +74,14 @@ export default function BookingsScreen() {
 
     const handleCancelBooking = (reason) => {
         if (!cancelBooking) return;
-        // In real app, call cancelBooking(id) from store
-        // For now, local update logic is handled by store events if we implemented cancel in store
-        // Let's assume store handles it, or just log it
-        console.log(`Cancelling booking ${cancelBooking.id}`);
+        cancelBookingInStore(cancelBooking.id);
         setCancelBooking(null);
+        Alert.alert('Cancelled', 'Your booking has been cancelled.');
     };
 
-    const handlePayment = (method) => {
-        if (paymentBooking) {
-            payBooking(paymentBooking.id, method);
-            setPaymentBooking(null);
-            Alert.alert("Success", "Payment Successful!");
-        }
+    const handlePayment = (bookingId, method) => {
+        payBooking(bookingId, method);
+        setPaymentBooking(null);
     };
 
     const BookingCard = ({ booking }) => {
@@ -270,9 +265,9 @@ export default function BookingsScreen() {
 
             <PaymentModal
                 visible={!!paymentBooking}
-                amount={paymentBooking?.finalPrice || 0}
+                booking={paymentBooking}
                 onClose={() => setPaymentBooking(null)}
-                onPaymentComplete={handlePayment}
+                onPay={handlePayment}
             />
         </SafeAreaView>
     );

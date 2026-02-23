@@ -117,3 +117,13 @@ export const approvePartner = (id) => {
     }
     return false;
 };
+
+// Admin function to reject
+export const rejectPartner = (id) => {
+    const partner = partners.find(p => p.id === id);
+    if (partner) {
+        partner.status = 'rejected';
+        return true;
+    }
+    return false;
+};

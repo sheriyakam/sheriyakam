@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield, Briefcase } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import { SPACING } from '../constants/theme';
+import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import ServiceCard from '../components/ServiceCard';
