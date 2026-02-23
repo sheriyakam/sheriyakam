@@ -121,7 +121,12 @@ export default function BookingsScreen() {
                     </View>
                     <View style={styles.detailItem}>
                         <Clock size={14} color={COLORS.textTertiary} />
-                        <Text style={styles.detailText}>{booking.time}</Text>
+                        <Text style={styles.detailText}>
+                            {booking.time}
+                            {booking.time === 'Morning' ? ' · 8–11 AM' :
+                                booking.time === 'Afternoon' ? ' · 12–3 PM' :
+                                    booking.time === 'Evening' ? ' · 4–7 PM' : ''}
+                        </Text>
                     </View>
                 </View>
 

@@ -21,19 +21,43 @@ const RescheduleModal = ({ booking, visible, onClose, onConfirm }) => {
     const [date, setDate] = useState(new Date());
     const [step, setStep] = useState(1);
 
+    // Live time slot helper — same logic as BookingModal
+    const getAvailableSlots = (dateStr) => {
+        const slotDefinitions = [
+            { id: 'Morning', label: 'Morning', sub: '8 AM - 11 AM', endHour: 11 },
+            { id: 'Afternoon', label: 'Afternoon', sub: '12 PM - 3 PM', endHour: 15 },
+            { id: 'Evening', label: 'Evening', sub: '4 PM - 7 PM', endHour: 19 }
+        ];
+        if (dateStr !== 'Today') return slotDefinitions;
+        const currentHour = new Date().getHours();
+        return slotDefinitions.filter(slot => currentHour < slot.endHour);
+    };
+
+    const currentHour = new Date().getHours();
+    const isTodayOver = currentHour >= 19;
+    const availableDays = isTodayOver ? ['Tomorrow', 'Pick Date'] : ['Today', 'Tomorrow', 'Pick Date'];
+
     useEffect(() => {
         if (visible) {
             setStep(1);
-            setSelectedDate('Tomorrow');
+            const initialDate = isTodayOver ? 'Tomorrow' : 'Today';
+            setSelectedDate(initialDate);
             setCustomDate('');
-            setSelectedSlot('Morning');
+            // Smart default: auto-select first available slot
+            const slots = getAvailableSlots(initialDate);
+            setSelectedSlot(slots.length > 0 ? slots[0].id : 'Morning');
             setDate(new Date());
         }
     }, [visible]);
 
     if (!booking) return null;
 
-    const availableDays = ['Today', 'Tomorrow', 'Pick Date'];
+    const handleDaySelect = (day) => {
+        setSelectedDate(day);
+        setCustomDate('');
+        const slots = getAvailableSlots(day);
+        if (slots.length > 0) setSelectedSlot(slots[0].id);
+    };
 
     const onDateChange = (event, selectedDate) => {
         setShowDatePicker(false);
@@ -42,12 +66,12 @@ const RescheduleModal = ({ booking, visible, onClose, onConfirm }) => {
             const formattedDate = selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
             setSelectedDate('Custom');
             setCustomDate(formattedDate);
+            setSelectedSlot('Morning');
         }
     };
 
     const handleConfirm = () => {
-        // Here you would typically make an API call to update the booking
-        setStep(2); // Show success message
+        setStep(2);
     };
 
     const SelectionChip = ({ label, subLabel, selected, onClick, isDate = false }) => (
@@ -114,8 +138,7 @@ const RescheduleModal = ({ booking, visible, onClose, onConfirm }) => {
                                                             if (isCustom) {
                                                                 setShowDatePicker(true);
                                                             } else {
-                                                                setSelectedDate(day);
-                                                                setCustomDate('');
+                                                                handleDaySelect(day);
                                                             }
                                                         }}
                                                         isDate
@@ -139,16 +162,29 @@ const RescheduleModal = ({ booking, visible, onClose, onConfirm }) => {
                                         <View style={styles.labelRow}>
                                             <Clock size={16} color={COLORS.textTertiary} />
                                             <Text style={styles.label}>New Time</Text>
+                                            {selectedDate === 'Today' && (
+                                                <View style={styles.liveTimeBadge}>
+                                                    <View style={styles.liveDot} />
+                                                    <Text style={styles.liveTimeText}>Now: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                                                </View>
+                                            )}
                                         </View>
                                         <View style={styles.chipGroup}>
-                                            {['Morning', 'Afternoon', 'Evening'].map(slot => (
-                                                <SelectionChip
-                                                    key={slot}
-                                                    label={slot}
-                                                    selected={selectedSlot === slot}
-                                                    onClick={() => setSelectedSlot(slot)}
-                                                />
-                                            ))}
+                                            {(() => {
+                                                const slots = getAvailableSlots(selectedDate);
+                                                if (slots.length === 0) {
+                                                    return <Text style={{ color: COLORS.danger, fontStyle: 'italic', fontSize: 13 }}>All slots passed for Today. Please pick Tomorrow.</Text>;
+                                                }
+                                                return slots.map(slot => (
+                                                    <SelectionChip
+                                                        key={slot.id}
+                                                        label={slot.label}
+                                                        subLabel={slot.sub}
+                                                        selected={selectedSlot === slot.id}
+                                                        onClick={() => setSelectedSlot(slot.id)}
+                                                    />
+                                                ));
+                                            })()}
                                         </View>
                                     </View>
                                 </ScrollView>
@@ -268,6 +304,11 @@ const styles = StyleSheet.create({
     chipTextUnselected: {
         color: COLORS.textTertiary,
     },
+    chipSubLabel: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.5)',
+        marginTop: 2,
+    },
     footer: {
         padding: SPACING.lg,
         paddingTop: 0,
@@ -307,6 +348,27 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: COLORS.border,
         width: '100%',
+    },
+    liveTimeBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        marginLeft: 'auto',
+        gap: 4,
+    },
+    liveDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#22c55e',
+    },
+    liveTimeText: {
+        fontSize: 11,
+        fontWeight: 'bold',
+        color: '#22c55e',
     },
 });
 
