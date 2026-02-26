@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Switch, ActivityIndicator, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator, Linking, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING } from '../../constants/theme';
-import { MapPin, Clock, DollarSign, Calendar, ChevronRight, CheckCircle, MessageSquare, Phone, Navigation, User } from 'lucide-react-native';
+import { MapPin, Clock, DollarSign, Calendar, ChevronRight, CheckCircle, MessageSquare, Phone, Navigation, User, Power, Briefcase, TrendingUp, Star, Zap, IndianRupee } from 'lucide-react-native';
 
 import { getCurrentPartner, logoutPartner, togglePartnerAvailability } from '../../constants/partnerStore';
-
 import { getBookings, bookingEvents, acceptBookingByPartner } from '../../constants/bookingStore';
-
-const MOCK_REQUESTS = getBookings();
 
 export default function PartnerDashboard() {
     const router = useRouter();
     const currentPartner = getCurrentPartner();
-    const [activeTab, setActiveTab] = useState('new'); // 'new' | 'my' | 'earnings'
+    const [activeTab, setActiveTab] = useState('new');
     const [myJobs, setMyJobs] = useState([]);
     const [isAvailable, setIsAvailable] = useState(currentPartner?.isAvailable ?? true);
+    const [availableJobs, setAvailableJobs] = useState([]);
 
     const handleToggle = () => {
         const newState = togglePartnerAvailability();
@@ -25,8 +23,6 @@ export default function PartnerDashboard() {
 
     const refreshData = () => {
         const allBookings = getBookings();
-
-        // Filter Open Jobs logic
         const openJobs = allBookings.filter(job =>
             job.status === 'open' &&
             currentPartner?.serviceTypes?.includes(job.serviceType) &&
@@ -34,15 +30,12 @@ export default function PartnerDashboard() {
         );
         setAvailableJobs(openJobs);
 
-        // Filter My Jobs logic
         const myJobsList = allBookings.filter(job =>
-            (job.status === 'accepted' || job.status === 'completed') &&
-            (job.partnerName === currentPartner?.name) // Ensure we claim the job in store
+            ['accepted', 'in_progress', 'completed'].includes(job.status) &&
+            (job.partnerName === currentPartner?.name)
         );
         setMyJobs(myJobsList);
     };
-
-    const [availableJobs, setAvailableJobs] = useState([]);
 
     useEffect(() => {
         refreshData();
@@ -51,38 +44,28 @@ export default function PartnerDashboard() {
     }, [currentPartner]);
 
     if (!currentPartner) {
-        // Redirect to login if accessed directly without session (simple protection)
-        // In a real app we'd use a layout/context guard
         setTimeout(() => router.replace('/partner/auth'), 0);
-        return <View style={styles.container}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+        return <View style={styles.container}><ActivityIndicator size="large" color={COLORS.accent} /></View>;
     }
 
     const handleLogout = () => {
-        logoutPartner();
-        router.replace('/partner/auth');
+        Alert.alert('Logout', 'Are you sure you want to logout?', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Logout', style: 'destructive', onPress: () => { logoutPartner(); router.replace('/partner/auth'); } }
+        ]);
     };
 
     const acceptJob = (job) => {
-        Alert.alert(
-            'Accept Job',
-            `Are you sure you want to accept the service for ${job.customerName}?`,
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Accept',
-                    onPress: () => {
-                        console.log('Accepting job:', job.id);
-                        const success = acceptBookingByPartner(job.id, currentPartner.name);
-                        if (success) {
-                            Alert.alert('Success', 'Job accepted! You can now contact the customer.');
-                            // Store event will trigger refreshData
-                        } else {
-                            Alert.alert('Error', 'Could not accept job. It may have been taken.');
-                        }
-                    }
+        Alert.alert('Accept Job', `Accept service for ${job.customerName}?`, [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Accept', onPress: () => {
+                    const success = acceptBookingByPartner(job.id, currentPartner.name);
+                    if (success) Alert.alert('✅ Job Accepted', 'Navigate to the customer location.');
+                    else Alert.alert('Error', 'Job may have been taken by another partner.');
                 }
-            ]
-        );
+            }
+        ]);
     };
 
     const openMap = (address) => {
@@ -92,474 +75,401 @@ export default function PartnerDashboard() {
             android: `geo:0,0?q=${query}`,
             web: `https://www.google.com/maps/search/?api=1&query=${query}`
         });
-
-        Linking.openURL(url).catch(err => {
-            console.error("Error opening map:", err);
-            Alert.alert("Error", "Could not open map.");
-        });
+        Linking.openURL(url).catch(() => Alert.alert("Error", "Could not open map."));
     };
 
-    const renderJobItem = ({ item }) => (
-        <View style={styles.card}>
-            <View style={styles.cardHeader}>
-                <View>
-                    <Text style={styles.serviceTitle}>{item.service}</Text>
-                    <Text style={styles.customerName}>{item.customerName}</Text>
-                </View>
-                <View style={styles.priceTag}>
-                    <Text style={styles.priceText}>₹{item.price}</Text>
-                </View>
-            </View>
+    // Stats
+    const completedJobs = myJobs.filter(j => j.status === 'completed');
+    const totalEarnings = completedJobs.reduce((sum, job) => sum + (job.finalPrice || job.price || 0), 0);
+    const commission = totalEarnings * 0.10;
+    const payout = totalEarnings - commission;
+    const activeJobs = myJobs.filter(j => j.status === 'accepted' || j.status === 'in_progress');
 
-            <View style={styles.cardBody}>
-                <View style={styles.infoRow}>
-                    <MapPin size={16} color={COLORS.textSecondary} />
-                    <Text style={styles.infoText}>{item.address}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                    <MapPin size={16} color={COLORS.accent} />
-                    <Text style={[styles.infoText, { color: COLORS.accent }]}>{item.distance} away</Text>
-                </View>
-                <View style={styles.infoRow}>
-                    <Calendar size={16} color={COLORS.textSecondary} />
-                    <Text style={styles.infoText}>{item.date}</Text>
+    const renderJobCard = ({ item }) => {
+        const isNew = activeTab === 'new';
+        const statusColor = item.status === 'completed' ? COLORS.success : item.status === 'in_progress' ? '#f59e0b' : COLORS.accent;
+        const statusLabel = item.status === 'completed' ? 'Completed' : item.status === 'in_progress' ? 'In Progress' : item.status === 'accepted' ? 'Accepted' : 'New';
+
+        return (
+            <View style={styles.card}>
+                {/* Card Top */}
+                <View style={styles.cardTop}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.cardService}>{item.service}</Text>
+                        <Text style={styles.cardCustomer}>{item.customerName}</Text>
+                    </View>
+                    <View style={[styles.priceBadge, isNew && { backgroundColor: 'rgba(34, 197, 94, 0.15)' }]}>
+                        <Text style={[styles.priceText, isNew && { color: COLORS.success }]}>₹{item.finalPrice || item.price}</Text>
+                    </View>
                 </View>
 
-                {/* Contact & Navigation for Accepted Jobs */}
-                {activeTab !== 'new' && (
-                    <View style={styles.contactSection}>
-                        <View style={styles.divider} />
-                        <View style={styles.contactRow}>
-                            <Phone size={18} color={COLORS.primary} />
-                            <Text style={styles.contactText}>{item.customerPhone || 'No number'}</Text>
-                            <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${item.customerPhone}`)}>
-                                <Text style={styles.callBtnText}>Call</Text>
-                            </TouchableOpacity>
-                        </View>
+                {/* Card Details */}
+                <View style={styles.cardDetails}>
+                    <View style={styles.detailChip}>
+                        <MapPin size={13} color={COLORS.textTertiary} />
+                        <Text style={styles.detailChipText}>{item.distance}</Text>
+                    </View>
+                    <View style={styles.detailChip}>
+                        <Calendar size={13} color={COLORS.textTertiary} />
+                        <Text style={styles.detailChipText}>{item.date}</Text>
+                    </View>
+                    <View style={styles.detailChip}>
+                        <Clock size={13} color={COLORS.textTertiary} />
+                        <Text style={styles.detailChipText}>{item.time || 'Flexible'}</Text>
+                    </View>
+                </View>
+
+                {/* Address */}
+                <View style={styles.addressRow}>
+                    <MapPin size={14} color={COLORS.textSecondary} />
+                    <Text style={styles.addressText} numberOfLines={1}>{item.address}</Text>
+                </View>
+
+                {/* Status Badge for My Jobs */}
+                {!isNew && (
+                    <View style={[styles.statusStrip, { backgroundColor: statusColor + '15' }]}>
+                        <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+                        <Text style={[styles.statusLabel, { color: statusColor }]}>{statusLabel}</Text>
+                    </View>
+                )}
+
+                {/* Actions */}
+                {isNew ? (
+                    <TouchableOpacity style={styles.acceptBtn} onPress={() => acceptJob(item)}>
+                        <Zap size={16} color="#000" />
+                        <Text style={styles.acceptBtnText}>Accept Job</Text>
+                    </TouchableOpacity>
+                ) : item.status === 'completed' ? (
+                    <View style={[styles.completedBar]}>
+                        <CheckCircle size={16} color={COLORS.success} />
+                        <Text style={styles.completedText}>Job Completed</Text>
+                        {item.paymentStatus === 'paid' && <Text style={styles.paidBadge}>PAID</Text>}
+                    </View>
+                ) : (
+                    <View style={styles.actionRow}>
+                        <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${item.customerPhone}`)}>
+                            <Phone size={16} color={COLORS.accent} />
+                            <Text style={styles.callBtnText}>Call</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity style={styles.navBtn} onPress={() => openMap(item.address)}>
                             <Navigation size={16} color="#fff" />
-                            <Text style={styles.navBtnText}>Navigate to Location</Text>
+                            <Text style={styles.navBtnText}>Navigate</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.jobBtn}
+                            onPress={() => router.push({ pathname: `/partner/job/${item.id}`, params: item })}
+                        >
+                            <CheckCircle size={16} color="#fff" />
+                            <Text style={styles.jobBtnText}>Manage</Text>
                         </TouchableOpacity>
                     </View>
                 )}
             </View>
-
-            {activeTab === 'new' ? (
-                <TouchableOpacity style={styles.acceptButton} onPress={() => acceptJob(item)}>
-                    <Text style={styles.acceptButtonText}>Accept Job</Text>
-                </TouchableOpacity>
-            ) : (
-                item.status === 'completed' ? (
-                    <View style={[styles.statusButton, { backgroundColor: COLORS.success, opacity: 0.8 }]}>
-                        <CheckCircle size={16} color="#fff" />
-                        <Text style={styles.statusButtonText}>Completed</Text>
-                    </View>
-                ) : (
-                    <TouchableOpacity
-                        style={styles.statusButton}
-                        onPress={() => router.push({ pathname: `/partner/job/${item.id}`, params: item })}
-                    >
-                        <CheckCircle size={16} color="#fff" />
-                        <Text style={styles.statusButtonText}>Mark Job Completed</Text>
-                    </TouchableOpacity>
-                )
-            )}
-        </View>
-    );
-
-    const renderEarningsTab = () => {
-        const completedJobs = myJobs.filter(j => j.status === 'completed');
-        const totalEarnings = completedJobs.reduce((sum, job) => sum + (job.finalPrice || job.price || 0), 0);
-        const commission = totalEarnings * 0.10; // 10% commission
-        const payout = totalEarnings - commission;
-
-        return (
-            <View style={styles.earningsContainer}>
-                <View style={styles.earningsCard}>
-                    <DollarSign size={32} color={COLORS.success} />
-                    <Text style={styles.earningsAmount}>₹{payout.toFixed(2)}</Text>
-                    <Text style={styles.earningsLabel}>Your Total Payout</Text>
-
-                    <View style={styles.earningsDivider} />
-
-                    <View style={styles.earningsRow}>
-                        <Text style={styles.earningsText}>Total Revenue:</Text>
-                        <Text style={styles.earningsText}>₹{totalEarnings.toFixed(2)}</Text>
-                    </View>
-                    <View style={styles.earningsRow}>
-                        <Text style={styles.earningsText}>Sheriyakam Fee (10%):</Text>
-                        <Text style={[styles.earningsText, { color: COLORS.danger }]}>-₹{commission.toFixed(2)}</Text>
-                    </View>
-                    <View style={styles.earningsRow}>
-                        <Text style={styles.earningsText}>Completed Jobs:</Text>
-                        <Text style={styles.earningsText}>{completedJobs.length}</Text>
-                    </View>
-                </View>
-            </View>
         );
     };
+
+    const renderEarningsTab = () => (
+        <ScrollView contentContainerStyle={styles.earningsScroll}>
+            {/* Payout Hero */}
+            <View style={styles.payoutHero}>
+                <Text style={styles.payoutLabel}>Net Payout</Text>
+                <Text style={styles.payoutAmount}>₹{payout.toFixed(0)}</Text>
+                <Text style={styles.payoutSub}>{completedJobs.length} jobs completed</Text>
+            </View>
+
+            {/* Stats Grid */}
+            <View style={styles.statsGrid}>
+                <View style={styles.statCard}>
+                    <TrendingUp size={20} color={COLORS.accent} />
+                    <Text style={styles.statValue}>₹{totalEarnings.toFixed(0)}</Text>
+                    <Text style={styles.statLabel}>Revenue</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <IndianRupee size={20} color={COLORS.danger} />
+                    <Text style={styles.statValue}>-₹{commission.toFixed(0)}</Text>
+                    <Text style={styles.statLabel}>Commission (10%)</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <Star size={20} color={COLORS.gold} />
+                    <Text style={styles.statValue}>{currentPartner.performanceScore || 0}</Text>
+                    <Text style={styles.statLabel}>Score</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <Briefcase size={20} color={COLORS.success} />
+                    <Text style={styles.statValue}>{activeJobs.length}</Text>
+                    <Text style={styles.statLabel}>Active Jobs</Text>
+                </View>
+            </View>
+
+            {/* Recent Completed */}
+            {completedJobs.length > 0 && (
+                <View style={styles.recentSection}>
+                    <Text style={styles.recentTitle}>Recent Completions</Text>
+                    {completedJobs.slice(0, 5).map(job => (
+                        <View key={job.id} style={styles.recentItem}>
+                            <View>
+                                <Text style={styles.recentService}>{job.service}</Text>
+                                <Text style={styles.recentCustomer}>{job.customerName}</Text>
+                            </View>
+                            <Text style={styles.recentPrice}>₹{job.finalPrice || job.price}</Text>
+                        </View>
+                    ))}
+                </View>
+            )}
+        </ScrollView>
+    );
 
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <View>
-                    <Text style={styles.greeting}>Welcome, {currentPartner?.name || 'Partner'}</Text>
-                    <Text style={styles.subGreeting}>
-                        {(currentPartner?.serviceTypes || []).join(', ')}
-                    </Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.greeting}>Hi, {currentPartner?.name?.split(' ')[0] || 'Partner'} 👋</Text>
+                    <Text style={styles.subGreeting}>{(currentPartner?.serviceTypes || []).join(' • ')}</Text>
                 </View>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity
-                        onPress={() => router.push('/partner/profile')}
-                        style={styles.actionBtn}
-                    >
-                        <User size={24} color={COLORS.textPrimary} />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity onPress={() => router.push('/partner/profile')} style={styles.headerBtn}>
+                    <User size={20} color={COLORS.textPrimary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleLogout} style={[styles.headerBtn, { marginLeft: 8 }]}>
+                    <Power size={20} color={COLORS.danger} />
+                </TouchableOpacity>
             </View>
 
-            {/* Availability Toggle Button */}
+            {/* Availability Toggle */}
             <TouchableOpacity
-                style={[
-                    styles.availabilityBtn,
-                    { backgroundColor: isAvailable ? COLORS.success : COLORS.danger }
-                ]}
+                style={[styles.availToggle, { backgroundColor: isAvailable ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)', borderColor: isAvailable ? COLORS.success : COLORS.danger }]}
                 onPress={handleToggle}
+                activeOpacity={0.7}
             >
-                <Text style={styles.availabilityBtnText}>
-                    {isAvailable ? 'I AM AVAILABLE' : 'I AM NOT AVAILABLE'}
+                <View style={[styles.toggleDot, { backgroundColor: isAvailable ? COLORS.success : COLORS.danger }]} />
+                <Text style={[styles.toggleText, { color: isAvailable ? COLORS.success : COLORS.danger }]}>
+                    {isAvailable ? 'ONLINE — Accepting Jobs' : 'OFFLINE — Not Accepting'}
                 </Text>
             </TouchableOpacity>
 
-
+            {/* Quick Stats Bar */}
+            <View style={styles.quickStats}>
+                <View style={styles.quickStatItem}>
+                    <Text style={styles.quickStatValue}>{availableJobs.length}</Text>
+                    <Text style={styles.quickStatLabel}>Available</Text>
+                </View>
+                <View style={styles.quickStatDivider} />
+                <View style={styles.quickStatItem}>
+                    <Text style={styles.quickStatValue}>{activeJobs.length}</Text>
+                    <Text style={styles.quickStatLabel}>Active</Text>
+                </View>
+                <View style={styles.quickStatDivider} />
+                <View style={styles.quickStatItem}>
+                    <Text style={styles.quickStatValue}>{completedJobs.length}</Text>
+                    <Text style={styles.quickStatLabel}>Done</Text>
+                </View>
+                <View style={styles.quickStatDivider} />
+                <View style={styles.quickStatItem}>
+                    <Text style={[styles.quickStatValue, { color: COLORS.success }]}>₹{payout.toFixed(0)}</Text>
+                    <Text style={styles.quickStatLabel}>Earnings</Text>
+                </View>
+            </View>
 
             {/* Tabs */}
             <View style={styles.tabs}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'new' && styles.activeTab]}
-                    onPress={() => setActiveTab('new')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'new' && styles.activeTabText]}>New Requests</Text>
-                    {availableJobs.length > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{availableJobs.length}</Text></View>}
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'my' && styles.activeTab]}
-                    onPress={() => setActiveTab('my')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'my' && styles.activeTabText]}>My Jobs</Text>
-                    {myJobs.length > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{myJobs.length}</Text></View>}
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'earnings' && styles.activeTab, { marginRight: 0 }]}
-                    onPress={() => setActiveTab('earnings')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'earnings' && styles.activeTabText]}>Earnings</Text>
-                </TouchableOpacity>
+                {[
+                    { key: 'new', label: 'New Requests', count: availableJobs.length },
+                    { key: 'my', label: 'My Jobs', count: myJobs.length },
+                    { key: 'earnings', label: 'Earnings', count: null },
+                ].map(tab => (
+                    <TouchableOpacity
+                        key={tab.key}
+                        style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+                        onPress={() => setActiveTab(tab.key)}
+                    >
+                        <Text style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}>{tab.label}</Text>
+                        {tab.count > 0 && (
+                            <View style={[styles.badge, activeTab === tab.key && { backgroundColor: COLORS.accent }]}>
+                                <Text style={styles.badgeText}>{tab.count}</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                ))}
             </View>
 
-            {/* List */}
+            {/* Content */}
             {activeTab === 'earnings' ? renderEarningsTab() : (
                 <FlatList
                     data={activeTab === 'new' ? (isAvailable ? availableJobs : []) : myJobs}
                     keyExtractor={item => item.id}
-                    renderItem={renderJobItem}
+                    renderItem={renderJobCard}
                     contentContainerStyle={styles.listContent}
                     ListEmptyComponent={
                         <View style={styles.emptyState}>
+                            <Briefcase size={48} color={COLORS.border} />
+                            <Text style={styles.emptyTitle}>
+                                {!isAvailable && activeTab === 'new' ? 'You are Offline' : 'No Jobs Found'}
+                            </Text>
                             <Text style={styles.emptyText}>
                                 {!isAvailable && activeTab === 'new'
-                                    ? "You are currently offline. Go online to see requests."
-                                    : `No ${activeTab === 'new' ? 'new requests' : 'active jobs'} found.`}
+                                    ? 'Go online to start receiving job requests.'
+                                    : activeTab === 'new' ? 'New requests will appear here when customers book.' : 'Accepted jobs will appear here.'}
                             </Text>
                         </View>
                     }
                 />
             )}
-            {/* Floating Chat Button */}
-            <TouchableOpacity
-                style={styles.fabChat}
-                onPress={() => router.push('/partner/messages')}
-            >
-                <MessageSquare size={24} color="#fff" />
+
+            {/* Floating Chat */}
+            <TouchableOpacity style={styles.fab} onPress={() => router.push('/partner/messages')}>
+                <MessageSquare size={22} color="#fff" />
             </TouchableOpacity>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.bgPrimary,
-    },
+    container: { flex: 1, backgroundColor: COLORS.bgPrimary },
     header: {
-        padding: SPACING.lg,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: 'row', alignItems: 'center',
+        paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
     },
-    greeting: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+    greeting: { fontSize: 22, fontWeight: 'bold', color: COLORS.textPrimary },
+    subGreeting: { color: COLORS.textSecondary, fontSize: 13, marginTop: 2 },
+    headerBtn: {
+        width: 40, height: 40, borderRadius: 12, backgroundColor: COLORS.bgSecondary,
+        alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.border,
     },
-    subGreeting: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
-        fontWeight: '500',
+    availToggle: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+        marginHorizontal: SPACING.lg, paddingVertical: 14, borderRadius: 12,
+        borderWidth: 1.5, gap: 10, marginBottom: SPACING.sm,
     },
-    statusRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
-        gap: 6,
+    toggleDot: { width: 10, height: 10, borderRadius: 5 },
+    toggleText: { fontSize: 14, fontWeight: '800', letterSpacing: 0.5 },
+    quickStats: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around',
+        marginHorizontal: SPACING.lg, paddingVertical: 12,
+        backgroundColor: COLORS.bgSecondary, borderRadius: 12,
+        borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.sm,
     },
-    statusDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    },
-    headerActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    logoutBtn: {
-        padding: 8,
-    },
+    quickStatItem: { alignItems: 'center', flex: 1 },
+    quickStatValue: { fontSize: 18, fontWeight: 'bold', color: COLORS.textPrimary },
+    quickStatLabel: { fontSize: 11, color: COLORS.textTertiary, marginTop: 2 },
+    quickStatDivider: { width: 1, height: 28, backgroundColor: COLORS.border },
     tabs: {
-        flexDirection: 'row',
-        paddingHorizontal: SPACING.lg,
-        borderBottomWidth: 1,
-        borderColor: COLORS.border,
+        flexDirection: 'row', paddingHorizontal: SPACING.lg,
+        borderBottomWidth: 1, borderColor: COLORS.border,
     },
     tab: {
-        paddingVertical: SPACING.md,
-        marginRight: SPACING.xl,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
+        paddingVertical: 12, marginRight: SPACING.xl,
+        flexDirection: 'row', alignItems: 'center', gap: 6,
     },
-    activeTab: {
-        borderBottomWidth: 2,
-        borderColor: COLORS.primary,
-    },
-    tabText: {
-        fontSize: 16,
-        color: COLORS.textSecondary,
-        fontWeight: '600',
-    },
-    activeTabText: {
-        color: COLORS.primary,
-    },
+    activeTab: { borderBottomWidth: 2, borderColor: COLORS.accent },
+    tabText: { fontSize: 14, color: COLORS.textSecondary, fontWeight: '600' },
+    activeTabText: { color: COLORS.accent },
     badge: {
-        backgroundColor: COLORS.danger,
-        borderRadius: 10,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
+        backgroundColor: COLORS.danger, borderRadius: 10,
+        paddingHorizontal: 6, paddingVertical: 2,
     },
-    badgeText: {
-        color: '#fff',
-        fontSize: 10,
-        fontWeight: 'bold',
-    },
-    listContent: {
-        padding: SPACING.lg,
-    },
+    badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+    listContent: { padding: SPACING.lg, paddingBottom: 100 },
+
+    // Job Card
     card: {
-        backgroundColor: COLORS.bgSecondary,
-        borderRadius: 12,
-        padding: SPACING.md,
-        marginBottom: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
+        backgroundColor: COLORS.bgSecondary, borderRadius: 16, padding: SPACING.lg,
+        marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
     },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: SPACING.sm,
+    cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+    cardService: { fontSize: 17, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: 2 },
+    cardCustomer: { fontSize: 13, color: COLORS.textSecondary },
+    priceBadge: {
+        backgroundColor: 'rgba(37, 99, 235, 0.1)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8,
     },
-    serviceTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: 4,
+    priceText: { color: COLORS.accent, fontWeight: 'bold', fontSize: 15 },
+    cardDetails: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 },
+    detailChip: {
+        flexDirection: 'row', alignItems: 'center', gap: 4,
+        backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6,
     },
-    customerName: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
+    detailChipText: { color: COLORS.textTertiary, fontSize: 12 },
+    addressRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+    addressText: { color: COLORS.textSecondary, fontSize: 13, flex: 1 },
+    statusStrip: {
+        flexDirection: 'row', alignItems: 'center', gap: 6,
+        paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, marginBottom: 12,
     },
-    priceTag: {
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
+    statusDot: { width: 7, height: 7, borderRadius: 4 },
+    statusLabel: { fontSize: 12, fontWeight: 'bold' },
+    acceptBtn: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+        backgroundColor: COLORS.accent, paddingVertical: 13, borderRadius: 10,
     },
-    priceText: {
-        color: COLORS.success,
-        fontWeight: 'bold',
+    acceptBtnText: { color: '#000', fontWeight: 'bold', fontSize: 15 },
+    completedBar: {
+        flexDirection: 'row', alignItems: 'center', gap: 8,
+        paddingVertical: 10, paddingHorizontal: 12, borderRadius: 8,
+        backgroundColor: 'rgba(34, 197, 94, 0.08)',
     },
-    cardBody: {
-        marginBottom: SPACING.md,
+    completedText: { color: COLORS.success, fontWeight: '600', fontSize: 14, flex: 1 },
+    paidBadge: {
+        backgroundColor: COLORS.success, color: '#fff', fontSize: 10,
+        fontWeight: 'bold', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, overflow: 'hidden',
     },
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 6,
-    },
-    infoText: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
-    },
-    acceptButton: {
-        backgroundColor: COLORS.primary,
-        padding: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    acceptButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    statusButton: {
-        backgroundColor: COLORS.success,
-        padding: 12,
-        borderRadius: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-    },
-    statusButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    emptyState: {
-        padding: 40,
-        alignItems: 'center',
-    },
-    emptyText: {
-        color: COLORS.textTertiary,
-    },
-    availabilityBtn: {
-        marginHorizontal: SPACING.lg,
-        paddingVertical: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginBottom: SPACING.md,
-    },
-    availabilityBtnText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    actionBtn: {
-        padding: 8,
-        backgroundColor: COLORS.bgSecondary,
-        borderRadius: 8,
-    },
-    contactSection: {
-        marginTop: SPACING.sm,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLORS.border,
-        marginVertical: SPACING.sm,
-    },
-    contactRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: SPACING.sm,
-        gap: 8,
-    },
-    contactText: {
-        fontSize: 16,
-        color: COLORS.textPrimary,
-        fontWeight: 'bold',
-        flex: 1,
-    },
+    actionRow: { flexDirection: 'row', gap: 8 },
     callBtn: {
-        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 6,
+        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+        paddingVertical: 11, borderRadius: 8, borderWidth: 1, borderColor: COLORS.accent,
     },
-    callBtnText: {
-        color: COLORS.primary,
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
+    callBtnText: { color: COLORS.accent, fontWeight: 'bold', fontSize: 13 },
     navBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: COLORS.accent,
-        padding: 10,
-        borderRadius: 8,
-        gap: 8,
+        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+        paddingVertical: 11, borderRadius: 8, backgroundColor: COLORS.accent,
     },
-    navBtnText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 14,
+    navBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+    jobBtn: {
+        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+        paddingVertical: 11, borderRadius: 8, backgroundColor: COLORS.success,
     },
-    fabChat: {
-        position: 'absolute',
-        bottom: 30,
-        right: 20,
-        backgroundColor: COLORS.primary,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+    jobBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+
+    // Empty State
+    emptyState: { alignItems: 'center', paddingVertical: 60 },
+    emptyTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.textPrimary, marginTop: 16, marginBottom: 6 },
+    emptyText: { color: COLORS.textTertiary, fontSize: 14, textAlign: 'center', paddingHorizontal: 40 },
+
+    // Earnings Tab
+    earningsScroll: { padding: SPACING.lg, paddingBottom: 100 },
+    payoutHero: {
+        alignItems: 'center', paddingVertical: SPACING.xl,
+        backgroundColor: 'rgba(34,197,94,0.06)', borderRadius: 16,
+        borderWidth: 1, borderColor: 'rgba(34,197,94,0.15)', marginBottom: SPACING.lg,
     },
-    earningsContainer: {
-        padding: SPACING.lg,
+    payoutLabel: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 4 },
+    payoutAmount: { fontSize: 40, fontWeight: '900', color: COLORS.success },
+    payoutSub: { fontSize: 13, color: COLORS.textTertiary, marginTop: 4 },
+    statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, marginBottom: SPACING.lg },
+    statCard: {
+        flex: 1, minWidth: '45%', backgroundColor: COLORS.bgSecondary,
+        padding: SPACING.md, borderRadius: 12, alignItems: 'center',
+        borderWidth: 1, borderColor: COLORS.border,
     },
-    earningsCard: {
-        backgroundColor: COLORS.bgSecondary,
-        borderRadius: 12,
-        padding: SPACING.xl,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: COLORS.border,
+    statValue: { fontSize: 18, fontWeight: 'bold', color: COLORS.textPrimary, marginTop: 6 },
+    statLabel: { fontSize: 11, color: COLORS.textTertiary, marginTop: 2 },
+    recentSection: {
+        backgroundColor: COLORS.bgSecondary, borderRadius: 12, padding: SPACING.lg,
+        borderWidth: 1, borderColor: COLORS.border,
     },
-    earningsAmount: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: COLORS.success,
-        marginTop: SPACING.sm,
+    recentTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: SPACING.md },
+    recentItem: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        paddingVertical: 10, borderBottomWidth: 1, borderColor: COLORS.border,
     },
-    earningsLabel: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
-        marginBottom: SPACING.lg,
+    recentService: { fontSize: 14, fontWeight: '600', color: COLORS.textPrimary },
+    recentCustomer: { fontSize: 12, color: COLORS.textTertiary },
+    recentPrice: { fontSize: 15, fontWeight: 'bold', color: COLORS.success },
+
+    // FAB
+    fab: {
+        position: 'absolute', bottom: 24, right: 20,
+        backgroundColor: COLORS.accent, width: 56, height: 56, borderRadius: 28,
+        alignItems: 'center', justifyContent: 'center',
+        elevation: 6, shadowColor: COLORS.accent, shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3, shadowRadius: 8,
     },
-    earningsDivider: {
-        height: 1,
-        backgroundColor: COLORS.border,
-        width: '100%',
-        marginBottom: SPACING.lg,
-    },
-    earningsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: SPACING.sm,
-    },
-    earningsText: {
-        fontSize: 16,
-        color: COLORS.textPrimary,
-        fontWeight: '500',
-    }
 });

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions, TextInput, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform, Dimensions, TextInput, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar, CheckCircle, Smartphone } from 'lucide-react-native';
+import { MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar, CheckCircle, Shield, User, IndianRupee, Zap } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../../constants/theme';
 import { completeBookingByPartner, checkInBookingByPartner, getPartnerJobs } from '../../../constants/bookingStore';
 import JobMap from '../../../components/JobMap';
@@ -14,7 +14,7 @@ export default function JobDetails() {
     const router = useRouter();
 
     const [otpModalVisible, setOtpModalVisible] = useState(false);
-    const [modalType, setModalType] = useState('complete'); // 'checkin' | 'complete'
+    const [modalType, setModalType] = useState('complete');
     const [otp, setOtp] = useState('');
     const [hours, setHours] = useState('1');
     const [loading, setLoading] = useState(false);
@@ -27,11 +27,11 @@ export default function JobDetails() {
         address: params.address,
         price: params.price,
         date: params.date,
+        time: params.time,
         distance: params.distance,
-        // Mock coordinates for map
         latitude: params.latitude ? parseFloat(params.latitude) : 11.2588,
         longitude: params.longitude ? parseFloat(params.longitude) : 75.7804,
-        status: params.status || 'accepted'
+        status: params.status || 'accepted',
     });
 
     useEffect(() => {
@@ -44,12 +44,17 @@ export default function JobDetails() {
 
     const job = liveJob;
 
+    const statusConfig = {
+        open: { label: 'Open', color: COLORS.accent, bg: 'rgba(37,99,235,0.1)' },
+        accepted: { label: 'Accepted', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+        in_progress: { label: 'In Progress', color: COLORS.accent, bg: 'rgba(37,99,235,0.1)' },
+        completed: { label: 'Completed', color: COLORS.success, bg: 'rgba(34,197,94,0.1)' },
+    };
+    const status = statusConfig[job.status] || statusConfig.open;
+
     const handleCall = () => {
-        if (job.phone) {
-            Linking.openURL(`tel:${job.phone}`);
-        } else {
-            Alert.alert("Info", "Phone number not available");
-        }
+        if (job.phone) Linking.openURL(`tel:${job.phone}`);
+        else Alert.alert("Info", "Phone number not available.");
     };
 
     const handleDirections = () => {
@@ -63,37 +68,25 @@ export default function JobDetails() {
     };
 
     const handleVerifyOtp = () => {
-        if (otp.length < 4) {
-            alert("Please enter a valid 4-digit OTP");
-            return;
-        }
-
+        if (otp.length < 4) { alert("Enter a valid 4-digit OTP."); return; }
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-
             if (modalType === 'checkin') {
                 const result = checkInBookingByPartner(job.id, otp);
                 if (result.success) {
-                    setOtpModalVisible(false);
-                    setOtp('');
+                    setOtpModalVisible(false); setOtp('');
                     setLiveJob({ ...job, status: 'in_progress' });
-                    Alert.alert("Success", "Checked In! Status is now Work In Progress.");
-                } else {
-                    alert(result.message || "Invalid Check-In OTP!");
-                    setOtp('');
-                }
+                    Alert.alert("✅ Checked In", "Job status: Work In Progress.");
+                } else { alert(result.message || "Invalid Check-In OTP!"); setOtp(''); }
             } else {
                 const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1);
                 if (result.success) {
                     setOtpModalVisible(false);
-                    Alert.alert("Success", "Job Marked as Completed! Customer has been notified for payment.", [
+                    Alert.alert("✅ Job Complete", "Customer has been notified for payment.", [
                         { text: "OK", onPress: () => router.replace('/partner') }
                     ]);
-                } else {
-                    alert(result.message || "Invalid OTP! Ask customer for the code.");
-                    setOtp('');
-                }
+                } else { alert(result.message || "Invalid OTP!"); setOtp(''); }
             }
         }, 1000);
     };
@@ -106,91 +99,112 @@ export default function JobDetails() {
                     <ArrowLeft size={24} color={COLORS.textPrimary} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Job Details</Text>
-                <View style={{ width: 24 }} />
+                <View style={[styles.headerStatus, { backgroundColor: status.bg }]}>
+                    <Text style={[styles.headerStatusText, { color: status.color }]}>{status.label}</Text>
+                </View>
             </View>
 
-            <ScrollView contentContainerStyle={styles.content}>
+            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Customer Card */}
-                <View style={styles.card}>
-                    <View style={styles.customerHeader}>
+                <View style={styles.customerCard}>
+                    <View style={styles.customerTop}>
                         <View style={styles.avatar}>
                             <Text style={styles.avatarText}>
                                 {job.customerName ? job.customerName.charAt(0).toUpperCase() : 'C'}
                             </Text>
                         </View>
-                        <View>
+                        <View style={{ flex: 1 }}>
                             <Text style={styles.customerName}>{job.customerName}</Text>
                             <Text style={styles.serviceName}>{job.service}</Text>
                         </View>
-                        <View style={styles.statusBadge}>
-                            <Text style={styles.statusText}>{job.status.toUpperCase()}</Text>
+                        <View style={styles.priceBadge}>
+                            <Text style={styles.priceText}>₹{job.price}</Text>
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
-
-                    <View style={styles.detailRow}>
-                        <Calendar size={16} color={COLORS.textSecondary} />
-                        <Text style={styles.detailText}>{job.date || 'Today'}</Text>
+                    {/* Quick Info Chips */}
+                    <View style={styles.chipRow}>
+                        <View style={styles.chip}>
+                            <Calendar size={13} color={COLORS.textTertiary} />
+                            <Text style={styles.chipText}>{job.date || 'Today'}</Text>
+                        </View>
+                        <View style={styles.chip}>
+                            <Clock size={13} color={COLORS.textTertiary} />
+                            <Text style={styles.chipText}>{job.time || 'Flexible'}</Text>
+                        </View>
+                        <View style={styles.chip}>
+                            <MapPin size={13} color={COLORS.textTertiary} />
+                            <Text style={styles.chipText}>{job.distance}</Text>
+                        </View>
                     </View>
 
-                    <View style={styles.actionButtons}>
+                    {/* Action Buttons */}
+                    <View style={styles.actionBtns}>
                         <TouchableOpacity style={styles.callBtn} onPress={handleCall}>
-                            <Phone size={20} color={COLORS.primary} />
+                            <Phone size={18} color={COLORS.accent} />
                             <Text style={styles.callBtnText}>Call Customer</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.directionBtn} onPress={handleDirections}>
-                            <Navigation size={20} color="#fff" />
-                            <Text style={styles.directionBtnText}>Get Directions</Text>
+                        <TouchableOpacity style={styles.dirBtn} onPress={handleDirections}>
+                            <Navigation size={18} color="#fff" />
+                            <Text style={styles.dirBtnText}>Directions</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* Location & Map */}
+                {/* Location Section */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Location</Text>
+                    <Text style={styles.sectionTitle}>Customer Location</Text>
                     <View style={styles.addressCard}>
-                        <MapPin size={24} color={COLORS.accent} />
+                        <MapPin size={20} color={COLORS.accent} />
                         <Text style={styles.addressText}>{job.address}</Text>
                     </View>
+
+                    <View style={styles.mapContainer}>
+                        {Platform.OS === 'web' ? (
+                            <TouchableOpacity style={styles.webMap} onPress={handleDirections}>
+                                <MapPin size={32} color={COLORS.accent} />
+                                <Text style={styles.webMapText}>Open in Google Maps</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <JobMap latitude={job.latitude} longitude={job.longitude} />
+                        )}
+                    </View>
                 </View>
 
-                <View style={styles.mapContainer}>
-                    {Platform.OS === 'web' ? (
-                        <TouchableOpacity style={styles.webMapPlaceholder} onPress={handleDirections}>
-                            <MapPin size={40} color={COLORS.primary} />
-                            <Text style={{ marginTop: 8, color: COLORS.textSecondary }}>Open in Google Maps</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <JobMap latitude={job.latitude} longitude={job.longitude} />
-                    )}
-                </View>
-
-                {/* Footer Buttons */}
-                <View style={styles.footerActions}>
+                {/* Job Flow Actions */}
+                <View style={styles.flowSection}>
                     {(job.status === 'accepted' || job.status === 'open') && (
                         <TouchableOpacity
-                            style={[styles.completeBtn, { backgroundColor: COLORS.primary }]}
-                            onPress={() => {
-                                setModalType('checkin');
-                                setOtpModalVisible(true);
-                            }}
+                            style={[styles.flowBtn, { backgroundColor: COLORS.accent }]}
+                            onPress={() => { setModalType('checkin'); setOtpModalVisible(true); }}
                         >
-                            <Navigation size={20} color="#fff" />
-                            <Text style={styles.completeBtnText}>Arrived - Enter Check-In OTP</Text>
+                            <Shield size={20} color="#000" />
+                            <View style={{ flex: 1, marginLeft: 12 }}>
+                                <Text style={styles.flowBtnTitle}>Arrived — Check In</Text>
+                                <Text style={styles.flowBtnSub}>Enter the customer's Check-In OTP</Text>
+                            </View>
                         </TouchableOpacity>
                     )}
                     {job.status === 'in_progress' && (
                         <TouchableOpacity
-                            style={styles.completeBtn}
-                            onPress={() => {
-                                setModalType('complete');
-                                setOtpModalVisible(true);
-                            }}
+                            style={[styles.flowBtn, { backgroundColor: COLORS.success }]}
+                            onPress={() => { setModalType('complete'); setOtpModalVisible(true); }}
                         >
                             <CheckCircle size={20} color="#fff" />
-                            <Text style={styles.completeBtnText}>Mark Job Completed</Text>
+                            <View style={{ flex: 1, marginLeft: 12 }}>
+                                <Text style={[styles.flowBtnTitle, { color: '#fff' }]}>Mark Job Completed</Text>
+                                <Text style={[styles.flowBtnSub, { color: 'rgba(255,255,255,0.7)' }]}>Enter hours + Completion OTP</Text>
+                            </View>
                         </TouchableOpacity>
+                    )}
+                    {job.status === 'completed' && (
+                        <View style={[styles.flowBtn, { backgroundColor: 'rgba(34,197,94,0.1)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.2)' }]}>
+                            <CheckCircle size={20} color={COLORS.success} />
+                            <View style={{ flex: 1, marginLeft: 12 }}>
+                                <Text style={[styles.flowBtnTitle, { color: COLORS.success }]}>✅ Completed</Text>
+                                <Text style={[styles.flowBtnSub, { color: COLORS.textTertiary }]}>Awaiting customer payment</Text>
+                            </View>
+                        </View>
                     )}
                 </View>
             </ScrollView>
@@ -199,32 +213,38 @@ export default function JobDetails() {
             {otpModalVisible && (
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
+                        <View style={styles.modalIcon}>
+                            {modalType === 'checkin'
+                                ? <Shield size={32} color={COLORS.accent} />
+                                : <CheckCircle size={32} color={COLORS.success} />
+                            }
+                        </View>
                         <Text style={styles.modalTitle}>
                             {modalType === 'checkin' ? 'Check-In to Job' : 'Complete Job'}
                         </Text>
                         <Text style={styles.modalText}>
                             {modalType === 'checkin'
-                                ? 'Enter the Check-In OTP provided by the customer to start the job.'
-                                : 'Enter working hours and Completion OTP from customer to confirm completion.'}
+                                ? 'Ask the customer for their Check-In OTP to start work.'
+                                : 'Enter hours worked and the Completion OTP to finish.'}
                         </Text>
 
-                        <View style={styles.otpInputContainer}>
-                            {modalType === 'complete' && (
-                                <>
-                                    <Text style={styles.otpLabel}>Hours Worked</Text>
-                                    <TextInput
-                                        style={[styles.otpInput, { fontSize: 18, marginBottom: 16 }]}
-                                        value={hours}
-                                        onChangeText={setHours}
-                                        keyboardType="numeric"
-                                        placeholder="1"
-                                        placeholderTextColor={COLORS.textTertiary}
-                                    />
-                                </>
-                            )}
+                        {modalType === 'complete' && (
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.inputLabel}>HOURS WORKED</Text>
+                                <TextInput
+                                    style={styles.numberInput}
+                                    value={hours}
+                                    onChangeText={setHours}
+                                    keyboardType="numeric"
+                                    placeholder="1"
+                                    placeholderTextColor={COLORS.textTertiary}
+                                />
+                            </View>
+                        )}
 
-                            <Text style={styles.otpLabel}>
-                                {modalType === 'checkin' ? 'Check-In OTP (4-Digit)' : 'Completion OTP (4-Digit)'}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.inputLabel}>
+                                {modalType === 'checkin' ? 'CHECK-IN OTP' : 'COMPLETION OTP'}
                             </Text>
                             <TextInput
                                 style={styles.otpInput}
@@ -238,21 +258,21 @@ export default function JobDetails() {
                         </View>
 
                         <TouchableOpacity
-                            style={[styles.verifyBtn, loading && { opacity: 0.7 }]}
+                            style={[styles.verifyBtn, loading && { opacity: 0.6 }]}
                             onPress={handleVerifyOtp}
                             disabled={loading}
                         >
                             <Text style={styles.verifyBtnText}>
-                                {loading ? 'Verifying...' : 'Verify & Complete'}
+                                {loading ? 'Verifying...' : modalType === 'checkin' ? 'Verify & Check In' : 'Verify & Complete'}
                             </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={styles.cancelModalBtn}
-                            onPress={() => setOtpModalVisible(false)}
+                            style={styles.cancelBtn}
+                            onPress={() => { setOtpModalVisible(false); setOtp(''); }}
                             disabled={loading}
                         >
-                            <Text style={styles.cancelModalText}>Cancel</Text>
+                            <Text style={styles.cancelBtnText}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -262,270 +282,112 @@ export default function JobDetails() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.bgPrimary,
-    },
+    container: { flex: 1, backgroundColor: COLORS.bgPrimary },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: SPACING.lg,
-        borderBottomWidth: 1,
-        borderColor: COLORS.border,
+        flexDirection: 'row', alignItems: 'center',
+        paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+        borderBottomWidth: 1, borderColor: COLORS.border, gap: 12,
     },
-    backBtn: {
-        padding: 4,
+    backBtn: { padding: 4 },
+    headerTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.textPrimary, flex: 1 },
+    headerStatus: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+    headerStatusText: { fontSize: 12, fontWeight: 'bold' },
+    content: { padding: SPACING.lg, paddingBottom: 40 },
+
+    // Customer Card
+    customerCard: {
+        backgroundColor: COLORS.bgSecondary, borderRadius: 16, padding: SPACING.lg,
+        marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border,
     },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-    },
-    content: {
-        padding: SPACING.lg,
-        paddingBottom: 40,
-    },
-    card: {
-        backgroundColor: COLORS.bgSecondary,
-        borderRadius: 16,
-        padding: SPACING.lg,
-        marginBottom: SPACING.xl,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    customerHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: SPACING.md,
-    },
+    customerTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
     avatar: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: COLORS.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: 48, height: 48, borderRadius: 14,
+        backgroundColor: COLORS.accent, alignItems: 'center', justifyContent: 'center',
     },
-    avatarText: {
-        color: '#fff',
-        fontSize: 20,
-        fontWeight: 'bold',
+    avatarText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+    customerName: { fontSize: 17, fontWeight: 'bold', color: COLORS.textPrimary },
+    serviceName: { fontSize: 13, color: COLORS.textSecondary, marginTop: 1 },
+    priceBadge: {
+        backgroundColor: 'rgba(34,197,94,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8,
     },
-    customerName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+    priceText: { color: COLORS.success, fontWeight: 'bold', fontSize: 16 },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
+    chip: {
+        flexDirection: 'row', alignItems: 'center', gap: 4,
+        backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8,
     },
-    serviceName: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
-    },
-    statusBadge: {
-        marginLeft: 'auto',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    statusText: {
-        color: COLORS.success,
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLORS.border,
-        marginVertical: SPACING.md,
-    },
-    detailRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
-    },
-    detailText: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
-    },
-    actionButtons: {
-        flexDirection: 'row',
-        gap: 12,
-        marginTop: SPACING.md,
-    },
+    chipText: { color: COLORS.textTertiary, fontSize: 12 },
+    actionBtns: { flexDirection: 'row', gap: 10 },
     callBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: COLORS.primary,
-        backgroundColor: 'transparent',
+        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+        paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: COLORS.accent,
     },
-    callBtnText: {
-        color: COLORS.primary,
-        fontWeight: 'bold',
+    callBtnText: { color: COLORS.accent, fontWeight: 'bold', fontSize: 14 },
+    dirBtn: {
+        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+        paddingVertical: 12, borderRadius: 10, backgroundColor: COLORS.accent,
     },
-    directionBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 12,
-        borderRadius: 10,
-        backgroundColor: COLORS.primary,
-    },
-    directionBtnText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    section: {
-        marginBottom: SPACING.xl,
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: SPACING.md,
-    },
+    dirBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+
+    // Location
+    section: { marginBottom: SPACING.lg },
+    sectionTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: SPACING.sm },
     addressCard: {
-        flexDirection: 'row',
-        gap: 12,
-        backgroundColor: COLORS.bgSecondary,
-        padding: SPACING.lg,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: COLORS.border,
+        flexDirection: 'row', gap: 10, backgroundColor: COLORS.bgSecondary,
+        padding: SPACING.md, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.sm,
     },
-    addressText: {
-        flex: 1,
-        fontSize: 16,
-        color: COLORS.textPrimary,
-        lineHeight: 24,
-    },
+    addressText: { flex: 1, fontSize: 14, color: COLORS.textPrimary, lineHeight: 22 },
     mapContainer: {
-        height: 200,
-        borderRadius: 16,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        marginBottom: SPACING.xl,
+        height: 180, borderRadius: 14, overflow: 'hidden',
+        borderWidth: 1, borderColor: COLORS.border,
     },
-    webMapPlaceholder: {
-        height: 150,
-        backgroundColor: '#eee',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 12,
-        marginBottom: SPACING.xl,
+    webMap: {
+        flex: 1, backgroundColor: COLORS.bgSecondary,
+        alignItems: 'center', justifyContent: 'center',
     },
-    footerActions: {
-        marginTop: SPACING.md,
+    webMapText: { marginTop: 8, color: COLORS.textSecondary, fontSize: 14 },
+
+    // Flow Actions
+    flowSection: { marginTop: SPACING.sm },
+    flowBtn: {
+        flexDirection: 'row', alignItems: 'center',
+        padding: SPACING.lg, borderRadius: 14, marginBottom: SPACING.md,
     },
-    completeBtn: {
-        backgroundColor: COLORS.success,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 16,
-        borderRadius: 12,
-        shadowColor: COLORS.success,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    completeBtnText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
+    flowBtnTitle: { fontSize: 16, fontWeight: 'bold', color: '#000' },
+    flowBtnSub: { fontSize: 12, color: 'rgba(0,0,0,0.5)', marginTop: 2 },
+
+    // OTP Modal
     modalOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 24,
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 24,
     },
     modalContent: {
-        backgroundColor: COLORS.bgSecondary,
-        width: '100%',
-        maxWidth: 400,
-        borderRadius: 20,
-        padding: 24,
-        borderWidth: 1,
-        borderColor: COLORS.border,
+        backgroundColor: COLORS.bgSecondary, width: '100%', maxWidth: 400,
+        borderRadius: 20, padding: SPACING.xl, borderWidth: 1, borderColor: COLORS.border, alignItems: 'center',
     },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: 8,
-        textAlign: 'center',
+    modalIcon: { marginBottom: SPACING.md },
+    modalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: 8, textAlign: 'center' },
+    modalText: { fontSize: 14, color: COLORS.textSecondary, textAlign: 'center', marginBottom: SPACING.xl, lineHeight: 20 },
+    inputGroup: { width: '100%', marginBottom: SPACING.md },
+    inputLabel: {
+        color: COLORS.textTertiary, fontSize: 11, fontWeight: '600',
+        textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, textAlign: 'center',
     },
-    modalText: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
-        textAlign: 'center',
-        marginBottom: 24,
-    },
-    otpInputContainer: {
-        marginBottom: 24,
-    },
-    otpLabel: {
-        color: COLORS.textSecondary,
-        fontSize: 12,
-        marginBottom: 8,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        textAlign: 'center',
+    numberInput: {
+        backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: COLORS.border,
+        borderRadius: 12, padding: 14, fontSize: 18, fontWeight: 'bold',
+        color: COLORS.textPrimary, textAlign: 'center',
     },
     otpInput: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: 12,
-        padding: 16,
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: COLORS.primary,
-        textAlign: 'center',
-        letterSpacing: 2,
+        backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: COLORS.border,
+        borderRadius: 12, padding: 16, fontSize: 28, fontWeight: 'bold',
+        color: COLORS.accent, textAlign: 'center', letterSpacing: 8,
     },
     verifyBtn: {
-        backgroundColor: COLORS.success,
-        paddingVertical: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginBottom: 12,
+        backgroundColor: COLORS.success, paddingVertical: 16, borderRadius: 12,
+        alignItems: 'center', width: '100%', marginBottom: 12,
     },
-    verifyBtnText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    cancelModalBtn: {
-        paddingVertical: 12,
-        alignItems: 'center',
-    },
-    cancelModalText: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
-        fontWeight: '500',
-    },
+    verifyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    cancelBtn: { paddingVertical: 12, alignItems: 'center' },
+    cancelBtnText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '500' },
 });

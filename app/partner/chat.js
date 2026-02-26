@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     phoneBtn: {
         padding: 8,
         backgroundColor: 'rgba(37, 99, 235, 0.1)',
-        borderRadius: 20,
+        borderRadius: 12,
     },
     chatContent: {
         padding: SPACING.md,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.accent,
         justifyContent: 'center',
         alignItems: 'center',
     },
