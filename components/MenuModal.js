@@ -10,7 +10,9 @@ import {
     TouchableWithoutFeedback,
     Switch,
     ScrollView,
-    Animated
+    Animated,
+    Alert,
+    Platform
 } from 'react-native';
 import {
     X, User, LogIn, UserPlus, Info, FileText, ChevronRight, Moon, Sun, LogOut,
@@ -233,16 +235,18 @@ const MenuModal = ({ visible, onClose }) => {
                             )}
                         </View>
 
-                        {/* Admin Section */}
-                        <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: COLORS.danger }]}>ADMINISTRATION</Text>
-                            <MenuItem
-                                icon={Shield}
-                                label="Admin Command Center"
-                                subtitle="Manage partners and betas"
-                                onPress={() => { router.push('/admin'); onClose(); }}
-                            />
-                        </View>
+                        {/* Admin Section — Owner Only */}
+                        {user?.email?.toLowerCase() === 'sheriyakam.info@gmail.com' && (
+                            <View style={styles.section}>
+                                <Text style={[styles.sectionTitle, { color: COLORS.danger }]}>ADMINISTRATION</Text>
+                                <MenuItem
+                                    icon={Shield}
+                                    label="Admin Command Center"
+                                    subtitle="Manage partners and betas"
+                                    onPress={() => { router.push('/admin'); onClose(); }}
+                                />
+                            </View>
+                        )}
 
                         {/* App Section */}
                         <View style={styles.section}>
@@ -273,8 +277,18 @@ const MenuModal = ({ visible, onClose }) => {
                             <MenuItem
                                 icon={TrendingUp}
                                 label="Become a Partner"
-                                subtitle="Grow your business with us"
-                                onPress={() => { router.push('/partner/auth'); onClose(); }}
+                                subtitle="For registered partners only"
+                                onPress={() => {
+                                    onClose();
+                                    if (Platform.OS === 'web') {
+                                        window.alert('Partner Access\n\nThis section is for registered Sheriyakam partners only.\n\nContact us to become a partner:\n📧 sheriyakam.info@gmail.com');
+                                    } else {
+                                        Alert.alert(
+                                            'Partner Access',
+                                            'This section is for registered Sheriyakam partners only.\n\nContact us to become a partner:\n📧 sheriyakam.info@gmail.com'
+                                        );
+                                    }
+                                }}
                             />
                         </View>
 

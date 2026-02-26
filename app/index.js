@@ -18,9 +18,8 @@ const MOCK_SERVICES = [
     name: "Emergency Repair Specialist",
     rating: 4.8,
     specialty: "Emergency Repairs",
-    distance: "1.2 km",
-    time: "30 mins",
-    price: 599,
+    time: "1 hr",
+    price: 550,
     image: require('../assets/images/emergency.png')
   },
   {
@@ -28,8 +27,7 @@ const MOCK_SERVICES = [
     name: "Fan Repair",
     rating: 4.6,
     specialty: "Ceiling & Exhaust Fans",
-    distance: "2.1 km",
-    time: "45 mins",
+    time: "1 hr",
     price: 350,
     image: require('../assets/images/light_fan.png')
   },
@@ -38,7 +36,6 @@ const MOCK_SERVICES = [
     name: "Wiring",
     rating: 4.5,
     specialty: "Wiring & Installation",
-    distance: "3.0 km",
     time: "1 hr",
     price: 550,
     image: require('../assets/images/wiring.png')
@@ -48,7 +45,6 @@ const MOCK_SERVICES = [
     name: "DB Maintenance",
     rating: 4.7,
     specialty: "Distribution Boards",
-    distance: "2.5 km",
     time: "1 hr",
     price: 450,
     image: require('../assets/images/switch.png')
@@ -58,7 +54,6 @@ const MOCK_SERVICES = [
     name: "Inverter Service",
     rating: 5.0,
     specialty: "Inverter & UPS",
-    distance: "0.8 km",
     time: "1 hr",
     price: 500,
     image: require('../assets/images/inverter.png')
@@ -68,7 +63,6 @@ const MOCK_SERVICES = [
     name: "AC Service",
     rating: 4.2,
     specialty: "Air Conditioning",
-    distance: "5.0 km",
     time: "1 hr",
     price: 650,
     image: require('../assets/images/ac.png')
@@ -78,8 +72,7 @@ const MOCK_SERVICES = [
     name: "CCTV Setup",
     rating: 4.9,
     specialty: "Security Systems",
-    distance: "4.2 km",
-    time: "2 hrs",
+    time: "1 hr",
     price: 700,
     image: require('../assets/images/cctv.png')
   },
@@ -88,8 +81,7 @@ const MOCK_SERVICES = [
     name: "Home Automation",
     rating: 4.8,
     specialty: "Smart Home Setup",
-    distance: "1.5 km",
-    time: "2 hrs",
+    time: "1 hr",
     price: 1500,
     image: require('../assets/images/automation.png')
   },

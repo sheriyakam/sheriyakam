@@ -45,7 +45,8 @@ export default function PartnerAuth() {
         if (session) {
             router.replace('/partner');
         } else {
-            setCheckingSession(false);
+            // Block access — only existing partners can login here
+            router.replace('/');
         }
     };
 
