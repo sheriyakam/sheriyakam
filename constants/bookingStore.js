@@ -153,16 +153,17 @@ export const checkInBookingByPartner = (id, enteredOtp) => {
     return { success: false, message: 'Booking not found' };
 };
 
-export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1) => {
+export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materialCost = 0) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
         if (booking.otp === enteredOtp) {
             booking.status = 'completed';
 
-            // Pricing Logic: Base price covers 1 hour. Extra hours = 100rs/hr
+            // Pricing Logic: Base price covers 1 hour. Extra hours = 100rs/hr + material cost
             const extraHours = Math.max(0, hoursWorked - 1);
-            booking.finalPrice = booking.price + (extraHours * 100);
+            booking.materialCost = materialCost;
             booking.hoursWorked = hoursWorked;
+            booking.finalPrice = booking.price + (extraHours * 100) + materialCost;
             booking.paymentStatus = 'pending'; // Customer needs to pay
 
             bookingEvents.emit('change');

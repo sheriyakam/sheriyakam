@@ -354,24 +354,15 @@ const BookingModal = ({ service, visible, onClose }) => {
 
                                     {/* Price Estimator */}
                                     <View style={styles.section}>
-                                        <Text style={styles.label}>Price Estimate</Text>
+                                        <Text style={styles.label}>Service Charge</Text>
                                         <View style={styles.priceContainer}>
                                             <View style={styles.priceRow}>
-                                                <Text style={styles.priceText}>Base Fare</Text>
-                                                <Text style={styles.priceValue}>₹{service.price}</Text>
-                                            </View>
-                                            <View style={styles.priceRow}>
-                                                <Text style={styles.priceText}>Est. Material Cost</Text>
-                                                <Text style={styles.priceValue}>₹{Math.round(service.price * 0.2)}</Text>
-                                            </View>
-                                            <View style={styles.priceDivider} />
-                                            <View style={styles.priceRow}>
-                                                <Text style={styles.priceTotalText}>Estimated Total</Text>
-                                                <Text style={styles.priceTotalValue}>₹{service.price + Math.round(service.price * 0.2)}</Text>
+                                                <Text style={styles.priceTotalText}>Service Fare</Text>
+                                                <Text style={styles.priceTotalValue}>₹{service.price}</Text>
                                             </View>
                                         </View>
                                         <Text style={styles.disclaimerText}>
-                                            * Final price may vary based on actual wire length or materials used.
+                                            * Material cost (if any) will be added by the technician after the job.
                                         </Text>
                                     </View>
 

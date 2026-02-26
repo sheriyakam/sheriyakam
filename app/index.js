@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, TouchableOpacity, Alert, Animated } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, TouchableOpacity, Alert, Animated, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield, Briefcase } from 'lucide-react-native';
 import * as Location from 'expo-location';
@@ -109,21 +109,22 @@ export default function HomeScreen() {
   // Handle service click with authentication check
   const handleServiceClick = (service) => {
     if (!user) {
-      // User not logged in - show alert
-      Alert.alert(
-        'Login Required',
-        'Please login or sign up to book a service.',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel'
-          },
-          {
-            text: 'Login / Sign Up',
-            onPress: () => router.push('/auth/login')
-          }
-        ]
-      );
+      // User not logged in — use web-compatible prompt
+      if (Platform.OS === 'web') {
+        const shouldLogin = window.confirm('Login Required\n\nPlease login or sign up to book a service.');
+        if (shouldLogin) {
+          router.push('/auth/login');
+        }
+      } else {
+        Alert.alert(
+          'Login Required',
+          'Please login or sign up to book a service.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Login / Sign Up', onPress: () => router.push('/auth/login') }
+          ]
+        );
+      }
       return;
     }
 
@@ -281,14 +282,6 @@ export default function HomeScreen() {
               <MapPin size={16} color={colors.accent} />
               <Text style={[styles.headerLocationText, dynamicStyles.headerLocationText]} numberOfLines={1}>{locationName}</Text>
               <ChevronDown size={14} color={colors.textSecondary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.joinPartnerBtn}
-              onPress={() => router.push('/partner/auth')}
-            >
-              <Briefcase size={14} color="#000" />
-              <Text style={styles.joinPartnerText}>Join Partner</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -22,34 +22,34 @@ const ServiceCard = ({
         : (width - SPACING.md * 4) / 4;
 
     return (
-        <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={onPress}
+        <View
             style={[
                 styles.card,
                 fullWidth ? { width: '100%' } : { width: cardWidth },
-                !fullWidth && !isSmallScreen && { maxWidth: 300 }, // Max width for desktop cards
+                !fullWidth && !isSmallScreen && { maxWidth: 300 },
                 isEmergency && styles.emergencyCard
             ]}
         >
             {/* Image Section */}
-            <View style={styles.imageContainer}>
-                <Image
-                    source={typeof image === 'string' ? { uri: image } : image}
-                    style={styles.image}
-                    resizeMode="cover"
-                />
-                <View style={[styles.badge, isEmergency ? styles.badgeEmergency : styles.badgeRegular]}>
-                    <Star size={12} color={isEmergency ? "#fff" : "#000"} fill={isEmergency ? "#fff" : "#000"} />
-                    <Text style={[styles.badgeText, isEmergency && { color: '#fff' }]}>{rating}</Text>
-                </View>
-
-                {rating >= 4.8 && (
-                    <View style={styles.topRatedBadge}>
-                        <Text style={styles.topRatedText}>Top Rated</Text>
+            <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={typeof image === 'string' ? { uri: image } : image}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                    <View style={[styles.badge, isEmergency ? styles.badgeEmergency : styles.badgeRegular]}>
+                        <Star size={12} color={isEmergency ? "#fff" : "#000"} fill={isEmergency ? "#fff" : "#000"} />
+                        <Text style={[styles.badgeText, isEmergency && { color: '#fff' }]}>{rating}</Text>
                     </View>
-                )}
-            </View>
+
+                    {rating >= 4.8 && (
+                        <View style={styles.topRatedBadge}>
+                            <Text style={styles.topRatedText}>Top Rated</Text>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
 
             {/* Content Section */}
             <View style={styles.content}>
@@ -76,16 +76,13 @@ const ServiceCard = ({
                     <Text style={styles.price}>₹{price}</Text>
                     <TouchableOpacity
                         style={styles.bookBtn}
-                        onPress={(e) => {
-                            e?.stopPropagation?.();
-                            onPress();
-                        }}
+                        onPress={onPress}
                     >
                         <Text style={styles.bookBtnText}>Book</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-        </TouchableOpacity>
+        </View>
     );
 };
 

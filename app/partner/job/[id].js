@@ -17,6 +17,7 @@ export default function JobDetails() {
     const [modalType, setModalType] = useState('complete');
     const [otp, setOtp] = useState('');
     const [hours, setHours] = useState('1');
+    const [materialCost, setMaterialCost] = useState('0');
     const [loading, setLoading] = useState(false);
 
     const [liveJob, setLiveJob] = useState({
@@ -80,7 +81,7 @@ export default function JobDetails() {
                     Alert.alert("✅ Checked In", "Job status: Work In Progress.");
                 } else { alert(result.message || "Invalid Check-In OTP!"); setOtp(''); }
             } else {
-                const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1);
+                const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1, parseInt(materialCost) || 0);
                 if (result.success) {
                     setOtpModalVisible(false);
                     Alert.alert("✅ Job Complete", "Customer has been notified for payment.", [
@@ -229,17 +230,59 @@ export default function JobDetails() {
                         </Text>
 
                         {modalType === 'complete' && (
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.inputLabel}>HOURS WORKED</Text>
-                                <TextInput
-                                    style={styles.numberInput}
-                                    value={hours}
-                                    onChangeText={setHours}
-                                    keyboardType="numeric"
-                                    placeholder="1"
-                                    placeholderTextColor={COLORS.textTertiary}
-                                />
-                            </View>
+                            <>
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.inputLabel}>HOURS WORKED</Text>
+                                    <TextInput
+                                        style={styles.numberInput}
+                                        value={hours}
+                                        onChangeText={setHours}
+                                        keyboardType="numeric"
+                                        placeholder="1"
+                                        placeholderTextColor={COLORS.textTertiary}
+                                    />
+                                </View>
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.inputLabel}>MATERIAL COST (₹)</Text>
+                                    <TextInput
+                                        style={styles.numberInput}
+                                        value={materialCost}
+                                        onChangeText={(t) => setMaterialCost(t.replace(/[^0-9]/g, ''))}
+                                        keyboardType="numeric"
+                                        placeholder="0"
+                                        placeholderTextColor={COLORS.textTertiary}
+                                    />
+                                    <Text style={{ color: COLORS.textTertiary, fontSize: 11, marginTop: 4, textAlign: 'center' }}>
+                                        Enter cost of wires, switches, or materials used. Enter 0 if none.
+                                    </Text>
+                                </View>
+
+                                {/* Live Price Preview */}
+                                <View style={styles.pricePreview}>
+                                    <View style={styles.previewRow}>
+                                        <Text style={styles.previewLabel}>Service Fare</Text>
+                                        <Text style={styles.previewValue}>₹{job.price}</Text>
+                                    </View>
+                                    {parseInt(hours) > 1 && (
+                                        <View style={styles.previewRow}>
+                                            <Text style={styles.previewLabel}>Extra Hours ({parseInt(hours) - 1} × ₹100)</Text>
+                                            <Text style={styles.previewValue}>₹{(parseInt(hours) - 1) * 100}</Text>
+                                        </View>
+                                    )}
+                                    {parseInt(materialCost) > 0 && (
+                                        <View style={styles.previewRow}>
+                                            <Text style={styles.previewLabel}>Material Cost</Text>
+                                            <Text style={styles.previewValue}>₹{parseInt(materialCost)}</Text>
+                                        </View>
+                                    )}
+                                    <View style={[styles.previewRow, { borderTopWidth: 1, borderColor: COLORS.border, paddingTop: 8, marginTop: 4 }]}>
+                                        <Text style={[styles.previewLabel, { fontWeight: 'bold', color: COLORS.textPrimary }]}>Total Bill</Text>
+                                        <Text style={[styles.previewValue, { fontWeight: '900', color: COLORS.success, fontSize: 18 }]}>
+                                            ₹{parseInt(job.price) + (Math.max(0, (parseInt(hours) || 1) - 1) * 100) + (parseInt(materialCost) || 0)}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
                         )}
 
                         <View style={styles.inputGroup}>
@@ -390,4 +433,13 @@ const styles = StyleSheet.create({
     verifyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
     cancelBtn: { paddingVertical: 12, alignItems: 'center' },
     cancelBtnText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '500' },
+    pricePreview: {
+        backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: COLORS.border,
+        borderRadius: 12, padding: 14, width: '100%', marginBottom: SPACING.md,
+    },
+    previewRow: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6,
+    },
+    previewLabel: { fontSize: 13, color: COLORS.textSecondary },
+    previewValue: { fontSize: 14, fontWeight: '600', color: COLORS.textPrimary },
 });
