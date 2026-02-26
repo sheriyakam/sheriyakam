@@ -10,10 +10,18 @@ export const AuthProvider = ({ children }) => {
     // Mock Server Database
     const [registeredUsers, setRegisteredUsers] = useState([
         {
+            email: 'sheriyakam.info@gmail.com',
+            mobile: '+919000000000',
+            password: 'admin123',
+            name: 'Admin',
+            role: 'admin'
+        },
+        {
             email: 'user@example.com',
             mobile: '+919876543210',
             password: 'password123',
-            name: 'Demo User'
+            name: 'Demo User',
+            role: 'user'
         }
     ]);
 

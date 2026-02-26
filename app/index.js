@@ -19,8 +19,8 @@ const MOCK_SERVICES = [
     rating: 4.8,
     specialty: "Emergency Repairs",
     distance: "1.2 km",
-    time: "1 hr",
-    price: 500,
+    time: "30 mins",
+    price: 599,
     image: require('../assets/images/emergency.png')
   },
   {
@@ -29,8 +29,8 @@ const MOCK_SERVICES = [
     rating: 4.6,
     specialty: "Ceiling & Exhaust Fans",
     distance: "2.1 km",
-    time: "1 hr",
-    price: 250,
+    time: "45 mins",
+    price: 350,
     image: require('../assets/images/light_fan.png')
   },
   {
@@ -40,7 +40,7 @@ const MOCK_SERVICES = [
     specialty: "Wiring & Installation",
     distance: "3.0 km",
     time: "1 hr",
-    price: 450,
+    price: 550,
     image: require('../assets/images/wiring.png')
   },
   {
@@ -50,7 +50,7 @@ const MOCK_SERVICES = [
     specialty: "Distribution Boards",
     distance: "2.5 km",
     time: "1 hr",
-    price: 350,
+    price: 450,
     image: require('../assets/images/switch.png')
   },
   {
@@ -70,7 +70,7 @@ const MOCK_SERVICES = [
     specialty: "Air Conditioning",
     distance: "5.0 km",
     time: "1 hr",
-    price: 550,
+    price: 650,
     image: require('../assets/images/ac.png')
   },
   {
@@ -79,8 +79,8 @@ const MOCK_SERVICES = [
     rating: 4.9,
     specialty: "Security Systems",
     distance: "4.2 km",
-    time: "1 hr",
-    price: 550,
+    time: "2 hrs",
+    price: 700,
     image: require('../assets/images/cctv.png')
   },
   {
@@ -89,7 +89,7 @@ const MOCK_SERVICES = [
     rating: 4.8,
     specialty: "Smart Home Setup",
     distance: "1.5 km",
-    time: "1 hr",
+    time: "2 hrs",
     price: 1500,
     image: require('../assets/images/automation.png')
   },
@@ -414,11 +414,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
+    flexShrink: 0,
   },
   menuButton: {
     padding: 8,
@@ -445,14 +447,12 @@ const styles = StyleSheet.create({
   headerLocationBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    // backgroundColor: dynamic
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    gap: 8,
+    gap: 6,
     borderWidth: 1,
-    // borderColor: dynamic
-    maxWidth: '50%',
+    flexShrink: 1,
   },
   headerLocationText: {
     // color: dynamic
@@ -501,22 +501,9 @@ const styles = StyleSheet.create({
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    flexShrink: 1,
   },
-  joinPartnerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.accent,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  joinPartnerText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+
   whySection: {
     paddingVertical: SPACING.xl,
     marginTop: SPACING.xl,
