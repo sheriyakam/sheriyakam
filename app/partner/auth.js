@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator, Animated, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING } from '../../constants/theme';
@@ -399,7 +399,7 @@ export default function PartnerAuth() {
                                     <View style={styles.sectionHeader}>
                                         <Briefcase size={16} color={COLORS.primary} />
                                         <Text style={[styles.label, { color: colors.textPrimary }]}>
-                                            Government Electrical License
+                                            Electrical License / Certificates
                                         </Text>
                                     </View>
                                     <Text style={[styles.aiHint, { color: colors.textTertiary }]}>
@@ -408,10 +408,17 @@ export default function PartnerAuth() {
                                     <TouchableOpacity
                                         style={[styles.inputGroup, licenseUploaded && { borderColor: COLORS.success, borderWidth: 2 }]}
                                         onPress={() => {
-                                            Alert.alert('Upload Document', 'Simulating document upload...', [
-                                                { text: 'Cancel', style: 'cancel' },
-                                                { text: 'Mock Upload', onPress: () => setLicenseUploaded(true) }
-                                            ]);
+                                            if (Platform.OS === 'web') {
+                                                if (window.confirm("Upload a dummy Electrical License / Certificate?")) {
+                                                    setLicenseUploaded(true);
+                                                    window.alert("License uploaded successfully!");
+                                                }
+                                            } else {
+                                                Alert.alert('Upload Document', 'Simulating document upload...', [
+                                                    { text: 'Cancel', style: 'cancel' },
+                                                    { text: 'Mock Upload', onPress: () => setLicenseUploaded(true) }
+                                                ]);
+                                            }
                                         }}
                                     >
                                         <Shield size={20} color={licenseUploaded ? COLORS.success : colors.textTertiary} style={styles.inputIcon} />
@@ -481,21 +488,6 @@ export default function PartnerAuth() {
                             )}
                         </TouchableOpacity>
 
-                        {/* Social Login */}
-                        <View style={styles.socialContainer}>
-                            <View style={styles.dividerContainer}>
-                                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                                <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or continue with</Text>
-                                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                            </View>
-                            <TouchableOpacity
-                                style={styles.googleBtn}
-                                onPress={() => Alert.alert('Coming Soon', 'Google login is under development.')}
-                            >
-                                <Mail size={20} color="#fff" />
-                                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Continue with Google</Text>
-                            </TouchableOpacity>
-                        </View>
 
                         <View style={styles.switchContainer}>
                             {isLogin ? (
@@ -545,7 +537,7 @@ export default function PartnerAuth() {
                 onClose={() => setShowLocationModal(false)}
                 onSelect={(loc) => setLocation(loc)}
             />
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
