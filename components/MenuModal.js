@@ -280,14 +280,7 @@ const MenuModal = ({ visible, onClose }) => {
                                 subtitle="For registered partners only"
                                 onPress={() => {
                                     onClose();
-                                    if (Platform.OS === 'web') {
-                                        window.alert('Partner Access\n\nThis section is for registered Sheriyakam partners only.\n\nContact us to become a partner:\n📧 sheriyakam.info@gmail.com');
-                                    } else {
-                                        Alert.alert(
-                                            'Partner Access',
-                                            'This section is for registered Sheriyakam partners only.\n\nContact us to become a partner:\n📧 sheriyakam.info@gmail.com'
-                                        );
-                                    }
+                                    router.push('/partner/auth');
                                 }}
                             />
                         </View>
