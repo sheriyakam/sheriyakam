@@ -278,10 +278,17 @@ const MenuModal = ({ visible, onClose }) => {
                                 <MenuItem
                                     icon={TrendingUp}
                                     label="Become a Partner"
-                                    subtitle="Apply to join our platform"
+                                    subtitle="For registered partners only"
                                     onPress={() => {
                                         onClose();
-                                        router.push('/partner/auth');
+                                        if (Platform.OS === 'web') {
+                                            window.alert('Partner Access\n\nThis section is for registered Sheriyakam partners only.\n\nContact us to become a partner:\n📧 sheriyakam.info@gmail.com');
+                                        } else {
+                                            Alert.alert(
+                                                'Partner Access',
+                                                'This section is for registered Sheriyakam partners only.\n\nContact us to become a partner:\n📧 sheriyakam.info@gmail.com'
+                                            );
+                                        }
                                     }}
                                 />
                             </View>
