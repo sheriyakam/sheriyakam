@@ -15,7 +15,7 @@ export default function PartnerAuth() {
     const router = useRouter();
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(false);
     const [loading, setLoading] = useState(false);
     const [checkingSession, setCheckingSession] = useState(true);
 
@@ -45,8 +45,8 @@ export default function PartnerAuth() {
         if (session) {
             router.replace('/partner');
         } else {
-            // Block access — only existing partners can login here
-            router.replace('/');
+            // Allow access to auth screen for sign in/sign up
+            setCheckingSession(false);
         }
     };
 
