@@ -271,19 +271,21 @@ const MenuModal = ({ visible, onClose }) => {
                             />
                         </View>
 
-                        {/* Partner Section */}
-                        <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>PARTNER WITH US</Text>
-                            <MenuItem
-                                icon={TrendingUp}
-                                label="Become a Partner"
-                                subtitle="For registered partners only"
-                                onPress={() => {
-                                    onClose();
-                                    router.push('/partner/auth');
-                                }}
-                            />
-                        </View>
+                        {/* Partner Section - Hidden for logged in users */}
+                        {!user && (
+                            <View style={styles.section}>
+                                <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>PARTNER WITH US</Text>
+                                <MenuItem
+                                    icon={TrendingUp}
+                                    label="Become a Partner"
+                                    subtitle="Apply to join our platform"
+                                    onPress={() => {
+                                        onClose();
+                                        router.push('/partner/auth');
+                                    }}
+                                />
+                            </View>
+                        )}
 
                         {/* Settings Section */}
                         <View style={styles.section}>
