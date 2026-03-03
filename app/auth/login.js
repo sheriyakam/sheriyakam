@@ -5,9 +5,9 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Phone, X, ArrowRight } from '
 import { COLORS, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
-import Svg, { Path } from 'react-native-svg';
-import { auth } from '../../config/firebaseConfig';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { auth, isConfigured } from '../../config/firebaseConfig';
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 
 export default function AuthScreen() {
     const router = useRouter();
@@ -118,23 +118,38 @@ export default function AuthScreen() {
         }, 1500);
     };
 
+    const handleSocialLogin = async (provider) => {
+        if (provider !== 'Google') {
+            alert(`${provider} login coming soon!`);
+            return;
+        }
 
-    const handleSocialLogin = async () => {
-        if (!auth) {
-            console.warn('Firebase not initialized');
+        // Check if Firebase is configured
+        if (!isConfigured || !auth) {
+            alert('Google Sign-In is not configured yet. Please check FIREBASE_SETUP.md for instructions.');
             return;
         }
 
         setIsLoading(true);
         try {
             const googleProvider = new GoogleAuthProvider();
-            const result = await signInWithPopup(auth, googleProvider);
 
+            // For web, use popup. For native, you'd use redirect or native SDK
+            let result;
+            if (Platform.OS === 'web') {
+                result = await signInWithPopup(auth, googleProvider);
+            } else {
+                // For mobile, redirect is better
+                await signInWithRedirect(auth, googleProvider);
+                return; // The page will reload after redirect
+            }
+
+            // Get user info from Google
             const user = result.user;
             const userData = {
                 name: user.displayName || 'Google User',
                 email: user.email,
-                mobile: user.phoneNumber || '',
+                mobile: user.phoneNumber || '+91 98765 43210',
                 photoURL: user.photoURL
             };
 
@@ -143,14 +158,48 @@ export default function AuthScreen() {
                 ...userData,
                 role: isAdmin ? 'admin' : 'user'
             });
+            alert(`Welcome, ${userData.name}!`);
             router.replace(isAdmin ? '/admin' : '/');
         } catch (error) {
-            console.error('Google Sign-In Error:', error.code, error.message);
-            // Only log errors, don't show alerts
+            console.error('Google Sign-In Error:', error);
+            let errorMessage = 'Failed to sign in with Google';
+
+            if (error.code === 'auth/popup-closed-by-user') {
+                errorMessage = 'Sign-in cancelled';
+            } else if (error.code === 'auth/popup-blocked') {
+                errorMessage = 'Pop-up blocked. Please allow pop-ups for this site.';
+            } else if (error.code === 'auth/network-request-failed') {
+                errorMessage = 'Network error. Please check your connection.';
+            }
+
+            alert(errorMessage);
         } finally {
             setIsLoading(false);
         }
     };
+
+    // Check for redirect result on component mount (for mobile)
+    useEffect(() => {
+        if (Platform.OS !== 'web') {
+            getRedirectResult(auth)
+                .then((result) => {
+                    if (result) {
+                        const user = result.user;
+                        const userData = {
+                            name: user.displayName || 'Google User',
+                            email: user.email,
+                            mobile: user.phoneNumber || '+91 98765 43210',
+                            photoURL: user.photoURL
+                        };
+                        login(userData);
+                        router.replace('/');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Redirect result error:', error);
+                });
+        }
+    }, []);
 
     const handleForgotSubmit = () => {
         if (!recoveryIdentifier) {
