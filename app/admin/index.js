@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Switch, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ShieldAlert, Users, TrendingUp, Settings, CheckCircle, XCircle, AlertTriangle, Play, Pause } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
@@ -27,38 +27,62 @@ export default function AdminDashboard() {
     };
 
     const handleApprove = (id) => {
-        Alert.alert("Confirm", "Approve this partner?", [
-            { text: "Cancel", style: "cancel" },
-            {
-                text: "Approve",
-                onPress: () => {
-                    approvePartner(id);
-                    refreshData();
-                }
+        if (Platform.OS === 'web') {
+            if (window.confirm("Approve this partner?")) {
+                approvePartner(id);
+                refreshData();
+                window.alert("Partner Approved!");
             }
-        ]);
+        } else {
+            Alert.alert("Confirm", "Approve this partner?", [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Approve",
+                    onPress: () => {
+                        approvePartner(id);
+                        refreshData();
+                    }
+                }
+            ]);
+        }
     };
 
     const handleReject = (id) => {
-        Alert.alert("Confirm", "Reject this partner?", [
-            { text: "Cancel", style: "cancel" },
-            {
-                text: "Reject",
-                style: "destructive",
-                onPress: () => {
-                    rejectPartner(id);
-                    refreshData();
-                }
+        if (Platform.OS === 'web') {
+            if (window.confirm("Reject this partner?")) {
+                rejectPartner(id);
+                refreshData();
+                window.alert("Partner Rejected!");
             }
-        ]);
+        } else {
+            Alert.alert("Confirm", "Reject this partner?", [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Reject",
+                    style: "destructive",
+                    onPress: () => {
+                        rejectPartner(id);
+                        refreshData();
+                    }
+                }
+            ]);
+        }
     };
 
     const toggleBetaMode = () => {
         setIsBetaMode(!isBetaMode);
-        if (!isBetaMode) {
-            Alert.alert("Beta Mode Enabled", "Commission overridden to 0% for Mahe/Thalassery regions.");
+        if (Platform.OS === 'web') {
+            if (!isBetaMode) {
+                window.alert("Beta Mode Enabled: Commission overridden to 0% for Mahe/Thalassery regions.");
+            } else {
+                window.alert("Beta Mode Disabled: Commission restored to default 10%.");
+            }
         } else {
-            Alert.alert("Beta Mode Disabled", "Commission restored to default 10%.");
+            if (!isBetaMode) {
+                Alert.alert("Beta Mode Enabled", "Commission overridden to 0% for Mahe/Thalassery regions.");
+            } else {
+                Alert.alert("Beta Mode Disabled", "Commission restored to default 10%.");
+            }
         }
     };
 
@@ -130,7 +154,11 @@ export default function AdminDashboard() {
                     <View style={styles.actionRow}>
                         <TouchableOpacity style={[styles.btn, styles.btnApprove, { backgroundColor: COLORS.success }]} onPress={() => {
                             setRedFlags(redFlags.filter(f => f.id !== item.id));
-                            Alert.alert("Resolved", "Ticket Resolved & Partner Restored");
+                            if (Platform.OS === 'web') {
+                                window.alert("Ticket Resolved & Partner Restored");
+                            } else {
+                                Alert.alert("Resolved", "Ticket Resolved & Partner Restored");
+                            }
                         }}>
                             <CheckCircle size={16} color="#fff" />
                             <Text style={styles.btnText}>Resolve & Restore</Text>
