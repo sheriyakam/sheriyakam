@@ -6,6 +6,8 @@ import { COLORS, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import Svg, { Path } from 'react-native-svg';
+import { auth } from '../../config/firebaseConfig';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 export default function AuthScreen() {
     const router = useRouter();
@@ -117,10 +119,38 @@ export default function AuthScreen() {
     };
 
 
-    const handleSocialLogin = (provider) => {
-        alert('Coming Soon! Google login is under development.');
-    };
+    const handleSocialLogin = async () => {
+        if (!auth) {
+            console.warn('Firebase not initialized');
+            return;
+        }
 
+        setIsLoading(true);
+        try {
+            const googleProvider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, googleProvider);
+
+            const user = result.user;
+            const userData = {
+                name: user.displayName || 'Google User',
+                email: user.email,
+                mobile: user.phoneNumber || '',
+                photoURL: user.photoURL
+            };
+
+            const isAdmin = user.email?.toLowerCase() === 'sheriyakam.info@gmail.com';
+            login({
+                ...userData,
+                role: isAdmin ? 'admin' : 'user'
+            });
+            router.replace(isAdmin ? '/admin' : '/');
+        } catch (error) {
+            console.error('Google Sign-In Error:', error.code, error.message);
+            // Only log errors, don't show alerts
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleForgotSubmit = () => {
         if (!recoveryIdentifier) {
