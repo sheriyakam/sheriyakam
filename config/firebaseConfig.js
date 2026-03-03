@@ -11,13 +11,13 @@ import { getAuth } from 'firebase/auth';
 // 6. For web deployment, add your domain to Authorized domains in Authentication settings
 
 const firebaseConfig = {
-    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyAYmD6OEI9TwHbU9eu42XA_E7cMCwOf1fg",
-    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "sheriyakam-signup.firebaseapp.com",
-    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "sheriyakam-signup",
-    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "sheriyakam-signup.firebasestorage.app",
-    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "487669170396",
-    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:487669170396:web:762fcc7072bf57fba5f419",
-    measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-26J5HHBD1R"
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyDrhmWm9sgyNyspopGbB-sQAs10j3aVZuQ",
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "sheriyakam.firebaseapp.com",
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "sheriyakam",
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "sheriyakam.firebasestorage.app",
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "272877589112",
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:272877589112:web:de329f9df5ae2adba6138d",
+    measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-SD9LPN9W3E"
 };
 
 // Check if Firebase is properly configured
