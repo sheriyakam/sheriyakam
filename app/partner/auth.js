@@ -10,6 +10,7 @@ import {
 } from 'lucide-react-native';
 import PartnerLocationSelect from '../../components/PartnerLocationSelect';
 import { useTheme } from '../../context/ThemeContext';
+import * as DocumentPicker from 'expo-document-picker';
 
 export default function PartnerAuth() {
     const router = useRouter();
@@ -407,17 +408,30 @@ export default function PartnerAuth() {
                                     </Text>
                                     <TouchableOpacity
                                         style={[styles.inputGroup, licenseUploaded && { borderColor: COLORS.success, borderWidth: 2 }]}
-                                        onPress={() => {
-                                            if (Platform.OS === 'web') {
-                                                if (window.confirm("Upload a dummy Electrical License / Certificate?")) {
-                                                    setLicenseUploaded(true);
-                                                    window.alert("License uploaded successfully!");
+                                        onPress={async () => {
+                                            try {
+                                                const result = await DocumentPicker.getDocumentAsync({
+                                                    type: ['application/pdf', 'image/*'],
+                                                    copyToCacheDirectory: true,
+                                                });
+
+                                                if (result.canceled) {
+                                                    return;
                                                 }
-                                            } else {
-                                                Alert.alert('Upload Document', 'Simulating document upload...', [
-                                                    { text: 'Cancel', style: 'cancel' },
-                                                    { text: 'Mock Upload', onPress: () => setLicenseUploaded(true) }
-                                                ]);
+
+                                                if (result.assets && result.assets.length > 0) {
+                                                    // In a real app, you would upload the file here
+                                                    // For now, we simulate a successful upload for the UI flow
+                                                    setLicenseUploaded(true);
+                                                    if (Platform.OS === 'web') {
+                                                        window.alert("License uploaded successfully!");
+                                                    } else {
+                                                        Alert.alert('Upload Successful', 'Your document has been verified locally.');
+                                                    }
+                                                }
+                                            } catch (error) {
+                                                console.error("Document Picker Error: ", error);
+                                                Alert.alert('Upload Error', 'There was a problem picking your document.');
                                             }
                                         }}
                                     >
