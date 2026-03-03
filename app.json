@@ -24,7 +24,13 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "output": "single"
+      "output": "single",
+      "name": "Sheriyakam — Professional Electrical Services in Kerala",
+      "shortName": "Sheriyakam",
+      "description": "Book trusted, verified electricians for fan repair, wiring, AC service, CCTV setup, and more. Fast, reliable, professional electrical services across Kerala.",
+      "lang": "en",
+      "themeColor": "#0A0F1C",
+      "backgroundColor": "#0A0F1C"
     },
     "plugins": [
       "expo-router",

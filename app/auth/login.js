@@ -33,6 +33,10 @@ export default function AuthScreen() {
     const [recoveryOtp, setRecoveryOtp] = useState('');
     const [recoveredCreds, setRecoveredCreds] = useState(null);
 
+    // Security: Rate limiting
+    const [loginAttempts, setLoginAttempts] = useState(0);
+    const [lockoutUntil, setLockoutUntil] = useState(null);
+
     // Refs for input navigation
     const emailRef = useRef(null);
     const mobileRef = useRef(null);
@@ -58,6 +62,13 @@ export default function AuthScreen() {
     };
 
     const handleAuth = () => {
+        // Rate limiting check
+        if (isLogin && lockoutUntil && Date.now() < lockoutUntil) {
+            const secs = Math.ceil((lockoutUntil - Date.now()) / 1000);
+            alert(`Too many attempts. Try again in ${secs} seconds.`);
+            return;
+        }
+
         // 1. Validation Logic
         if (!isLogin) {
             // SignUp Validation
@@ -83,14 +94,8 @@ export default function AuthScreen() {
                 alert("Please enter your email or mobile number");
                 return;
             }
-            // Basic check if it's potentially an email or phone (optional loose check)
-            /* 
-            if (!validateEmail(identifier) && !validatePhone(identifier)) {
-                 // In login we might want to be more permissive or auto-detect
-            } 
-            */
-            if (!password) {
-                alert("Please enter your password");
+            if (password.length < 4) {
+                alert("Please enter a valid password");
                 return;
             }
         }

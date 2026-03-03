@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, TouchableOpacity, Alert, Animated, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield, Briefcase } from 'lucide-react-native';
@@ -99,7 +99,7 @@ export default function HomeScreen() {
   const { theme, colors } = useTheme();
 
   // Handle service click with authentication check
-  const handleServiceClick = (service) => {
+  const handleServiceClick = useCallback((service) => {
     if (!user) {
       // User not logged in — use web-compatible prompt
       if (Platform.OS === 'web') {
@@ -122,7 +122,7 @@ export default function HomeScreen() {
 
     // User is logged in - open booking modal
     setSelectedService(service);
-  };
+  }, [user, router]);
 
   // Animation Refs
   const headerOpacity = useRef(new Animated.Value(0)).current;
@@ -207,11 +207,11 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  const emergencyService = MOCK_SERVICES.find(s => s.name.includes('Emergency'));
-  const otherServices = MOCK_SERVICES.filter(s => !s.name.includes('Emergency'));
+  const emergencyService = useMemo(() => MOCK_SERVICES.find(s => s.name.includes('Emergency')), []);
+  const otherServices = useMemo(() => MOCK_SERVICES.filter(s => !s.name.includes('Emergency')), []);
 
-  // Inline styles that depend on theme
-  const dynamicStyles = {
+  // Memoized dynamic styles (only recompute on theme change)
+  const dynamicStyles = useMemo(() => ({
     container: {
       backgroundColor: colors.bgPrimary,
     },
@@ -234,7 +234,7 @@ export default function HomeScreen() {
     sectionTitle: {
       color: colors.textPrimary,
     },
-  };
+  }), [colors]);
 
   return (
     <SafeAreaView style={[styles.container, dynamicStyles.container]}>
