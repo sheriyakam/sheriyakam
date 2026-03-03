@@ -161,7 +161,7 @@ export default function AuthScreen() {
             alert(`Welcome, ${userData.name}!`);
             router.replace(isAdmin ? '/admin' : '/');
         } catch (error) {
-            console.error('Google Sign-In Error:', error);
+            console.error('Google Sign-In Error:', error.code, error.message);
             let errorMessage = 'Failed to sign in with Google';
 
             if (error.code === 'auth/popup-closed-by-user') {
@@ -170,6 +170,12 @@ export default function AuthScreen() {
                 errorMessage = 'Pop-up blocked. Please allow pop-ups for this site.';
             } else if (error.code === 'auth/network-request-failed') {
                 errorMessage = 'Network error. Please check your connection.';
+            } else if (error.code === 'auth/unauthorized-domain') {
+                errorMessage = 'This domain is not authorized. Please add it in Firebase Console > Authentication > Settings > Authorized domains.';
+            } else if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+                errorMessage = 'Google Sign-In is not enabled. Please enable it in Firebase Console > Authentication > Sign-in method.';
+            } else if (error.message) {
+                errorMessage = error.message;
             }
 
             alert(errorMessage);
