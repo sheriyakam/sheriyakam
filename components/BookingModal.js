@@ -23,24 +23,24 @@ import { createBooking } from '../constants/bookingStore';
 
 const AI_SUGGESTIONS = [
     // Motor
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor is running, but water is not coming into tank' },
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor on aavunnilla (Not turning on)' },
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor working but making very loud noise' },
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor switch complaint / spark varunnu' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor running, no water' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor on aavunnilla' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor making loud noise' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Switch spark / not starting' },
     // Fan
-    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate'], text: 'Fan is rotating very slowly (Speed issue)' },
-    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate'], text: 'Fan making weird sounds (Bearing issue)' },
-    { keywords: ['fan', 'bldc', 'remote'], text: 'BLDC Fan remote or board complaint' },
-    { keywords: ['fan', 'ceiling', 'kat', 'kaat'], text: 'Fan work aavunnilla (Completely dead)' },
+    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate'], text: 'Fan speed very slow' },
+    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate'], text: 'Fan making weird sounds' },
+    { keywords: ['fan', 'bldc', 'remote'], text: 'Remote / Board complaint' },
+    { keywords: ['fan', 'ceiling', 'kat', 'kaat'], text: 'Fan work aavunnilla' },
     // AC
-    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC is not cooling properly' },
-    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC is leaking water inside the room' },
-    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC turning off automatically' },
+    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC not cooling' },
+    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'Water leaking from AC' },
+    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC auto-turning off' },
     // Light / Switch / General
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Switchboard is damaged / burned' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Frequent power tripping (MCB issue)' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Short circuit / burning smell from wires' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Lights are flickering / Dim current' }
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Switchboard is damaged' },
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Power tripping / MCB issue' },
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Short circuit / burning smell' },
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Dim current / flickering' }
 ];
 
 const BookingModal = ({ service, visible, onClose }) => {
@@ -383,7 +383,7 @@ const BookingModal = ({ service, visible, onClose }) => {
                                         />
 
                                         {/* AI Suggestions Engine */}
-                                        {issues.length > 2 && (
+                                        {issues.length > 0 && (
                                             <ScrollView 
                                                 horizontal 
                                                 showsHorizontalScrollIndicator={false}
