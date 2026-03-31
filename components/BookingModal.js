@@ -31,6 +31,7 @@ const BookingModal = ({ service, visible, onClose }) => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [date, setDate] = useState(new Date());
+    const [issues, setIssues] = useState('');
 
     // Helper to get slots
     const getAvailableSlots = (dateStr) => {
@@ -66,6 +67,7 @@ const BookingModal = ({ service, visible, onClose }) => {
             setSelectedImage(null);
             setDate(new Date());
             setShowDatePicker(false);
+            setIssues('');
         }
     }, [visible]);
 
@@ -109,6 +111,15 @@ const BookingModal = ({ service, visible, onClose }) => {
     };
 
     const handleSubmit = () => {
+        // Validation: Must have EITHER text or photo
+        if (!issues.trim() && !selectedImage) {
+            Alert.alert(
+                'Missing Details',
+                'Please either describe your issue or add a photo so the partner knows what to expect.'
+            );
+            return;
+        }
+
         // Check if user is logged in
         if (!user) {
             // Close the booking modal
@@ -118,14 +129,8 @@ const BookingModal = ({ service, visible, onClose }) => {
                 'Login Required',
                 'Please login or sign up to confirm your booking.',
                 [
-                    {
-                        text: 'Cancel',
-                        style: 'cancel'
-                    },
-                    {
-                        text: 'Login / Sign Up',
-                        onPress: () => router.push('/auth/login')
-                    }
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Login / Sign Up', onPress: () => router.push('/auth/login') }
                 ]
             );
             return;
@@ -145,7 +150,7 @@ const BookingModal = ({ service, visible, onClose }) => {
             date: finalDate,
             time: selectedSlot,
             price: service.price,
-            notes: 'Booked via Sheriyakam App',
+            notes: issues.trim() || 'Photo provided as issue detail',
             imageUrl: selectedImage
         };
 
@@ -351,6 +356,8 @@ const BookingModal = ({ service, visible, onClose }) => {
                                             placeholderTextColor={COLORS.textTertiary}
                                             multiline
                                             numberOfLines={3}
+                                            value={issues}
+                                            onChangeText={setIssues}
                                         />
 
                                         {!selectedImage ? (
