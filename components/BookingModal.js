@@ -394,7 +394,7 @@ const BookingModal = ({ service, visible, onClose }) => {
                                         <Text style={styles.label}>Issue Details</Text>
                                         <TextInput
                                             style={styles.input}
-                                            placeholder="Example: Fan work aavunnilla / Motor is making noise"
+                                            placeholder={`Type your ${service.name} issue for smart AI suggestions...`}
                                             placeholderTextColor={COLORS.textTertiary}
                                             multiline
                                             numberOfLines={3}
