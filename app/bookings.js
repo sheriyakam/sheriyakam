@@ -11,8 +11,10 @@ import CancelModal from '../components/CancelModal';
 import PaymentModal from '../components/PaymentModal';
 
 import { getBookings, bookingEvents, payBooking, cancelBooking as cancelBookingInStore } from '../constants/bookingStore';
+import { useAuth } from '../context/AuthContext';
 
 export default function BookingsScreen() {
+    const { user } = useAuth();
     const router = useRouter();
     const [bookings, setBookings] = useState(getBookings());
     const [activeTab, setActiveTab] = useState('Upcoming');
@@ -44,10 +46,14 @@ export default function BookingsScreen() {
 
     // Live Time Check Logic
     const getFilteredBookings = () => {
+        if (!user) return []; // Security: don't show any if not logged in
+
         const now = new Date();
         const currentHour = now.getHours();
 
         return bookings.filter(b => {
+            // Customer filtering
+            if (b.customerEmail !== user.email && b.customerPhone !== user.mobile) return false;
             // Status mapping for tabs
             // 'Upcoming' includes 'open', 'accepted'
             // 'Completed' includes 'completed'
