@@ -11,6 +11,18 @@ import ServiceCard from '../components/ServiceCard';
 import BookingModal from '../components/BookingModal';
 import MenuModal from '../components/MenuModal';
 import LocationModal from '../components/LocationModal';
+import { ServicesAPI } from '../services/supabaseAPI';
+
+const IMAGE_MAP = {
+  'emergency.png': require('../assets/images/emergency.png'),
+  'light_fan.png': require('../assets/images/light_fan.png'),
+  'wiring.png': require('../assets/images/wiring.png'),
+  'switch.png': require('../assets/images/switch.png'),
+  'inverter.png': require('../assets/images/inverter.png'),
+  'ac.png': require('../assets/images/ac.png'),
+  'cctv.png': require('../assets/images/cctv.png'),
+  'automation.png': require('../assets/images/automation.png'),
+};
 
 const MOCK_SERVICES = [
   {
@@ -95,8 +107,23 @@ export default function HomeScreen() {
   const [locationVisible, setLocationVisible] = useState(false);
   const [locationName, setLocationName] = useState('Thalassery, Kerala');
   const [locationCoords, setLocationCoords] = useState(null);
+  const [services, setServices] = useState(MOCK_SERVICES);
 
   const { theme, colors } = useTheme();
+
+  useEffect(() => {
+    async function fetchServices() {
+      const { data, error } = await ServicesAPI.getAll();
+      if (!error && data && data.length > 0) {
+        const mapped = data.map(item => ({
+          ...item,
+          image: IMAGE_MAP[item.image_key] || MOCK_SERVICES[0].image
+        }));
+        setServices(mapped);
+      }
+    }
+    fetchServices();
+  }, []);
 
   // Handle service click with authentication check
   const handleServiceClick = useCallback((service) => {
@@ -130,6 +157,7 @@ export default function HomeScreen() {
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const contentTranslateY = useRef(new Animated.Value(50)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Start Header and Content Animations
@@ -207,8 +235,22 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  const emergencyService = useMemo(() => MOCK_SERVICES.find(s => s.name.includes('Emergency')), []);
-  const otherServices = useMemo(() => MOCK_SERVICES.filter(s => !s.name.includes('Emergency')), []);
+  const emergencyService = useMemo(() => services.find(s => s.name.includes('Emergency') || s.is_emergency), [services]);
+  const otherServices = useMemo(() => services.filter(s => !s.name.includes('Emergency') && !s.is_emergency), [services]);
+
+  // Stagger Animations for Cards
+  const cardsAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (services.length > 0) {
+      cardsAnim.setValue(0);
+      Animated.timing(cardsAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [services]);
 
   // Memoized dynamic styles (only recompute on theme change)
   const dynamicStyles = useMemo(() => ({
@@ -240,14 +282,21 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <StatusBar barStyle={theme === 'dark' ? "light-content" : "dark-content"} backgroundColor={colors.bgPrimary} />
 
-      {/* Sticky Top Bar */}
+      {/* Sticky Top Bar with Scroll Dynamics */}
       <Animated.View style={[
         {
           paddingHorizontal: SPACING.md,
           paddingTop: SPACING.md,
-          paddingBottom: SPACING.sm, // reduced bottom padding to keep it tight
+          paddingBottom: SPACING.sm,
           backgroundColor: colors.bgPrimary,
-          zIndex: 100
+          zIndex: 100,
+          borderBottomWidth: 1,
+          borderBottomColor: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: scrollY.interpolate({ inputRange: [0, 20], outputRange: [0, 0.1], extrapolate: 'clamp' }),
+          shadowRadius: 6,
+          elevation: scrollY.interpolate({ inputRange: [0, 20], outputRange: [0, 6], extrapolate: 'clamp' }),
         },
         { opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }
       ]}>
@@ -279,17 +328,33 @@ export default function HomeScreen() {
         </View>
       </Animated.View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <Animated.ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+      >
 
-        {/* Page Title (Scrollable) */}
+        {/* Hero Section (Parallax) */}
         <Animated.View style={[
-          { marginBottom: SPACING.lg },
-          { opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }
+          styles.heroSection,
+          { 
+            opacity: headerOpacity, 
+            transform: [
+              { translateY: headerTranslateY },
+              { translateY: scrollY.interpolate({ inputRange: [-100, 0, 100], outputRange: [-20, 0, 30] }) },
+              { scale: scrollY.interpolate({ inputRange: [-100, 0, 100], outputRange: [1.1, 1, 0.95], extrapolate: 'clamp' }) }
+            ] 
+          }
         ]}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>Book an Electrician</Text>
-            <Text style={[styles.headerSubtitle, dynamicStyles.headerSubtitle]}>
-              in <Text style={{ color: colors.accent }}>60 Seconds</Text>
+            <Text style={[styles.headerTitle, dynamicStyles.headerTitle, { fontSize: 34, letterSpacing: -0.5 }]}>
+              Expert <Text style={{ color: colors.accent }}>Electricians</Text>
+            </Text>
+            <Text style={[styles.headerSubtitle, dynamicStyles.headerSubtitle, { opacity: 0.7, fontSize: 18, marginTop: 4, fontWeight: '500' }]}>
+              At your doorstep in 60s
             </Text>
           </View>
         </Animated.View>
@@ -326,13 +391,29 @@ export default function HomeScreen() {
 
           {/* Service Grid */}
           <View style={styles.grid}>
-            {otherServices.map(service => (
-              <ServiceCard
-                key={service.id}
-                {...service}
-                onPress={() => handleServiceClick(service)}
-              />
-            ))}
+            {otherServices.map((service, index) => {
+              const cardOpacity = cardsAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              });
+              const cardTranslateY = cardsAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50 + index * 10, 0],
+              });
+              
+              return (
+                <Animated.View 
+                  key={service.id} 
+                  style={{ opacity: cardOpacity, transform: [{ translateY: cardTranslateY }], width: '48%', marginBottom: SPACING.md }}
+                >
+                  <ServiceCard
+                    {...service}
+                    fullWidth
+                    onPress={() => handleServiceClick(service)}
+                  />
+                </Animated.View>
+              );
+            })}
           </View>
 
           {/* Why Sheriyakam Section */}
@@ -361,7 +442,7 @@ export default function HomeScreen() {
 
         </Animated.View>
 
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Booking Modal */}
       <BookingModal
@@ -428,13 +509,18 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '800', // Made bolder
     // color: dynamic
   },
   headerSubtitle: {
-    fontSize: 28,
+    fontSize: 28, // This is overridden by inline style above anyway
     fontWeight: 'bold',
     // color: dynamic
+  },
+  heroSection: {
+    paddingVertical: SPACING.md,
+    marginBottom: SPACING.lg,
+    borderRadius: 16,
   },
   headerLocationBtn: {
     flexDirection: 'row',
@@ -478,7 +564,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
   },
   nameWrapper: {
     paddingHorizontal: 0,

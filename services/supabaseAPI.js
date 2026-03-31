@@ -62,6 +62,38 @@ export const UsersAPI = {
 };
 
 // ============================================================
+//  SERVICES API
+// ============================================================
+
+export const ServicesAPI = {
+    /** Get all available services */
+    async getAll() {
+        if (!isSupabaseConfigured) return { data: [], error: null };
+        const { data, error } = await supabase
+            .from('services')
+            .select('*')
+            .order('id', { ascending: true });
+        return { data: data || [], error };
+    },
+};
+
+// ============================================================
+//  LOCATIONS API
+// ============================================================
+
+export const LocationsAPI = {
+    /** Get available cities/locations */
+    async getCities() {
+        if (!isSupabaseConfigured) return { data: [], error: null };
+        const { data, error } = await supabase
+            .from('locations')
+            .select('city_name')
+            .order('city_name', { ascending: true });
+        return { data: data ? data.map(d => d.city_name) : [], error };
+    },
+};
+
+// ============================================================
 //  PARTNERS API
 // ============================================================
 

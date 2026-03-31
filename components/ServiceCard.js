@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions, Animated, Pressable } from 'react-native';
 import { Star, Clock, MapPin, Zap } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 
@@ -21,17 +21,42 @@ const ServiceCard = ({
         ? (width - SPACING.md * 3) / 2
         : (width - SPACING.md * 4) / 4;
 
+    const scaleValue = useRef(new Animated.Value(1)).current;
+
+    const onPressIn = () => {
+        Animated.spring(scaleValue, {
+            toValue: 0.95,
+            useNativeDriver: true,
+            speed: 20,
+            bounciness: 10,
+        }).start();
+    };
+
+    const onPressOut = () => {
+        Animated.spring(scaleValue, {
+            toValue: 1,
+            useNativeDriver: true,
+            speed: 20,
+            bounciness: 10,
+        }).start();
+    };
+
     return (
-        <View
+        <Animated.View
             style={[
                 styles.card,
                 fullWidth ? { width: '100%' } : { width: cardWidth },
                 !fullWidth && !isSmallScreen && { maxWidth: 300 },
-                isEmergency && styles.emergencyCard
+                isEmergency && styles.emergencyCard,
+                { transform: [{ scale: scaleValue }] }
             ]}
         >
             {/* Image Section */}
-            <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+            <Pressable 
+                onPress={onPress} 
+                onPressIn={onPressIn} 
+                onPressOut={onPressOut}
+            >
                 <View style={styles.imageContainer}>
                     <Image
                         source={typeof image === 'string' ? { uri: image } : image}
@@ -49,7 +74,7 @@ const ServiceCard = ({
                         </View>
                     )}
                 </View>
-            </TouchableOpacity>
+            </Pressable>
 
             {/* Content Section */}
             <View style={styles.content}>
@@ -82,7 +107,7 @@ const ServiceCard = ({
                     </TouchableOpacity>
                 </View>
             </View>
-        </View>
+        </Animated.View>
     );
 };
 

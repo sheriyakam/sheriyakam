@@ -374,18 +374,7 @@ const BookingModal = ({ service, visible, onClose }) => {
                                     >
                                         <Text style={styles.confirmBtnText}>Confirm Booking</Text>
                                     </TouchableOpacity>
-                                    {/* Book via WhatsApp Feature */}
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            const message = `Hi, I want to book a service for ${service.name}. Preferred date: ${selectedDate === 'Custom' ? customDate : selectedDate}, Time: ${selectedSlot}.`;
-                                            Linking.openURL(`whatsapp://send?phone=+919000000000&text=${encodeURIComponent(message)}`).catch(() => {
-                                                Alert.alert('Error', 'Make sure WhatsApp is installed on your device');
-                                            });
-                                        }}
-                                        style={[styles.confirmBtn, { backgroundColor: '#25D366', marginTop: 12 }]}
-                                    >
-                                        <Text style={[styles.confirmBtnText, { color: '#ffffff' }]}>Book via WhatsApp</Text>
-                                    </TouchableOpacity>
+
                                 </View>
                             </View>
                         ) : (

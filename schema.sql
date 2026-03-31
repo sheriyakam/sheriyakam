@@ -84,3 +84,41 @@ CREATE TABLE admin_settings (
 -- Sorting partners on customer view by: 
 -- ORDER BY (calculate_distance(lat, long)) ASC, rating DESC
 -- ==========================================
+
+-- 6. Services Table (Dynamic Content)
+CREATE TABLE services (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    rating DECIMAL(3,2) DEFAULT 5.00,
+    specialty VARCHAR(255),
+    time VARCHAR(50) DEFAULT '1 hr',
+    price DECIMAL(10,2),
+    image_key VARCHAR(100),
+    is_emergency BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert Mock Data
+INSERT INTO services (id, name, rating, specialty, time, price, image_key, is_emergency) VALUES
+(1, 'Emergency Repair Specialist', 4.8, 'Emergency Repairs', '1 hr', 550, 'emergency.png', true),
+(2, 'Fan Repair', 4.6, 'Ceiling & Exhaust Fans', '1 hr', 350, 'light_fan.png', false),
+(3, 'Wiring', 4.5, 'Wiring & Installation', '1 hr', 550, 'wiring.png', false),
+(4, 'DB Maintenance', 4.7, 'Distribution Boards', '1 hr', 450, 'switch.png', false),
+(5, 'Inverter Service', 5.0, 'Inverter & UPS', '1 hr', 500, 'inverter.png', false),
+(6, 'AC Service', 4.2, 'Air Conditioning', '1 hr', 650, 'ac.png', false),
+(7, 'CCTV Setup', 4.9, 'Security Systems', '1 hr', 700, 'cctv.png', false),
+(8, 'Home Automation', 4.8, 'Smart Home Setup', '1 hr', 1500, 'automation.png', false);
+
+-- 7. Locations Table (Dynamic Cities)
+CREATE TABLE locations (
+    id SERIAL PRIMARY KEY,
+    city_name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Insert Mock Data
+INSERT INTO locations (city_name) VALUES
+('Thalassery, Kerala'),
+('Mahe, Puducherry'),
+('Calicut, Kerala'),
+('Kochi, Kerala'),
+('Kannur, Kerala');

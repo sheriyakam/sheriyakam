@@ -11,34 +11,7 @@ const supervisors = {
     'default': { id: 'sup0', name: 'Main Supervisor', phone: '9999999999', taluk: 'General' }
 };
 
-let partners = [
-    {
-        id: 'p1',
-        name: 'John Electrician',
-        email: 'john@example.com',
-        phone: '1234567890',
-        password: 'password123',
-        status: 'approved', // approved, pending, rejected
-        serviceTypes: ['Electrician'],
-        location: { lat: 11.2588, lng: 75.7804 }, // Calicut
-        taluk: 'Kozhikode',
-        joinDate: '2023-01-01', // > 1 year ago
-        performanceScore: 92 // Excellent
-    },
-    {
-        id: 'p2',
-        name: 'New Partner',
-        email: 'new@example.com',
-        phone: '0987654321',
-        password: 'password123',
-        status: 'pending',
-        serviceTypes: ['AC'],
-        location: { lat: 11.2500, lng: 75.7800 },
-        taluk: 'Thamarassery',
-        joinDate: '2024-05-20', // < 1 year
-        performanceScore: 75 // Good
-    }
-];
+let partners = [];
 
 export const getSupervisorForPartner = (partner) => {
     if (!partner || !partner.taluk) return supervisors['default'];

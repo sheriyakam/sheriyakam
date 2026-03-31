@@ -15,6 +15,7 @@ import { X, MapPin, Navigation, Search, Check } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { COLORS, SPACING } from '../constants/theme';
 import LocationMap from './LocationMap';
+import { LocationsAPI } from '../services/supabaseAPI';
 
 const MOCK_CITIES = [
     "Thalassery, Kerala",
@@ -33,7 +34,18 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
     const [mapRegion, setMapRegion] = useState(null);
     const [selectedCoord, setSelectedCoord] = useState(null);
     const [addressText, setAddressText] = useState('');
+    const [cities, setCities] = useState(MOCK_CITIES);
     const mapRef = useRef(null);
+
+    useEffect(() => {
+        async function fetchCities() {
+            const { data, error } = await LocationsAPI.getCities();
+            if (!error && data && data.length > 0) {
+                setCities(data);
+            }
+        }
+        fetchCities();
+    }, []);
 
     // Initial region: Thalassery
     const DEFAULT_REGION = {
@@ -58,7 +70,7 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
         }
     }, [visible, currentLocation]);
 
-    const filteredCities = MOCK_CITIES.filter(city =>
+    const filteredCities = cities.filter(city =>
         city.toLowerCase().includes(searchQuery.toLowerCase())
     );
 

@@ -21,13 +21,6 @@ export const AuthProvider = ({ children }) => {
             password: 'admin123',
             name: 'Admin',
             role: 'admin'
-        },
-        {
-            email: 'user@example.com',
-            mobile: '+919876543210',
-            password: 'password123',
-            name: 'Demo User',
-            role: 'user'
         }
     ]);
 
@@ -89,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         const userKey = `user_${sanitizedUser.email}_first_login`;
         const hasLoggedInBefore = await AsyncStorage.getItem(userKey);
         if (!hasLoggedInBefore) {
-            await AsyncStorage.removeItem('sheriyakam_bookings_v1');
+            await AsyncStorage.removeItem('sheriyakam_bookings_v2');
             await AsyncStorage.setItem(userKey, 'true');
         }
     }, []);

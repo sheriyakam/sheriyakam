@@ -101,11 +101,15 @@ CREATE TABLE bookings (
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE locations ENABLE ROW LEVEL SECURITY;
 
 -- Allow anonymous read/write for now (you can tighten this later)
 CREATE POLICY "Allow all users" ON users FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all partners" ON partners FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all bookings" ON bookings FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow read for services" ON services FOR SELECT USING (true);
+CREATE POLICY "Allow read for locations" ON locations FOR SELECT USING (true);
 ```
 
 ## Step 5: Verify Connection
@@ -124,6 +128,8 @@ The app will automatically detect the Supabase configuration and use it for data
 | `users` | Customer accounts, admin login |
 | `partners` | Partner registrations, approvals |
 | `bookings` | All service bookings, payments |
+| `services` | Dynamic lists of services |
+| `locations` | Dynamic lists of supported cities |
 
 ## 💡 Free Tier Limits
 

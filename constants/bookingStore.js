@@ -27,68 +27,14 @@ class SimpleEventEmitter {
 // Event emitter for real-time updates between screens
 export const bookingEvents = new SimpleEventEmitter();
 
-// Initial Mock Data (Used if storage is empty)
-const INITIAL_BOOKINGS = [
-    {
-        id: 'b1',
-        customerName: 'Alice Smith',
-        customerPhone: '+91 98765 43210',
-        partnerName: null,
-        service: 'Emergency Repair Specialist',
-        serviceType: 'Electrician',
-        date: 'Today',
-        time: '2:00 PM',
-        status: 'open',
-        price: 500,
-        address: 'Calicut Beach Road, Kozhikode',
-        distance: '1.2 km',
-        checkInOtp: '1234',
-        otp: '4582',
-        paymentStatus: 'pending',
-        finalPrice: 500
-    },
-    {
-        id: 'b2',
-        customerName: 'Mohammed Fasil',
-        customerPhone: '+91 90876 54321',
-        partnerName: null,
-        service: 'AC Service Expert',
-        serviceType: 'AC',
-        date: 'Tomorrow',
-        time: '10:00 AM',
-        status: 'open',
-        price: 1200,
-        address: 'Mavoor Road, Kozhikode',
-        distance: '3.5 km',
-        checkInOtp: '1234',
-        otp: '1290',
-        paymentStatus: 'pending',
-        finalPrice: 1200
-    },
-    {
-        id: 'b3',
-        customerName: 'Sneha Gupta',
-        customerPhone: '+91 87654 32109',
-        partnerName: 'John Electrician',
-        service: 'Wiring Check',
-        serviceType: 'Electrician',
-        date: 'Yesterday',
-        time: '4:30 PM',
-        status: 'completed',
-        price: 800,
-        address: 'Mananchira, Kozhikode',
-        distance: '0.8 km',
-        checkInOtp: '7777',
-        otp: '7777',
-        paymentStatus: 'pending',
-        finalPrice: 800
-    }
-];
+// Initial Data (Empty for production)
+const INITIAL_BOOKINGS = [];
+
 
 let bookings = [...INITIAL_BOOKINGS];
 
 // Persistence Helpers
-const STORAGE_KEY = 'sheriyakam_bookings_v1';
+const STORAGE_KEY = 'sheriyakam_bookings_v2';
 
 const saveData = async () => {
     try {
