@@ -354,7 +354,7 @@ export default function HomeScreen() {
               Expert <Text style={{ color: colors.accent }}>Electricians</Text>
             </Text>
             <Text style={[styles.headerSubtitle, dynamicStyles.headerSubtitle, { opacity: 0.7, fontSize: 18, marginTop: 4, fontWeight: '500' }]}>
-              At your doorstep in 60s
+              Professional repairs & fast resolution
             </Text>
           </View>
         </Animated.View>
