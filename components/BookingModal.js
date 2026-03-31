@@ -19,6 +19,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { COLORS, SPACING } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'expo-router';
+import { createBooking } from '../constants/bookingStore';
 
 const BookingModal = ({ service, visible, onClose }) => {
     const { user } = useAuth();
@@ -130,8 +131,29 @@ const BookingModal = ({ service, visible, onClose }) => {
             return;
         }
 
-        // User is logged in, proceed with booking
-        setStep(2); // Show success
+        // Generate final date string
+        const finalDate = selectedDate === 'Custom' ? customDate : selectedDate;
+
+        // Create the booking object
+        const newBooking = {
+            customerName: user.name || 'Customer',
+            customerEmail: user.email,
+            customerPhone: user.mobile || '+91 00000 00000',
+            service: service.name,
+            serviceType: service.type || (service.name?.includes('AC') ? 'AC' : 'Electrician'),
+            address: 'Calicut (Default Address)', // Future update: add address input
+            date: finalDate,
+            time: selectedSlot,
+            price: service.price,
+            notes: 'Booked via Sheriyakam App',
+            imageUrl: selectedImage
+        };
+
+        // Save to store!
+        createBooking(newBooking);
+
+        // Show success screen
+        setStep(2);
     };
 
     const selectImage = async (useCamera) => {
