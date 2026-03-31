@@ -216,14 +216,14 @@ const MenuModal = ({ visible, onClose }) => {
                             </View>
                         )}
 
-                        {/* Services Section */}
+                        {/* Help & Support Section */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SERVICES</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>HELP & SUPPORT</Text>
                             <MenuItem
-                                icon={MapPin}
-                                label="Service Areas"
-                                subtitle="Check availability in your area"
-                                onPress={() => { router.push('/'); onClose(); }}
+                                icon={HelpCircle}
+                                label="Get Help"
+                                subtitle="Customer service & FAQs"
+                                onPress={() => { /* TODO */ onClose(); }}
                             />
                             {user && (
                                 <MenuItem
@@ -250,18 +250,12 @@ const MenuModal = ({ visible, onClose }) => {
 
                         {/* App Section */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>APP</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ABOUT APP</Text>
                             <MenuItem
                                 icon={Info}
                                 label="About Sheriyakam"
                                 subtitle="Learn more about us"
                                 onPress={() => { router.push('/about'); onClose(); }}
-                            />
-                            <MenuItem
-                                icon={HelpCircle}
-                                label="Help & Support"
-                                subtitle="Get assistance"
-                                onPress={() => { /* TODO */ onClose(); }}
                             />
                             <MenuItem
                                 icon={Shield}
