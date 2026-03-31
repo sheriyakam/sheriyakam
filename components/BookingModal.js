@@ -40,7 +40,12 @@ const AI_SUGGESTIONS = [
     { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Switchboard is damaged' },
     { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Power tripping / MCB issue' },
     { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Short circuit / burning smell' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Dim current / flickering' }
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Dim current / flickering' },
+    // Emergency
+    { keywords: ['emergency', 'urgent', 'specialist'], text: 'Current illa (Total power failure)' },
+    { keywords: ['emergency', 'urgent', 'specialist'], text: 'Water motor completely dead' },
+    { keywords: ['emergency', 'urgent', 'specialist'], text: 'Massive water leak / broken pipe' },
+    { keywords: ['emergency', 'urgent', 'specialist'], text: 'Main board burning / fire risk' }
 ];
 
 const BookingModal = ({ service, visible, onClose }) => {
