@@ -23,24 +23,24 @@ import { createBooking } from '../constants/bookingStore';
 
 const AI_SUGGESTIONS = [
     // Motor
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor running, no water' },
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor on aavunnilla' },
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Motor making loud noise' },
-    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar'], text: 'Switch spark / not starting' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar', 'plumbing', 'plumber'], text: 'Motor running, no water' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar', 'plumbing', 'plumber'], text: 'Motor on aavunnilla' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar', 'plumbing', 'plumber'], text: 'Motor making loud noise' },
+    { keywords: ['motor', 'pump', 'water', 'vellam', 'motar', 'plumbing', 'plumber'], text: 'Switch spark / not starting' },
     // Fan
-    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate'], text: 'Fan speed very slow' },
-    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate'], text: 'Fan making weird sounds' },
-    { keywords: ['fan', 'bldc', 'remote'], text: 'Remote / Board complaint' },
-    { keywords: ['fan', 'ceiling', 'kat', 'kaat'], text: 'Fan work aavunnilla' },
+    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate', 'electrician'], text: 'Fan speed very slow' },
+    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'rotate', 'electrician'], text: 'Fan making weird sounds' },
+    { keywords: ['fan', 'bldc', 'remote', 'electrician'], text: 'Remote / Board complaint' },
+    { keywords: ['fan', 'ceiling', 'kat', 'kaat', 'electrician'], text: 'Fan work aavunnilla' },
     // AC
-    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC not cooling' },
-    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'Water leaking from AC' },
-    { keywords: ['ac', 'air', 'cool', 'tannup'], text: 'AC auto-turning off' },
+    { keywords: ['ac', 'air', 'cool', 'tannup', 'ac repair'], text: 'AC not cooling' },
+    { keywords: ['ac', 'air', 'cool', 'tannup', 'ac repair'], text: 'Water leaking from AC' },
+    { keywords: ['ac', 'air', 'cool', 'tannup', 'ac repair'], text: 'AC auto-turning off' },
     // Light / Switch / General
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Switchboard is damaged' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Power tripping / MCB issue' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Short circuit / burning smell' },
-    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board'], text: 'Dim current / flickering' }
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Switchboard is damaged' },
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Power tripping / MCB issue' },
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Short circuit / burning smell' },
+    { keywords: ['light', 'bulb', 'switch', 'current', 'wire', 'board', 'electrician', 'wiring'], text: 'Dim current / flickering' }
 ];
 
 const BookingModal = ({ service, visible, onClose }) => {
@@ -92,6 +92,26 @@ const BookingModal = ({ service, visible, onClose }) => {
             setIssues('');
         }
     }, [visible]);
+
+    // Smart AI suggestions based on service AND typing
+    const getFilteredSuggestions = () => {
+        if (!service) return [];
+        
+        let queryStr = issues.trim().toLowerCase();
+        
+        // If user hasn't typed anything, use the service name + type as the AI context
+        if (queryStr.length === 0) {
+            queryStr = `${service.name} ${service.type || ''}`.toLowerCase();
+        }
+
+        const queryWords = queryStr.split(' ').filter(w => w.length > 2);
+
+        return AI_SUGGESTIONS.filter(s => {
+            // Match if any keyword is in the query string OR if any query string word is in keywords
+            const isMatch = s.keywords.some(k => queryStr.includes(k) || queryWords.some(qw => k.includes(qw)));
+            return isMatch && !issues.includes(s.text);
+        });
+    };
 
     if (!service) return null;
 
@@ -383,17 +403,14 @@ const BookingModal = ({ service, visible, onClose }) => {
                                         />
 
                                         {/* AI Suggestions Engine */}
-                                        {issues.length > 0 && (
+                                        {getFilteredSuggestions().length > 0 && (
                                             <ScrollView 
                                                 horizontal 
                                                 showsHorizontalScrollIndicator={false}
                                                 style={{ marginTop: 8 }}
                                                 contentContainerStyle={{ paddingBottom: 4 }}
                                             >
-                                                {AI_SUGGESTIONS.filter(s => 
-                                                    s.keywords.some(k => issues.toLowerCase().includes(k)) && 
-                                                    !issues.includes(s.text)
-                                                ).map((suggestion, idx) => (
+                                                {getFilteredSuggestions().map((suggestion, idx) => (
                                                     <TouchableOpacity 
                                                         key={idx}
                                                         style={styles.aiChip}
