@@ -446,6 +446,25 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* FAQ Section for SEO & Customer Trust */}
+          <View style={[styles.whySection, { paddingBottom: 60, borderTopWidth: 0 }]}>
+            <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: SPACING.lg, textAlign: 'center' }]}>
+              Frequently Asked Questions
+            </Text>
+            <View style={{ gap: SPACING.lg, paddingHorizontal: SPACING.sm }}>
+              {[
+                  { q: "How much does an electrician cost near me?", a: "Our base inspection charge is highly affordable. However, the total cost depends on the specific repair—pricing is always clear and upfront before work begins." },
+                  { q: "What is the best way to request emergency home repair?", a: "Simply tap the 'Emergency Repair Specialist' button at the top of the app. We prioritize complete power failures, short circuits, and massive leaks." },
+                  { q: "How fast will my water motor or AC be fixed?", a: "We focus on quick, professional resolution. Depending on availability in Kerala, our verified partners aim for same-day or next-day service." }
+              ].map((faq, i) => (
+                <View key={i} style={{ backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.03)' : '#f9fafb', padding: SPACING.md, borderRadius: 12 }}>
+                  <Text style={{ color: colors.textPrimary, fontSize: 16, fontWeight: '700', marginBottom: 6 }}>{faq.q}</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 22 }}>{faq.a}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
         </Animated.View>
 
       </Animated.ScrollView>
