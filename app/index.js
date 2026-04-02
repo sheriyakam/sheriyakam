@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, Touch
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield, Briefcase } from 'lucide-react-native';
 import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
+import { useRouter, Head } from 'expo-router';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -280,6 +280,12 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, dynamicStyles.container]}>
+      <Head>
+        <title>Sheriyakam | Expert Electrician & Plumbing Repairs</title>
+        <meta name="description" content="Book affordable, emergency home repair services in Kerala. We fix faulty wiring, broken water motors, AC leaks, and ceiling fans quickly." />
+        <meta name="keywords" content="emergency electrician near me, motor repair, fan installation, affordable home repair, sheriyakam, AC repair, local electrician" />
+        <meta property="og:title" content="Sheriyakam | Home Repair Experts" />
+      </Head>
       <StatusBar barStyle={theme === 'dark' ? "light-content" : "dark-content"} backgroundColor={colors.bgPrimary} />
 
       {/* Sticky Top Bar with Scroll Dynamics */}
