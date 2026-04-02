@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
 // Firebase Configuration
 // To set up Google Sign-In:
@@ -30,14 +31,23 @@ if (!isConfigured && __DEV__) {
 
 let app;
 let auth;
+let analytics = null;
 
 try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    
+    // Initialize Analytics for Web automatically
+    isSupported().then(supported => {
+        if (supported) {
+            analytics = getAnalytics(app);
+        }
+    });
+
 } catch (error) {
     console.error('Firebase initialization error:', error);
     // Create a dummy auth object to prevent crashes
     auth = null;
 }
 
-export { auth, isConfigured };
+export { auth, analytics, isConfigured };
