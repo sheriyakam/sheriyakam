@@ -3,7 +3,8 @@ import { StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image, Touch
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield, Briefcase } from 'lucide-react-native';
 import * as Location from 'expo-location';
-import { useRouter, Head } from 'expo-router';
+import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
