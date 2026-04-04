@@ -1,128 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Switch, Alert, Platform, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ShieldAlert, Users, TrendingUp, Settings, CheckCircle, XCircle, AlertTriangle, Play, Pause } from 'lucide-react-native';
+import { ShieldAlert, Users, Briefcase, TrendingUp, CheckCircle, Clock, LogOut, BarChart2, Activity } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
-import { getPartners, approvePartner, rejectPartner } from '../../constants/partnerStore';
 import { useRouter } from 'expo-router';
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState('verification');
-    const [pendingPartners, setPendingPartners] = useState([]);
 
-    // Admin Login State
+    // Auth State
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
-
-    // Mock States for new logic
-    const [isBetaMode, setIsBetaMode] = useState(false);
-    const [redFlags, setRedFlags] = useState([
-        { id: '1', partnerName: 'John Electric', issue: 'Technical', status: 'Pending Review', autoSuspended: true, revisitRequested: true },
-    ]);
-
-    useEffect(() => {
-        refreshData();
-    }, []);
-
-    const refreshData = () => {
-        const partners = getPartners().filter(p => p.status === 'pending');
-        setPendingPartners(partners);
-    };
-
-    const handleApprove = (id) => {
-        if (Platform.OS === 'web') {
-            if (window.confirm("Approve this partner?")) {
-                approvePartner(id);
-                refreshData();
-                window.alert("Partner Approved!");
-            }
-        } else {
-            Alert.alert("Confirm", "Approve this partner?", [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Approve",
-                    onPress: () => {
-                        approvePartner(id);
-                        refreshData();
-                    }
-                }
-            ]);
-        }
-    };
-
-    const handleReject = (id) => {
-        if (Platform.OS === 'web') {
-            if (window.confirm("Reject this partner?")) {
-                rejectPartner(id);
-                refreshData();
-                window.alert("Partner Rejected!");
-            }
-        } else {
-            Alert.alert("Confirm", "Reject this partner?", [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Reject",
-                    style: "destructive",
-                    onPress: () => {
-                        rejectPartner(id);
-                        refreshData();
-                    }
-                }
-            ]);
-        }
-    };
-
-    const toggleBetaMode = () => {
-        setIsBetaMode(!isBetaMode);
-        if (Platform.OS === 'web') {
-            if (!isBetaMode) {
-                window.alert("Beta Mode Enabled: Commission overridden to 0% for Mahe/Thalassery regions.");
-            } else {
-                window.alert("Beta Mode Disabled: Commission restored to default 10%.");
-            }
-        } else {
-            if (!isBetaMode) {
-                Alert.alert("Beta Mode Enabled", "Commission overridden to 0% for Mahe/Thalassery regions.");
-            } else {
-                Alert.alert("Beta Mode Disabled", "Commission restored to default 10%.");
-            }
-        }
-    };
 
     const handleLogin = () => {
         if (username === 'admin' && password === 'sheri@25') {
             setIsAuthenticated(true);
             setLoginError('');
         } else {
-            setLoginError('Invalid Administrator credentials');
+            setLoginError('Invalid credentials');
         }
     };
 
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        setUsername('');
+        setPassword('');
+    };
+
+    // ─── LOGIN SCREEN ───
     if (!isAuthenticated) {
         return (
             <SafeAreaView style={styles.loginContainer}>
                 <View style={styles.loginBox}>
-                    <ShieldAlert size={48} color={COLORS.danger} style={{ alignSelf: 'center', marginBottom: 16 }} />
+                    <View style={styles.loginIconWrap}>
+                        <ShieldAlert size={36} color="#ef4444" />
+                    </View>
                     <Text style={styles.loginTitle}>Admin Portal</Text>
-                    <Text style={styles.loginSubtitle}>Restricted Access Only</Text>
-                    
+                    <Text style={styles.loginSubtitle}>Restricted Access · Sheriyakam</Text>
+
                     {loginError ? <Text style={styles.errorText}>{loginError}</Text> : null}
 
-                    <TextInput 
+                    <TextInput
                         style={styles.input}
                         placeholder="Username"
-                        placeholderTextColor="#9ca3af"
+                        placeholderTextColor="#6b7280"
                         value={username}
                         onChangeText={setUsername}
                         autoCapitalize="none"
                     />
-                    <TextInput 
+                    <TextInput
                         style={styles.input}
                         placeholder="Password"
-                        placeholderTextColor="#9ca3af"
+                        placeholderTextColor="#6b7280"
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
@@ -133,435 +64,354 @@ export default function AdminDashboard() {
                         <Text style={styles.loginBtnText}>Secure Login</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={{ marginTop: 24, alignSelf: 'center' }} onPress={() => router.replace('/')}>
-                        <Text style={{ color: COLORS.textTertiary }}>← Back to Public Site</Text>
+                    <TouchableOpacity style={{ marginTop: 28, alignSelf: 'center' }} onPress={() => router.replace('/')}>
+                        <Text style={{ color: '#6b7280', fontSize: 13 }}>← Back to Sheriyakam</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
         );
     }
 
-    const renderVerificationQueue = () => (
-        <FlatList
-            data={pendingPartners}
-            keyExtractor={item => item.id}
-            ListEmptyComponent={
-                <View style={styles.emptyState}>
-                    <CheckCircle size={48} color={COLORS.success} />
-                    <Text style={styles.emptyText}>All Caught Up! No pending verifications.</Text>
-                </View>
-            }
-            renderItem={({ item }) => (
-                <View style={styles.card}>
-                    <View style={styles.cardHeader}>
-                        <View>
-                            <Text style={styles.cardTitle}>{item.name}</Text>
-                            <Text style={styles.cardSubtitle}>{item.phone} • {item.email}</Text>
-                        </View>
-                        <View style={styles.badgePending}>
-                            <Text style={styles.badgePendingText}>PENDING</Text>
-                        </View>
-                    </View>
-                    <View style={styles.cardBody}>
-                        <Text style={styles.detailText}><Text style={{ fontWeight: 'bold' }}>Services:</Text> {item.serviceTypes?.join(', ') || 'N/A'}</Text>
-                        <Text style={styles.detailText}><Text style={{ fontWeight: 'bold' }}>Location:</Text> {item.location?.address || 'N/A'}</Text>
-                        <Text style={styles.detailText}><Text style={{ fontWeight: 'bold' }}>License:</Text> Uploaded PDF (Awaiting Review)</Text>
-                    </View>
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity style={[styles.btn, styles.btnReject]} onPress={() => handleReject(item.id)}>
-                            <XCircle size={16} color="#fff" />
-                            <Text style={styles.btnText}>Reject</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.btn, styles.btnApprove]} onPress={() => handleApprove(item.id)}>
-                            <CheckCircle size={16} color="#fff" />
-                            <Text style={styles.btnText}>Approve Partner</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
-        />
-    );
-
-    const renderRedFlags = () => (
-        <FlatList
-            data={redFlags}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-                <View style={[styles.card, { borderColor: 'rgba(239, 68, 68, 0.3)', borderWidth: 1 }]}>
-                    <View style={styles.cardHeader}>
-                        <View>
-                            <Text style={styles.cardTitle}>{item.partnerName}</Text>
-                            <Text style={[styles.cardSubtitle, { color: COLORS.danger }]}>{item.issue} Complaint</Text>
-                        </View>
-                        <View style={[styles.badgePending, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-                            <AlertTriangle size={12} color={COLORS.danger} />
-                            <Text style={[styles.badgePendingText, { color: COLORS.danger, marginLeft: 4 }]}>RED FLAG</Text>
-                        </View>
-                    </View>
-                    <View style={styles.cardBody}>
-                        {item.autoSuspended && (
-                            <Text style={[styles.detailText, { color: COLORS.danger, fontWeight: 'bold' }]}>* Automatically Suspended pending review</Text>
-                        )}
-                        {item.revisitRequested && (
-                            <Text style={[styles.detailText, { color: COLORS.accent, fontWeight: 'bold' }]}>* Customer Requested Re-visit (₹0 Cost)</Text>
-                        )}
-                    </View>
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity style={[styles.btn, styles.btnApprove, { backgroundColor: COLORS.success }]} onPress={() => {
-                            setRedFlags(redFlags.filter(f => f.id !== item.id));
-                            if (Platform.OS === 'web') {
-                                window.alert("Ticket Resolved & Partner Restored");
-                            } else {
-                                Alert.alert("Resolved", "Ticket Resolved & Partner Restored");
-                            }
-                        }}>
-                            <CheckCircle size={16} color="#fff" />
-                            <Text style={styles.btnText}>Resolve & Restore</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
-        />
-    );
-
-    const renderSettings = () => (
-        <View style={styles.settingsContainer}>
-            <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                    <View>
-                        <Text style={styles.cardTitle}>Trial / Beta Mode</Text>
-                        <Text style={styles.cardSubtitle}>Overrides defaults for Thalassery/Mahe mapping</Text>
-                    </View>
-                </View>
-                <View style={styles.cardBody}>
-                    <View style={styles.settingRow}>
-                        <View style={{ flex: 1, paddingRight: 16 }}>
-                            <Text style={styles.settingTitle}>0% Commission (Beta Mode)</Text>
-                            <Text style={styles.settingDesc}>When enabled, all mapped partners in Thalassery and Mahe launch areas will have their matching commission automatically reduced to ₹0 for the first month to encourage signups.</Text>
-                        </View>
-                        <Switch
-                            value={isBetaMode}
-                            onValueChange={toggleBetaMode}
-                            trackColor={{ false: '#3f3f46', true: COLORS.accent }}
-                            thumbColor={isBetaMode ? '#fff' : '#a1a1aa'}
-                        />
-                    </View>
-                </View>
-            </View>
-        </View>
-    );
-
+    // ─── DASHBOARD ───
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Admin Command Center</Text>
-                <Text style={styles.headerSubtitle}>System Overview & Workflows</Text>
-            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
 
-            {/* Top Metrics Map */}
-            <View style={styles.metricsContainer}>
-                <View style={styles.metricCard}>
-                    <Users size={20} color={COLORS.accent} />
-                    <Text style={styles.metricValue}>{getPartners().length}</Text>
-                    <Text style={styles.metricLabel}>Partners</Text>
+                {/* Header */}
+                <View style={styles.header}>
+                    <View>
+                        <Text style={styles.headerTitle}>Command Center</Text>
+                        <Text style={styles.headerSubtitle}>Sheriyakam Administration</Text>
+                    </View>
+                    <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+                        <LogOut size={18} color="#ef4444" />
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.metricCard}>
-                    <ShieldAlert size={20} color={COLORS.danger} />
-                    <Text style={styles.metricValue}>{redFlags.length}</Text>
-                    <Text style={styles.metricLabel}>Red Flags</Text>
-                </View>
-                <View style={styles.metricCard}>
-                    <TrendingUp size={20} color={COLORS.success} />
-                    <Text style={styles.metricValue}>₹45k</Text>
-                    <Text style={styles.metricLabel}>Revenue</Text>
-                </View>
-            </View>
 
-            {/* Tabs */}
-            <View style={styles.tabs}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'verification' && styles.activeTab]}
-                        onPress={() => setActiveTab('verification')}
-                    >
-                        <Text style={[styles.tabText, activeTab === 'verification' && styles.activeTabText]}>Verification Queue</Text>
-                        {pendingPartners.length > 0 && (
-                            <View style={styles.badge}><Text style={styles.badgeText}>{pendingPartners.length}</Text></View>
-                        )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'disputes' && styles.activeTab]}
-                        onPress={() => setActiveTab('disputes')}
-                    >
-                        <Text style={[styles.tabText, activeTab === 'disputes' && styles.activeTabText]}>Red Flags</Text>
-                        {redFlags.length > 0 && (
-                            <View style={[styles.badge, { backgroundColor: COLORS.danger }]}>
-                                <Text style={styles.badgeText}>{redFlags.length}</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'settings' && styles.activeTab]}
-                        onPress={() => setActiveTab('settings')}
-                    >
-                        <Text style={[styles.tabText, activeTab === 'settings' && styles.activeTabText]}>Settings</Text>
-                    </TouchableOpacity>
-                </ScrollView>
-            </View>
+                {/* Overview Cards */}
+                <View style={styles.metricsRow}>
+                    <View style={[styles.metricCard, { borderLeftColor: '#3b82f6' }]}>
+                        <Users size={22} color="#3b82f6" />
+                        <Text style={styles.metricValue}>0</Text>
+                        <Text style={styles.metricLabel}>Total Partners</Text>
+                    </View>
+                    <View style={[styles.metricCard, { borderLeftColor: '#10b981' }]}>
+                        <Briefcase size={22} color="#10b981" />
+                        <Text style={styles.metricValue}>0</Text>
+                        <Text style={styles.metricLabel}>Active Jobs</Text>
+                    </View>
+                    <View style={[styles.metricCard, { borderLeftColor: '#f59e0b' }]}>
+                        <TrendingUp size={22} color="#f59e0b" />
+                        <Text style={styles.metricValue}>₹0</Text>
+                        <Text style={styles.metricLabel}>Revenue</Text>
+                    </View>
+                </View>
 
-            {/* Content Body */}
-            <View style={styles.content}>
-                {activeTab === 'verification' && renderVerificationQueue()}
-                {activeTab === 'disputes' && renderRedFlags()}
-                {activeTab === 'settings' && renderSettings()}
-            </View>
+                {/* Status Banner */}
+                <View style={styles.statusBanner}>
+                    <Activity size={18} color="#10b981" />
+                    <Text style={styles.statusText}>System Online · No pending actions</Text>
+                </View>
+
+                {/* Quick Actions */}
+                <Text style={styles.sectionTitle}>Quick Actions</Text>
+                <View style={styles.actionsGrid}>
+                    <TouchableOpacity style={styles.actionCard}>
+                        <View style={[styles.actionIcon, { backgroundColor: 'rgba(59,130,246,0.1)' }]}>
+                            <Users size={22} color="#3b82f6" />
+                        </View>
+                        <Text style={styles.actionLabel}>Partner Verification</Text>
+                        <Text style={styles.actionDesc}>Review and approve new partner applications</Text>
+                        <View style={styles.actionBadge}>
+                            <CheckCircle size={12} color="#10b981" />
+                            <Text style={styles.actionBadgeText}>0 Pending</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.actionCard}>
+                        <View style={[styles.actionIcon, { backgroundColor: 'rgba(239,68,68,0.1)' }]}>
+                            <ShieldAlert size={22} color="#ef4444" />
+                        </View>
+                        <Text style={styles.actionLabel}>Complaints</Text>
+                        <Text style={styles.actionDesc}>Monitor red flags and customer disputes</Text>
+                        <View style={styles.actionBadge}>
+                            <CheckCircle size={12} color="#10b981" />
+                            <Text style={styles.actionBadgeText}>0 Open</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.actionCard}>
+                        <View style={[styles.actionIcon, { backgroundColor: 'rgba(16,185,129,0.1)' }]}>
+                            <BarChart2 size={22} color="#10b981" />
+                        </View>
+                        <Text style={styles.actionLabel}>Analytics</Text>
+                        <Text style={styles.actionDesc}>View booking trends and performance data</Text>
+                        <View style={styles.actionBadge}>
+                            <Clock size={12} color="#f59e0b" />
+                            <Text style={styles.actionBadgeText}>Coming Soon</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.actionCard}>
+                        <View style={[styles.actionIcon, { backgroundColor: 'rgba(245,158,11,0.1)' }]}>
+                            <TrendingUp size={22} color="#f59e0b" />
+                        </View>
+                        <Text style={styles.actionLabel}>Revenue</Text>
+                        <Text style={styles.actionDesc}>Track earnings, commissions, and payouts</Text>
+                        <View style={styles.actionBadge}>
+                            <Clock size={12} color="#f59e0b" />
+                            <Text style={styles.actionBadgeText}>Coming Soon</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Recent Activity */}
+                <Text style={styles.sectionTitle}>Recent Activity</Text>
+                <View style={styles.emptyActivity}>
+                    <Clock size={40} color="#374151" />
+                    <Text style={styles.emptyTitle}>No Activity Yet</Text>
+                    <Text style={styles.emptyDesc}>Partner applications, bookings, and system events will appear here in real-time.</Text>
+                </View>
+
+                <View style={{ height: 60 }} />
+            </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    // ─── LOGIN ───
     loginContainer: {
         flex: 1,
-        backgroundColor: '#111827',
+        backgroundColor: '#0f172a',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 24,
     },
     loginBox: {
         width: '100%',
-        maxWidth: 400,
-        backgroundColor: '#1f2937',
-        padding: 32,
-        borderRadius: 16,
+        maxWidth: 380,
+        backgroundColor: '#1e293b',
+        padding: 36,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(239, 68, 68, 0.3)',
+        borderColor: 'rgba(239, 68, 68, 0.15)',
+    },
+    loginIconWrap: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: 'rgba(239, 68, 68, 0.08)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        marginBottom: 20,
     },
     loginTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
-        color: '#fff',
+        color: '#f8fafc',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: 6,
     },
     loginSubtitle: {
-        fontSize: 14,
-        color: '#9ca3af',
+        fontSize: 13,
+        color: '#64748b',
         textAlign: 'center',
-        marginBottom: 32,
+        marginBottom: 28,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
     },
     input: {
-        backgroundColor: '#374151',
-        borderRadius: 8,
+        backgroundColor: '#0f172a',
+        borderRadius: 10,
         padding: 16,
-        color: '#fff',
-        fontSize: 16,
-        marginBottom: 16,
+        color: '#f8fafc',
+        fontSize: 15,
+        marginBottom: 14,
         borderWidth: 1,
-        borderColor: '#4b5563',
+        borderColor: '#334155',
     },
     loginBtn: {
-        backgroundColor: COLORS.danger,
+        backgroundColor: '#ef4444',
         padding: 16,
-        borderRadius: 8,
+        borderRadius: 10,
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: 6,
     },
     loginBtnText: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 15,
     },
     errorText: {
         color: '#ef4444',
         textAlign: 'center',
         marginBottom: 16,
         fontWeight: '600',
+        fontSize: 13,
     },
+
+    // ─── DASHBOARD ───
     container: {
         flex: 1,
-        backgroundColor: COLORS.bgPrimary,
+        backgroundColor: '#0f172a',
     },
     header: {
-        padding: SPACING.lg,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 24,
+        paddingBottom: 16,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        color: '#f8fafc',
     },
     headerSubtitle: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
+        fontSize: 13,
+        color: '#64748b',
         marginTop: 4,
     },
-    metricsContainer: {
+    logoutBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(239,68,68,0.08)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    // ─── METRICS ───
+    metricsRow: {
         flexDirection: 'row',
-        paddingHorizontal: SPACING.lg,
-        gap: SPACING.md,
-        marginBottom: SPACING.lg,
+        paddingHorizontal: 24,
+        gap: 12,
+        marginBottom: 20,
     },
     metricCard: {
         flex: 1,
-        backgroundColor: COLORS.bgSecondary,
-        padding: SPACING.md,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: COLORS.border,
+        backgroundColor: '#1e293b',
+        padding: 16,
+        borderRadius: 14,
+        borderLeftWidth: 3,
         alignItems: 'center',
+        gap: 6,
     },
     metricValue: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginVertical: 4,
+        color: '#f8fafc',
     },
     metricLabel: {
-        fontSize: 12,
-        color: COLORS.textTertiary,
+        fontSize: 11,
+        color: '#64748b',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
-    tabs: {
-        flexDirection: 'row',
-        paddingHorizontal: SPACING.lg,
-        borderBottomWidth: 1,
-        borderColor: COLORS.border,
-    },
-    tab: {
+
+    // ─── STATUS ───
+    statusBanner: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: SPACING.md,
-        marginRight: SPACING.xl,
-        gap: 8,
-    },
-    activeTab: {
-        borderBottomWidth: 2,
-        borderColor: COLORS.accent,
-    },
-    tabText: {
-        fontSize: 16,
-        color: COLORS.textSecondary,
-        fontWeight: '500',
-    },
-    activeTabText: {
-        color: COLORS.accent,
-        fontWeight: 'bold',
-    },
-    badge: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: 'rgba(16,185,129,0.06)',
+        marginHorizontal: 24,
+        padding: 14,
         borderRadius: 10,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-    },
-    badgeText: {
-        color: '#fff',
-        fontSize: 10,
-        fontWeight: 'bold',
-    },
-    content: {
-        flex: 1,
-        padding: SPACING.lg,
-    },
-    card: {
-        backgroundColor: COLORS.bgSecondary,
-        borderRadius: 16,
-        padding: SPACING.lg,
-        marginBottom: SPACING.md,
+        gap: 10,
         borderWidth: 1,
-        borderColor: COLORS.border,
+        borderColor: 'rgba(16,185,129,0.15)',
+        marginBottom: 28,
     },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: SPACING.sm,
+    statusText: {
+        color: '#10b981',
+        fontSize: 13,
+        fontWeight: '600',
     },
-    cardTitle: {
-        fontSize: 18,
+
+    // ─── SECTIONS ───
+    sectionTitle: {
+        fontSize: 16,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: 4,
+        color: '#94a3b8',
+        paddingHorizontal: 24,
+        marginBottom: 14,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
-    cardSubtitle: {
-        fontSize: 12,
-        color: COLORS.textSecondary,
-    },
-    badgePending: {
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
+
+    // ─── ACTIONS GRID ───
+    actionsGrid: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
+        paddingHorizontal: 24,
+        gap: 12,
+        marginBottom: 32,
+    },
+    actionCard: {
+        width: '48%',
+        backgroundColor: '#1e293b',
+        padding: 18,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: '#334155',
+    },
+    actionIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
         alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 14,
     },
-    badgePendingText: {
-        color: COLORS.gold,
-        fontSize: 10,
-        fontWeight: 'bold',
-    },
-    cardBody: {
-        marginVertical: SPACING.sm,
-        padding: SPACING.md,
-        backgroundColor: 'rgba(255,255,255,0.02)',
-        borderRadius: 8,
-    },
-    detailText: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
+    actionLabel: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#f8fafc',
         marginBottom: 6,
     },
-    actionRow: {
-        flexDirection: 'row',
-        gap: SPACING.md,
-        marginTop: SPACING.sm,
+    actionDesc: {
+        fontSize: 12,
+        color: '#64748b',
+        lineHeight: 18,
+        marginBottom: 14,
     },
-    btn: {
-        flex: 1,
+    actionBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: 12,
-        borderRadius: 8,
-        gap: 8,
+        gap: 6,
     },
-    btnReject: {
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    actionBadgeText: {
+        fontSize: 12,
+        color: '#94a3b8',
+        fontWeight: '600',
+    },
+
+    // ─── EMPTY ───
+    emptyActivity: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#1e293b',
+        marginHorizontal: 24,
+        padding: 40,
+        borderRadius: 14,
         borderWidth: 1,
-        borderColor: COLORS.danger,
+        borderColor: '#334155',
+        borderStyle: 'dashed',
     },
-    btnApprove: {
-        backgroundColor: COLORS.accent,
-    },
-    btnText: {
-        fontWeight: 'bold',
-        fontSize: 14,
-        color: '#fff',
-    },
-    emptyState: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-    },
-    emptyText: {
-        color: COLORS.textSecondary,
-        marginTop: SPACING.md,
+    emptyTitle: {
+        color: '#94a3b8',
         fontSize: 16,
+        fontWeight: '700',
+        marginTop: 16,
     },
-    settingsContainer: {
-        flex: 1,
-    },
-    settingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    settingTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: 4,
-    },
-    settingDesc: {
-        fontSize: 14,
-        color: COLORS.textTertiary,
+    emptyDesc: {
+        color: '#475569',
+        fontSize: 13,
+        textAlign: 'center',
+        marginTop: 8,
         lineHeight: 20,
-    }
+        maxWidth: 280,
+    },
 });
