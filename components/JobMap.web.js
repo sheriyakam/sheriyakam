@@ -4,26 +4,49 @@ import { COLORS } from '../constants/theme';
 
 export default function JobMap({ latitude, longitude, customer, service, address }) {
 
+    const query = encodeURIComponent(address || `${latitude},${longitude}`);
+    const embedUrl = `https://maps.google.com/maps?q=${query}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+
     const handleDirections = () => {
-        const query = encodeURIComponent(address || `${latitude},${longitude}`);
         const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
         Linking.openURL(url);
     };
 
     return (
-        <TouchableOpacity style={styles.webMapPlaceholder} onPress={handleDirections}>
-            <Text style={{ color: COLORS.accent }}>Open in Google Maps</Text>
-        </TouchableOpacity>
+        <View style={{ marginBottom: 24 }}>
+            <View style={styles.webMapContainer}>
+                <iframe 
+                    src={embedUrl}
+                    style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
+                    allowFullScreen
+                    loading="lazy"
+                />
+            </View>
+            <TouchableOpacity style={styles.fullScreenBtn} onPress={handleDirections}>
+                <Text style={styles.fullScreenText}>Open in Google Maps App</Text>
+            </TouchableOpacity>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    webMapPlaceholder: {
-        height: 150,
+    webMapContainer: {
+        height: 200,
         backgroundColor: '#eee',
-        alignItems: 'center',
-        justifyContent: 'center',
         borderRadius: 12,
-        marginBottom: 24, // SPACING.xl
+        overflow: 'hidden',
+        marginBottom: 8,
     },
+    fullScreenBtn: {
+        backgroundColor: COLORS.bgSecondary,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    fullScreenText: {
+        color: COLORS.accent,
+        fontWeight: '600',
+    }
 });
