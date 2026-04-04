@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { autoAssignPartner } from './assignmentEngine';
 
 // Simple Event Emitter for React Native compatibility
 class SimpleEventEmitter {
@@ -145,18 +146,25 @@ export const cancelBooking = (id) => {
 
 export const createBooking = (newBooking) => {
     const id = 'b' + (Date.now());
+
+    // Try auto-assigning the nearest partner within 20km
+    const assignment = autoAssignPartner(newBooking);
+
     const booking = {
         ...newBooking,
         id,
-        status: 'open',
+        status: assignment.success ? 'assigned' : 'open',
         paymentStatus: 'pending',
         finalPrice: newBooking.price || 0,
-        // Add minimal mocks if missing
         customerPhone: newBooking.customerPhone || '+91 00000 00000',
-        distance: '2.0 km',
+        distance: assignment.success ? `${assignment.distanceKm} km` : 'N/A',
+        assignedPartnerId: assignment.success ? assignment.partner.id : null,
+        assignedPartnerName: assignment.success ? assignment.partner.name : null,
+        assignedPartnerPhone: assignment.success ? assignment.partner.phone : null,
         checkInOtp: Math.floor(1000 + Math.random() * 9000).toString(),
         otp: Math.floor(1000 + Math.random() * 9000).toString()
     };
+
     bookings.push(booking);
     bookingEvents.emit('change');
     saveData();
