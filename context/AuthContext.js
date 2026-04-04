@@ -4,7 +4,7 @@ import { sanitizeEmail, sanitizeInput } from '../utils/security';
 import { UsersAPI } from '../services/supabaseAPI';
 import { isSupabaseConfigured } from '../config/supabaseConfig';
 
-const ADMIN_EMAIL = 'sheriyakam.info@gmail.com';
+
 const SESSION_KEY = 'sheriyakam_user_session';
 
 const AuthContext = createContext();

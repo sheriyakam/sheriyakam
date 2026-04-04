@@ -106,9 +106,8 @@ export default function AuthScreen() {
             setIsLoading(false);
             if (isLogin) {
                 // Check for admin email
-                const isAdmin = identifier.trim().toLowerCase() === 'sheriyakam.info@gmail.com';
-                login({ name: isAdmin ? 'Admin' : 'Demo User', email: identifier, mobile: '+919876543210', role: isAdmin ? 'admin' : 'user' });
-                router.replace(isAdmin ? '/admin' : '/');
+                login({ name: 'User', email: identifier, mobile: '+919876543210', role: 'user' });
+                router.replace('/');
             } else {
                 // SignUp Success -> Switch to Login or Auto Login
                 alert('Account created! Logging in...');
@@ -153,13 +152,12 @@ export default function AuthScreen() {
                 photoURL: user.photoURL
             };
 
-            const isAdmin = user.email?.toLowerCase() === 'sheriyakam.info@gmail.com';
             login({
                 ...userData,
-                role: isAdmin ? 'admin' : 'user'
+                role: 'user'
             });
             alert(`Welcome, ${userData.name}!`);
-            router.replace(isAdmin ? '/admin' : '/');
+            router.replace('/');
         } catch (error) {
             console.error('Google Sign-In Error:', error);
             let errorMessage = 'Failed to sign in with Google';
