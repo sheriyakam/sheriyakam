@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Switch, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Switch, Alert, Platform, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ShieldAlert, Users, TrendingUp, Settings, CheckCircle, XCircle, AlertTriangle, Play, Pause } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
@@ -10,6 +10,12 @@ export default function AdminDashboard() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('verification');
     const [pendingPartners, setPendingPartners] = useState([]);
+
+    // Admin Login State
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loginError, setLoginError] = useState('');
 
     // Mock States for new logic
     const [isBetaMode, setIsBetaMode] = useState(false);
@@ -85,6 +91,55 @@ export default function AdminDashboard() {
             }
         }
     };
+
+    const handleLogin = () => {
+        if (username === 'admin' && password === 'sheri@25') {
+            setIsAuthenticated(true);
+            setLoginError('');
+        } else {
+            setLoginError('Invalid Administrator credentials');
+        }
+    };
+
+    if (!isAuthenticated) {
+        return (
+            <SafeAreaView style={styles.loginContainer}>
+                <View style={styles.loginBox}>
+                    <ShieldAlert size={48} color={COLORS.danger} style={{ alignSelf: 'center', marginBottom: 16 }} />
+                    <Text style={styles.loginTitle}>Admin Portal</Text>
+                    <Text style={styles.loginSubtitle}>Restricted Access Only</Text>
+                    
+                    {loginError ? <Text style={styles.errorText}>{loginError}</Text> : null}
+
+                    <TextInput 
+                        style={styles.input}
+                        placeholder="Username"
+                        placeholderTextColor="#9ca3af"
+                        value={username}
+                        onChangeText={setUsername}
+                        autoCapitalize="none"
+                    />
+                    <TextInput 
+                        style={styles.input}
+                        placeholder="Password"
+                        placeholderTextColor="#9ca3af"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        autoCapitalize="none"
+                    />
+
+                    <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+                        <Text style={styles.loginBtnText}>Secure Login</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ marginTop: 24, alignSelf: 'center' }} onPress={() => router.replace('/')}>
+                        <Text style={{ color: COLORS.textTertiary }}>← Back to Public Site</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     const renderVerificationQueue = () => (
         <FlatList
@@ -265,6 +320,63 @@ export default function AdminDashboard() {
 }
 
 const styles = StyleSheet.create({
+    loginContainer: {
+        flex: 1,
+        backgroundColor: '#111827',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    loginBox: {
+        width: '100%',
+        maxWidth: 400,
+        backgroundColor: '#1f2937',
+        padding: 32,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.3)',
+    },
+    loginTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    loginSubtitle: {
+        fontSize: 14,
+        color: '#9ca3af',
+        textAlign: 'center',
+        marginBottom: 32,
+    },
+    input: {
+        backgroundColor: '#374151',
+        borderRadius: 8,
+        padding: 16,
+        color: '#fff',
+        fontSize: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#4b5563',
+    },
+    loginBtn: {
+        backgroundColor: COLORS.danger,
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    loginBtnText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    errorText: {
+        color: '#ef4444',
+        textAlign: 'center',
+        marginBottom: 16,
+        fontWeight: '600',
+    },
     container: {
         flex: 1,
         backgroundColor: COLORS.bgPrimary,
