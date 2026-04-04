@@ -13,16 +13,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Mock Server Database (fallback when Supabase not configured)
-    const [registeredUsers, setRegisteredUsers] = useState([
-        {
-            email: ADMIN_EMAIL,
-            mobile: '+919000000000',
-            password: 'admin123',
-            name: 'Admin',
-            role: 'admin'
-        }
-    ]);
+    // Registered users list (populated dynamically)
+    const [registeredUsers, setRegisteredUsers] = useState([]);
 
     // Restore session on app load
     useEffect(() => {
@@ -43,9 +35,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    /** Check if user is admin */
-    const isAdmin = useCallback((email) => {
-        return sanitizeEmail(email) === ADMIN_EMAIL;
+    /** Check if user is admin — admin access is now via /admin login */
+    const isAdmin = useCallback(() => {
+        return false;
     }, []);
 
     /** Login user — persists session */
