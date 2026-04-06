@@ -38,17 +38,14 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
                 return;
             }
 
-            // Check current permission state before calling (avoids silent failure)
+            // Check current permission state
             let permState = 'prompt';
             try {
                 const perm = await navigator.permissions.query({ name: 'geolocation' });
-                permState = perm.state; // 'granted', 'denied', or 'prompt'
-            } catch {
-                // Some browsers don't support permissions API — proceed anyway
-            }
+                permState = perm.state;
+            } catch { /* proceed */ }
 
             if (permState === 'denied') {
-                // Can't re-ask once denied in browser. Guide user to fix it.
                 Alert.alert(
                     'Location Blocked',
                     'You have blocked location access for this site.\n\nTo fix:\n1. Click the 🔒 lock icon in your browser address bar\n2. Set Location to "Allow"\n3. Refresh the page and try again.\n\nOr search your area name in the box below.',
@@ -58,30 +55,33 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
                 return;
             }
 
-            // Permission is 'prompt' or 'granted' — ask or use directly
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    const address = await reverseGeocodeWeb(latitude, longitude);
-                    applyLocation({ latitude, longitude, address });
-                    setLoading(false);
-                },
-                (err) => {
-                    if (err.code === 1) {
-                        // User explicitly denied the popup
-                        Alert.alert(
-                            'Location Access Required',
-                            'Location was not allowed.\n\nYou can also search your area name in the box below, or use "Select on Map".'
-                        );
-                    } else {
-                        Alert.alert('GPS Error', 'Could not get your location. Check GPS and try again.');
-                    }
-                    setLoading(false);
-                },
-                { enableHighAccuracy: true, timeout: 12000 }
+            // Try high accuracy first (GPS on mobile), fall back to low (Wi-Fi/IP on desktop)
+            const tryPos = (opts) => new Promise((res, rej) =>
+                navigator.geolocation.getCurrentPosition(res, rej, opts)
             );
+
+            try {
+                let pos;
+                try {
+                    pos = await tryPos({ enableHighAccuracy: true, timeout: 8000 });
+                } catch {
+                    pos = await tryPos({ enableHighAccuracy: false, timeout: 10000 });
+                }
+                const { latitude, longitude } = pos.coords;
+                const address = await reverseGeocodeWeb(latitude, longitude);
+                applyLocation({ latitude, longitude, address });
+            } catch (err) {
+                if (err.code === 1) {
+                    Alert.alert('Location Access Required', 'Location was not allowed.\n\nYou can also search your area name in the box below, or use "Select on Map".');
+                } else {
+                    Alert.alert('GPS Error', 'Could not detect location. Your GPS may be off. Try searching your area name instead.');
+                }
+            } finally {
+                setLoading(false);
+            }
             return;
         }
+
 
         // ── Native (Android / iOS) ───────────────────────────────────────────
         try {

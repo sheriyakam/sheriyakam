@@ -18,32 +18,60 @@ export default function MapPickerModal({ visible, onClose, onSelect }) {
     const [searchText, setSearchText] = useState('');
     const [error, setError] = useState('');
 
-    // ── GPS via browser native geolocation (reliable on HTTPS) ──────────────
-    const handleGPS = () => {
+    // ── GPS via browser native geolocation ──────────────────────────────────
+    const handleGPS = async () => {
         setLoading(true);
         setError('');
 
         if (!navigator?.geolocation) {
-            setError('GPS not available in this browser. Please search for your location.');
+            setError('GPS not available in this browser. Please search for your area name below.');
             setLoading(false);
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                // Nominatim reverse geocode
-                const addr = await reverseGeocode(latitude, longitude);
-                const loc = { latitude, longitude, address: addr };
-                setPin(loc);
-                setLoading(false);
-            },
-            (err) => {
-                setError('Could not get GPS. Please search for your area name below.');
-                setLoading(false);
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
+        // Check permission state first (avoids silent failures)
+        let permState = 'prompt';
+        try {
+            const perm = await navigator.permissions.query({ name: 'geolocation' });
+            permState = perm.state;
+        } catch {
+            // Some browsers don't support permissions API — proceed anyway
+        }
+
+        if (permState === 'denied') {
+            setError('Location is blocked. Click the 🔒 lock icon in the browser address bar → set Location to "Allow" → refresh.');
+            setLoading(false);
+            return;
+        }
+
+        // Helper: try to get position with given options
+        const tryGetPosition = (options) =>
+            new Promise((resolve, reject) =>
+                navigator.geolocation.getCurrentPosition(resolve, reject, options)
+            );
+
+        try {
+            let pos;
+            try {
+                // First try: high accuracy (GPS chip — works on mobile)
+                pos = await tryGetPosition({ enableHighAccuracy: true, timeout: 8000 });
+            } catch {
+                // Fallback: low accuracy (Wi-Fi / IP — works on desktops)
+                pos = await tryGetPosition({ enableHighAccuracy: false, timeout: 10000 });
+            }
+
+            const { latitude, longitude } = pos.coords;
+            const addr = await reverseGeocode(latitude, longitude);
+            setPin({ latitude, longitude, address: addr });
+        } catch (err) {
+            if (err.code === 1) {
+                setError('Location access was not allowed. Please tap "Allow" when your browser asks, or search your area below.');
+            } else {
+                setError('Could not detect location. Your device GPS may be off. Try searching your area name below.');
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     // ── Nominatim reverse geocode ────────────────────────────────────────────
