@@ -30,13 +30,35 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
     const handleUseCurrentLocation = async () => {
         setLoading(true);
 
-        // Web: use browser navigator.geolocation (works on Vercel HTTPS)
+        // ── Web ──────────────────────────────────────────────────────────────
         if (Platform.OS === 'web') {
             if (!navigator?.geolocation) {
-                Alert.alert('Not Available', 'GPS not supported in this browser. Use search instead.');
+                Alert.alert('Not Supported', 'Your browser does not support GPS. Please search your area name.');
                 setLoading(false);
                 return;
             }
+
+            // Check current permission state before calling (avoids silent failure)
+            let permState = 'prompt';
+            try {
+                const perm = await navigator.permissions.query({ name: 'geolocation' });
+                permState = perm.state; // 'granted', 'denied', or 'prompt'
+            } catch {
+                // Some browsers don't support permissions API — proceed anyway
+            }
+
+            if (permState === 'denied') {
+                // Can't re-ask once denied in browser. Guide user to fix it.
+                Alert.alert(
+                    'Location Blocked',
+                    'You have blocked location access for this site.\n\nTo fix:\n1. Click the 🔒 lock icon in your browser address bar\n2. Set Location to "Allow"\n3. Refresh the page and try again.\n\nOr search your area name in the box below.',
+                    [{ text: 'OK' }]
+                );
+                setLoading(false);
+                return;
+            }
+
+            // Permission is 'prompt' or 'granted' — ask or use directly
             navigator.geolocation.getCurrentPosition(
                 async (pos) => {
                     const { latitude, longitude } = pos.coords;
@@ -44,35 +66,56 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
                     applyLocation({ latitude, longitude, address });
                     setLoading(false);
                 },
-                () => {
-                    Alert.alert('GPS Denied', 'Please allow location access or search your area manually.');
+                (err) => {
+                    if (err.code === 1) {
+                        // User explicitly denied the popup
+                        Alert.alert(
+                            'Location Access Required',
+                            'Location was not allowed.\n\nYou can also search your area name in the box below, or use "Select on Map".'
+                        );
+                    } else {
+                        Alert.alert('GPS Error', 'Could not get your location. Check GPS and try again.');
+                    }
                     setLoading(false);
                 },
-                { enableHighAccuracy: true, timeout: 10000 }
+                { enableHighAccuracy: true, timeout: 12000 }
             );
             return;
         }
 
-        // Native: expo-location
+        // ── Native (Android / iOS) ───────────────────────────────────────────
         try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Required', 'Please allow location access.');
-                setLoading(false);
-                return;
+            const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
+
+            if (status === 'granted') {
+                const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+                const { latitude, longitude } = pos.coords;
+                const geocoded = await Location.reverseGeocodeAsync({ latitude, longitude });
+                const place = geocoded[0];
+                const address = [
+                    place?.name, place?.street,
+                    place?.district || place?.subregion,
+                    place?.city || place?.region
+                ].filter(Boolean).join(', ');
+                applyLocation({ latitude, longitude, address });
+            } else if (!canAskAgain) {
+                // Permanently denied — need to go to Settings
+                Alert.alert(
+                    'Location Permanently Blocked',
+                    'Please go to your phone Settings → Apps → Sheriyakam → Permissions → Location → Allow.',
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                            text: 'Open Settings',
+                            onPress: () => Location.enableNetworkProviderAsync?.()
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert('Permission Denied', 'Location access is needed to detect your area. Please try again and tap Allow.');
             }
-            const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-            const { latitude, longitude } = pos.coords;
-            const geocoded = await Location.reverseGeocodeAsync({ latitude, longitude });
-            const place = geocoded[0];
-            const address = [
-                place?.name, place?.street,
-                place?.district || place?.subregion,
-                place?.city || place?.region
-            ].filter(Boolean).join(', ');
-            applyLocation({ latitude, longitude, address });
         } catch {
-            Alert.alert('Error', 'Could not get location. Please search manually.');
+            Alert.alert('Error', 'Could not get location. Please search your area manually.');
         } finally {
             setLoading(false);
         }
