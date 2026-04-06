@@ -305,7 +305,7 @@ const BookingModal = ({ service, visible, onClose }) => {
         >
             <View style={styles.overlay}>
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'web' ? undefined : 'height'}
                     style={styles.keyboardView}
                 >
                     <View style={styles.container}>
@@ -314,15 +314,18 @@ const BookingModal = ({ service, visible, onClose }) => {
                             onPress={onClose}
                             style={styles.closeBtn}
                         >
-                            <X size={24} color={COLORS.textSecondary} />
+                            <X size={24} color={COLORS.textPrimary} />
                         </TouchableOpacity>
 
                         {step === 1 ? (
-                            <View style={{ flexShrink: 1 }}>
+                            <View style={{ flex: 1 }}>
                                 <ScrollView
+                                    style={{ flex: 1 }}
                                     contentContainerStyle={styles.content}
                                     showsVerticalScrollIndicator={false}
+                                    bounces={false}
                                 >
+                                    <View style={{ height: 16 }} /> {/* Padding for title near close button */}
                                     <Text style={styles.title}>Book Service</Text>
                                     <Text style={styles.subtitle}>
                                         Requesting: <Text style={{ color: COLORS.accent }}>{service.name}</Text>
@@ -478,7 +481,7 @@ const BookingModal = ({ service, visible, onClose }) => {
                                     </View>
 
                                 </ScrollView>
-                                <View style={styles.footer}>
+                                <View style={[styles.footer, { borderTopWidth: 1, borderTopColor: COLORS.border }]}>
                                     <TouchableOpacity
                                         onPress={handleSubmit}
                                         style={styles.confirmBtn}
@@ -524,9 +527,10 @@ const BookingModal = ({ service, visible, onClose }) => {
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'rgba(0,0,0,0.85)',
         justifyContent: 'center',
-        padding: SPACING.md,
+        alignItems: 'center',
+        padding: Platform.OS === 'web' ? 24 : SPACING.md,
     },
     keyboardView: {
         width: '100%',
@@ -535,12 +539,14 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         maxWidth: 500,
+        maxHeight: '90%', // Ensure it doesn't overflow the screen
         alignSelf: 'center',
         backgroundColor: '#18181b',
         borderRadius: 24,
         borderWidth: 1,
         borderColor: COLORS.border,
         overflow: 'hidden',
+        position: 'relative', // For absolute close button
     },
     footer: {
         padding: SPACING.lg,
