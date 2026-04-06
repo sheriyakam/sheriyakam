@@ -1,9 +1,9 @@
 /**
  * LocationPicker.js
- * Lets customer pick their service location:
- *   1. Use Current GPS Location (auto)
- *   2. Search by area name / landmark
- * Passes back { latitude, longitude, address } to parent
+ * Three ways to pick location:
+ *   1. Use Current GPS — works on both native and web (HTTPS)
+ *   2. Select on Map — full-screen map tap picker
+ *   3. Search by name — Nominatim API
  */
 import React, { useState } from 'react';
 import {
@@ -11,79 +11,111 @@ import {
     ActivityIndicator, Alert, Platform
 } from 'react-native';
 import * as Location from 'expo-location';
-import { MapPin, Navigation, Search, CheckCircle } from 'lucide-react-native';
+import { MapPin, Navigation, Search, CheckCircle, Map } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
+import MapPickerModal from './MapPickerModal';
 
 export default function LocationPicker({ onLocationSelected, currentLocation }) {
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [selectedLocation, setSelectedLocation] = useState(currentLocation || null);
+    const [mapPickerVisible, setMapPickerVisible] = useState(false);
 
-    // ── GPS auto-detect ──────────────────────────────────────────────────────
+    const applyLocation = (loc) => {
+        setSelectedLocation(loc);
+        onLocationSelected(loc);
+    };
+
+    // ── GPS ─────────────────────────────────────────────────────────────────
     const handleUseCurrentLocation = async () => {
         setLoading(true);
-        try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Please allow location access to auto-detect your address.');
+
+        // Web: use browser navigator.geolocation (works on Vercel HTTPS)
+        if (Platform.OS === 'web') {
+            if (!navigator?.geolocation) {
+                Alert.alert('Not Available', 'GPS not supported in this browser. Use search instead.');
                 setLoading(false);
                 return;
             }
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    const address = await reverseGeocodeWeb(latitude, longitude);
+                    applyLocation({ latitude, longitude, address });
+                    setLoading(false);
+                },
+                () => {
+                    Alert.alert('GPS Denied', 'Please allow location access or search your area manually.');
+                    setLoading(false);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+            return;
+        }
 
-            const position = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High
-            });
-            const { latitude, longitude } = position.coords;
-
-            // Reverse geocode to get a readable address
+        // Native: expo-location
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission Required', 'Please allow location access.');
+                setLoading(false);
+                return;
+            }
+            const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+            const { latitude, longitude } = pos.coords;
             const geocoded = await Location.reverseGeocodeAsync({ latitude, longitude });
             const place = geocoded[0];
             const address = [
-                place?.name,
-                place?.street,
+                place?.name, place?.street,
                 place?.district || place?.subregion,
                 place?.city || place?.region
             ].filter(Boolean).join(', ');
-
-            const loc = { latitude, longitude, address };
-            setSelectedLocation(loc);
-            onLocationSelected(loc);
-        } catch (err) {
-            Alert.alert('Error', 'Could not get your location. Please search manually.');
+            applyLocation({ latitude, longitude, address });
+        } catch {
+            Alert.alert('Error', 'Could not get location. Please search manually.');
         } finally {
             setLoading(false);
         }
     };
 
-    // ── Manual Search (Nominatim OpenStreetMap — free, no API key) ───────────
+    // ── Reverse geocode for web ──────────────────────────────────────────────
+    const reverseGeocodeWeb = async (lat, lng) => {
+        try {
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+                { headers: { 'User-Agent': 'Sheriyakam/1.0', 'Accept-Language': 'en' } }
+            );
+            const data = await res.json();
+            return data.display_name?.split(',').slice(0, 4).join(', ') || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        } catch {
+            return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        }
+    };
+
+    // ── Name Search ─────────────────────────────────────────────────────────
     const handleSearch = async () => {
         if (!searchText.trim()) return;
         setLoading(true);
         try {
-            // Bias to India/Kerala for best results
-            const query = encodeURIComponent(`${searchText.trim()}, Kerala, India`);
-            const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&countrycodes=in`;
-            const res = await fetch(url, {
-                headers: { 'User-Agent': 'Sheriyakam/1.0' }
-            });
+            const q = encodeURIComponent(`${searchText.trim()}, Kerala, India`);
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&countrycodes=in`,
+                { headers: { 'User-Agent': 'Sheriyakam/1.0' } }
+            );
             const data = await res.json();
-
-            if (!data || data.length === 0) {
-                Alert.alert('Not Found', 'No location found. Try a different name or use GPS.');
+            if (!data?.length) {
+                Alert.alert('Not Found', 'Try a different name or use GPS instead.');
                 setLoading(false);
                 return;
             }
-
-            const result = data[0];
-            const loc = {
-                latitude: parseFloat(result.lat),
-                longitude: parseFloat(result.lon),
-                address: result.display_name.split(',').slice(0, 3).join(', ')
-            };
-            setSelectedLocation(loc);
-            onLocationSelected(loc);
-        } catch (err) {
-            Alert.alert('Search Error', 'Could not search location. Check your internet connection.');
+            const r = data[0];
+            applyLocation({
+                latitude: parseFloat(r.lat),
+                longitude: parseFloat(r.lon),
+                address: r.display_name.split(',').slice(0, 4).join(', ')
+            });
+        } catch {
+            Alert.alert('Error', 'Search failed. Check your internet connection.');
         } finally {
             setLoading(false);
         }
@@ -93,30 +125,40 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
         <View style={styles.container}>
             <Text style={styles.label}>Service Location</Text>
 
-            {/* GPS Button */}
+            {/* 1. GPS Button */}
             <TouchableOpacity style={styles.gpsBtn} onPress={handleUseCurrentLocation} disabled={loading}>
                 {loading ? (
                     <ActivityIndicator size="small" color="#fff" />
                 ) : (
                     <>
                         <Navigation size={16} color="#fff" />
-                        <Text style={styles.gpsBtnText}>Use My Current Location</Text>
+                        <Text style={styles.btnText}>Use Current Location</Text>
                     </>
                 )}
             </TouchableOpacity>
 
+            {/* 2. Select on Map Button */}
+            <TouchableOpacity
+                style={styles.mapBtn}
+                onPress={() => setMapPickerVisible(true)}
+                disabled={loading}
+            >
+                <Map size={16} color={COLORS.accent} />
+                <Text style={styles.mapBtnText}>Select on Map</Text>
+            </TouchableOpacity>
+
             {/* Divider */}
             <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or search</Text>
-                <View style={styles.dividerLine} />
+                <View style={styles.divLine} />
+                <Text style={styles.divText}>or type area</Text>
+                <View style={styles.divLine} />
             </View>
 
-            {/* Search Box */}
+            {/* 3. Search */}
             <View style={styles.searchRow}>
                 <TextInput
-                    style={styles.searchInput}
-                    placeholder="e.g. Thalassery, Kannur, Kozhikode..."
+                    style={styles.input}
+                    placeholder="Thalassery, Kannur, Kozhikode..."
                     placeholderTextColor={COLORS.textTertiary}
                     value={searchText}
                     onChangeText={setSearchText}
@@ -133,26 +175,35 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
                 <View style={styles.selectedBox}>
                     <CheckCircle size={16} color={COLORS.success} />
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.selectedLabel}>Location Selected</Text>
-                        <Text style={styles.selectedAddress} numberOfLines={2}>{selectedLocation.address}</Text>
+                        <Text style={styles.selectedLabel}>✅ Location Confirmed</Text>
+                        <Text style={styles.selectedAddress} numberOfLines={2}>
+                            {selectedLocation.address}
+                        </Text>
                     </View>
                 </View>
             )}
+
+            {/* Map Picker Modal */}
+            <MapPickerModal
+                visible={mapPickerVisible}
+                onClose={() => setMapPickerVisible(false)}
+                onSelect={applyLocation}
+                initialLat={selectedLocation?.latitude}
+                initialLng={selectedLocation?.longitude}
+            />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        gap: SPACING.sm,
-    },
+    container: { gap: SPACING.sm },
     label: {
         fontSize: 13,
         fontWeight: '700',
         color: COLORS.textPrimary,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
-        marginBottom: 4,
+        marginBottom: 2,
     },
     gpsBtn: {
         flexDirection: 'row',
@@ -163,31 +214,23 @@ const styles = StyleSheet.create({
         padding: 14,
         borderRadius: 12,
     },
-    gpsBtnText: {
-        color: '#fff',
-        fontWeight: '700',
-        fontSize: 14,
-    },
-    divider: {
+    mapBtn: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 8,
-        marginVertical: 4,
+        borderWidth: 1.5,
+        borderColor: COLORS.accent,
+        padding: 13,
+        borderRadius: 12,
     },
-    dividerLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: COLORS.border,
-    },
-    dividerText: {
-        fontSize: 12,
-        color: COLORS.textTertiary,
-    },
-    searchRow: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    searchInput: {
+    btnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+    mapBtnText: { color: COLORS.accent, fontWeight: '700', fontSize: 14 },
+    divider: { flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 2 },
+    divLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
+    divText: { fontSize: 12, color: COLORS.textTertiary },
+    searchRow: { flexDirection: 'row', gap: 8 },
+    input: {
         flex: 1,
         borderWidth: 1,
         borderColor: COLORS.border,
@@ -208,22 +251,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         gap: 10,
-        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+        backgroundColor: 'rgba(16,185,129,0.08)',
         borderWidth: 1,
-        borderColor: 'rgba(16, 185, 129, 0.3)',
+        borderColor: 'rgba(16,185,129,0.3)',
         borderRadius: 10,
         padding: 12,
-        marginTop: 4,
-    },
-    selectedLabel: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: COLORS.success,
-    },
-    selectedAddress: {
-        fontSize: 13,
-        color: COLORS.textSecondary,
         marginTop: 2,
-        lineHeight: 18,
     },
+    selectedLabel: { fontSize: 12, fontWeight: '700', color: COLORS.success },
+    selectedAddress: { fontSize: 13, color: COLORS.textSecondary, marginTop: 2, lineHeight: 18 },
 });
