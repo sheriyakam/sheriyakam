@@ -20,6 +20,7 @@ import { COLORS, SPACING } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { createBooking } from '../constants/bookingStore';
+import LocationPicker from './LocationPicker';
 
 const AI_SUGGESTIONS = [
     // Motor
@@ -59,6 +60,7 @@ const BookingModal = ({ service, visible, onClose }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [date, setDate] = useState(new Date());
     const [issues, setIssues] = useState('');
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
     // Helper to get slots
     const getAvailableSlots = (dateStr) => {
@@ -95,6 +97,7 @@ const BookingModal = ({ service, visible, onClose }) => {
             setDate(new Date());
             setShowDatePicker(false);
             setIssues('');
+            setSelectedLocation(null);
         }
     }, [visible]);
 
@@ -198,7 +201,11 @@ const BookingModal = ({ service, visible, onClose }) => {
             time: selectedSlot,
             price: service.price,
             notes: issues.trim() || 'Photo provided as issue detail',
-            imageUrl: selectedImage
+            imageUrl: selectedImage,
+            address: selectedLocation?.address || 'Thalassery, Kerala',
+            latitude: selectedLocation?.latitude || null,
+            longitude: selectedLocation?.longitude || null,
+            serviceName: service.name,
         };
 
         // Save to store!
@@ -446,6 +453,14 @@ const BookingModal = ({ service, visible, onClose }) => {
                                                 </TouchableOpacity>
                                             </View>
                                         )}
+                                    </View>
+
+                                    {/* Location Picker */}
+                                    <View style={styles.section}>
+                                        <LocationPicker
+                                            onLocationSelected={setSelectedLocation}
+                                            currentLocation={selectedLocation}
+                                        />
                                     </View>
 
                                     {/* Price Estimator */}
