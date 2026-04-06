@@ -309,27 +309,33 @@ const BookingModal = ({ service, visible, onClose }) => {
                     style={styles.keyboardView}
                 >
                     <View style={styles.container}>
-                        {/* Close Button */}
-                        <TouchableOpacity
-                            onPress={onClose}
-                            style={styles.closeBtn}
-                        >
-                            <X size={24} color={COLORS.textPrimary} />
-                        </TouchableOpacity>
+                        {/* Fixed Header */}
+                        <View style={styles.modalHeader}>
+                            <View>
+                                <Text style={styles.headerTitle}>Book Service</Text>
+                                {service && (
+                                    <Text style={styles.headerSubtitle} numberOfLines={1}>
+                                        {service.name}
+                                    </Text>
+                                )}
+                            </View>
+                            <TouchableOpacity
+                                onPress={onClose}
+                                style={styles.headerCloseBtn}
+                                activeOpacity={0.7}
+                            >
+                                <X size={24} color={COLORS.textPrimary} />
+                            </TouchableOpacity>
+                        </View>
 
                         {step === 1 ? (
                             <View style={{ flex: 1 }}>
                                 <ScrollView
                                     style={{ flex: 1 }}
-                                    contentContainerStyle={styles.content}
+                                    contentContainerStyle={[styles.content, { paddingTop: 8 }]}
                                     showsVerticalScrollIndicator={false}
                                     bounces={false}
                                 >
-                                    <View style={{ height: 16 }} /> {/* Padding for title near close button */}
-                                    <Text style={styles.title}>Book Service</Text>
-                                    <Text style={styles.subtitle}>
-                                        Requesting: <Text style={{ color: COLORS.accent }}>{service.name}</Text>
-                                    </Text>
 
                                     {/* Date Selection */}
                                     <View style={styles.section}>
@@ -548,34 +554,41 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'relative', // For absolute close button
     },
-    footer: {
-        padding: SPACING.lg,
-        paddingTop: 0,
-        backgroundColor: '#18181b', // Ensure background consistency
+    modalHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: SPACING.lg,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.border,
+        backgroundColor: '#18181b', // Match container
     },
-    closeBtn: {
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        zIndex: 10,
-        padding: 4,
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: COLORS.textPrimary,
+    },
+    headerSubtitle: {
+        fontSize: 12,
+        color: COLORS.accent,
+        marginTop: 2,
+    },
+    headerCloseBtn: {
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     content: {
         padding: SPACING.lg,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
-        marginBottom: 24,
+    footer: {
+        padding: SPACING.lg,
+        paddingTop: 12,
+        backgroundColor: '#18181b', // Ensure background consistency
     },
     section: {
-        marginBottom: 24,
+        marginBottom: 20,
     },
     labelRow: {
         flexDirection: 'row',
