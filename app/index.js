@@ -126,6 +126,52 @@ export default function HomeScreen() {
     fetchServices();
   }, []);
 
+  // ── Ask for location permission on startup & auto-detect ────────────────
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      if (Platform.OS === 'web') {
+        // Web: use browser native geolocation (HTTPS required — works on Vercel)
+        if (!navigator?.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            try {
+              const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+                { headers: { 'User-Agent': 'Sheriyakam/1.0', 'Accept-Language': 'en' } }
+              );
+              const data = await res.json();
+              const parts = data.address;
+              const name = parts?.town || parts?.city || parts?.county || parts?.state_district || 'Your Location';
+              setLocationName(name);
+              setLocationCoords({ latitude, longitude });
+            } catch {
+              // silently fail — keep default
+            }
+          },
+          () => { /* user denied — keep default */ },
+          { enableHighAccuracy: false, timeout: 8000 }
+        );
+      } else {
+        // Native: expo-location
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+        try {
+          const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          const { latitude, longitude } = pos.coords;
+          setLocationCoords({ latitude, longitude });
+          const geocoded = await Location.reverseGeocodeAsync({ latitude, longitude });
+          const place = geocoded[0];
+          const name = place?.city || place?.district || place?.subregion || place?.region || 'Your Location';
+          setLocationName(name);
+        } catch {
+          // silently fail — keep default
+        }
+      }
+    };
+    requestLocationPermission();
+  }, []);
+
   // Handle service click with authentication check
   const handleServiceClick = useCallback((service) => {
     if (!user) {
