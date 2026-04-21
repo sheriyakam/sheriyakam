@@ -330,6 +330,7 @@ const styles = StyleSheet.create({
     listContent: {
         padding: SPACING.md,
         paddingTop: 0,
+        paddingBottom: 100, // Space for BottomNav
         gap: 16,
     },
     card: {

@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.md,
+    paddingBottom: 80, // Space for BottomNav
     // paddingTop is handled by content spacing now
   },
   header: {

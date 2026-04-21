@@ -23,12 +23,12 @@ export default function BottomNav() {
             path: '/',
         },
         {
-            name: 'Bookings',
+            name: 'My Bookings',
             icon: Calendar,
             path: '/bookings',
         },
         {
-            name: user ? 'Account' : 'Login',
+            name: user ? 'Account' : 'Login/Signup',
             icon: User,
             path: user ? '/profile' : '/auth/login',
         },
