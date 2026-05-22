@@ -12,10 +12,13 @@ import PaymentModal from '../components/PaymentModal';
 
 import { getBookings, bookingEvents, payBooking, cancelBooking as cancelBookingInStore } from '../constants/bookingStore';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function BookingsScreen() {
     const { user } = useAuth();
     const router = useRouter();
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     const [bookings, setBookings] = useState(getBookings());
     const [activeTab, setActiveTab] = useState('Upcoming');
 
@@ -54,10 +57,6 @@ export default function BookingsScreen() {
         return bookings.filter(b => {
             // Customer filtering
             if (b.customerEmail !== user.email && b.customerPhone !== user.mobile) return false;
-            // Status mapping for tabs
-            // 'Upcoming' includes 'open', 'accepted'
-            // 'Completed' includes 'completed'
-            // 'Cancelled' includes 'Cancelled'
 
             let tabMatch = false;
             if (activeTab === 'Upcoming') tabMatch = (['open', 'accepted', 'in_progress'].includes(b.status));
@@ -90,17 +89,19 @@ export default function BookingsScreen() {
         setPaymentBooking(null);
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'open':
+            case 'accepted': return colors.accent;
+            case 'in_progress': return COLORS.gold;
+            case 'completed': return COLORS.success;
+            case 'Cancelled': return COLORS.danger;
+            default: return colors.textSecondary;
+        }
+    };
+
     const BookingCard = ({ booking }) => {
-        const getStatusColor = (status) => {
-            switch (status) {
-                case 'open':
-                case 'accepted': return COLORS.accent;
-                case 'in_progress': return COLORS.gold;
-                case 'completed': return COLORS.success;
-                case 'Cancelled': return COLORS.danger;
-                default: return COLORS.textSecondary;
-            }
-        };
+        const statusColor = getStatusColor(booking.status);
 
         const displayStatus = booking.status === 'open' ? 'Requested' :
             booking.status === 'accepted' ? 'Accepted' :
@@ -108,26 +109,29 @@ export default function BookingsScreen() {
                     booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
 
         return (
-            <View style={styles.card}>
+            <View style={[styles.card, { 
+                backgroundColor: isDark ? '#18181b' : '#ffffff',
+                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+            }]}>
                 <View style={styles.cardHeader}>
-                    <Text style={styles.serviceName}>{booking.service}</Text>
-                    <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) + '20' }]}>
-                        <Text style={[styles.statusText, { color: getStatusColor(booking.status) }]}>
+                    <Text style={[styles.serviceName, { color: colors.textPrimary }]}>{booking.service}</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: statusColor + '18' }]}>
+                        <Text style={[styles.statusText, { color: statusColor }]}>
                             {displayStatus}
                         </Text>
                     </View>
                 </View>
 
-                <View style={styles.divider} />
+                <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)' }]} />
 
                 <View style={styles.cardDetailRow}>
                     <View style={styles.detailItem}>
-                        <Calendar size={14} color={COLORS.textTertiary} />
-                        <Text style={styles.detailText}>{booking.date}</Text>
+                        <Calendar size={14} color={colors.textTertiary} />
+                        <Text style={[styles.detailText, { color: colors.textSecondary }]}>{booking.date}</Text>
                     </View>
                     <View style={styles.detailItem}>
-                        <Clock size={14} color={COLORS.textTertiary} />
-                        <Text style={styles.detailText}>
+                        <Clock size={14} color={colors.textTertiary} />
+                        <Text style={[styles.detailText, { color: colors.textSecondary }]}>
                             {booking.time}
                             {booking.time === 'Morning' ? ' · 8–11 AM' :
                                 booking.time === 'Afternoon' ? ' · 12–3 PM' :
@@ -137,52 +141,58 @@ export default function BookingsScreen() {
                 </View>
 
                 <View style={styles.locationRow}>
-                    <MapPin size={14} color={COLORS.textTertiary} />
-                    <Text style={styles.detailText}>{booking.address}</Text>
+                    <MapPin size={14} color={colors.textTertiary} />
+                    <Text style={[styles.detailText, { color: colors.textSecondary }]}>{booking.address}</Text>
                 </View>
 
                 {/* Notifications & OTP Display for Active Jobs */}
                 {booking.status === 'accepted' && (
-                    <View style={styles.notificationAlert}>
-                        <Text style={styles.notificationText}>Electrician {booking.partnerName || 'assigned'} is 5 minutes away.</Text>
+                    <View style={[styles.notificationAlert, { 
+                        backgroundColor: colors.accent + '12',
+                        borderColor: colors.accent + '30',
+                    }]}>
+                        <Text style={[styles.notificationText, { color: colors.accent }]}>Electrician {booking.partnerName || 'assigned'} is 5 minutes away.</Text>
                     </View>
                 )}
 
                 {(booking.status === 'open' || booking.status === 'accepted') && booking.checkInOtp && (
-                    <View style={styles.otpContainer}>
-                        <Text style={styles.otpLabel}>Security Alert:</Text>
-                        <Text style={styles.otpText}>Your Safety OTP is <Text style={styles.otpValue}>{booking.checkInOtp || booking.otp}</Text>. Do not share it until the technician arrives.</Text>
+                    <View style={[styles.otpContainer, { 
+                        backgroundColor: COLORS.gold + '12',
+                        borderColor: COLORS.gold + '40',
+                    }]}>
+                        <Text style={[styles.otpLabel, { color: COLORS.gold }]}>Security Alert:</Text>
+                        <Text style={[styles.otpText, { color: COLORS.gold }]}>Your Safety OTP is <Text style={[styles.otpValue, { color: COLORS.gold }]}>{booking.checkInOtp || booking.otp}</Text>. Do not share it until the technician arrives.</Text>
                     </View>
                 )}
 
                 {booking.status === 'in_progress' && booking.otp && (
-                    <View style={[styles.otpContainer, { borderColor: COLORS.accent, backgroundColor: 'rgba(37, 99, 235, 0.1)' }]}>
-                        <Text style={[styles.otpLabel, { color: COLORS.accent }]}>Completion OTP:</Text>
-                        <Text style={[styles.otpValue, { color: COLORS.accent }]}>{booking.otp}</Text>
+                    <View style={[styles.otpContainer, { borderColor: colors.accent + '40', backgroundColor: colors.accent + '12' }]}>
+                        <Text style={[styles.otpLabel, { color: colors.accent }]}>Completion OTP:</Text>
+                        <Text style={[styles.otpValue, { color: colors.accent }]}>{booking.otp}</Text>
                     </View>
                 )}
 
-                <View style={styles.cardFooter}>
+                <View style={[styles.cardFooter, { backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }]}>
                     <View>
-                        <Text style={styles.priceLabel}>Total Amount</Text>
-                        <Text style={styles.priceValue}>₹{booking.finalPrice || booking.price}</Text>
-                        {booking.paymentStatus === 'paid' && <Text style={{ color: COLORS.success, fontSize: 10, fontWeight: 'bold' }}>PAID</Text>}
+                        <Text style={[styles.priceLabel, { color: colors.textTertiary }]}>Total Amount</Text>
+                        <Text style={[styles.priceValue, { color: colors.accent }]}>₹{booking.finalPrice || booking.price}</Text>
+                        {booking.paymentStatus === 'paid' && <Text style={{ color: COLORS.success, fontSize: 10, fontWeight: '800', letterSpacing: 0.5 }}>PAID</Text>}
                     </View>
 
                     {/* Actions */}
                     {(booking.status === 'open' || booking.status === 'accepted') && (
                         <View style={styles.actionButtons}>
                             <TouchableOpacity
-                                style={styles.cancelBtn}
+                                style={[styles.cancelBtn, { backgroundColor: COLORS.danger + '12', borderColor: COLORS.danger + '40' }]}
                                 onPress={() => setCancelBooking(booking)}
                             >
-                                <Text style={styles.cancelBtnText}>Cancel</Text>
+                                <Text style={[styles.cancelBtnText, { color: COLORS.danger }]}>Cancel</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={styles.rescheduleBtn}
+                                style={[styles.rescheduleBtn, { backgroundColor: colors.accent + '12', borderColor: colors.accent + '40' }]}
                                 onPress={() => setRescheduleBooking(booking)}
                             >
-                                <Text style={styles.rescheduleBtnText}>Reschedule</Text>
+                                <Text style={[styles.rescheduleBtnText, { color: colors.accent }]}>Reschedule</Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -190,20 +200,20 @@ export default function BookingsScreen() {
                     {/* Pay Button for Completed Jobs */}
                     {booking.status === 'completed' && booking.paymentStatus !== 'paid' && (
                         <TouchableOpacity
-                            style={styles.payBtn}
+                            style={[styles.payBtn, { backgroundColor: colors.accent }]}
                             onPress={() => setPaymentBooking(booking)}
                         >
-                            <CreditCard size={14} color="#000" />
+                            <CreditCard size={14} color="#fff" />
                             <Text style={styles.payBtnText}>Pay Now</Text>
                         </TouchableOpacity>
                     )}
 
                     {booking.status === 'completed' && booking.paymentStatus === 'paid' && (
                         <TouchableOpacity
-                            style={styles.reviewBtn}
+                            style={[styles.reviewBtn, { backgroundColor: COLORS.gold + '15', borderColor: COLORS.gold + '40' }]}
                             onPress={() => setReviewBooking(booking)}
                         >
-                            <Text style={styles.reviewBtnText}>Write Review</Text>
+                            <Text style={[styles.reviewBtnText, { color: COLORS.gold }]}>Write Review</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -211,23 +221,38 @@ export default function BookingsScreen() {
         );
     };
 
-    const TabButton = ({ title }) => (
-        <TouchableOpacity
-            style={[styles.tabBtn, activeTab === title && styles.activeTabBtn]}
-            onPress={() => setActiveTab(title)}
-        >
-            <Text style={[styles.tabText, activeTab === title && styles.activeTabText]}>{title}</Text>
-        </TouchableOpacity>
-    );
+    const TabButton = ({ title }) => {
+        const isActive = activeTab === title;
+        return (
+            <TouchableOpacity
+                style={[
+                    styles.tabBtn,
+                    {
+                        backgroundColor: isActive ? colors.accent : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
+                        borderColor: isActive ? colors.accent : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'),
+                    }
+                ]}
+                onPress={() => setActiveTab(title)}
+            >
+                <Text style={[
+                    styles.tabText,
+                    {
+                        color: isActive ? '#fff' : colors.textSecondary,
+                        fontWeight: isActive ? '700' : '500',
+                    }
+                ]}>{title}</Text>
+            </TouchableOpacity>
+        );
+    };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <ArrowLeft size={24} color={COLORS.textPrimary} />
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.bgPrimary }]}>
+            <View style={[styles.header, { borderBottomColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+                <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }]}>
+                    <ArrowLeft size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Bookings</Text>
-                <View style={{ width: 24 }} />
+                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>My Bookings</Text>
+                <View style={{ width: 40 }} />
             </View>
 
             <View style={styles.tabsContainer}>
@@ -245,12 +270,13 @@ export default function BookingsScreen() {
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
-                        <Search size={48} color={COLORS.textTertiary} />
-                        <Text style={styles.emptyText}>No {activeTab.toLowerCase()} bookings found</Text>
+                        <Search size={44} color={colors.textTertiary} />
+                        <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No {activeTab.toLowerCase()} bookings found</Text>
+                        <Text style={[styles.emptySubtext, { color: colors.textTertiary }]}>Your bookings will appear here</Text>
                     </View>
                 }
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.accent} />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
                 }
             />
 
@@ -287,58 +313,58 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.bgPrimary,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: SPACING.md,
+        borderBottomWidth: 1,
+    },
+    backBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: -0.3,
     },
     tabsContainer: {
-        marginBottom: SPACING.md,
+        marginBottom: SPACING.sm,
+        marginTop: SPACING.sm,
     },
     tabsScroll: {
         paddingHorizontal: SPACING.md,
-        gap: 12,
+        gap: 10,
     },
     tabBtn: {
         paddingVertical: 8,
         paddingHorizontal: 20,
         borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    activeTabBtn: {
-        backgroundColor: COLORS.accent,
-        borderColor: COLORS.accent,
     },
     tabText: {
-        color: COLORS.textSecondary,
-        fontWeight: '500',
-    },
-    activeTabText: {
-        color: '#000',
-        fontWeight: 'bold',
+        fontSize: 14,
     },
     listContent: {
         padding: SPACING.md,
-        paddingTop: 0,
+        paddingTop: SPACING.xs,
         paddingBottom: 100, // Space for BottomNav
-        gap: 16,
+        gap: 14,
     },
     card: {
-        backgroundColor: '#18181b', // Slightly lighter than bg
         borderWidth: 1,
-        borderColor: COLORS.border,
         borderRadius: 16,
         padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        elevation: 2,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -347,24 +373,24 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     serviceName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        fontSize: 17,
+        fontWeight: '700',
         flex: 1,
         marginRight: 8,
+        letterSpacing: -0.2,
     },
     statusBadge: {
-        paddingHorizontal: 8,
+        paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 8,
     },
     statusText: {
-        fontSize: 12,
-        fontWeight: 'bold',
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 0.2,
     },
     divider: {
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         marginBottom: 12,
     },
     cardDetailRow: {
@@ -378,81 +404,76 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     detailText: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
+        fontSize: 13,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        marginBottom: 16,
+        marginBottom: 14,
     },
     otpContainer: {
-        marginBottom: 16,
-        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+        marginBottom: 14,
         padding: 12,
-        borderRadius: 8,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: COLORS.gold
     },
     otpLabel: {
-        color: COLORS.gold,
-        fontWeight: 'bold',
+        fontWeight: '700',
         fontSize: 12,
         marginBottom: 4,
     },
     otpText: {
-        color: COLORS.gold,
         fontSize: 12,
         lineHeight: 18,
     },
     otpValue: {
-        fontWeight: 'bold',
+        fontWeight: '800',
         fontSize: 14,
         letterSpacing: 2
     },
     notificationAlert: {
-        backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue color mapping typically
         padding: 12,
-        borderRadius: 8,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: '#3b82f6',
-        marginBottom: 8,
+        marginBottom: 10,
     },
     notificationText: {
-        color: '#3b82f6',
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: '700',
     },
     cardFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.03)',
         marginHorizontal: -16,
         marginBottom: -16,
-        padding: 16,
+        padding: 14,
         borderBottomLeftRadius: 16,
         borderBottomRightRadius: 16,
     },
     priceLabel: {
-        color: COLORS.textSecondary,
-        fontSize: 14,
+        fontSize: 12,
+        fontWeight: '500',
     },
     priceValue: {
-        color: COLORS.accent,
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '800',
+        letterSpacing: -0.3,
     },
     emptyState: {
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 48,
+        padding: 56,
+        gap: 8,
     },
     emptyText: {
-        color: COLORS.textTertiary,
-        marginTop: 16,
+        marginTop: 8,
         fontSize: 16,
+        fontWeight: '600',
+    },
+    emptySubtext: {
+        fontSize: 13,
     },
     actionButtons: {
         flexDirection: 'row',
@@ -460,55 +481,45 @@ const styles = StyleSheet.create({
     },
     rescheduleBtn: {
         paddingVertical: 8,
-        paddingHorizontal: 16,
-        backgroundColor: 'rgba(59, 130, 246, 0.15)', // Blue tint
-        borderRadius: 8,
+        paddingHorizontal: 14,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: '#3b82f6',
     },
     rescheduleBtnText: {
-        color: '#3b82f6',
-        fontWeight: 'bold',
-        fontSize: 14,
+        fontWeight: '700',
+        fontSize: 13,
     },
     cancelBtn: {
         paddingVertical: 8,
-        paddingHorizontal: 16,
-        backgroundColor: 'rgba(239, 68, 68, 0.15)', // Red tint
-        borderRadius: 8,
+        paddingHorizontal: 14,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: COLORS.danger,
     },
     cancelBtnText: {
-        color: COLORS.danger,
-        fontWeight: 'bold',
-        fontSize: 14,
+        fontWeight: '700',
+        fontSize: 13,
     },
     reviewBtn: {
         paddingVertical: 8,
-        paddingHorizontal: 16,
-        backgroundColor: 'rgba(234, 179, 8, 0.15)', // Gold/Yellow tint
-        borderRadius: 8,
+        paddingHorizontal: 14,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: COLORS.gold,
     },
     reviewBtnText: {
-        color: COLORS.gold,
-        fontWeight: 'bold',
-        fontSize: 14,
+        fontWeight: '700',
+        fontSize: 13,
     },
     payBtn: {
-        backgroundColor: COLORS.accent,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
         paddingVertical: 8,
         paddingHorizontal: 16,
-        borderRadius: 8,
+        borderRadius: 10,
     },
     payBtnText: {
-        color: '#000',
-        fontWeight: 'bold',
-        fontSize: 14
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 13
     }
 });

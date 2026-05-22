@@ -6,10 +6,14 @@ import { CheckCircle, DollarSign, CreditCard, Banknote } from 'lucide-react-nati
 const PaymentModal = ({ visible, booking, onClose, onPay }) => {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState('payment'); // 'payment' | 'receipt'
+    const [paymentSubState, setPaymentSubState] = useState('');
 
     // Reset step on new open
     React.useEffect(() => {
-        if (visible) setStep('payment');
+        if (visible) {
+            setStep('payment');
+            setPaymentSubState('');
+        }
     }, [visible]);
 
     if (!booking) return null;
@@ -22,11 +26,29 @@ const PaymentModal = ({ visible, booking, onClose, onPay }) => {
 
     const handlePayment = (method) => {
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            onPay(booking.id, method);
-            setStep('receipt');
-        }, 1500);
+        if (method === 'googlepay') {
+            setPaymentSubState('Connecting to Google Pay (Pomili)...');
+            setTimeout(() => {
+                setPaymentSubState('Authorizing with secure biometrics...');
+                setTimeout(() => {
+                    setPaymentSubState('Processing UPI payment with bank...');
+                    setTimeout(() => {
+                        setLoading(false);
+                        setPaymentSubState('');
+                        onPay(booking.id, 'googlepay');
+                        setStep('receipt');
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        } else {
+            setPaymentSubState('Processing Payment...');
+            setTimeout(() => {
+                setLoading(false);
+                setPaymentSubState('');
+                onPay(booking.id, method);
+                setStep('receipt');
+            }, 1500);
+        }
     };
 
     return (
@@ -72,6 +94,26 @@ const PaymentModal = ({ visible, booking, onClose, onPay }) => {
 
                             <Text style={styles.methodTitle}>Select Payment Method</Text>
 
+                            {/* Google Pay Pomili Button */}
+                            <TouchableOpacity
+                                style={[styles.methodCard, styles.gpayBtn]}
+                                onPress={() => handlePayment('googlepay')}
+                                disabled={loading}
+                            >
+                                <View style={styles.gpayContent}>
+                                    <Text style={styles.gpayText}>Pay with </Text>
+                                    <View style={styles.gpayLogo}>
+                                        <Text style={{ color: '#4285F4', fontWeight: '900', fontSize: 18 }}>G</Text>
+                                        <Text style={{ color: '#EA4335', fontWeight: '900', fontSize: 18 }}>o</Text>
+                                        <Text style={{ color: '#FBBC05', fontWeight: '900', fontSize: 18 }}>o</Text>
+                                        <Text style={{ color: '#4285F4', fontWeight: '900', fontSize: 18 }}>g</Text>
+                                        <Text style={{ color: '#34A853', fontWeight: '900', fontSize: 18 }}>l</Text>
+                                        <Text style={{ color: '#EA4335', fontWeight: '900', fontSize: 18 }}>e </Text>
+                                        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Pay</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+
                             <TouchableOpacity
                                 style={styles.methodCard}
                                 onPress={() => handlePayment('online')}
@@ -104,8 +146,8 @@ const PaymentModal = ({ visible, booking, onClose, onPay }) => {
 
                             {loading && (
                                 <View style={styles.loadingOverlay}>
-                                    <ActivityIndicator size="large" color={COLORS.primary} />
-                                    <Text style={{ marginTop: 12, color: COLORS.textSecondary }}>Processing Payment...</Text>
+                                    <ActivityIndicator size="large" color="#ffffff" />
+                                    <Text style={{ marginTop: 16, color: '#ffffff', fontWeight: 'bold', fontSize: 15 }}>{paymentSubState || 'Processing Payment...'}</Text>
                                 </View>
                             )}
                         </>
@@ -333,6 +375,29 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    gpayBtn: {
+        backgroundColor: '#000000',
+        borderColor: '#000000',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 16,
+        marginBottom: 16,
+    },
+    gpayContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    gpayText: {
+        color: '#ffffff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    gpayLogo: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

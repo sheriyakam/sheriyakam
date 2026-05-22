@@ -16,6 +16,7 @@ import * as Location from 'expo-location';
 import { COLORS, SPACING } from '../constants/theme';
 import LocationMap from './LocationMap';
 import { LocationsAPI } from '../services/supabaseAPI';
+import { mapplsService } from '../services/mapplsService';
 
 const MOCK_CITIES = [
     "Thalassery, Kerala",
@@ -55,21 +56,6 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
         longitudeDelta: 0.0421,
     };
 
-    useEffect(() => {
-        if (visible && currentLocation) {
-            const region = {
-                latitude: currentLocation.latitude,
-                longitude: currentLocation.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-            };
-            setMapRegion(region);
-            setSelectedCoord(currentLocation);
-        } else if (visible && !mapRegion) {
-            setMapRegion(DEFAULT_REGION);
-        }
-    }, [visible, currentLocation]);
-
     const filteredCities = cities.filter(city =>
         city.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -77,13 +63,26 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
     const handleCurrentLocation = async () => {
         setIsLocating(true);
         try {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission needed', 'Permission to access location was denied');
+            // Check if GPS is physically turned on
+            let servicesEnabled = await Location.hasServicesEnabledAsync();
+            if (!servicesEnabled) {
+                Alert.alert(
+                    'Location Disabled', 
+                    'Please pull down your notification shade and turn on Location (GPS) to use this feature.',
+                    [{ text: 'OK' }]
+                );
                 setIsLocating(false);
                 return;
             }
 
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission needed', 'Permission to access location was denied. Please enable it in your app settings.');
+                setIsLocating(false);
+                return;
+            }
+
+            // 3. Get the position
             let location = await Location.getCurrentPositionAsync({});
             const coords = location.coords;
 
@@ -100,24 +99,33 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                 setSelectedCoord(coords);
                 await fetchAddressForCoords(coords);
             } else {
-                // If list view, just select and close
-                let address = await Location.reverseGeocodeAsync({
-                    latitude: coords.latitude,
-                    longitude: coords.longitude
-                });
-
-                if (address && address.length > 0) {
-                    const addr = address[0];
-                    const city = addr.city || addr.subregion || addr.district;
-                    const region = addr.region || addr.country;
-                    const locationString = city ? `${city}, ${region}` : "Current Location";
-                    onLocationSelect(locationString);
-                    onClose();
+                let locationString = "Current Location";
+                if (mapplsService.isConfigured()) {
+                    const addr = await mapplsService.reverseGeocode(coords.latitude, coords.longitude);
+                    if (addr) {
+                        locationString = addr;
+                    }
                 }
+                
+                if (locationString === "Current Location") {
+                    let address = await Location.reverseGeocodeAsync({
+                        latitude: coords.latitude,
+                        longitude: coords.longitude
+                    });
+
+                    if (address && address.length > 0) {
+                        const addr = address[0];
+                        const city = addr.city || addr.subregion || addr.district;
+                        const region = addr.region || addr.country;
+                        locationString = city ? `${city}, ${region}` : "Current Location";
+                    }
+                }
+                onLocationSelect(locationString);
+                onClose();
             }
 
         } catch (error) {
-            Alert.alert('Error', 'Could not fetch location');
+            Alert.alert('Error', 'Could not fetch location. Please ensure your GPS is turned on.');
         } finally {
             setIsLocating(false);
         }
@@ -125,6 +133,14 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
 
     const fetchAddressForCoords = async (coords) => {
         try {
+            if (mapplsService.isConfigured()) {
+                const addr = await mapplsService.reverseGeocode(coords.latitude, coords.longitude);
+                if (addr) {
+                    setAddressText(addr);
+                    return;
+                }
+            }
+
             let address = await Location.reverseGeocodeAsync({
                 latitude: coords.latitude,
                 longitude: coords.longitude
@@ -139,6 +155,25 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
             console.log(e);
         }
     };
+
+    useEffect(() => {
+        if (visible && currentLocation) {
+            const region = {
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            };
+            setMapRegion(region);
+            setSelectedCoord(currentLocation);
+        } else if (visible && !mapRegion) {
+            setMapRegion(DEFAULT_REGION);
+            // Automatically try to resolve current location if map triggers
+            if (showMap) {
+                handleCurrentLocation();
+            }
+        }
+    }, [visible, currentLocation, showMap]);
 
     const handleConfirmMapLocation = () => {
         if (addressText) {

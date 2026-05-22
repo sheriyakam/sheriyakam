@@ -14,13 +14,14 @@ import {
     Linking
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { X, CheckCircle, Calendar, Clock, Camera, Image as ImageIcon } from 'lucide-react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { X, CheckCircle, Calendar, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { createBooking } from '../constants/bookingStore';
+import { useTheme } from '../context/ThemeContext';
 import LocationPicker from './LocationPicker';
+import { geminiService } from '../services/geminiService';
 
 const AI_SUGGESTIONS = [
     // Motor
@@ -52,29 +53,15 @@ const AI_SUGGESTIONS = [
 const BookingModal = ({ service, visible, onClose }) => {
     const { user } = useAuth();
     const router = useRouter();
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     const [step, setStep] = useState(1);
     const [selectedDate, setSelectedDate] = useState('Today');
-    const [customDate, setCustomDate] = useState('');
-    const [selectedSlot, setSelectedSlot] = useState('Morning');
     const [selectedImage, setSelectedImage] = useState(null);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [date, setDate] = useState(new Date());
     const [issues, setIssues] = useState('');
     const [selectedLocation, setSelectedLocation] = useState(null);
-
-    // Helper to get slots
-    const getAvailableSlots = (dateStr) => {
-        const slotDefinitions = [
-            { id: 'Morning', label: 'Morning', sub: '8 AM - 11 AM', endHour: 11 },
-            { id: 'Afternoon', label: 'Afternoon', sub: '12 PM - 3 PM', endHour: 15 },
-            { id: 'Evening', label: 'Evening', sub: '4 PM - 7 PM', endHour: 19 }
-        ];
-
-        if (dateStr !== 'Today') return slotDefinitions;
-
-        const currentHour = new Date().getHours();
-        return slotDefinitions.filter(slot => currentHour < slot.endHour);
-    };
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiResult, setAiResult] = useState(null);
 
     // Reset state when modal opens
     React.useEffect(() => {
@@ -82,24 +69,42 @@ const BookingModal = ({ service, visible, onClose }) => {
             setStep(1);
 
             const currentHour = new Date().getHours();
-            // If after 7 PM (19), default to Tomorrow
-            const initialDate = currentHour >= 19 ? 'Tomorrow' : 'Today';
+            // If after 6 PM (18), default to Tomorrow
+            const initialDate = currentHour >= 18 ? 'Tomorrow' : 'Today';
             setSelectedDate(initialDate);
 
-            // Auto-select first available slot
-            const slots = getAvailableSlots(initialDate);
-            if (slots.length > 0) {
-                setSelectedSlot(slots[0].id);
-            }
-
-            setCustomDate('');
             setSelectedImage(null);
-            setDate(new Date());
-            setShowDatePicker(false);
             setIssues('');
             setSelectedLocation(null);
+            setAiLoading(false);
+            setAiResult(null);
         }
     }, [visible]);
+
+    const runAiDiagnostic = async (imageUri) => {
+        setAiLoading(true);
+        setAiResult(null);
+        try {
+            const category = service?.name || 'general';
+            const result = await geminiService.analyzeIssueImage(imageUri, category);
+            setAiResult(result);
+            if (result && result.possibleIssue) {
+                let updatedNotes = `[Gemini AI Diagnosis] possible issue: ${result.possibleIssue}.\n`;
+                if (result.materialsNeeded) {
+                    updatedNotes += `Estimated materials: ${result.materialsNeeded}.\n`;
+                }
+                setIssues(prev => {
+                    const cleanPrev = prev.replace(/\[Gemini AI Diagnosis\][\s\S]*/, '').trim();
+                    if (!cleanPrev) return updatedNotes;
+                    return cleanPrev + "\n\n" + updatedNotes;
+                });
+            }
+        } catch (error) {
+            console.error("[BookingModal] Gemini diagnostic error:", error);
+        } finally {
+            setAiLoading(false);
+        }
+    };
 
     // Smart AI suggestions based on service AND typing
     const getFilteredSuggestions = () => {
@@ -127,38 +132,9 @@ const BookingModal = ({ service, visible, onClose }) => {
 
     // Determine available days
     const currentHour = new Date().getHours();
-    const isTodayOver = currentHour >= 19; // 7 PM
+    const isTodayOver = currentHour >= 18; // 6 PM
 
-    let availableDays = [];
-    if (isEmergency) {
-        availableDays = isTodayOver ? ['Tomorrow'] : ['Today'];
-    } else {
-        availableDays = isTodayOver ? ['Tomorrow', 'Pick Date'] : ['Today', 'Tomorrow', 'Pick Date'];
-    }
-
-    const onDateChange = (event, selectedDate) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setDate(selectedDate);
-            const formattedDate = selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-            setSelectedDate('Custom');
-            setCustomDate(formattedDate);
-
-            // Auto Select for Custom Date (All slots available)
-            setSelectedSlot('Morning');
-        }
-    };
-
-    const handleDaySelect = (day) => {
-        setSelectedDate(day);
-        setCustomDate('');
-
-        // Auto select first slot
-        const slots = getAvailableSlots(day);
-        if (slots.length > 0) {
-            setSelectedSlot(slots[0].id);
-        }
-    };
+    const availableDays = isTodayOver ? ['Tomorrow'] : ['Today', 'Tomorrow'];
 
     const handleSubmit = () => {
         // Validation: Must have EITHER text or photo
@@ -186,9 +162,6 @@ const BookingModal = ({ service, visible, onClose }) => {
             return;
         }
 
-        // Generate final date string
-        const finalDate = selectedDate === 'Custom' ? customDate : selectedDate;
-
         // Create the booking object
         const newBooking = {
             customerName: user.name || 'Customer',
@@ -196,9 +169,8 @@ const BookingModal = ({ service, visible, onClose }) => {
             customerPhone: user.mobile || '+91 00000 00000',
             service: service.name,
             serviceType: service.type || (service.name?.includes('AC') ? 'AC' : 'Electrician'),
-            address: 'Calicut (Default Address)', // Future update: add address input
-            date: finalDate,
-            time: selectedSlot,
+            date: selectedDate,
+            time: 'Flexible',
             price: service.price,
             notes: issues.trim() || 'Photo provided as issue detail',
             imageUrl: selectedImage,
@@ -245,7 +217,9 @@ const BookingModal = ({ service, visible, onClose }) => {
             }
 
             if (!result.canceled) {
-                setSelectedImage(result.assets[0].uri);
+                const uri = result.assets[0].uri;
+                setSelectedImage(uri);
+                runAiDiagnostic(uri);
             }
         } catch (error) {
             Alert.alert('Error', 'Failed to pick image');
@@ -283,15 +257,24 @@ const BookingModal = ({ service, visible, onClose }) => {
             onPress={onClick}
             style={[
                 styles.chip,
-                selected ? styles.chipSelected : styles.chipUnselected,
+                {
+                    borderColor: selected ? colors.accent : colors.border,
+                    backgroundColor: selected ? colors.accent : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'),
+                },
                 isDate && styles.chipDate
             ]}
         >
-            <Text style={[styles.chipText, selected ? styles.chipTextSelected : styles.chipTextUnselected]}>
+            <Text style={[
+                styles.chipText,
+                {
+                    color: selected ? '#ffffff' : colors.textSecondary,
+                    fontWeight: selected ? 'bold' : '500',
+                }
+            ]}>
                 {label}
             </Text>
             {subLabel && (
-                <Text style={styles.chipSubLabel}>{subLabel}</Text>
+                <Text style={[styles.chipSubLabel, { color: colors.textTertiary }]}>{subLabel}</Text>
             )}
         </TouchableOpacity>
     );
@@ -308,23 +291,29 @@ const BookingModal = ({ service, visible, onClose }) => {
                     behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'web' ? undefined : 'height'}
                     style={styles.keyboardView}
                 >
-                    <View style={styles.container}>
+                    <View style={[styles.container, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
                         {/* Fixed Header */}
-                        <View style={styles.modalHeader}>
-                            <View>
-                                <Text style={styles.headerTitle}>Book Service</Text>
+                        <View style={[styles.modalHeader, { backgroundColor: colors.bgSecondary, borderBottomColor: colors.border }]}>
+                            <View style={{ flex: 1, paddingRight: 16 }}>
+                                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Book Service</Text>
                                 {service && (
-                                    <Text style={styles.headerSubtitle} numberOfLines={1}>
+                                    <Text style={[styles.headerSubtitle, { color: colors.accent }]} numberOfLines={1}>
                                         {service.name}
                                     </Text>
                                 )}
                             </View>
                             <TouchableOpacity
                                 onPress={onClose}
-                                style={styles.headerCloseBtn}
+                                style={[
+                                    styles.headerCloseBtn,
+                                    {
+                                        backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                                        borderColor: colors.border
+                                    }
+                                ]}
                                 activeOpacity={0.7}
                             >
-                                <X size={24} color={COLORS.textPrimary} />
+                                <X size={22} color={colors.textPrimary} />
                             </TouchableOpacity>
                         </View>
 
@@ -336,87 +325,42 @@ const BookingModal = ({ service, visible, onClose }) => {
                                     showsVerticalScrollIndicator={false}
                                     bounces={false}
                                 >
-
                                     {/* Date Selection */}
                                     <View style={styles.section}>
                                         <View style={styles.labelRow}>
-                                            <Calendar size={16} color={COLORS.textTertiary} />
-                                            <Text style={styles.label}>Schedule Day</Text>
+                                            <Calendar size={16} color={colors.textTertiary} />
+                                            <Text style={[styles.label, { color: colors.textSecondary }]}>Schedule Day</Text>
                                         </View>
                                         <View style={styles.chipGroup}>
                                             {availableDays.map(day => {
-                                                const isCustom = day === 'Pick Date';
-                                                const isSelected = isCustom ? selectedDate === 'Custom' : selectedDate === day;
-                                                const label = (isCustom && selectedDate === 'Custom') ? customDate : day;
-
+                                                const isSelected = selectedDate === day;
                                                 return (
                                                     <SelectionChip
                                                         key={day}
-                                                        label={label}
+                                                        label={day}
                                                         selected={isSelected}
-                                                        onClick={() => {
-                                                            if (isCustom) {
-                                                                setShowDatePicker(true);
-                                                            } else {
-                                                                handleDaySelect(day);
-                                                            }
-                                                        }}
+                                                        onClick={() => setSelectedDate(day)}
                                                         isDate
                                                     />
                                                 );
                                             })}
-                                            {showDatePicker && (
-                                                <DateTimePicker
-                                                    value={date}
-                                                    mode="date"
-                                                    display="default"
-                                                    onChange={onDateChange}
-                                                    minimumDate={new Date()}
-                                                />
-                                            )}
-                                        </View>
-                                    </View>
-
-                                    {/* Time Selection */}
-                                    <View style={styles.section}>
-                                        <View style={styles.labelRow}>
-                                            <Clock size={16} color={COLORS.textTertiary} />
-                                            <Text style={styles.label}>Preferred Time</Text>
-                                            {selectedDate === 'Today' && (
-                                                <View style={styles.liveTimeBadge}>
-                                                    <View style={styles.liveDot} />
-                                                    <Text style={styles.liveTimeText}>Now: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-                                                </View>
-                                            )}
-                                        </View>
-                                        <View style={styles.chipGroup}>
-                                            {(() => {
-                                                const slots = getAvailableSlots(selectedDate);
-
-                                                if (slots.length === 0) {
-                                                    return <Text style={{ color: COLORS.danger, fontStyle: 'italic', fontSize: 13 }}>All slots passed for Today. Please pick Tomorrow.</Text>;
-                                                }
-
-                                                return slots.map(slot => (
-                                                    <SelectionChip
-                                                        key={slot.id}
-                                                        label={slot.label}
-                                                        subLabel={slot.sub}
-                                                        selected={selectedSlot === slot.id}
-                                                        onClick={() => setSelectedSlot(slot.id)}
-                                                    />
-                                                ));
-                                            })()}
                                         </View>
                                     </View>
 
                                     {/* Issue Details */}
                                     <View style={styles.section}>
-                                        <Text style={styles.label}>Issue Details</Text>
+                                        <Text style={[styles.label, { color: colors.textSecondary }]}>Issue Details</Text>
                                         <TextInput
-                                            style={styles.input}
-                                            placeholder={`Type your ${service.name} issue for smart AI suggestions...`}
-                                            placeholderTextColor={COLORS.textTertiary}
+                                            style={[
+                                                styles.input,
+                                                {
+                                                    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                                                    borderColor: colors.border,
+                                                    color: colors.textPrimary
+                                                }
+                                            ]}
+                                            placeholder={`Describe the problem for our specialist...`}
+                                            placeholderTextColor={colors.textTertiary}
                                             multiline
                                             numberOfLines={3}
                                             value={issues}
@@ -428,16 +372,22 @@ const BookingModal = ({ service, visible, onClose }) => {
                                             <ScrollView 
                                                 horizontal 
                                                 showsHorizontalScrollIndicator={false}
-                                                style={{ marginTop: 8 }}
+                                                style={{ marginTop: 8, marginBottom: 12 }}
                                                 contentContainerStyle={{ paddingBottom: 4 }}
                                             >
                                                 {getFilteredSuggestions().map((suggestion, idx) => (
                                                     <TouchableOpacity 
                                                         key={idx}
-                                                        style={styles.aiChip}
+                                                        style={[
+                                                            styles.aiChip,
+                                                            {
+                                                                backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.08)',
+                                                                borderColor: isDark ? 'rgba(37, 99, 235, 0.3)' : 'rgba(37, 99, 235, 0.15)'
+                                                            }
+                                                        ]}
                                                         onPress={() => setIssues(suggestion.text)}
                                                     >
-                                                        <Text style={styles.aiChipText}>✨ {suggestion.text}</Text>
+                                                        <Text style={[styles.aiChipText, { color: colors.accent }]}>✨ {suggestion.text}</Text>
                                                     </TouchableOpacity>
                                                 ))}
                                             </ScrollView>
@@ -446,20 +396,79 @@ const BookingModal = ({ service, visible, onClose }) => {
                                         {!selectedImage ? (
                                             <TouchableOpacity
                                                 onPress={handleImageMock}
-                                                style={styles.uploadArea}
+                                                style={[
+                                                    styles.uploadArea,
+                                                    {
+                                                        borderColor: colors.border,
+                                                        backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)'
+                                                    }
+                                                ]}
                                             >
-                                                <Camera size={24} color={COLORS.textTertiary} />
-                                                <Text style={styles.uploadText}>Add Photo</Text>
+                                                <Camera size={22} color={colors.textTertiary} />
+                                                <Text style={[styles.uploadText, { color: colors.textTertiary }]}>Add Photo</Text>
                                             </TouchableOpacity>
                                         ) : (
-                                            <View style={styles.imagePreviewContainer}>
-                                                <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
-                                                <TouchableOpacity
-                                                    onPress={() => setSelectedImage(null)}
-                                                    style={styles.removeImageBtn}
-                                                >
-                                                    <X size={16} color="#fff" />
-                                                </TouchableOpacity>
+                                            <View>
+                                                <View style={styles.imagePreviewContainer}>
+                                                    <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            setSelectedImage(null);
+                                                            setAiResult(null);
+                                                        }}
+                                                        style={styles.removeImageBtn}
+                                                    >
+                                                        <X size={16} color="#fff" />
+                                                    </TouchableOpacity>
+                                                </View>
+
+                                                {aiLoading && (
+                                                    <View style={[styles.aiDiagnosticBox, { backgroundColor: isDark ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)', borderColor: colors.accent }]}>
+                                                        <ActivityIndicator size="small" color={colors.accent} />
+                                                        <Text style={[styles.aiDiagnosticLoadingText, { color: colors.accent }]}>
+                                                            ✨ Gemini AI diagnosing photo...
+                                                        </Text>
+                                                    </View>
+                                                )}
+
+                                                {aiResult && !aiLoading && (
+                                                    <View style={[styles.aiResultBox, { backgroundColor: isDark ? 'rgba(30,41,59,0.7)' : 'rgba(241,245,249,0.7)', borderColor: colors.border }]}>
+                                                        <View style={styles.aiResultHeader}>
+                                                            <Text style={[styles.aiResultTitle, { color: colors.textPrimary }]}>✨ Gemini AI Diagnostic Report</Text>
+                                                            {aiResult.confidence && (
+                                                                <Text style={[styles.aiConfidenceBadge, { color: colors.accent, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)' }]}>
+                                                                    {aiResult.confidence} Match
+                                                                </Text>
+                                                            )}
+                                                        </View>
+
+                                                        <View style={styles.aiResultBody}>
+                                                            <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Possible Issue:</Text>
+                                                            <Text style={[styles.aiValue, { color: colors.textPrimary }]}>{aiResult.possibleIssue}</Text>
+
+                                                            {aiResult.safetyAdvice && (
+                                                                <View style={[styles.aiSafetyBox, { backgroundColor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)' }]}>
+                                                                    <Text style={styles.aiSafetyTitle}>⚠️ Safety Advisory</Text>
+                                                                    <Text style={styles.aiSafetyText}>{aiResult.safetyAdvice}</Text>
+                                                                </View>
+                                                            )}
+
+                                                            {aiResult.materialsNeeded && (
+                                                                <View style={{ marginTop: 8 }}>
+                                                                    <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Expected Materials:</Text>
+                                                                    <Text style={[styles.aiValue, { color: colors.textPrimary, fontSize: 13 }]}>{aiResult.materialsNeeded}</Text>
+                                                                </View>
+                                                            )}
+                                                            
+                                                            {aiResult.estimatedCost && (
+                                                                <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                    <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Estimated Cost:</Text>
+                                                                    <Text style={[styles.aiCostValue, { color: colors.success }]}>{aiResult.estimatedCost}</Text>
+                                                                </View>
+                                                            )}
+                                                        </View>
+                                                    </View>
+                                                )}
                                             </View>
                                         )}
                                     </View>
@@ -474,52 +483,63 @@ const BookingModal = ({ service, visible, onClose }) => {
 
                                     {/* Price Estimator */}
                                     <View style={styles.section}>
-                                        <Text style={styles.label}>Service Charge</Text>
-                                        <View style={styles.priceContainer}>
+                                        <Text style={[styles.label, { color: colors.textSecondary }]}>Service Charge</Text>
+                                        <View style={[
+                                            styles.priceContainer,
+                                            {
+                                                backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                                                borderColor: colors.border
+                                            }
+                                        ]}>
                                             <View style={styles.priceRow}>
-                                                <Text style={styles.priceTotalText}>Service Fare</Text>
-                                                <Text style={styles.priceTotalValue}>₹{service.price}</Text>
+                                                <Text style={[styles.priceTotalText, { color: colors.textPrimary }]}>Service Fare</Text>
+                                                <Text style={[styles.priceTotalValue, { color: colors.accent }]}>₹{service.price}</Text>
                                             </View>
                                         </View>
-                                        <Text style={styles.disclaimerText}>
+                                        <Text style={[styles.disclaimerText, { color: colors.textTertiary }]}>
                                             * Material cost (if any) will be added by the technician after the job.
                                         </Text>
                                     </View>
-
                                 </ScrollView>
-                                <View style={[styles.footer, { borderTopWidth: 1, borderTopColor: COLORS.border }]}>
+                                <View style={[styles.footer, { backgroundColor: colors.bgSecondary, borderTopWidth: 1, borderTopColor: colors.border }]}>
                                     <TouchableOpacity
                                         onPress={handleSubmit}
-                                        style={styles.confirmBtn}
+                                        style={[styles.confirmBtn, { backgroundColor: colors.accent }]}
+                                        activeOpacity={0.8}
                                     >
-                                        <Text style={styles.confirmBtnText}>Confirm Booking</Text>
+                                        <Text style={[styles.confirmBtnText, { color: '#ffffff' }]}>Confirm Booking</Text>
                                     </TouchableOpacity>
-
                                 </View>
                             </View>
                         ) : (
                             // Success Screen
                             <View style={[styles.content, styles.successContent]}>
-                                <CheckCircle size={64} color={COLORS.success} />
-                                <Text style={styles.successTitle}>Booking Confirmed!</Text>
-                                <Text style={styles.successText}>
-                                    Technician arriving <Text style={{ color: COLORS.textPrimary, fontWeight: 'bold' }}>{selectedDate === 'Custom' ? customDate : selectedDate}</Text> in the <Text style={{ color: COLORS.textPrimary, fontWeight: 'bold' }}>{selectedSlot}</Text>.
+                                <CheckCircle size={64} color={colors.success} />
+                                <Text style={[styles.successTitle, { color: colors.textPrimary }]}>Booking Confirmed!</Text>
+                                <Text style={[styles.successText, { color: colors.textSecondary }]}>
+                                    Technician arriving <Text style={{ color: colors.textPrimary, fontWeight: 'bold' }}>{selectedDate}</Text>.
                                 </Text>
 
                                 {selectedImage && (
-                                    <View style={styles.imageTag}>
-                                        <ImageIcon size={14} color={COLORS.accent} />
-                                        <Text style={styles.imageTagText}>Image Attached</Text>
+                                    <View style={[
+                                        styles.imageTag,
+                                        {
+                                            backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.08)'
+                                        }
+                                    ]}>
+                                        <ImageIcon size={14} color={colors.accent} />
+                                        <Text style={[styles.imageTagText, { color: colors.accent }]}>Image Attached</Text>
                                     </View>
                                 )}
 
-                                <Text style={styles.successSubText}>You will receive a call shortly.</Text>
+                                <Text style={[styles.successSubText, { color: colors.textTertiary }]}>You will receive a call shortly.</Text>
 
                                 <TouchableOpacity
                                     onPress={onClose}
-                                    style={[styles.confirmBtn, styles.outlineBtn]}
+                                    style={[styles.confirmBtn, styles.outlineBtn, { borderColor: colors.border }]}
+                                    activeOpacity={0.8}
                                 >
-                                    <Text style={[styles.confirmBtnText, { color: COLORS.textPrimary }]}>Done</Text>
+                                    <Text style={[styles.confirmBtnText, { color: colors.textPrimary }]}>Done</Text>
                                 </TouchableOpacity>
                             </View>
                         )}
@@ -533,7 +553,7 @@ const BookingModal = ({ service, visible, onClose }) => {
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.85)',
+        backgroundColor: 'rgba(0,0,0,0.75)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: Platform.OS === 'web' ? 24 : SPACING.md,
@@ -545,14 +565,11 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         maxWidth: 500,
-        maxHeight: '90%', // Ensure it doesn't overflow the screen
+        maxHeight: '90%',
         alignSelf: 'center',
-        backgroundColor: '#18181b',
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: COLORS.border,
         overflow: 'hidden',
-        position: 'relative', // For absolute close button
     },
     modalHeader: {
         flexDirection: 'row',
@@ -561,23 +578,22 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.lg,
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
-        backgroundColor: '#18181b', // Match container
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
     },
     headerSubtitle: {
-        fontSize: 12,
-        color: COLORS.accent,
+        fontSize: 13,
         marginTop: 2,
     },
     headerCloseBtn: {
-        padding: 8,
+        width: 40,
+        height: 40,
         borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
     },
     content: {
         padding: SPACING.lg,
@@ -585,7 +601,6 @@ const styles = StyleSheet.create({
     footer: {
         padding: SPACING.lg,
         paddingTop: 12,
-        backgroundColor: '#18181b', // Ensure background consistency
     },
     section: {
         marginBottom: 20,
@@ -598,7 +613,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 14,
-        color: COLORS.textSecondary,
+        fontWeight: '600',
         marginBottom: 8,
     },
     chipGroup: {
@@ -611,15 +626,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: COLORS.border,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-    },
-    chipSelected: {
-        backgroundColor: COLORS.accent,
-        borderColor: COLORS.accent,
-    },
-    chipUnselected: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     chipDate: {
         minWidth: 80,
@@ -629,42 +635,31 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 14,
     },
-    chipTextSelected: {
-        color: '#000',
-        fontWeight: 'bold',
-    },
-    chipTextUnselected: {
-        color: COLORS.textTertiary,
-    },
     chipSubLabel: {
         fontSize: 10,
-        color: COLORS.textTertiary, // Should ideally be handled if subLabel exists, but we removed it from usage
         marginTop: 2
     },
     input: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
         borderRadius: 8,
         padding: 12,
-        color: COLORS.textPrimary,
         textAlignVertical: 'top',
         marginBottom: 8,
+        fontSize: 14,
     },
     uploadArea: {
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
         borderStyle: 'dashed',
         borderRadius: 8,
         padding: 16,
         alignItems: 'center',
         justifyContent: 'center',
+        flexDirection: 'row',
         gap: 8,
     },
     uploadText: {
         fontSize: 14,
-        color: COLORS.textTertiary,
-        marginTop: 8,
+        fontWeight: '500',
     },
     imagePreviewContainer: {
         marginTop: 15,
@@ -686,28 +681,23 @@ const styles = StyleSheet.create({
         padding: 4,
     },
     aiChip: {
-        backgroundColor: '#e0f2fe', // Light blue
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 16,
         marginRight: 8,
         borderWidth: 1,
-        borderColor: '#bae6fd',
     },
     aiChipText: {
-        color: '#0369a1', // Dark blue
         fontSize: 13,
         fontWeight: '500',
     },
     confirmBtn: {
-        backgroundColor: COLORS.accent,
         padding: 16,
         borderRadius: 12,
         alignItems: 'center',
         marginTop: 8,
     },
     confirmBtnText: {
-        color: '#000',
         fontWeight: 'bold',
         fontSize: 16,
     },
@@ -718,19 +708,16 @@ const styles = StyleSheet.create({
     successTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
         marginTop: 16,
         marginBottom: 8,
     },
     successText: {
         fontSize: 14,
-        color: COLORS.textSecondary,
         textAlign: 'center',
         marginBottom: 16,
     },
     successSubText: {
         fontSize: 14,
-        color: COLORS.textTertiary,
         marginBottom: 24,
     },
     imageTag: {
@@ -739,83 +726,115 @@ const styles = StyleSheet.create({
         gap: 8,
         paddingHorizontal: 12,
         paddingVertical: 4,
-        backgroundColor: 'rgba(41, 182, 246, 0.1)',
         borderRadius: 16,
         marginBottom: 16,
     },
     imageTagText: {
-        color: COLORS.accent,
         fontSize: 12,
+        fontWeight: '600',
     },
     outlineBtn: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: COLORS.border,
         width: '100%',
     },
     priceContainer: {
-        backgroundColor: 'rgba(255,255,255,0.03)',
         borderRadius: 12,
         padding: 16,
         borderWidth: 1,
-        borderColor: COLORS.border,
         marginBottom: 8,
     },
     priceRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
-    },
-    priceText: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
-    },
-    priceValue: {
-        fontSize: 14,
-        color: COLORS.textPrimary,
-        fontWeight: '500',
-    },
-    priceDivider: {
-        height: 1,
-        backgroundColor: COLORS.border,
-        marginVertical: 8,
     },
     priceTotalText: {
         fontSize: 16,
-        color: COLORS.textPrimary,
         fontWeight: 'bold',
     },
     priceTotalValue: {
         fontSize: 16,
-        color: COLORS.accent,
         fontWeight: 'bold',
     },
     disclaimerText: {
         fontSize: 12,
-        color: COLORS.textTertiary,
         fontStyle: 'italic',
         marginTop: 4,
     },
-    liveTimeBadge: {
+    aiDiagnosticBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        gap: 8,
+        padding: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+        marginTop: 10,
+    },
+    aiDiagnosticLoadingText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    aiResultBox: {
         borderRadius: 12,
-        marginLeft: 'auto',
-        gap: 4,
+        borderWidth: 1,
+        padding: 14,
+        marginTop: 12,
     },
-    liveDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: '#22c55e',
+    aiResultHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(128,128,128,0.15)',
+        paddingBottom: 8,
+        marginBottom: 8,
     },
-    liveTimeText: {
+    aiResultTitle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    aiConfidenceBadge: {
         fontSize: 11,
         fontWeight: 'bold',
-        color: '#22c55e',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    aiResultBody: {
+        gap: 6,
+    },
+    aiLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    aiValue: {
+        fontSize: 14,
+        fontWeight: '500',
+        marginBottom: 4,
+    },
+    aiSafetyBox: {
+        borderRadius: 8,
+        borderWidth: 1,
+        padding: 10,
+        marginVertical: 6,
+    },
+    aiSafetyTitle: {
+        color: '#ef4444',
+        fontWeight: 'bold',
+        fontSize: 12,
+        marginBottom: 2,
+    },
+    aiSafetyText: {
+        color: '#b91c1c',
+        fontSize: 12,
+        lineHeight: 16,
+    },
+    aiCostValue: {
+        fontSize: 15,
+        fontWeight: 'bold',
     },
 });
 

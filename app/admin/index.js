@@ -496,6 +496,22 @@ export default function AdminDashboard() {
                                 </View>
                             </View>
                         </View>
+
+                        <View style={[s.sectionCard, { marginTop: 8 }]}>
+                            <Text style={s.sectionTitle}>Developer Diagnostics</Text>
+                            <View style={s.settingRow}>
+                                <View style={{ flex: 1, paddingRight: 16 }}>
+                                    <Text style={s.settingLabel}>Google Services Integration Hub</Text>
+                                    <Text style={s.settingDesc}>Interactive sandbox to verify Gemini AI, Google Pay, Snitch analytics, and Google Maps routing.</Text>
+                                </View>
+                                <TouchableOpacity
+                                    style={[s.badge, { borderColor: C.accent + 'aa', backgroundColor: C.accent + '20', paddingVertical: 8, paddingHorizontal: 12 }]}
+                                    onPress={() => router.push('/admin/google-demo')}
+                                >
+                                    <Text style={[s.badgeText, { color: C.accent }]}>Open Sandbox</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
                 )}
 

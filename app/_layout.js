@@ -10,8 +10,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function Layout() {
     return (
-        <ErrorBoundary>
-            <ThemeProvider>
+        <ThemeProvider>
+            <ErrorBoundary>
                 <AuthProvider>
                     <SafeAreaProvider>
                         <StatusBar style="auto" />
@@ -21,7 +21,7 @@ export default function Layout() {
                         </View>
                     </SafeAreaProvider>
                 </AuthProvider>
-            </ThemeProvider>
-        </ErrorBoundary>
+            </ErrorBoundary>
+        </ThemeProvider>
     );
 }

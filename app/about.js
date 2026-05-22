@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Globe, Mail, Phone, ExternalLink } from 'lucide-react-native';
+import { ArrowLeft, Globe, Mail, Phone, ExternalLink, Shield, Award, Users, CheckCircle } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,7 +9,8 @@ import { useTheme } from '../context/ThemeContext';
 
 export default function AboutScreen() {
     const router = useRouter();
-    const { theme } = useTheme();
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
 
     const handleLink = (url) => {
         // Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
@@ -17,85 +18,139 @@ export default function AboutScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <ArrowLeft size={24} color={COLORS.textPrimary} />
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.bgPrimary }]}>
+            <View style={[styles.header, { borderBottomColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+                <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }]}>
+                    <ArrowLeft size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>About App</Text>
-                <View style={{ width: 24 }} />
+                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>About</Text>
+                <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.content}>
+            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                 {/* Brand Hero */}
                 <View style={styles.heroSection}>
-                    <Image source={require('../assets/icon.png')} style={styles.logo} />
+                    <View style={[styles.logoContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }]}>
+                        <Image source={require('../assets/icon.png')} style={styles.logo} />
+                    </View>
                     <View style={[
                         styles.nameWrapper,
-                        theme === 'dark' && styles.nameWrapperDark
+                        isDark && styles.nameWrapperDark
                     ]}>
-                        <Text style={styles.appName}>
-                            <Text style={{ color: '#001F3F' }}>Sheri</Text>
-                            <Text style={{ color: '#2563EB' }}>yakam</Text>
+                        <Text style={[styles.appName, { color: colors.textPrimary }]}>
+                            <Text style={{ color: '#001F3F', fontWeight: '800' }}>Sheri</Text>
+                            <Text style={{ color: '#2563EB', fontWeight: '800' }}>yakam</Text>
                         </Text>
                     </View>
-                    <Text style={styles.version}>Version 1.0.0 (Build 124)</Text>
+                    <Text style={[styles.version, { color: colors.textTertiary }]}>Version 1.0.0 (Build 124)</Text>
 
-                    <View style={styles.badgeContainer}>
-                        <Text style={styles.badgeText}>Verified Service</Text>
+                    <View style={[styles.badgeContainer, { 
+                        backgroundColor: colors.accent + '15',
+                        borderColor: colors.accent + '30',
+                    }]}>
+                        <CheckCircle size={12} color={colors.accent} />
+                        <Text style={[styles.badgeText, { color: colors.accent }]}>Verified Service</Text>
                     </View>
                 </View>
 
-                {/* Description */}
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Our Mission</Text>
-                    <Text style={styles.cardText}>
+                {/* Mission */}
+                <View style={[styles.card, { 
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff',
+                    borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                }]}>
+                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Our Mission</Text>
+                    <Text style={[styles.cardText, { color: colors.textSecondary }]}>
                         Sheriyakam is dedicated to providing the fastest and most reliable diverse electrical services in Kerala. From emergency repairs to complex wiring, we connect you with certified professionals instantly.
                     </Text>
                 </View>
 
+                {/* Stats Row */}
+                <View style={styles.statsRow}>
+                    {[
+                        { value: '15K+', label: 'Bookings', icon: CheckCircle, color: '#10B981' },
+                        { value: '250+', label: 'Experts', icon: Users, color: '#2563EB' },
+                        { value: '25+', label: 'Years', icon: Award, color: '#F59E0B' },
+                    ].map((stat, i) => {
+                        const Icon = stat.icon;
+                        return (
+                            <View key={i} style={[styles.statCard, { 
+                                backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff',
+                                borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                            }]}>
+                                <View style={[styles.statIcon, { backgroundColor: stat.color + '18' }]}>
+                                    <Icon size={18} color={stat.color} />
+                                </View>
+                                <Text style={[styles.statValue, { color: colors.textPrimary }]}>{stat.value}</Text>
+                                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{stat.label}</Text>
+                            </View>
+                        );
+                    })}
+                </View>
+
                 {/* Operated By */}
-                <View style={[styles.card, styles.highlightCard]}>
-                    <Text style={styles.highlightTitle}>POWERED BY</Text>
-                    <Text style={styles.empireText}>Empire Electricals</Text>
-                    <Text style={styles.highlightSubText}>Since 1998</Text>
+                <View style={[styles.card, styles.highlightCard, {
+                    borderColor: colors.accent + '40',
+                    backgroundColor: isDark ? 'rgba(37, 99, 235, 0.06)' : 'rgba(37, 99, 235, 0.04)',
+                }]}>
+                    <Text style={[styles.highlightTitle, { color: colors.textTertiary }]}>POWERED BY</Text>
+                    <Text style={[styles.empireText, { color: colors.accent }]}>Empire Electricals</Text>
+                    <Text style={[styles.highlightSubText, { color: colors.textSecondary }]}>Trusted Since 1998 • Malabar, Kerala</Text>
                 </View>
 
                 {/* Contact */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Contact Us</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Contact Us</Text>
 
-                    <TouchableOpacity style={styles.contactRow} onPress={() => handleLink('tel:+919876543210')}>
-                        <View style={styles.iconBox}>
-                            <Phone size={20} color={COLORS.accent} />
+                    <TouchableOpacity style={[styles.contactRow, { 
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
+                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                    }]} onPress={() => handleLink('tel:+919876543210')}>
+                        <View style={[styles.iconBox, { backgroundColor: colors.accent + '18' }]}>
+                            <Phone size={18} color={colors.accent} />
                         </View>
-                        <View>
-                            <Text style={styles.contactLabel}>Customer Support</Text>
-                            <Text style={styles.contactValue}>+91 98765 43210</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Customer Support</Text>
+                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>+91 98765 43210</Text>
                         </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.contactRow} onPress={() => handleLink('mailto:support@sheriyakam.com')}>
-                        <View style={styles.iconBox}>
-                            <Mail size={20} color={COLORS.accent} />
+                    <TouchableOpacity style={[styles.contactRow, { 
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
+                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                    }]} onPress={() => handleLink('mailto:support@sheriyakam.com')}>
+                        <View style={[styles.iconBox, { backgroundColor: '#10B98118' }]}>
+                            <Mail size={18} color="#10B981" />
                         </View>
-                        <View>
-                            <Text style={styles.contactLabel}>Email Us</Text>
-                            <Text style={styles.contactValue}>support@sheriyakam.com</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Email Us</Text>
+                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>support@sheriyakam.com</Text>
                         </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.contactRow} onPress={() => handleLink('https://sheriyakam.com')}>
-                        <View style={styles.iconBox}>
-                            <Globe size={20} color={COLORS.accent} />
+                    <TouchableOpacity style={[styles.contactRow, { 
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
+                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                    }]} onPress={() => handleLink('https://sheriyakam.com')}>
+                        <View style={[styles.iconBox, { backgroundColor: '#F59E0B18' }]}>
+                            <Globe size={18} color="#F59E0B" />
                         </View>
-                        <View>
-                            <Text style={styles.contactLabel}>Website</Text>
-                            <Text style={styles.contactValue}>www.sheriyakam.com</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Website</Text>
+                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>www.sheriyakam.com</Text>
                         </View>
-                        <ExternalLink size={16} color={COLORS.textTertiary} style={{ marginLeft: 'auto' }} />
+                        <ExternalLink size={16} color={colors.textTertiary} />
                     </TouchableOpacity>
+                </View>
+
+                {/* Footer */}
+                <View style={styles.aboutFooter}>
+                    <Text style={[styles.footerText, { color: colors.textTertiary }]}>
+                        © 2026 Sheriyakam. All rights reserved.
+                    </Text>
+                    <Text style={[styles.footerSubtext, { color: colors.textTertiary }]}>
+                        Made with ❤️ in Kerala
+                    </Text>
                 </View>
 
             </ScrollView>
@@ -106,137 +161,171 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.bgPrimary,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: SPACING.md,
+        borderBottomWidth: 1,
+    },
+    backBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: -0.3,
     },
     content: {
         padding: SPACING.lg,
-        paddingTop: 0,
+        paddingTop: SPACING.sm,
+        paddingBottom: 40,
     },
     heroSection: {
         alignItems: 'center',
         marginVertical: SPACING.xl,
     },
-    logo: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
+    logoContainer: {
+        width: 88,
+        height: 88,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: SPACING.md,
+    },
+    logo: {
+        width: 72,
+        height: 72,
+        borderRadius: 18,
     },
     appName: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: COLORS.textPrimary,
         marginBottom: 4,
     },
     version: {
-        color: COLORS.textTertiary,
-        fontSize: 14,
-        marginBottom: 16,
+        fontSize: 13,
+        marginBottom: 14,
     },
     badgeContainer: {
-        backgroundColor: 'rgba(41, 182, 246, 0.1)', // blue tint
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(41, 182, 246, 0.3)',
     },
     badgeText: {
-        color: COLORS.accent,
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: '700',
     },
     card: {
-        backgroundColor: COLORS.bgSecondary,
         borderRadius: 16,
         padding: 20,
         marginBottom: SPACING.lg,
         borderWidth: 1,
-        borderColor: COLORS.border,
     },
     cardTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        fontWeight: '700',
         marginBottom: 8,
+        letterSpacing: -0.2,
     },
     cardText: {
         fontSize: 14,
-        color: COLORS.textSecondary,
         lineHeight: 22,
     },
+
+    /* Stats Row */
+    statsRow: {
+        flexDirection: 'row',
+        gap: 10,
+        marginBottom: SPACING.lg,
+    },
+    statCard: {
+        flex: 1,
+        alignItems: 'center',
+        padding: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        gap: 6,
+    },
+    statIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    statValue: {
+        fontSize: 18,
+        fontWeight: '800',
+    },
+    statLabel: {
+        fontSize: 11,
+        fontWeight: '500',
+    },
+
     highlightCard: {
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: COLORS.accent,
-        backgroundColor: 'rgba(255, 215, 0, 0.05)', // Gold tint
     },
     highlightTitle: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: COLORS.textTertiary,
-        letterSpacing: 2,
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 2.5,
         marginBottom: 8,
     },
     empireText: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: '900',
-        color: COLORS.accent,
         textTransform: 'uppercase',
-        marginBottom: 4,
+        marginBottom: 6,
         textAlign: 'center',
+        letterSpacing: 0.5,
     },
     highlightSubText: {
-        fontSize: 12,
-        color: COLORS.textSecondary,
+        fontSize: 13,
         fontStyle: 'italic',
     },
     section: {
-        marginTop: SPACING.md,
+        marginTop: SPACING.sm,
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        fontWeight: '700',
         marginBottom: SPACING.md,
+        letterSpacing: -0.2,
     },
     contactRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        backgroundColor: 'rgba(255,255,255,0.03)',
-        borderRadius: 12,
-        marginBottom: 12,
+        padding: 14,
+        borderRadius: 14,
+        marginBottom: 10,
+        borderWidth: 1,
+        gap: 14,
     },
     iconBox: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+        width: 42,
+        height: 42,
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 16,
     },
     contactLabel: {
-        fontSize: 12,
-        color: COLORS.textTertiary,
+        fontSize: 11,
+        fontWeight: '500',
         marginBottom: 2,
     },
     contactValue: {
-        fontSize: 16,
-        color: COLORS.textPrimary,
-        fontWeight: '500',
+        fontSize: 15,
+        fontWeight: '600',
     },
     nameWrapper: {
         borderRadius: 8,
@@ -248,5 +337,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 8,
         marginBottom: 8,
+    },
+    aboutFooter: {
+        alignItems: 'center',
+        marginTop: SPACING.xl,
+        gap: 4,
+    },
+    footerText: {
+        fontSize: 12,
+    },
+    footerSubtext: {
+        fontSize: 11,
     },
 });

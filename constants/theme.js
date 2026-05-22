@@ -1,5 +1,5 @@
 const SHADES = {
-    primary: '#0056b3',
+    primary: '#001F3F', // Brand Deep Navy
     accent: '#2563eb', // Vibrant Blue
     accentGlow: 'rgba(37, 99, 235, 0.4)',
     gold: '#D4AF37',
