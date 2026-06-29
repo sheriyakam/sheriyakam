@@ -12,42 +12,41 @@ import { getAnalytics, isSupported } from 'firebase/analytics';
 // 6. For web deployment, add your domain to Authorized domains in Authentication settings
 
 const firebaseConfig = {
-    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyDrhmWm9sgyNyspopGbB-sQAs10j3aVZuQ",
-    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "sheriyakam.firebaseapp.com",
-    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "sheriyakam",
-    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "sheriyakam.firebasestorage.app",
-    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "272877589112",
-    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:272877589112:web:de329f9df5ae2adba6138d",
-    measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-SD9LPN9W3E"
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "",
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "",
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "",
+    measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || ""
 };
 
 // Check if Firebase is properly configured
-const isConfigured = !firebaseConfig.apiKey.includes('YOUR_');
+const isConfigured = !!firebaseConfig.apiKey;
 
-if (!isConfigured && __DEV__) {
-    console.warn('⚠️ Firebase is not configured. Google Sign-In will not work.');
-    console.warn('Please update config/firebaseConfig.js or set environment variables.');
-}
-
-let app;
-let auth;
+let app = null;
+let auth = null;
 let analytics = null;
 
-try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    
-    // Initialize Analytics for Web automatically
-    isSupported().then(supported => {
-        if (supported) {
-            analytics = getAnalytics(app);
-        }
-    });
+if (isConfigured) {
+    try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        
+        // Initialize Analytics for Web automatically
+        isSupported().then(supported => {
+            if (supported) {
+                analytics = getAnalytics(app);
+            }
+        });
 
-} catch (error) {
-    console.error('Firebase initialization error:', error);
-    // Create a dummy auth object to prevent crashes
-    auth = null;
+    } catch (error) {
+        console.error('Firebase initialization error:', error);
+        auth = null;
+    }
+} else if (__DEV__) {
+    console.warn('⚠️ Firebase is not configured. Google Sign-In will not work.');
+    console.warn('Please update config/firebaseConfig.js or set environment variables.');
 }
 
 export { auth, analytics, isConfigured };

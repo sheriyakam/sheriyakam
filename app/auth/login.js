@@ -1,21 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, Modal, Switch } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, ScrollView, Modal, Switch, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Phone, X, ArrowRight } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { auth, isConfigured } from '../../config/firebaseConfig';
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { isSupabaseConfigured } from '../../config/supabaseConfig';
+import { UsersAPI } from '../../services/supabaseAPI';
+import { checkRateLimit, generateOTP, hashPassword } from '../../utils/security';
+import { snitch } from '../../utils/snitch';
 
 export default function AuthScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const { login, register, recoverCredentials } = useAuth();
+    const { login, register, signInWithOAuth } = useAuth();
 
     // State to toggle between Login (true) and SignUp (false)
     const [isLogin, setIsLogin] = useState(true);
+    const [agreeTerms, setAgreeTerms] = useState(false);
 
     // Form States
     const [name, setName] = useState('');
@@ -32,6 +35,7 @@ export default function AuthScreen() {
     const [recoveryStep, setRecoveryStep] = useState(1); // 1: Input, 2: OTP, 3: Result
     const [recoveryOtp, setRecoveryOtp] = useState('');
     const [recoveredCreds, setRecoveredCreds] = useState(null);
+    const [generatedRecoveryOtp, setGeneratedRecoveryOtp] = useState('');
 
     // Security: Rate limiting
     const [loginAttempts, setLoginAttempts] = useState(0);
@@ -61,158 +65,130 @@ export default function AuthScreen() {
         return re.test(phone);
     };
 
-    const handleAuth = () => {
-        // Rate limiting check
-        if (isLogin && lockoutUntil && Date.now() < lockoutUntil) {
-            const secs = Math.ceil((lockoutUntil - Date.now()) / 1000);
-            alert(`Too many attempts. Try again in ${secs} seconds.`);
-            return;
-        }
-
+    const handleAuth = async () => {
         // 1. Validation Logic
         if (!isLogin) {
+            if (!agreeTerms) {
+                Alert.alert("Terms Agreement Required", "You must read and agree to our Terms of Service and Privacy Policy before creating an account.");
+                return;
+            }
             // SignUp Validation
             if (!name.trim()) {
-                alert("Please enter your full name");
+                Alert.alert("Validation Error", "Please enter your full name");
                 return;
             }
             if (!validateEmail(email)) {
-                alert("Please enter a valid email address");
+                Alert.alert("Validation Error", "Please enter a valid email address");
                 return;
             }
             if (!validatePhone(mobile)) {
-                alert("Please enter a valid 10-digit mobile number");
+                Alert.alert("Validation Error", "Please enter a valid 10-digit mobile number");
                 return;
             }
             if (password.length < 6) {
-                alert("Password must be at least 6 characters long");
+                Alert.alert("Validation Error", "Password must be at least 6 characters long");
                 return;
             }
         } else {
             // Login Validation
             if (!identifier.trim()) {
-                alert("Please enter your email or mobile number");
+                Alert.alert("Validation Error", "Please enter your email or mobile number");
                 return;
             }
             if (password.length < 4) {
-                alert("Please enter a valid password");
+                Alert.alert("Validation Error", "Please enter a valid password");
                 return;
             }
         }
 
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            if (isLogin) {
-                // Check for admin email
-                login({ name: 'User', email: identifier, mobile: '+919876543210', role: 'user' });
-                router.replace('/');
-            } else {
-                // SignUp Success -> Switch to Login or Auto Login
-                alert('Account created! Logging in...');
-                login({ name: name, email: email, mobile: mobile, role: 'user' });
-                router.replace('/');
-            }
-        }, 1500);
-    };
+        const cleanIdentifier = identifier.trim().toLowerCase();
 
-    const handleSocialLogin = async (provider) => {
-        if (provider !== 'Google') {
-            alert(`${provider} login coming soon!`);
-            return;
-        }
-
-        // Check if Firebase is configured
-        if (!isConfigured || !auth) {
-            alert('Google Sign-In is not configured yet. Please check FIREBASE_SETUP.md for instructions.');
-            return;
-        }
-
-        setIsLoading(true);
         try {
-            const googleProvider = new GoogleAuthProvider();
+            if (isLogin) {
+                snitch.logEvent('auth_login_attempt', { identifier: cleanIdentifier });
+                // Rate limit check
+                const limitRes = checkRateLimit(`login_${cleanIdentifier}`, 5, 60000);
+                if (!limitRes.allowed) {
+                    const secs = Math.ceil(limitRes.retryAfterMs / 1000);
+                    snitch.logError(new Error('Rate limited on login'), `Login Rate Limit: ${cleanIdentifier}`);
+                    Alert.alert("Rate Limited", `Too many attempts. Try again in ${secs} seconds.`);
+                    setIsLoading(false);
+                    return;
+                }
 
-            // For web, use popup. For native, you'd use redirect or native SDK
-            let result;
-            if (Platform.OS === 'web') {
-                result = await signInWithPopup(auth, googleProvider);
+                // If user typed phone number or name, format it for Supabase Email Auth
+                const loginEmail = cleanIdentifier.includes('@') ? cleanIdentifier : `${cleanIdentifier}@example.com`;
+
+                await login(loginEmail, password);
+                snitch.logEvent('auth_login_success', { email: loginEmail });
+                router.replace('/');
             } else {
-                // For mobile, redirect is better
-                await signInWithRedirect(auth, googleProvider);
-                return; // The page will reload after redirect
+                // Sign Up Flow
+                const cleanEmail = email.trim().toLowerCase();
+                snitch.logEvent('auth_signup_attempt', { email: cleanEmail });
+                const limitRes = checkRateLimit(`signup_${cleanEmail}`, 3, 60000);
+                if (!limitRes.allowed) {
+                    snitch.logError(new Error('Rate limited on signup'), `Signup Rate Limit: ${cleanEmail}`);
+                    Alert.alert("Rate Limited", "Too many signup attempts. Try again later.");
+                    setIsLoading(false);
+                    return;
+                }
+
+                await register(cleanEmail, password, name.trim(), mobile.trim());
+                snitch.logEvent('auth_signup_success', { email: cleanEmail });
+
+                setIsLoading(false);
+                setIsLogin(true);
+                Alert.alert("Registration", "Registration request processed. If confirmation is enabled, check your email.");
             }
-
-            // Get user info from Google
-            const user = result.user;
-            const userData = {
-                name: user.displayName || 'Google User',
-                email: user.email,
-                mobile: user.phoneNumber || '+91 98765 43210',
-                photoURL: user.photoURL
-            };
-
-            login({
-                ...userData,
-                role: 'user'
-            });
-            alert(`Welcome, ${userData.name}!`);
-            router.replace('/');
-        } catch (error) {
-            console.error('Google Sign-In Error:', error);
-            let errorMessage = 'Failed to sign in with Google';
-
-            if (error.code === 'auth/popup-closed-by-user') {
-                errorMessage = 'Sign-in cancelled';
-            } else if (error.code === 'auth/popup-blocked') {
-                errorMessage = 'Pop-up blocked. Please allow pop-ups for this site.';
-            } else if (error.code === 'auth/network-request-failed') {
-                errorMessage = 'Network error. Please check your connection.';
-            }
-
-            alert(errorMessage);
+        } catch (err) {
+            snitch.logError(err, 'Auth Screen handleAuth Catch');
+            console.error("Auth Error:", err);
+            Alert.alert("Error", err.message || "Incorrect email or password");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Check for redirect result on component mount (for mobile)
-    useEffect(() => {
-        if (Platform.OS !== 'web') {
-            getRedirectResult(auth)
-                .then((result) => {
-                    if (result) {
-                        const user = result.user;
-                        const userData = {
-                            name: user.displayName || 'Google User',
-                            email: user.email,
-                            mobile: user.phoneNumber || '+91 98765 43210',
-                            photoURL: user.photoURL
-                        };
-                        login(userData);
-                        router.replace('/');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Redirect result error:', error);
-                });
+    const handleSocialLogin = async (provider) => {
+        snitch.logEvent(`auth_${provider.toLowerCase()}_login_attempt`);
+        setIsLoading(true);
+        try {
+            await signInWithOAuth(provider.toLowerCase());
+        } catch (error) {
+            snitch.logError(error, `${provider} Sign-In popup catch`);
+            console.error(`${provider} Sign-In Error:`, error);
+            Alert.alert("Sign-In Error", `Failed to sign in with ${provider}`);
+        } finally {
+            setIsLoading(false);
         }
-    }, []);
+    };
 
     const handleForgotSubmit = () => {
         if (!recoveryIdentifier) {
-            alert("Please enter your Email or Mobile Number");
+            Alert.alert("Validation Error", "Please enter your Email or Mobile Number");
             return;
         }
-        // Simulate OTP send
-        setRecoveryStep(2);
-        alert("OTP Sent! (Use 1234)");
+        // Rate limit check
+        const limitRes = checkRateLimit(`forgot_password_${recoveryIdentifier}`, 3, 60000);
+        if (!limitRes.allowed) {
+            Alert.alert("Rate Limited", "Too many recovery attempts. Try again later.");
+            return;
+        }
+        // Simulate background processing
+        const newOtp = generateOTP();
+        setGeneratedRecoveryOtp(newOtp);
+        console.log(`[Security/Recovery] Simulated recovery for ${recoveryIdentifier}. OTP Code: ${newOtp}`);
+        
+        setShowForgotModal(false);
+        Alert.alert("Password Reset", "If that email is registered, you'll receive a reset link");
     };
 
     const handleVerifyRecoveryOtp = (otpInput) => {
         const otpToCheck = otpInput || recoveryOtp;
 
-        if (otpToCheck === '1234') {
+        if (otpToCheck === generatedRecoveryOtp || (otpToCheck === '1234' && __DEV__)) {
             // Verify Logic
             const userParams = recoverCredentials(recoveryIdentifier);
 
@@ -230,12 +206,12 @@ export default function AuthScreen() {
                 };
 
                 login(userToLogin);
-                alert("Verified! Logging you in...");
+                Alert.alert("Success", "Verified! Logging you in...");
                 router.replace('/');
             }, 800); // Small delay for effect
 
         } else if (otpToCheck.length === 4) {
-            alert("Invalid OTP. Use '1234'");
+            Alert.alert("Error", "Invalid OTP. Enter the code sent to you.");
         }
     };
 
@@ -404,6 +380,27 @@ export default function AuthScreen() {
                             </TouchableOpacity>
                         )}
 
+                        {!isLogin && (
+                            <View style={styles.termsContainer}>
+                                <TouchableOpacity 
+                                    style={[styles.checkbox, { borderColor: COLORS.textTertiary, backgroundColor: agreeTerms ? COLORS.accent : 'transparent' }]}
+                                    onPress={() => setAgreeTerms(!agreeTerms)}
+                                >
+                                    {agreeTerms && <Text style={styles.checkmark}>✓</Text>}
+                                </TouchableOpacity>
+                                <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    <Text style={{ color: COLORS.textSecondary, fontSize: 13 }}>By signing up, you agree to our </Text>
+                                    <TouchableOpacity onPress={() => router.push('/terms')}>
+                                        <Text style={{ color: COLORS.accent, fontSize: 13, fontWeight: 'bold' }}>Terms of Service</Text>
+                                    </TouchableOpacity>
+                                    <Text style={{ color: COLORS.textSecondary, fontSize: 13 }}> and </Text>
+                                    <TouchableOpacity onPress={() => router.push('/privacy')}>
+                                        <Text style={{ color: COLORS.accent, fontSize: 13, fontWeight: 'bold' }}>Privacy Policy</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+
                         <TouchableOpacity
                             style={styles.loginBtn}
                             onPress={handleAuth}
@@ -421,7 +418,7 @@ export default function AuthScreen() {
                         </View>
 
                         <View style={styles.socialButtonsContainer}>
-                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#4285F4', width: '80%', flexDirection: 'row', gap: 10, borderColor: '#4285F4' }]} onPress={() => handleSocialLogin('Google')}>
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#4285F4', width: '80%', flexDirection: 'row', gap: 10, borderColor: '#4285F4', marginBottom: 12 }]} onPress={() => handleSocialLogin('Google')}>
                                 <Svg width={24} height={24} viewBox="0 0 24 24">
                                     <Path
                                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -441,6 +438,11 @@ export default function AuthScreen() {
                                     />
                                 </Svg>
                                 <Text style={{ color: '#fff', fontWeight: 'bold' }}>Continue with Google</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={[styles.socialBtn, { backgroundColor: '#000000', width: '80%', flexDirection: 'row', gap: 10, borderColor: '#000000' }]} onPress={() => handleSocialLogin('Apple')}>
+                                <FontAwesome name="apple" size={24} color="#fff" />
+                                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Continue with Apple</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -699,6 +701,26 @@ const styles = StyleSheet.create({
     linkText: {
         color: COLORS.accent,
         fontSize: 14,
+        fontWeight: 'bold',
+    },
+    termsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginVertical: 12,
+        paddingHorizontal: 4,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    checkmark: {
+        color: '#000',
+        fontSize: 12,
         fontWeight: 'bold',
     },
 });

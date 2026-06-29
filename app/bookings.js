@@ -110,8 +110,8 @@ export default function BookingsScreen() {
 
         return (
             <View style={[styles.card, { 
-                backgroundColor: isDark ? '#18181b' : '#ffffff',
-                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                backgroundColor: colors.bgSecondary,
+                borderColor: colors.border,
             }]}>
                 <View style={styles.cardHeader}>
                     <Text style={[styles.serviceName, { color: colors.textPrimary }]}>{booking.service}</Text>
@@ -122,7 +122,7 @@ export default function BookingsScreen() {
                     </View>
                 </View>
 
-                <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)' }]} />
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                 <View style={styles.cardDetailRow}>
                     <View style={styles.detailItem}>
@@ -172,7 +172,7 @@ export default function BookingsScreen() {
                     </View>
                 )}
 
-                <View style={[styles.cardFooter, { backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }]}>
+                <View style={[styles.cardFooter, { backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)' }]}>
                     <View>
                         <Text style={[styles.priceLabel, { color: colors.textTertiary }]}>Total Amount</Text>
                         <Text style={[styles.priceValue, { color: colors.accent }]}>₹{booking.finalPrice || booking.price}</Text>
@@ -228,8 +228,8 @@ export default function BookingsScreen() {
                 style={[
                     styles.tabBtn,
                     {
-                        backgroundColor: isActive ? colors.accent : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
-                        borderColor: isActive ? colors.accent : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'),
+                        backgroundColor: isActive ? colors.accent : colors.bgSecondary,
+                        borderColor: isActive ? colors.accent : colors.border,
                     }
                 ]}
                 onPress={() => setActiveTab(title)}

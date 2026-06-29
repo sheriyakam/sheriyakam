@@ -1,6 +1,7 @@
 // Simple in-memory store for partner data
 // In a real app, this would be a database
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sha256 } from '../utils/security';
 
 // Initial mock data
 const supervisors = {
@@ -22,10 +23,25 @@ let currentPartner = null;
 
 export const getPartners = () => partners;
 
+const PARTNER_SESSION_SECRET = process.env.EXPO_PUBLIC_PARTNER_SESSION_SECRET || "sheriyakam_partner_session_security_key_2026_!!";
+
 export const loginPartner = async (partner) => {
-    currentPartner = partner;
+    const sessionData = {
+        ...partner,
+        createdAt: Date.now()
+    };
+    
+    // Create signature
+    const rawStr = JSON.stringify({
+        id: sessionData.id,
+        phone: sessionData.phone,
+        createdAt: sessionData.createdAt
+    });
+    sessionData.signature = sha256(rawStr + PARTNER_SESSION_SECRET);
+
+    currentPartner = sessionData;
     try {
-        await AsyncStorage.setItem('partner_session', JSON.stringify(partner));
+        await AsyncStorage.setItem('partner_session', JSON.stringify(sessionData));
     } catch (e) {
         console.error('Failed to save partner session', e);
     }
@@ -44,7 +60,32 @@ export const initializePartnerSession = async () => {
     try {
         const session = await AsyncStorage.getItem('partner_session');
         if (session) {
-            currentPartner = JSON.parse(session);
+            const parsed = JSON.parse(session);
+            
+            // 1. Session Expiry Check (24 hours)
+            const ageMs = Date.now() - (parsed.createdAt || 0);
+            if (ageMs > 24 * 60 * 60 * 1000) {
+                console.log('[partnerStore] Session expired.');
+                await AsyncStorage.removeItem('partner_session');
+                currentPartner = null;
+                return null;
+            }
+
+            // 2. Session Integrity Signature Check
+            const rawStr = JSON.stringify({
+                id: parsed.id,
+                phone: parsed.phone,
+                createdAt: parsed.createdAt
+            });
+            const expectedSig = sha256(rawStr + PARTNER_SESSION_SECRET);
+            if (parsed.signature !== expectedSig) {
+                console.warn('[Security Warning] Partner session tampered! Clearing session.');
+                await AsyncStorage.removeItem('partner_session');
+                currentPartner = null;
+                return null;
+            }
+
+            currentPartner = parsed;
             return currentPartner;
         }
     } catch (e) {

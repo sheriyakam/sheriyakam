@@ -10,8 +10,13 @@ export default function PartnerProfile() {
     const router = useRouter();
     const partner = getCurrentPartner();
 
+    React.useEffect(() => {
+        if (!partner) {
+            router.replace('/partner/auth');
+        }
+    }, [partner]);
+
     if (!partner) {
-        router.replace('/partner/auth');
         return null;
     }
 

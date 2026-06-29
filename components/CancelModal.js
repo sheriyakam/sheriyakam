@@ -3,6 +3,7 @@ import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions, TouchableW
 import { X, Check } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { snitch } from '../utils/snitch';
 
 const { height } = Dimensions.get('window');
 
@@ -18,6 +19,7 @@ export default function CancelModal({ visible, onClose, onSubmit }) {
 
     const handleSubmit = () => {
         if (selectedReason) {
+            snitch.logEvent('booking_cancellation_submitted', { reason: selectedReason });
             onSubmit(selectedReason);
             setSelectedReason(null); // Reset
         }
@@ -103,6 +105,7 @@ export default function CancelModal({ visible, onClose, onSubmit }) {
                     <TouchableOpacity
                         style={[
                             styles.submitBtn,
+                            { backgroundColor: colors.danger },
                             !selectedReason && { backgroundColor: colors.bgTertiary, opacity: 0.5 }
                         ]}
                         onPress={handleSubmit}

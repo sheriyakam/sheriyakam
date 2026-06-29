@@ -123,6 +123,52 @@ export const geminiService = {
     return MOCK_DIAGNOSTICS.default;
   },
 
+  analyzeIssueText: async (issuesText, serviceCategory = 'general') => {
+    console.log(`[Gemini AI] Analyzing text: ${issuesText}, category: ${serviceCategory}`);
+    
+    // Simulate API delay for a highly realistic interaction
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    if (geminiService.isConfigured()) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const requestBody = {
+          contents: [{
+            parts: [
+              { text: `You are an expert home repair diagnostics system. Analyze this text description of a home appliance/electrical issue: "${issuesText}" (associated with the ${serviceCategory} service). Return a JSON object with: possibleIssue, recommendedCategory, estimatedCost (in INR ₹), safetyAdvice, materialsNeeded, and confidence percentage. Do NOT wrap the JSON inside markdown ticks. Return raw JSON.` }
+            ]
+          }],
+          generationConfig: {
+            responseMimeType: "application/json"
+          }
+        };
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        });
+        const json = await res.json();
+        const textResponse = json.candidates[0].content.parts[0].text;
+        return JSON.parse(textResponse);
+      } catch (err) {
+        console.warn("[Gemini AI] Real text call failed, falling back to mock diagnostics:", err);
+      }
+    }
+
+    const textLower = (issuesText || '').toLowerCase() + " " + (serviceCategory || '').toLowerCase();
+    if (textLower.includes('ac') || textLower.includes('cool') || textLower.includes('air')) {
+      return MOCK_DIAGNOSTICS.ac;
+    } else if (textLower.includes('fan') || textLower.includes('bearing') || textLower.includes('ceiling')) {
+      return MOCK_DIAGNOSTICS.fan;
+    } else if (textLower.includes('motor') || textLower.includes('pump') || textLower.includes('plumb') || textLower.includes('water')) {
+      return MOCK_DIAGNOSTICS.motor;
+    } else if (textLower.includes('light') || textLower.includes('bulb') || textLower.includes('switch') || textLower.includes('wiring') || textLower.includes('current')) {
+      return MOCK_DIAGNOSTICS.light;
+    }
+    return MOCK_DIAGNOSTICS.default;
+  },
+
   parseVoiceCommand: async (transcriptText) => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     

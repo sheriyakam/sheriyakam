@@ -1,11 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sanitizeEmail, sanitizeInput } from '../utils/security';
-import { UsersAPI } from '../services/supabaseAPI';
-import { isSupabaseConfigured } from '../config/supabaseConfig';
-
-
-const SESSION_KEY = 'sheriyakam_user_session';
+import { supabase, isSupabaseConfigured } from '../config/supabaseConfig';
 
 const AuthContext = createContext();
 
@@ -13,119 +7,149 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Registered users list (populated dynamically)
-    const [registeredUsers, setRegisteredUsers] = useState([]);
-
-    // Restore session on app load
-    useEffect(() => {
-        restoreSession();
-    }, []);
-
-    const restoreSession = async () => {
-        try {
-            const saved = await AsyncStorage.getItem(SESSION_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                setUser(parsed);
-            }
-        } catch (e) {
-            console.error('Session restore error:', e);
-        } finally {
-            setIsLoading(false);
-        }
+    const formatSupabaseUser = (sbUser) => {
+        if (!sbUser) return null;
+        return {
+            id: sbUser.id,
+            email: sbUser.email,
+            name: sbUser.user_metadata?.name || sbUser.email.split('@')[0],
+            mobile: sbUser.user_metadata?.mobile || '',
+            role: sbUser.user_metadata?.role || 'user'
+        };
     };
 
-    /** Check if user is admin — admin access is now via /admin login */
-    const isAdmin = useCallback(() => {
-        return false;
-    }, []);
-
-    /** Login user — persists session */
-    const login = useCallback(async (userData) => {
-        const sanitizedUser = {
-            ...userData,
-            name: sanitizeInput(userData.name),
-            email: sanitizeEmail(userData.email),
-            role: isAdmin(userData.email) ? 'admin' : (userData.role || 'user'),
-        };
-
-        setUser(sanitizedUser);
-
-        // Persist session
-        try {
-            await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(sanitizedUser));
-        } catch (e) {
-            console.error('Session save error:', e);
+    // Restore session on app load and listen for changes
+    useEffect(() => {
+        if (!isSupabaseConfigured) {
+            setIsLoading(false);
+            return;
         }
 
-        // Sync to Supabase if configured
-        if (isSupabaseConfigured) {
-            try {
-                const { data } = await UsersAPI.findByEmail(sanitizedUser.email);
-                if (!data) {
-                    await UsersAPI.create(sanitizedUser);
+        // 1. Restore initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                setUser(formatSupabaseUser(session.user));
+            }
+            setIsLoading(false);
+        }).catch((err) => {
+            console.error('[AuthContext] Session restore error:', err);
+            setIsLoading(false);
+        });
+
+        // 2. Subscribe to auth state updates
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log(`[AuthContext] Auth state changed: ${event}`);
+            if (session?.user) {
+                setUser(formatSupabaseUser(session.user));
+            } else {
+                setUser(null);
+            }
+            setIsLoading(false);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    /** Sign in with email and password */
+    const login = useCallback(async (email, password) => {
+        if (!isSupabaseConfigured) {
+            // Dev Mock Bypass
+            const mockUser = { id: 'mock_uid', email, name: email.split('@')[0], mobile: '', role: 'user' };
+            setUser(mockUser);
+            return { user: mockUser };
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password
+        });
+        if (error) throw error;
+        return data;
+    }, []);
+
+    /** Sign up with email, password and meta fields */
+    const register = useCallback(async (email, password, name, mobile) => {
+        if (!isSupabaseConfigured) {
+            // Dev Mock Bypass
+            return { user: { email, name } };
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+            email: email.trim().toLowerCase(),
+            password,
+            options: {
+                data: {
+                    name: name.trim(),
+                    mobile: mobile.trim(),
+                    role: 'user'
                 }
-            } catch (e) {
-                console.error('Supabase sync error:', e);
             }
-        }
-
-        // First login — fresh bookings
-        const userKey = `user_${sanitizedUser.email}_first_login`;
-        const hasLoggedInBefore = await AsyncStorage.getItem(userKey);
-        if (!hasLoggedInBefore) {
-            await AsyncStorage.removeItem('sheriyakam_bookings_v2');
-            await AsyncStorage.setItem(userKey, 'true');
-        }
+        });
+        if (error) throw error;
+        return data;
     }, []);
 
-    /** Register new user */
-    const register = useCallback(async (userData) => {
-        const sanitized = {
-            ...userData,
-            name: sanitizeInput(userData.name),
-            email: sanitizeEmail(userData.email),
-        };
-
-        // Check if already registered (local)
-        const existing = registeredUsers.find(u =>
-            u.email === sanitized.email || u.mobile === sanitized.mobile
-        );
-
-        if (existing) return false;
-
-        // Save locally
-        setRegisteredUsers(prev => [...prev, sanitized]);
-
-        // Sync to Supabase
-        if (isSupabaseConfigured) {
-            try {
-                await UsersAPI.create(sanitized);
-            } catch (e) {
-                console.error('User registration sync error:', e);
+    /** Social OAuth Sign In (Google/GitHub) */
+    const signInWithOAuth = useCallback(async (provider) => {
+        if (!isSupabaseConfigured) return;
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: 'sheriyakam://auth-callback'
             }
+        });
+        if (error) throw error;
+        return data;
+    }, []);
+
+    /** Send Password Reset Link */
+    const sendPasswordReset = useCallback(async (email) => {
+        if (!isSupabaseConfigured) return;
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+            redirectTo: 'sheriyakam://reset-password'
+        });
+        if (error) throw error;
+        return data;
+    }, []);
+
+    /** Sign out and clear active session */
+    const logout = useCallback(async () => {
+        if (!isSupabaseConfigured) {
+            setUser(null);
+            return;
+        }
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+    }, []);
+
+    /** Delete User Profile and Auth Record */
+    const deleteAccount = useCallback(async () => {
+        if (!isSupabaseConfigured) {
+            setUser(null);
+            return;
         }
 
-        return true;
-    }, [registeredUsers]);
-
-    /** Find user for credential recovery */
-    const recoverCredentials = useCallback((identifier) => {
-        const clean = identifier.includes('@')
-            ? sanitizeEmail(identifier)
-            : identifier;
-        return registeredUsers.find(u =>
-            u.email === clean || u.mobile === clean
-        );
-    }, [registeredUsers]);
-
-    /** Logout — clears session */
-    const logout = useCallback(async () => {
-        setUser(null);
         try {
-            await AsyncStorage.removeItem(SESSION_KEY);
-        } catch (e) {
-            console.error('Session clear error:', e);
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            if (token) {
+                const backendUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
+                await fetch(`${backendUrl}/api/auth/delete-account`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            }
+
+            await supabase.auth.signOut();
+            setUser(null);
+        } catch (error) {
+            console.error('[AuthContext] Account deletion error:', error);
+            throw error;
         }
     }, []);
 
@@ -137,7 +161,9 @@ export const AuthProvider = ({ children }) => {
             login,
             logout,
             register,
-            recoverCredentials,
+            signInWithOAuth,
+            sendPasswordReset,
+            deleteAccount
         }}>
             {children}
         </AuthContext.Provider>

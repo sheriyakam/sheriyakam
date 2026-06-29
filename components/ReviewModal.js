@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 import { X, Star, CheckCircle } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [step, setStep] = useState(1);
@@ -59,8 +62,8 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
                     <TouchableOpacity key={star} onPress={() => setRating(star)}>
                         <Star
                             size={32}
-                            color={star <= rating ? COLORS.gold : COLORS.textTertiary}
-                            fill={star <= rating ? COLORS.gold : 'transparent'}
+                            color={star <= rating ? colors.gold : colors.textTertiary}
+                            fill={star <= rating ? colors.gold : 'transparent'}
                         />
                     </TouchableOpacity>
                 ))}
@@ -81,46 +84,46 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         style={styles.keyboardView}
                     >
-                        <View style={styles.container}>
+                        <View style={[styles.container, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
                             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                                <X size={24} color={COLORS.textSecondary} />
+                                <X size={24} color={colors.textSecondary} />
                             </TouchableOpacity>
 
                             {step === 1 ? (
                                 <View style={styles.content}>
-                                    <Text style={styles.title}>Write a Review</Text>
-                                    <Text style={styles.subtitle}>
-                                        How was your experience with <Text style={{ color: COLORS.accent }}>{booking.service}</Text>?
+                                    <Text style={[styles.title, { color: colors.textPrimary }]}>Write a Review</Text>
+                                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                                        How was your experience with <Text style={{ color: colors.accent }}>{booking.service}</Text>?
                                     </Text>
 
-                                    <Text style={styles.label}>Rate your experience</Text>
+                                    <Text style={[styles.label, { color: colors.textPrimary }]}>Rate your experience</Text>
                                     <StarRating />
 
                                     {(rating === 1 || rating === 2) && (
-                                        <View style={styles.disputeSection}>
-                                            <Text style={styles.disputeLabel}>Was the issue technical or behavioral?</Text>
+                                        <View style={[styles.disputeSection, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.05)' : 'rgba(239, 68, 68, 0.03)', borderColor: 'rgba(239, 68, 68, 0.2)' }]}>
+                                            <Text style={[styles.disputeLabel, { color: colors.danger }]}>Was the issue technical or behavioral?</Text>
                                             <View style={styles.disputeButtons}>
                                                 <TouchableOpacity
-                                                    style={[styles.disputeBtn, issueType === 'technical' && styles.disputeBtnActive]}
+                                                    style={[styles.disputeBtn, { borderColor: colors.danger }, issueType === 'technical' && { backgroundColor: colors.danger }]}
                                                     onPress={() => setIssueType('technical')}
                                                 >
-                                                    <Text style={[styles.disputeBtnText, issueType === 'technical' && styles.disputeBtnTextActive]}>Technical</Text>
+                                                    <Text style={[styles.disputeBtnText, { color: colors.danger }, issueType === 'technical' && { color: '#fff' }]}>Technical</Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity
-                                                    style={[styles.disputeBtn, issueType === 'behavioral' && styles.disputeBtnActive]}
+                                                    style={[styles.disputeBtn, { borderColor: colors.danger }, issueType === 'behavioral' && { backgroundColor: colors.danger }]}
                                                     onPress={() => setIssueType('behavioral')}
                                                 >
-                                                    <Text style={[styles.disputeBtnText, issueType === 'behavioral' && styles.disputeBtnTextActive]}>Behavioral</Text>
+                                                    <Text style={[styles.disputeBtnText, { color: colors.danger }, issueType === 'behavioral' && { color: '#fff' }]}>Behavioral</Text>
                                                 </TouchableOpacity>
                                             </View>
                                             {issueType === 'technical' && (
-                                                <View style={styles.revisitBox}>
-                                                    <Text style={styles.revisitText}>A Red Flag ticket will be generated for the Admin.</Text>
+                                                <View style={[styles.revisitBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+                                                    <Text style={[styles.revisitText, { color: colors.textSecondary }]}>A Red Flag ticket will be generated for the Admin.</Text>
                                                     <TouchableOpacity
-                                                        style={[styles.revisitBtn, wantsRevisit && styles.revisitBtnActive]}
+                                                        style={[styles.revisitBtn, { borderColor: colors.accent, backgroundColor: wantsRevisit ? colors.accent : 'transparent' }]}
                                                         onPress={() => setWantsRevisit(!wantsRevisit)}
                                                     >
-                                                        <Text style={[styles.revisitBtnText, wantsRevisit && styles.revisitBtnTextActive]}>
+                                                        <Text style={[styles.revisitBtnText, { color: wantsRevisit ? '#fff' : colors.accent }]}>
                                                             {wantsRevisit ? "Re-visit Requested" : "Request Re-visit (₹0)"}
                                                         </Text>
                                                     </TouchableOpacity>
@@ -129,11 +132,11 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
                                         </View>
                                     )}
 
-                                    <Text style={styles.label}>Share your feedback</Text>
+                                    <Text style={[styles.label, { color: colors.textPrimary }]}>Share your feedback</Text>
                                     <TextInput
-                                        style={styles.input}
+                                        style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.bgPrimary }]}
                                         placeholder="Tell us what you liked or didn't like..."
-                                        placeholderTextColor={COLORS.textTertiary}
+                                        placeholderTextColor={colors.textTertiary}
                                         multiline
                                         numberOfLines={4}
                                         value={comment}
@@ -143,21 +146,21 @@ const ReviewModal = ({ booking, visible, onClose, onSubmit }) => {
 
                                     <TouchableOpacity
                                         onPress={handleSubmit}
-                                        style={[styles.submitBtn, rating === 0 && styles.disabledBtn]}
+                                        style={[styles.submitBtn, { backgroundColor: colors.accent }, rating === 0 && { backgroundColor: colors.bgTertiary, opacity: 0.5 }]}
                                         disabled={rating === 0}
                                     >
-                                        <Text style={styles.submitBtnText}>Submit Review</Text>
+                                        <Text style={[styles.submitBtnText, { color: '#fff' }]}>Submit Review</Text>
                                     </TouchableOpacity>
                                 </View>
                             ) : (
                                 <View style={[styles.content, styles.successContent]}>
-                                    <CheckCircle size={64} color={COLORS.success} />
-                                    <Text style={styles.successTitle}>Thank You!</Text>
-                                    <Text style={styles.successText}>
+                                    <CheckCircle size={64} color={colors.success} />
+                                    <Text style={[styles.successTitle, { color: colors.textPrimary }]}>Thank You!</Text>
+                                    <Text style={[styles.successText, { color: colors.textSecondary }]}>
                                         Your review helps us improve our service.
                                     </Text>
-                                    <TouchableOpacity onPress={onClose} style={[styles.submitBtn, styles.outlineBtn]}>
-                                        <Text style={[styles.submitBtnText, { color: COLORS.textPrimary }]}>Close</Text>
+                                    <TouchableOpacity onPress={onClose} style={[styles.submitBtn, styles.outlineBtn, { borderColor: colors.border }]}>
+                                        <Text style={[styles.submitBtnText, { color: colors.textPrimary }]}>Close</Text>
                                     </TouchableOpacity>
                                 </View>
                             )}

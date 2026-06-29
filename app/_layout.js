@@ -1,3 +1,4 @@
+import '../utils/ssr-polyfill';
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
 import { Stack } from 'expo-router';

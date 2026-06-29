@@ -122,3 +122,93 @@ INSERT INTO locations (city_name) VALUES
 ('Calicut, Kerala'),
 ('Kochi, Kerala'),
 ('Kannur, Kerala');
+
+-- ========================================
+-- ENABLE ROW LEVEL SECURITY (RLS)
+-- ========================================
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partner_services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE locations ENABLE ROW LEVEL SECURITY;
+
+-- ========================================
+-- ROW LEVEL SECURITY POLICIES
+-- ========================================
+
+-- Users Table Policies:
+-- Users can read/write their own user record.
+-- Admins can read all.
+CREATE POLICY "Users can select own profile" ON users FOR SELECT
+  USING (auth.uid() = id OR role = 'admin');
+
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE
+  USING (auth.uid() = id OR role = 'admin')
+  WITH CHECK (auth.uid() = id OR role = 'admin');
+
+CREATE POLICY "Users can insert own profile" ON users FOR INSERT
+  WITH CHECK (true); -- Required for signup
+
+-- Partners Table Policies:
+-- Partners can read/write their own partner record.
+-- Customers can read basic partner details.
+-- Admins can do anything.
+CREATE POLICY "Everyone can select partners" ON partners FOR SELECT
+  USING (true);
+
+CREATE POLICY "Partners can update own details" ON partners FOR UPDATE
+  USING (auth.uid() = user_id OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "Partners can insert own profile" ON partners FOR INSERT
+  WITH CHECK (true); -- Required for registration
+
+-- Bookings Table Policies:
+-- Customers can read/update bookings they created.
+-- Partners can read bookings assigned to them, and read open bookings.
+-- Admins can do anything.
+CREATE POLICY "Users can select own bookings" ON bookings FOR SELECT
+  USING (
+    customer_id = auth.uid() 
+    OR partner_id = (SELECT id FROM partners WHERE user_id = auth.uid())
+    OR status = 'open'
+    OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+  );
+
+CREATE POLICY "Users can insert own bookings" ON bookings FOR INSERT
+  WITH CHECK (customer_id = auth.uid() OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "Users/Partners can update assigned bookings" ON bookings FOR UPDATE
+  USING (
+    customer_id = auth.uid()
+    OR partner_id = (SELECT id FROM partners WHERE user_id = auth.uid())
+    OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+  );
+
+-- Services and Locations Tables Policies:
+-- Everyone can read, only admin can write.
+CREATE POLICY "Allow read for services" ON services FOR SELECT USING (true);
+CREATE POLICY "Allow read for locations" ON locations FOR SELECT USING (true);
+
+-- ========================================
+-- SECURITY LOGS & AUDITING
+-- ========================================
+CREATE TABLE security_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type VARCHAR(100) NOT NULL,
+    description TEXT,
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    created_by UUID,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE security_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Only admin can view security logs" ON security_logs FOR SELECT
+  USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "System can insert security logs" ON security_logs FOR INSERT
+  WITH CHECK (true);

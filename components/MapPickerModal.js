@@ -12,12 +12,15 @@ import {
 import MapView, { Marker, PROVIDER_DEFAULT, UrlTile } from 'react-native-maps';
 import { CheckCircle, X, Navigation, MapPin } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import * as Location from 'expo-location';
 import { mapplsService } from '../services/mapplsService';
 
 const { width, height } = Dimensions.get('window');
 
 export default function MapPickerModal({ visible, onClose, onSelect, initialLat, initialLng }) {
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     // Default to Kerala center
     const [pin, setPin] = useState({
         latitude: initialLat || 11.8745,
@@ -64,6 +67,14 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
         try {
             // Check if GPS is physically turned on
             let servicesEnabled = await Location.hasServicesEnabledAsync();
+            if (!servicesEnabled && Platform.OS === 'android') {
+                try {
+                    await Location.enableNetworkProviderAsync();
+                    servicesEnabled = await Location.hasServicesEnabledAsync();
+                } catch (e) {
+                    console.log('Failed to auto-enable location provider:', e);
+                }
+            }
             if (!servicesEnabled) {
                 Alert.alert(
                     'Location Disabled', 
@@ -108,15 +119,15 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
 
     return (
         <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-            <View style={styles.container}>
+            <View style={[styles.container, { backgroundColor: colors.bgPrimary }]}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                        <X size={20} color="#1e293b" />
+                <View style={[styles.header, { backgroundColor: colors.bgSecondary, borderBottomColor: colors.border }]}>
+                    <TouchableOpacity style={[styles.closeBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9' }]} onPress={onClose}>
+                        <X size={20} color={colors.textPrimary} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Select Location</Text>
-                    <TouchableOpacity style={styles.gpsBtn} onPress={handleGPS}>
-                        <Navigation size={18} color={COLORS.accent} />
+                    <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Select Location</Text>
+                    <TouchableOpacity style={[styles.gpsBtn, { backgroundColor: isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(99, 102, 241, 0.08)' }]} onPress={handleGPS}>
+                        <Navigation size={18} color={colors.accent} />
                     </TouchableOpacity>
                 </View>
 
@@ -152,9 +163,9 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
                             }}
                         >
                             <View style={styles.premiumPinContainer}>
-                                <View style={styles.premiumPinPulse} />
-                                <View style={styles.premiumPinIconBg}>
-                                    <MapPin size={22} color="#6366f1" fill="rgba(99,102,241,0.15)" />
+                                <View style={[styles.premiumPinPulse, { backgroundColor: colors.accentGlow, shadowColor: colors.accent }]} />
+                                <View style={[styles.premiumPinIconBg, { backgroundColor: colors.bgPrimary, borderColor: colors.border }]}>
+                                    <MapPin size={22} color={colors.accent} fill={colors.accentGlow} />
                                 </View>
                             </View>
                         </Marker>
@@ -164,19 +175,19 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
                 </View>
 
                 {/* Bottom Sheet */}
-                <View style={styles.sheet}>
-                    <View style={styles.addressBox}>
-                        <Text style={styles.addressLabel}>Selected Location</Text>
+                <View style={[styles.sheet, { backgroundColor: colors.bgSecondary, borderTopColor: colors.border }]}>
+                    <View style={[styles.addressBox, { backgroundColor: isDark ? 'rgba(79, 70, 229, 0.08)' : 'rgba(99, 102, 241, 0.05)', borderColor: isDark ? 'rgba(79, 70, 229, 0.2)' : 'rgba(99, 102, 241, 0.15)' }]}>
+                        <Text style={[styles.addressLabel, { color: colors.accent }]}>Selected Location</Text>
                         {loading ? (
-                            <ActivityIndicator color={COLORS.accent} size="small" style={styles.loader} />
+                            <ActivityIndicator color={colors.accent} size="small" style={styles.loader} />
                         ) : (
-                            <Text style={styles.addressText} numberOfLines={2}>
+                            <Text style={[styles.addressText, { color: colors.textPrimary }]} numberOfLines={2}>
                                 {address || 'Tap on the map to pick your location'}
                             </Text>
                         )}
                     </View>
                     <TouchableOpacity
-                        style={[styles.confirmBtn, !address && styles.confirmDisabled]}
+                        style={[styles.confirmBtn, { backgroundColor: colors.accent }, (!address || loading) && { backgroundColor: colors.bgTertiary, opacity: 0.5, shadowOpacity: 0 }]}
                         onPress={handleConfirm}
                         disabled={!address || loading}
                     >

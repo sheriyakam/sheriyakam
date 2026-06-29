@@ -6,6 +6,7 @@ import { MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar, CheckCircle, Shi
 import { COLORS, SPACING } from '../../../constants/theme';
 import { completeBookingByPartner, checkInBookingByPartner, getPartnerJobs } from '../../../constants/bookingStore';
 import JobMap from '../../../components/JobMap';
+import { snitch } from '../../../utils/snitch';
 
 const { width } = Dimensions.get('window');
 
@@ -69,25 +70,35 @@ export default function JobDetails() {
     };
 
     const handleVerifyOtp = () => {
-        if (otp.length < 4) { alert("Enter a valid 4-digit OTP."); return; }
+        if (otp.length < 4) { Alert.alert("Validation Error", "Enter a valid 4-digit OTP."); return; }
         setLoading(true);
+        snitch.logEvent('partner_job_action_started', { jobId: job.id, type: modalType });
+        
         setTimeout(() => {
             setLoading(false);
             if (modalType === 'checkin') {
                 const result = checkInBookingByPartner(job.id, otp);
                 if (result.success) {
+                    snitch.logEvent('partner_job_checkin_success', { jobId: job.id });
                     setOtpModalVisible(false); setOtp('');
                     setLiveJob({ ...job, status: 'in_progress' });
                     Alert.alert("✅ Checked In", "Job status: Work In Progress.");
-                } else { alert(result.message || "Invalid Check-In OTP!"); setOtp(''); }
+                } else {
+                    snitch.logError(new Error(result.message || 'Invalid Check-In OTP'), `Partner Checkin OTP verify: ${job.id}`);
+                    Alert.alert("Error", result.message || "Invalid Check-In OTP!"); setOtp('');
+                }
             } else {
                 const result = completeBookingByPartner(job.id, otp, parseInt(hours) || 1, parseInt(materialCost) || 0);
                 if (result.success) {
+                    snitch.logEvent('partner_job_complete_success', { jobId: job.id, hours, materialCost });
                     setOtpModalVisible(false);
                     Alert.alert("✅ Job Complete", "Customer has been notified for payment.", [
                         { text: "OK", onPress: () => router.replace('/partner') }
                     ]);
-                } else { alert(result.message || "Invalid OTP!"); setOtp(''); }
+                } else {
+                    snitch.logError(new Error(result.message || 'Invalid Completion OTP'), `Partner Complete OTP verify: ${job.id}`);
+                    Alert.alert("Error", result.message || "Invalid OTP!"); setOtp('');
+                }
             }
         }, 1000);
     };

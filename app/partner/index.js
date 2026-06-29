@@ -43,8 +43,13 @@ export default function PartnerDashboard() {
         return () => bookingEvents.off('change', refreshData);
     }, [currentPartner]);
 
+    useEffect(() => {
+        if (!currentPartner) {
+            router.replace('/partner/auth');
+        }
+    }, [currentPartner]);
+
     if (!currentPartner) {
-        setTimeout(() => router.replace('/partner/auth'), 0);
         return <View style={styles.container}><ActivityIndicator size="large" color={COLORS.accent} /></View>;
     }
 

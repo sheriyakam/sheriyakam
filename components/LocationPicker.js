@@ -13,11 +13,14 @@ import {
 import * as Location from 'expo-location';
 import { MapPin, Navigation, Search, CheckCircle, Map } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import MapPickerModal from './MapPickerModal';
 import { mapplsService } from '../services/mapplsService';
 import { googleMapsService } from '../services/googleMapsService';
 
 export default function LocationPicker({ onLocationSelected, currentLocation }) {
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [selectedLocation, setSelectedLocation] = useState(currentLocation || null);
@@ -51,7 +54,7 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
             if (permState === 'denied') {
                 Alert.alert(
                     'Location Blocked',
-                    'You have blocked location access for this site.\n\nTo fix:\n1. Click the 🔒 lock icon in your browser address bar\n2. Set Location to "Allow"\n3. Refresh the page and try again.\n\nOr search your area name in the box below.',
+                    'Location is blocked. Click the 🔒 lock icon in the browser address bar → set Location to "Allow" → refresh',
                     [{ text: 'OK' }]
                 );
                 setLoading(false);
@@ -75,7 +78,11 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
                 applyLocation({ latitude, longitude, address });
             } catch (err) {
                 if (err.code === 1) {
-                    Alert.alert('Location Access Required', 'Location was not allowed.\n\nYou can also search your area name in the box below, or use "Select on Map".');
+                    Alert.alert(
+                        'Location Blocked',
+                        'Location is blocked. Click the 🔒 lock icon in the browser address bar → set Location to "Allow" → refresh',
+                        [{ text: 'OK' }]
+                    );
                 } else {
                     Alert.alert('GPS Error', 'Could not detect location. Your GPS may be off. Try searching your area name instead.');
                 }
@@ -90,6 +97,14 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
         try {
             // Step 1: Check if GPS/Location Services is physically turned ON
             let servicesEnabled = await Location.hasServicesEnabledAsync();
+            if (!servicesEnabled && Platform.OS === 'android') {
+                try {
+                    await Location.enableNetworkProviderAsync();
+                    servicesEnabled = await Location.hasServicesEnabledAsync();
+                } catch (e) {
+                    console.log('Failed to auto-enable location provider:', e);
+                }
+            }
             if (!servicesEnabled) {
                 if (Platform.OS === 'web') {
                     Alert.alert(
@@ -183,6 +198,24 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleOpenMapPicker = async () => {
+        if (Platform.OS !== 'web') {
+            try {
+                let servicesEnabled = await Location.hasServicesEnabledAsync();
+                if (!servicesEnabled && Platform.OS === 'android') {
+                    try {
+                        await Location.enableNetworkProviderAsync();
+                    } catch (e) {
+                        console.log('Failed to auto-enable location provider on map click:', e);
+                    }
+                }
+            } catch (err) {
+                console.log('Error checking location services:', err);
+            }
+        }
+        setMapPickerVisible(true);
     };
 
     // ── Reverse geocode for web ──────────────────────────────────────────────
@@ -331,10 +364,10 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Service Location</Text>
+            <Text style={[styles.label, { color: colors.textPrimary }]}>Service Location</Text>
 
             {/* 1. GPS Button */}
-            <TouchableOpacity style={styles.gpsBtn} onPress={handleUseCurrentLocation} disabled={loading}>
+            <TouchableOpacity style={[styles.gpsBtn, { backgroundColor: colors.accent }]} onPress={handleUseCurrentLocation} disabled={loading}>
                 {loading ? (
                     <ActivityIndicator size="small" color="#fff" />
                 ) : (
@@ -347,50 +380,50 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
 
             {/* 2. Select on Map Button */}
             <TouchableOpacity
-                style={styles.mapBtn}
-                onPress={() => setMapPickerVisible(true)}
+                style={[styles.mapBtn, { borderColor: colors.accent }]}
+                onPress={handleOpenMapPicker}
                 disabled={loading}
             >
-                <Map size={16} color={COLORS.accent} />
-                <Text style={styles.mapBtnText}>Select on Map</Text>
+                <Map size={16} color={colors.accent} />
+                <Text style={[styles.mapBtnText, { color: colors.accent }]}>Select on Map</Text>
             </TouchableOpacity>
 
             {/* Divider */}
             <View style={styles.divider}>
-                <View style={styles.divLine} />
-                <Text style={styles.divText}>or type area</Text>
-                <View style={styles.divLine} />
+                <View style={[styles.divLine, { backgroundColor: colors.border }]} />
+                <Text style={[styles.divText, { color: colors.textTertiary }]}>or type area</Text>
+                <View style={[styles.divLine, { backgroundColor: colors.border }]} />
             </View>
 
             {/* 3. Search */}
             <View style={styles.searchRow}>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.bgSecondary }]}
                     placeholder="Thalassery, Kannur, Kozhikode..."
-                    placeholderTextColor={COLORS.textTertiary}
+                    placeholderTextColor={colors.textTertiary}
                     value={searchText}
                     onChangeText={handleTextChange}
                     onSubmitEditing={() => handleSearchText(searchText)}
                     returnKeyType="search"
                 />
-                <TouchableOpacity style={styles.searchBtn} onPress={() => handleSearchText(searchText)} disabled={loading}>
+                <TouchableOpacity style={[styles.searchBtn, { backgroundColor: colors.accent }]} onPress={() => handleSearchText(searchText)} disabled={loading}>
                     <Search size={18} color="#fff" />
                 </TouchableOpacity>
             </View>
 
             {/* Suggestions list */}
             {suggestions.length > 0 && (
-                <View style={styles.suggestionsContainer}>
+                <View style={[styles.suggestionsContainer, { borderColor: colors.border, backgroundColor: colors.bgSecondary }]}>
                     {suggestions.map((item, idx) => (
                         <TouchableOpacity
                             key={idx}
-                            style={styles.suggestionItem}
+                            style={[styles.suggestionItem, { borderBottomColor: colors.border }]}
                             onPress={() => handleSelectSuggestion(item)}
                         >
-                            <MapPin size={16} color={COLORS.accent} style={{ marginTop: 2 }} />
+                            <MapPin size={16} color={colors.accent} style={{ marginTop: 2 }} />
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.suggestionMainText}>{item.mainText}</Text>
-                                <Text style={styles.suggestionSubText} numberOfLines={1}>{item.secondaryText || item.description}</Text>
+                                <Text style={[styles.suggestionMainText, { color: colors.textPrimary }]}>{item.mainText}</Text>
+                                <Text style={[styles.suggestionSubText, { color: colors.textSecondary }]} numberOfLines={1}>{item.secondaryText || item.description}</Text>
                             </View>
                         </TouchableOpacity>
                     ))}
@@ -399,11 +432,14 @@ export default function LocationPicker({ onLocationSelected, currentLocation }) 
 
             {/* Selected Location Preview */}
             {selectedLocation && (
-                <View style={styles.selectedBox}>
-                    <CheckCircle size={16} color={COLORS.success} />
+                <View style={[styles.selectedBox, {
+                    backgroundColor: isDark ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.04)',
+                    borderColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)'
+                }]}>
+                    <CheckCircle size={16} color={colors.success} />
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.selectedLabel}>✅ Location Confirmed</Text>
-                        <Text style={styles.selectedAddress} numberOfLines={2}>
+                        <Text style={[styles.selectedLabel, { color: colors.success }]}>✅ Location Confirmed</Text>
+                        <Text style={[styles.selectedAddress, { color: colors.textSecondary }]} numberOfLines={2}>
                             {selectedLocation.address}
                         </Text>
                     </View>

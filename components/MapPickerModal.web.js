@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { X, Navigation, Search, CheckCircle, MapPin, Crosshair } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import { mapplsService } from '../services/mapplsService';
 
 const CUSTOM_PIN_HTML = `
@@ -21,14 +22,16 @@ const CUSTOM_PIN_HTML = `
         <div class="premium-pin-pulse"></div>
         <div class="premium-pin-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#6366f1" fill-opacity="0.25" stroke="#6366f1" stroke-width="2.5" stroke-linejoin="round"/>
-                <circle cx="12" cy="10" r="3" fill="#6366f1"/>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="#4f46e5" fill-opacity="0.25" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round"/>
+                <circle cx="12" cy="10" r="3" fill="#4f46e5"/>
             </svg>
         </div>
     </div>
 `;
 
 export default function MapPickerModal({ visible, onClose, onSelect, initialLat, initialLng }) {
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     // Default center: Kerala (Thalassery)
     const [pin, setPin] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -483,7 +486,7 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
             setPin({ latitude, longitude, address: addr });
         } catch (err) {
             if (err.code === 1) {
-                setError('Location access was not allowed. Please tap "Allow" when your browser asks, or search your area below.');
+                setError('Location is blocked. Click the 🔒 lock icon in the browser address bar → set Location to "Allow" → refresh.');
             } else {
                 setError('Could not detect location. Your device GPS may be off. Try searching your area name below.');
             }
@@ -560,35 +563,35 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
 
     return (
         <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-            <View style={styles.container}>
+            <View style={[styles.container, { backgroundColor: colors.bgPrimary }]}>
                 {/* Header */}
-                <View style={styles.header} className="premium-glass-header">
+                <View style={[styles.header, { backgroundColor: colors.bgSecondary, borderBottomColor: colors.border }]} className="premium-glass-header">
                     <TouchableOpacity style={styles.iconBtn} className="premium-glass-button" onPress={onClose}>
-                        <X size={20} color="#1e293b" />
+                        <X size={20} color={colors.textPrimary} />
                     </TouchableOpacity>
-                    <Text style={styles.title}>Select Location ({useMappls ? 'Mappls' : 'OpenStreetMap'})</Text>
+                    <Text style={[styles.title, { color: colors.textPrimary }]}>Select Location ({useMappls ? 'Mappls' : 'OpenStreetMap'})</Text>
                     <TouchableOpacity style={styles.iconBtn} className="premium-glass-button" onPress={handleGPS}>
-                        <Crosshair size={18} color={COLORS.accent} />
+                        <Crosshair size={18} color={colors.accent} />
                     </TouchableOpacity>
                 </View>
 
                 {/* Search Bar */}
-                <View style={styles.searchBar}>
+                <View style={[styles.searchBar, { backgroundColor: colors.bgPrimary, borderBottomColor: colors.border }]}>
                     <View style={styles.searchRow}>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.bgSecondary }]}
                             placeholder="Search area: Thalassery, Kannur, Mahe..."
-                            placeholderTextColor={COLORS.textTertiary}
+                            placeholderTextColor={colors.textTertiary}
                             value={searchText}
                             onChangeText={setSearchText}
                             onSubmitEditing={handleSearch}
                             returnKeyType="search"
                         />
-                        <TouchableOpacity style={styles.searchBtn} onPress={handleSearch} disabled={loading}>
+                        <TouchableOpacity style={[styles.searchBtn, { backgroundColor: colors.accent }]} onPress={handleSearch} disabled={loading}>
                             <Search size={18} color="#fff" />
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.gpsBtn} onPress={handleGPS} disabled={loading}>
+                    <TouchableOpacity style={[styles.gpsBtn, { backgroundColor: colors.accent }]} onPress={handleGPS} disabled={loading}>
                         {loading ? (
                             <ActivityIndicator color="#fff" size="small" />
                         ) : (
@@ -613,9 +616,9 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
                         }}
                     />
                     {!mapReady && (
-                        <View style={styles.mapLoading}>
-                            <ActivityIndicator size="large" color={COLORS.accent} />
-                            <Text style={styles.mapLoadingText}>Loading {useMappls ? 'MapmyIndia' : 'OpenStreetMap'} Map...</Text>
+                        <View style={[styles.mapLoading, { backgroundColor: colors.bgPrimary }]}>
+                            <ActivityIndicator size="large" color={colors.accent} />
+                            <Text style={[styles.mapLoadingText, { color: colors.textSecondary }]}>Loading {useMappls ? 'MapmyIndia' : 'OpenStreetMap'} Map...</Text>
                         </View>
                     )}
                     {mapReady && !pin && (
@@ -627,22 +630,22 @@ export default function MapPickerModal({ visible, onClose, onSelect, initialLat,
                 </View>
 
                 {/* Bottom Sheet */}
-                <View style={styles.footer} className="premium-glass-footer">
+                <View style={[styles.footer, { backgroundColor: colors.bgSecondary, borderTopColor: colors.border }]} className="premium-glass-footer">
                     {loading ? (
                         <View style={styles.addressRow}>
-                            <ActivityIndicator color={COLORS.accent} size="small" />
-                            <Text style={styles.addressLoading}>Resolving address...</Text>
+                            <ActivityIndicator color={colors.accent} size="small" />
+                            <Text style={[styles.addressLoading, { color: colors.textSecondary }]}>Resolving address...</Text>
                         </View>
                     ) : pin ? (
                         <View style={styles.addressBox}>
-                            <CheckCircle size={16} color={COLORS.success} />
-                            <Text style={styles.addressText} numberOfLines={2}>{pin.address || 'Location coordinates pinned'}</Text>
+                            <CheckCircle size={16} color={colors.success} />
+                            <Text style={[styles.addressText, { color: colors.textPrimary }]} numberOfLines={2}>{pin.address || 'Location coordinates pinned'}</Text>
                         </View>
                     ) : (
-                        <Text style={styles.placeholderText}>Tap on the map or use GPS to pick your location</Text>
+                        <Text style={[styles.placeholderText, { color: colors.textTertiary }]}>Tap on the map or use GPS to pick your location</Text>
                     )}
                     <TouchableOpacity
-                        style={[styles.confirmBtn, !pin && styles.confirmDisabled]}
+                        style={[styles.confirmBtn, { backgroundColor: colors.accent }, (!pin || loading) && { backgroundColor: colors.bgTertiary, opacity: 0.5 }]}
                         onPress={handleConfirm}
                         disabled={!pin || loading}
                     >

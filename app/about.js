@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Globe, Mail, Phone, ExternalLink, Shield, Award, Users, CheckCircle } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
@@ -13,8 +13,29 @@ export default function AboutScreen() {
     const isDark = theme === 'dark';
 
     const handleLink = (url) => {
-        // Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
-        alert(`Opening ${url}`);
+        if (url.startsWith('tel:') || url.startsWith('mailto:')) {
+            Linking.openURL(url).catch(err => {
+                console.error("Failed to trigger communication link:", err);
+                if (Platform.OS === 'web') {
+                    window.location.href = url;
+                }
+            });
+            return;
+        }
+
+        Linking.canOpenURL(url).then(supported => {
+            if (supported) {
+                Linking.openURL(url);
+            } else {
+                if (Platform.OS === 'web') {
+                    window.open(url, '_blank');
+                } else {
+                    Alert.alert("Link Not Supported", `Cannot open link: ${url}`);
+                }
+            }
+        }).catch(err => {
+            console.error("Couldn't open URL:", err);
+        });
     };
 
     return (
@@ -34,13 +55,10 @@ export default function AboutScreen() {
                     <View style={[styles.logoContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }]}>
                         <Image source={require('../assets/icon.png')} style={styles.logo} />
                     </View>
-                    <View style={[
-                        styles.nameWrapper,
-                        isDark && styles.nameWrapperDark
-                    ]}>
-                        <Text style={[styles.appName, { color: colors.textPrimary }]}>
-                            <Text style={{ color: '#001F3F', fontWeight: '800' }}>Sheri</Text>
-                            <Text style={{ color: '#2563EB', fontWeight: '800' }}>yakam</Text>
+                    <View style={styles.nameWrapper}>
+                        <Text style={styles.appName}>
+                            <Text style={{ color: colors.textPrimary, fontWeight: '800' }}>Sheri</Text>
+                            <Text style={{ color: colors.accent, fontWeight: '800' }}>yakam</Text>
                         </Text>
                     </View>
                     <Text style={[styles.version, { color: colors.textTertiary }]}>Version 1.0.0 (Build 124)</Text>
@@ -332,12 +350,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 4,
     },
-    nameWrapperDark: {
-        backgroundColor: '#ffffff',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        marginBottom: 8,
-    },
+
     aboutFooter: {
         alignItems: 'center',
         marginTop: SPACING.xl,

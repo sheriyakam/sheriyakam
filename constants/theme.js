@@ -1,10 +1,10 @@
 const SHADES = {
-    primary: '#001F3F', // Brand Deep Navy
-    accent: '#2563eb', // Vibrant Blue
-    accentGlow: 'rgba(37, 99, 235, 0.4)',
-    gold: '#D4AF37',
-    danger: '#ef4444',
-    success: '#22c55e',
+    primary: '#0a192f', // Premium Brand Navy
+    accent: '#4f46e5', // Vibrant Indigo Accent
+    accentGlow: 'rgba(79, 70, 229, 0.4)',
+    gold: '#eab308', // Warm Amber Gold
+    danger: '#f43f5e', // Rose Red
+    success: '#10b981', // Emerald Green
 };
 
 export const darkTheme = {
@@ -29,13 +29,13 @@ export const lightTheme = {
     bgSecondary: '#f8f9fa',
     bgTertiary: '#e9ecef',
     primary: SHADES.primary,
-    textPrimary: '#1a1a1a',
-    textSecondary: '#4a4a4a',
-    textTertiary: '#6c757d',
+    textPrimary: '#09090b',
+    textSecondary: '#4b5563',
+    textTertiary: '#9ca3af',
     accent: SHADES.accent,
-    accentGlow: 'rgba(37, 99, 235, 0.2)',
+    accentGlow: 'rgba(79, 70, 229, 0.2)',
     gold: SHADES.gold,
-    border: '#dee2e6',
+    border: '#e4e4e7',
     danger: SHADES.danger,
     success: SHADES.success,
     mode: 'light',

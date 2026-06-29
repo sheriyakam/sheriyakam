@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, User, Mail, Phone, MapPin, Settings, LogOut, ChevronRight, Save, X, Shield, Award } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { generateOTP } from '../utils/security';
 
 export default function ProfileScreen() {
     const router = useRouter();
-    const { user, logout } = useAuth();
+    const { edit } = useLocalSearchParams();
+    const { user, logout, deleteAccount } = useAuth();
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
 
@@ -21,7 +23,7 @@ export default function ProfileScreen() {
         location: user?.location || "Kochi, Kerala"
     };
 
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(edit === 'true');
     const [userInfo, setUserInfo] = useState(initialData);
     const [originalInfo, setOriginalInfo] = useState(initialData); // To track changes
 
@@ -29,11 +31,12 @@ export default function ProfileScreen() {
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [otp, setOtp] = useState('');
     const [otpError, setOtpError] = useState('');
+    const [generatedOtp, setGeneratedOtp] = useState('');
 
     const InfoRow = ({ icon: Icon, label, fieldKey, value, isEditable, iconColor }) => (
         <View style={[styles.infoRow, { 
-            backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
-            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+            backgroundColor: colors.bgSecondary,
+            borderColor: colors.border,
         }]}>
             <View style={[styles.infoIcon, { backgroundColor: (iconColor || colors.accent) + '18' }]}>
                 <Icon size={18} color={iconColor || colors.accent} />
@@ -55,6 +58,29 @@ export default function ProfileScreen() {
         </View>
     );
 
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            "Delete Account",
+            "Are you absolutely sure you want to delete your account? This action is permanent and cannot be undone.",
+            [
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Delete", 
+                    style: "destructive", 
+                    onPress: async () => {
+                        try {
+                            await deleteAccount();
+                            Alert.alert("Deleted", "Your account has been successfully deleted.");
+                            router.replace('/auth/login');
+                        } catch (e) {
+                            Alert.alert("Error", "Failed to delete account. Please try again.");
+                        }
+                    } 
+                }
+            ]
+        );
+    };
+
     const handleSave = () => {
         // Validation
         if (!userInfo.name || !userInfo.email || !userInfo.phone) {
@@ -68,8 +94,10 @@ export default function ProfileScreen() {
 
         if (emailChanged || phoneChanged) {
             // Trigger OTP Flow
+            const newOtp = generateOTP();
+            setGeneratedOtp(newOtp);
             setShowOtpModal(true);
-            Alert.alert("OTP Sent", `An OTP has been sent to your ${emailChanged ? 'new email' : ''} ${emailChanged && phoneChanged ? 'and' : ''} ${phoneChanged ? 'new mobile number' : ''} to verify the change.`);
+            Alert.alert("OTP Sent", `An OTP has been sent to verify the change. Enter: ${newOtp}`);
         } else {
             // No sensitive changes, just save
             setOriginalInfo(userInfo);
@@ -79,7 +107,7 @@ export default function ProfileScreen() {
     };
 
     const handleVerifyOtp = () => {
-        if (otp === '1234') { // Mock OTP
+        if (otp === generatedOtp || (otp === '1234' && __DEV__)) {
             setShowOtpModal(false);
             setOriginalInfo(userInfo);
             setIsEditing(false);
@@ -87,7 +115,7 @@ export default function ProfileScreen() {
             setOtpError('');
             Alert.alert("Success", "Identity verified. Profile updated successfully!");
         } else {
-            setOtpError("Invalid OTP. Try '1234'");
+            setOtpError("Invalid OTP. Enter the code sent to you.");
         }
     };
 
@@ -98,8 +126,8 @@ export default function ProfileScreen() {
 
     const MenuOption = ({ icon: Icon, label, onPress, isDestructive, iconColor }) => (
         <TouchableOpacity style={[styles.menuOption, { 
-            backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
-            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+            backgroundColor: colors.bgSecondary,
+            borderColor: colors.border,
         }]} onPress={onPress}>
             <View style={styles.menuOptionLeft}>
                 <View style={[styles.menuIconWrap, { backgroundColor: (isDestructive ? COLORS.danger : (iconColor || colors.textPrimary)) + '14' }]}>
@@ -200,6 +228,7 @@ export default function ProfileScreen() {
                             <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ACCOUNT SETTINGS</Text>
                             <MenuOption icon={Settings} label="App Settings" onPress={() => { }} iconColor="#6366F1" />
                             <MenuOption icon={Shield} label="Privacy & Security" onPress={() => { }} iconColor="#10B981" />
+                            <MenuOption icon={X} label="Delete Account" isDestructive onPress={handleDeleteAccount} />
                             <MenuOption icon={LogOut} label="Log Out" isDestructive onPress={() => {
                                 logout();
                                 router.replace('/auth/login');
@@ -218,12 +247,12 @@ export default function ProfileScreen() {
             >
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { 
-                        backgroundColor: isDark ? colors.bgSecondary : '#ffffff',
-                        borderColor: isDark ? colors.border : 'rgba(0,0,0,0.08)',
+                        backgroundColor: colors.bgSecondary,
+                        borderColor: colors.border,
                     }]}>
                         <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Verify Changes</Text>
-                            <TouchableOpacity onPress={() => setShowOtpModal(false)} style={[styles.modalCloseBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }]}>
+                            <TouchableOpacity onPress={() => setShowOtpModal(false)} style={[styles.modalCloseBtn, { backgroundColor: colors.bgTertiary }]}>
                                 <X size={20} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
@@ -233,8 +262,8 @@ export default function ProfileScreen() {
 
                         <TextInput
                             style={[styles.otpInput, { 
-                                backgroundColor: isDark ? colors.bgPrimary : '#f8f9fa',
-                                borderColor: isDark ? colors.border : 'rgba(0,0,0,0.08)',
+                                backgroundColor: colors.bgPrimary,
+                                borderColor: colors.border,
                                 color: colors.textPrimary,
                             }]}
                             placeholder="Enter OTP (1234)"

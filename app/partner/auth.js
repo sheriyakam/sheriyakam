@@ -11,12 +11,17 @@ import {
 import PartnerLocationSelect from '../../components/PartnerLocationSelect';
 import { useTheme } from '../../context/ThemeContext';
 import * as DocumentPicker from 'expo-document-picker';
+import { isSupabaseConfigured } from '../../config/supabaseConfig';
+import { PartnersAPI } from '../../services/supabaseAPI';
+import { checkRateLimit, generateOTP, hashPassword } from '../../utils/security';
+import { snitch } from '../../utils/snitch';
 
 export default function PartnerAuth() {
     const router = useRouter();
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
     const [isLogin, setIsLogin] = useState(false);
+    const [agreeTerms, setAgreeTerms] = useState(false);
     const [loading, setLoading] = useState(false);
     const [checkingSession, setCheckingSession] = useState(true);
 
@@ -68,6 +73,7 @@ export default function PartnerAuth() {
     // OTP State
     const [showOtp, setShowOtp] = useState(false);
     const [otp, setOtp] = useState('');
+    const [savedOtp, setSavedOtp] = useState('');
 
     const phoneRef = useRef(null);
     const emailRef = useRef(null);
@@ -100,19 +106,49 @@ export default function PartnerAuth() {
             return;
         }
 
+        const cleanPhone = phone.trim();
+
         if (!showOtp) {
+            snitch.logEvent('partner_login_attempt', { phone: cleanPhone });
+            // Rate limit login requests
+            const limitRes = checkRateLimit(`partner_login_${cleanPhone}`, 5, 60000);
+            if (!limitRes.allowed) {
+                snitch.logError(new Error('Rate limited'), `Partner Login Rate Limit: ${cleanPhone}`);
+                const secs = Math.ceil(limitRes.retryAfterMs / 1000);
+                Alert.alert("Rate Limited", `Too many attempts. Try again in ${secs} seconds.`);
+                return;
+            }
+
             setLoading(true);
-            setTimeout(() => {
-                const partner = findPartnerByPhone(phone);
+            try {
+                let partner = null;
+                if (isSupabaseConfigured) {
+                    const { data } = await PartnersAPI.findByPhone(cleanPhone);
+                    partner = data;
+                } else {
+                    partner = findPartnerByPhone(cleanPhone);
+                }
+
                 setLoading(false);
 
+                const dynamicOtp = generateOTP();
+                setSavedOtp(dynamicOtp);
+                setShowOtp(true);
+
                 if (partner) {
-                    setShowOtp(true);
-                    Alert.alert('OTP Sent', 'Use 1234 to login');
+                    snitch.logEvent('partner_login_otp_sent', { phone: cleanPhone });
+                    Alert.alert('OTP Sent', `Verification code sent to ${cleanPhone}. Enter: ${dynamicOtp}`);
                 } else {
-                    Alert.alert('Error', 'Mobile number not registered');
+                    snitch.logEvent('partner_login_failed', { reason: 'Mobile not registered', phone: cleanPhone });
+                    console.log(`[Security/Partner] Mock login attempt for unregistered number ${cleanPhone}. Simulated OTP Code: ${dynamicOtp}`);
+                    Alert.alert('OTP Sent', `Verification code sent to ${cleanPhone}. Enter: ${dynamicOtp}`);
                 }
-            }, 1000);
+            } catch (err) {
+                setLoading(false);
+                snitch.logError(err, `Partner Login init: ${cleanPhone}`);
+                console.error("Partner Login Error:", err);
+                Alert.alert('Error', 'Database error during partner login');
+            }
         } else {
             if (!otp) {
                 Alert.alert('Error', 'Please enter OTP');
@@ -120,55 +156,122 @@ export default function PartnerAuth() {
             }
 
             setLoading(true);
-            setTimeout(() => {
+            try {
+                let partner = null;
+                if (isSupabaseConfigured) {
+                    const { data } = await PartnersAPI.findByPhone(cleanPhone);
+                    partner = data;
+                } else {
+                    partner = findPartnerByPhone(cleanPhone);
+                }
+
                 setLoading(false);
-                if (otp === '1234') {
-                    const partner = findPartnerByPhone(phone);
+                if (otp === savedOtp || (otp === '1234' && __DEV__)) {
                     if (partner) {
                         if (partner.status === 'approved') {
-                            loginPartner(partner);
+                            snitch.logEvent('partner_login_success', { name: partner.name, phone: cleanPhone });
+                            await loginPartner(partner);
                             router.replace('/partner');
                         } else if (partner.status === 'pending') {
+                            snitch.logEvent('partner_login_failed', { reason: 'Status pending', phone: cleanPhone });
                             Alert.alert('Account Pending', 'Your account is waiting for Admin approval.');
                         } else {
+                            snitch.logEvent('partner_login_failed', { reason: 'Status rejected', phone: cleanPhone });
                             Alert.alert('Access Denied', 'Your account has been rejected.');
                         }
+                    } else {
+                        // Return generic error for unregistered partner
+                        Alert.alert('Error', 'Incorrect phone number or OTP');
                     }
                 } else {
-                    Alert.alert('Error', 'Invalid OTP');
+                    snitch.logEvent('partner_login_failed', { reason: 'Invalid OTP', phone: cleanPhone });
+                    Alert.alert('Error', 'Incorrect phone number or OTP');
                 }
-            }, 1000);
+            } catch (err) {
+                setLoading(false);
+                snitch.logError(err, `Partner OTP verify: ${cleanPhone}`);
+                console.error("Partner OTP Verify Error:", err);
+                Alert.alert('Error', 'Database error verifying OTP');
+            }
         }
     };
 
     const handleSignup = async () => {
+        if (!agreeTerms) {
+            Alert.alert('Terms Agreement Required', 'You must read and agree to our Terms of Service and Privacy Policy before applying as a partner.');
+            return;
+        }
+
         if (!fullName || !email || !phone || !password || serviceTypes.length === 0 || !location || !licenseUploaded) {
             Alert.alert('Error', 'Please fill all fields, select services, set location, and upload your Government Electrical License.');
             return;
         }
 
+        const cleanEmail = email.trim().toLowerCase();
+        const cleanPhone = phone.trim();
+
+        snitch.logEvent('partner_signup_attempt', { email: cleanEmail, phone: cleanPhone });
+
+        // Rate limit signup
+        const limitRes = checkRateLimit(`partner_signup_${cleanEmail}`, 3, 60000);
+        if (!limitRes.allowed) {
+            snitch.logError(new Error('Rate limited on partner signup'), `Partner Signup Rate Limit: ${cleanEmail}`);
+            Alert.alert("Rate Limited", "Too many attempts. Try again later.");
+            return;
+        }
+
         setLoading(true);
-        setTimeout(() => {
-            try {
-                const newPartner = addPartner({
-                    name: fullName,
-                    email,
-                    phone,
-                    password,
-                    serviceTypes,
-                    location,
-                });
-                setLoading(false);
-                Alert.alert(
-                    'Application Submitted! ✅',
-                    'Welcome aboard! Your account is under review. Our AI system is analyzing your profile and you\'ll be approved within 24 hours. We\'ll notify you via SMS and email.',
-                    [{ text: 'Got it!', onPress: () => setIsLogin(true) }]
-                );
-            } catch (error) {
-                setLoading(false);
-                Alert.alert('Error', 'Registration failed');
+        try {
+            const hashedPassword = hashPassword(password);
+            const partnerData = {
+                name: fullName.trim(),
+                email: cleanEmail,
+                phone: cleanPhone,
+                password: hashedPassword,
+                serviceTypes,
+                location,
+                taluk: location.taluk || 'General'
+            };
+
+            if (isSupabaseConfigured) {
+                // Check duplicate by phone or email
+                const { data: existingEmail } = await PartnersAPI.findByEmail(cleanEmail);
+                const { data: existingPhone } = await PartnersAPI.findByPhone(cleanPhone);
+                if (existingEmail || existingPhone) {
+                    snitch.logError(new Error('Duplicate partner registration attempt'), `Partner Signup Duplicate: ${cleanEmail}`);
+                    setLoading(false);
+                    Alert.alert(
+                        'Application Submitted! ✅',
+                        'Welcome aboard! Your account is under review. Our AI system is analyzing your profile and you\'ll be approved within 24 hours. We\'ll notify you via SMS and email.',
+                        [{ text: 'Got it!', onPress: () => setIsLogin(true) }]
+                    );
+                    return;
+                }
+
+                const { data: dbPartner, error } = await PartnersAPI.create(partnerData);
+                if (error || !dbPartner) {
+                    snitch.logError(error || new Error('DB Partner creation failure'), `Partner Signup DB Failure: ${cleanEmail}`);
+                    Alert.alert('Registration Error', 'Failed to submit application to database.');
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                addPartner(partnerData);
             }
-        }, 1000);
+
+            setLoading(false);
+            snitch.logEvent('partner_signup_success', { email: cleanEmail, phone: cleanPhone });
+            Alert.alert(
+                'Application Submitted! ✅',
+                'Welcome aboard! Your account is under review. Our AI system is analyzing your profile and you\'ll be approved within 24 hours. We\'ll notify you via SMS and email.',
+                [{ text: 'Got it!', onPress: () => setIsLogin(true) }]
+            );
+        } catch (error) {
+            setLoading(false);
+            snitch.logError(error, `Partner Signup Catch: ${cleanEmail}`);
+            console.error("Partner Signup Error:", error);
+            Alert.alert('Error', 'Registration failed due to database or network error.');
+        }
     };
 
     const devApproveLast = () => {
@@ -199,10 +302,10 @@ export default function PartnerAuth() {
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
                     {/* Hero Section */}
                     <View style={[styles.heroSection, { backgroundColor: isDark ? 'rgba(255,215,0,0.05)' : 'rgba(255,215,0,0.1)' }]}>
-                        <View style={[styles.nameWrapper, isDark && styles.nameWrapperDark]}>
+                        <View style={styles.nameWrapper}>
                             <Text style={styles.appName}>
-                                <Text style={{ color: '#001F3F' }}>Sheri</Text>
-                                <Text style={{ color: COLORS.accent }}>yakam</Text>
+                                <Text style={{ color: colors.textPrimary }}>Sheri</Text>
+                                <Text style={{ color: colors.accent }}>yakam</Text>
                             </Text>
                         </View>
                         <View style={[styles.partnerBadgeContainer, { backgroundColor: COLORS.accent }]}>
@@ -423,11 +526,7 @@ export default function PartnerAuth() {
                                                     // In a real app, you would upload the file here
                                                     // For now, we simulate a successful upload for the UI flow
                                                     setLicenseUploaded(true);
-                                                    if (Platform.OS === 'web') {
-                                                        window.alert("License uploaded successfully!");
-                                                    } else {
-                                                        Alert.alert('Upload Successful', 'Your document has been verified locally.');
-                                                    }
+                                                    Alert.alert('Upload Successful', 'Your document has been verified locally.');
                                                 }
                                             } catch (error) {
                                                 console.error("Document Picker Error: ", error);
@@ -482,6 +581,27 @@ export default function PartnerAuth() {
                                     returnKeyType="go"
                                     onSubmitEditing={handleSignup}
                                 />
+                            </View>
+                        )}
+
+                        {!isLogin && (
+                            <View style={styles.termsContainer}>
+                                <TouchableOpacity 
+                                    style={[styles.checkbox, { borderColor: colors.textTertiary, backgroundColor: agreeTerms ? COLORS.accent : 'transparent' }]}
+                                    onPress={() => setAgreeTerms(!agreeTerms)}
+                                >
+                                    {agreeTerms && <Text style={styles.checkmark}>✓</Text>}
+                                </TouchableOpacity>
+                                <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    <Text style={{ color: colors.textSecondary, fontSize: 13 }}>By signing up, you agree to our </Text>
+                                    <TouchableOpacity onPress={() => router.push('/terms')}>
+                                        <Text style={{ color: COLORS.accent, fontSize: 13, fontWeight: 'bold' }}>Terms of Service</Text>
+                                    </TouchableOpacity>
+                                    <Text style={{ color: colors.textSecondary, fontSize: 13 }}> and </Text>
+                                    <TouchableOpacity onPress={() => router.push('/privacy')}>
+                                        <Text style={{ color: COLORS.accent, fontSize: 13, fontWeight: 'bold' }}>Privacy Policy</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         )}
 
@@ -817,5 +937,25 @@ const styles = StyleSheet.create({
     trustLabel: {
         fontSize: 12,
         marginTop: 4,
+    },
+    termsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginVertical: 12,
+        paddingHorizontal: 4,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    checkmark: {
+        color: '#000',
+        fontSize: 12,
+        fontWeight: 'bold',
     },
 });

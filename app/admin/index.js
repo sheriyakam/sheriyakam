@@ -14,6 +14,9 @@ import { useRouter } from 'expo-router';
 import { getPartners, approvePartner, rejectPartner } from '../../constants/partnerStore';
 import { getBookings } from '../../constants/bookingStore';
 import { bookingEvents } from '../../constants/bookingStore';
+import { isSupabaseConfigured } from '../../config/supabaseConfig';
+import { UsersAPI } from '../../services/supabaseAPI';
+import { checkRateLimit, hashPassword } from '../../utils/security';
 
 // ─── COLORS ───────────────────────────────────────────────────────────────────
 const C = {
@@ -69,6 +72,7 @@ export default function AdminDashboard() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     // Data
     const [partners, setPartners] = useState([]);
@@ -96,13 +100,44 @@ export default function AdminDashboard() {
         setTimeout(() => setRefreshing(false), 800);
     }, [loadData]);
 
-    const handleLogin = () => {
-        if (username === 'admin' && password === 'sheri@25') {
+    const handleLogin = async () => {
+        const cleanUsername = username.trim().toLowerCase();
+        
+        // Rate limit admin login
+        const limitRes = checkRateLimit('admin_login', 5, 60000);
+        if (!limitRes.allowed) {
+            setLoginError(`Too many login attempts. Try again in ${Math.ceil(limitRes.retryAfterMs / 1000)} seconds.`);
+            return;
+        }
+
+        setIsLoggingIn(true);
+        setLoginError('');
+
+        try {
+            if (isSupabaseConfigured) {
+                const { data: dbUser, error } = await UsersAPI.findByIdentifier(cleanUsername);
+                if (dbUser && dbUser.role === 'admin') {
+                    const hashed = hashPassword(password);
+                    if (dbUser.password === password || dbUser.password === hashed) {
+                        setIsAuthenticated(true);
+                        setLoginError('');
+                        setIsLoggingIn(false);
+                        return;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Admin authentication error:", err);
+        }
+
+        // Fallback for offline / developer
+        if (cleanUsername === 'admin' && password === 'sheri@25') {
             setIsAuthenticated(true);
             setLoginError('');
         } else {
             setLoginError('Invalid credentials. Check username and password.');
         }
+        setIsLoggingIn(false);
     };
 
     // ─── COMPUTED STATS ──────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ import {
 import { X, MapPin, Navigation, Search, Check } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { COLORS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import LocationMap from './LocationMap';
 import { LocationsAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
@@ -29,6 +30,8 @@ const MOCK_CITIES = [
 const { width, height } = Dimensions.get('window');
 
 const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) => {
+    const { theme, colors } = useTheme();
+    const isDark = theme === 'dark';
     const [searchQuery, setSearchQuery] = useState('');
     const [isLocating, setIsLocating] = useState(false);
     const [showMap, setShowMap] = useState(false);
@@ -65,6 +68,14 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
         try {
             // Check if GPS is physically turned on
             let servicesEnabled = await Location.hasServicesEnabledAsync();
+            if (!servicesEnabled && Platform.OS === 'android') {
+                try {
+                    await Location.enableNetworkProviderAsync();
+                    servicesEnabled = await Location.hasServicesEnabledAsync();
+                } catch (e) {
+                    console.log('Failed to auto-enable location provider:', e);
+                }
+            }
             if (!servicesEnabled) {
                 Alert.alert(
                     'Location Disabled', 
@@ -120,7 +131,7 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                         locationString = city ? `${city}, ${region}` : "Current Location";
                     }
                 }
-                onLocationSelect(locationString);
+                onLocationSelect(locationString, coords);
                 onClose();
             }
 
@@ -177,9 +188,9 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
 
     const handleConfirmMapLocation = () => {
         if (addressText) {
-            onLocationSelect(addressText);
+            onLocationSelect(addressText, selectedCoord);
         } else {
-            onLocationSelect("Selected Location");
+            onLocationSelect("Selected Location", selectedCoord);
         }
         setShowMap(false);
         onClose();
@@ -209,22 +220,22 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
 
 
                 ) : (
-                    <View style={styles.container}>
+                    <View style={[styles.container, { backgroundColor: colors.bgSecondary }]}>
                         {/* Header */}
                         <View style={styles.header}>
-                            <Text style={styles.title}>Select Location</Text>
+                            <Text style={[styles.title, { color: colors.textPrimary }]}>Select Location</Text>
                             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                                <X size={24} color={COLORS.textSecondary} />
+                                <X size={24} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
 
                         {/* Search Bar */}
-                        <View style={styles.searchContainer}>
-                            <Search size={20} color={COLORS.textTertiary} />
+                        <View style={[styles.searchContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
+                            <Search size={20} color={colors.textTertiary} />
                             <TextInput
-                                style={styles.searchInput}
+                                style={[styles.searchInput, { color: colors.textPrimary }]}
                                 placeholder="Search for your city..."
-                                placeholderTextColor={COLORS.textTertiary}
+                                placeholderTextColor={colors.textTertiary}
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                             />
@@ -236,18 +247,18 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                             onPress={handleCurrentLocation}
                             disabled={isLocating}
                         >
-                            <View style={[styles.iconBox, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+                            <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.08)' }]}>
                                 {isLocating ? (
-                                    <ActivityIndicator size="small" color={COLORS.accent} />
+                                    <ActivityIndicator size="small" color={colors.accent} />
                                 ) : (
-                                    <Navigation size={20} color={COLORS.accent} fill={COLORS.accent} />
+                                    <Navigation size={20} color={colors.accent} fill={colors.accent} />
                                 )}
                             </View>
                             <View>
-                                <Text style={[styles.optionTitle, { color: COLORS.accent }]}>
+                                <Text style={[styles.optionTitle, { color: colors.accent }]}>
                                     {isLocating ? 'Locating...' : 'Use Current Location'}
                                 </Text>
-                                <Text style={styles.optionSubtitle}>Using GPS</Text>
+                                <Text style={[styles.optionSubtitle, { color: colors.textTertiary }]}>Using GPS</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -262,29 +273,29 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                                 setShowMap(true);
                             }}
                         >
-                            <View style={[styles.iconBox, { backgroundColor: 'rgba(255, 255, 255, 0.05)' }]}>
-                                <MapPin size={20} color={COLORS.textPrimary} />
+                            <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)' }]}>
+                                <MapPin size={20} color={colors.textPrimary} />
                             </View>
                             <View>
-                                <Text style={styles.optionTitle}>Select on Map</Text>
-                                <Text style={styles.optionSubtitle}>Pin your exact location</Text>
+                                <Text style={[styles.optionTitle, { color: colors.textPrimary }]}>Select on Map</Text>
+                                <Text style={[styles.optionSubtitle, { color: colors.textTertiary }]}>Pin your exact location</Text>
                             </View>
                         </TouchableOpacity>
 
-                        <Text style={styles.sectionTitle}>SUGGESTED CITIES</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SUGGESTED CITIES</Text>
 
                         {/* City List */}
                         {filteredCities.map((city, index) => (
                             <TouchableOpacity
                                 key={index}
-                                style={styles.cityItem}
+                                style={[styles.cityItem, { borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
                                 onPress={() => {
                                     onLocationSelect(city);
                                     onClose();
                                 }}
                             >
-                                <MapPin size={16} color={COLORS.textTertiary} />
-                                <Text style={styles.cityText}>{city}</Text>
+                                <MapPin size={16} color={colors.textTertiary} />
+                                <Text style={[styles.cityText, { color: colors.textSecondary }]}>{city}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>

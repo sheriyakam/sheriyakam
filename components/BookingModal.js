@@ -14,14 +14,17 @@ import {
     Linking
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { X, CheckCircle, Calendar, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { createBooking } from '../constants/bookingStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import LocationPicker from './LocationPicker';
 import { geminiService } from '../services/geminiService';
+import { snitch } from '../utils/snitch';
 
 const AI_SUGGESTIONS = [
     // Motor
@@ -75,20 +78,52 @@ const BookingModal = ({ service, visible, onClose }) => {
 
             setSelectedImage(null);
             setIssues('');
-            setSelectedLocation(null);
             setAiLoading(false);
             setAiResult(null);
+
+            // Check and auto-enable location provider on Android when booking modal opens
+            const checkLocationOnOpen = async () => {
+                if (Platform.OS !== 'web') {
+                    try {
+                        const servicesEnabled = await Location.hasServicesEnabledAsync();
+                        if (!servicesEnabled && Platform.OS === 'android') {
+                            await Location.enableNetworkProviderAsync();
+                        }
+                    } catch (e) {
+                        console.log('Failed to auto-enable location on booking modal open:', e);
+                    }
+                }
+            };
+            checkLocationOnOpen();
+
+            // Attempt to load the last used location from AsyncStorage
+            const loadLastLocation = async () => {
+                try {
+                    const savedLoc = await AsyncStorage.getItem('last_customer_location');
+                    if (savedLoc) {
+                        setSelectedLocation(JSON.parse(savedLoc));
+                    } else {
+                        setSelectedLocation(null);
+                    }
+                } catch (e) {
+                    console.log('Error loading last location:', e);
+                    setSelectedLocation(null);
+                }
+            };
+            loadLastLocation();
         }
     }, [visible]);
 
     const runAiDiagnostic = async (imageUri) => {
         setAiLoading(true);
         setAiResult(null);
+        snitch.logEvent('gemini_diagnostics_started', { category: service?.name, type: 'image' });
         try {
             const category = service?.name || 'general';
             const result = await geminiService.analyzeIssueImage(imageUri, category);
             setAiResult(result);
             if (result && result.possibleIssue) {
+                snitch.logEvent('gemini_diagnostics_success', { possibleIssue: result.possibleIssue, type: 'image' });
                 let updatedNotes = `[Gemini AI Diagnosis] possible issue: ${result.possibleIssue}.\n`;
                 if (result.materialsNeeded) {
                     updatedNotes += `Estimated materials: ${result.materialsNeeded}.\n`;
@@ -100,7 +135,40 @@ const BookingModal = ({ service, visible, onClose }) => {
                 });
             }
         } catch (error) {
+            snitch.logError(error, 'Gemini image diagnostics');
             console.error("[BookingModal] Gemini diagnostic error:", error);
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    const runAiTextDiagnostic = async () => {
+        if (!issues.trim()) {
+            Alert.alert("Input Required", "Please enter some issue details first to analyze.");
+            return;
+        }
+        setAiLoading(true);
+        setAiResult(null);
+        snitch.logEvent('gemini_diagnostics_started', { category: service?.name, type: 'text' });
+        try {
+            const category = service?.name || 'general';
+            const result = await geminiService.analyzeIssueText(issues, category);
+            setAiResult(result);
+            if (result && result.possibleIssue) {
+                snitch.logEvent('gemini_diagnostics_success', { possibleIssue: result.possibleIssue, type: 'text' });
+                let updatedNotes = `[Gemini AI Diagnosis] possible issue: ${result.possibleIssue}.\n`;
+                if (result.materialsNeeded) {
+                    updatedNotes += `Estimated materials: ${result.materialsNeeded}.\n`;
+                }
+                setIssues(prev => {
+                    const cleanPrev = prev.replace(/\[Gemini AI Diagnosis\][\s\S]*/, '').trim();
+                    if (!cleanPrev) return updatedNotes;
+                    return cleanPrev + "\n\n" + updatedNotes;
+                });
+            }
+        } catch (error) {
+            snitch.logError(error, 'Gemini text diagnostics');
+            console.error("[BookingModal] Gemini text diagnostic error:", error);
         } finally {
             setAiLoading(false);
         }
@@ -137,6 +205,7 @@ const BookingModal = ({ service, visible, onClose }) => {
     const availableDays = isTodayOver ? ['Tomorrow'] : ['Today', 'Tomorrow'];
 
     const handleSubmit = () => {
+        snitch.logEvent('booking_creation_started', { service: service?.name });
         // Validation: Must have EITHER text or photo
         if (!issues.trim() && !selectedImage) {
             Alert.alert(
@@ -148,6 +217,7 @@ const BookingModal = ({ service, visible, onClose }) => {
 
         // Check if user is logged in
         if (!user) {
+            snitch.logEvent('booking_creation_redirected_to_auth');
             // Close the booking modal
             onClose();
             // Redirect to login page
@@ -180,8 +250,21 @@ const BookingModal = ({ service, visible, onClose }) => {
             serviceName: service.name,
         };
 
-        // Save to store!
-        createBooking(newBooking);
+        try {
+            // Save to store!
+            createBooking(newBooking);
+            snitch.logEvent('booking_creation_success', { service: service.name, date: selectedDate, hasPhoto: !!selectedImage });
+        } catch (err) {
+            snitch.logError(err, 'Booking store createBooking');
+            Alert.alert('Error', 'Failed to create booking.');
+            return;
+        }
+
+        // Auto-save this location for the next booking
+        if (selectedLocation) {
+            AsyncStorage.setItem('last_customer_location', JSON.stringify(selectedLocation))
+                .catch(err => console.log('Error saving last location:', err));
+        }
 
         // Show success screen
         setStep(2);
@@ -381,8 +464,8 @@ const BookingModal = ({ service, visible, onClose }) => {
                                                         style={[
                                                             styles.aiChip,
                                                             {
-                                                                backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.08)',
-                                                                borderColor: isDark ? 'rgba(37, 99, 235, 0.3)' : 'rgba(37, 99, 235, 0.15)'
+                                                                backgroundColor: isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.08)',
+                                                                borderColor: isDark ? 'rgba(79, 70, 229, 0.3)' : 'rgba(79, 70, 229, 0.15)'
                                                             }
                                                         ]}
                                                         onPress={() => setIssues(suggestion.text)}
@@ -393,6 +476,32 @@ const BookingModal = ({ service, visible, onClose }) => {
                                             </ScrollView>
                                         )}
 
+                                        {/* Get AI Diagnostic Suggestion Button */}
+                                        {issues.trim().length > 5 && (
+                                            <TouchableOpacity
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.08)',
+                                                    borderColor: colors.accent,
+                                                    borderWidth: 1,
+                                                    borderRadius: 8,
+                                                    paddingVertical: 8,
+                                                    paddingHorizontal: 12,
+                                                    marginTop: 8,
+                                                    marginBottom: 12,
+                                                }}
+                                                onPress={runAiTextDiagnostic}
+                                                disabled={aiLoading}
+                                            >
+                                                <Text style={{ color: colors.accent, fontWeight: '700', fontSize: 13 }}>
+                                                    ✨ Ask Gemini AI for Diagnostics
+                                                </Text>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        {/* Image Picker or Preview Area */}
                                         {!selectedImage ? (
                                             <TouchableOpacity
                                                 onPress={handleImageMock}
@@ -408,67 +517,67 @@ const BookingModal = ({ service, visible, onClose }) => {
                                                 <Text style={[styles.uploadText, { color: colors.textTertiary }]}>Add Photo</Text>
                                             </TouchableOpacity>
                                         ) : (
-                                            <View>
-                                                <View style={styles.imagePreviewContainer}>
-                                                    <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
-                                                    <TouchableOpacity
-                                                        onPress={() => {
-                                                            setSelectedImage(null);
-                                                            setAiResult(null);
-                                                        }}
-                                                        style={styles.removeImageBtn}
-                                                    >
-                                                        <X size={16} color="#fff" />
-                                                    </TouchableOpacity>
+                                            <View style={styles.imagePreviewContainer}>
+                                                <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
+                                                <TouchableOpacity
+                                                    onPress={() => {
+                                                        setSelectedImage(null);
+                                                        setAiResult(null);
+                                                    }}
+                                                    style={styles.removeImageBtn}
+                                                >
+                                                    <X size={16} color="#fff" />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+
+                                        {/* AI Diagnostic Loader */}
+                                        {aiLoading && (
+                                            <View style={[styles.aiDiagnosticBox, { backgroundColor: isDark ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)', borderColor: colors.accent, marginTop: 12 }]}>
+                                                <ActivityIndicator size="small" color={colors.accent} />
+                                                <Text style={[styles.aiDiagnosticLoadingText, { color: colors.accent }]}>
+                                                    ✨ Gemini AI diagnosing issue...
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                        {/* AI Diagnostic Result Report */}
+                                        {aiResult && !aiLoading && (
+                                            <View style={[styles.aiResultBox, { backgroundColor: isDark ? 'rgba(30,41,59,0.7)' : 'rgba(241,245,249,0.7)', borderColor: colors.border, marginTop: 12 }]}>
+                                                <View style={styles.aiResultHeader}>
+                                                    <Text style={[styles.aiResultTitle, { color: colors.textPrimary }]}>✨ Gemini AI Diagnostic Report</Text>
+                                                    {aiResult.confidence && (
+                                                        <Text style={[styles.aiConfidenceBadge, { color: colors.accent, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)' }]}>
+                                                            {aiResult.confidence} Match
+                                                        </Text>
+                                                    )}
                                                 </View>
 
-                                                {aiLoading && (
-                                                    <View style={[styles.aiDiagnosticBox, { backgroundColor: isDark ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)', borderColor: colors.accent }]}>
-                                                        <ActivityIndicator size="small" color={colors.accent} />
-                                                        <Text style={[styles.aiDiagnosticLoadingText, { color: colors.accent }]}>
-                                                            ✨ Gemini AI diagnosing photo...
-                                                        </Text>
-                                                    </View>
-                                                )}
+                                                <View style={styles.aiResultBody}>
+                                                    <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Possible Issue:</Text>
+                                                    <Text style={[styles.aiValue, { color: colors.textPrimary }]}>{aiResult.possibleIssue}</Text>
 
-                                                {aiResult && !aiLoading && (
-                                                    <View style={[styles.aiResultBox, { backgroundColor: isDark ? 'rgba(30,41,59,0.7)' : 'rgba(241,245,249,0.7)', borderColor: colors.border }]}>
-                                                        <View style={styles.aiResultHeader}>
-                                                            <Text style={[styles.aiResultTitle, { color: colors.textPrimary }]}>✨ Gemini AI Diagnostic Report</Text>
-                                                            {aiResult.confidence && (
-                                                                <Text style={[styles.aiConfidenceBadge, { color: colors.accent, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)' }]}>
-                                                                    {aiResult.confidence} Match
-                                                                </Text>
-                                                            )}
+                                                    {aiResult.safetyAdvice && (
+                                                        <View style={[styles.aiSafetyBox, { backgroundColor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)' }]}>
+                                                            <Text style={styles.aiSafetyTitle}>⚠️ Safety Advisory</Text>
+                                                            <Text style={styles.aiSafetyText}>{aiResult.safetyAdvice}</Text>
                                                         </View>
+                                                    )}
 
-                                                        <View style={styles.aiResultBody}>
-                                                            <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Possible Issue:</Text>
-                                                            <Text style={[styles.aiValue, { color: colors.textPrimary }]}>{aiResult.possibleIssue}</Text>
-
-                                                            {aiResult.safetyAdvice && (
-                                                                <View style={[styles.aiSafetyBox, { backgroundColor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)' }]}>
-                                                                    <Text style={styles.aiSafetyTitle}>⚠️ Safety Advisory</Text>
-                                                                    <Text style={styles.aiSafetyText}>{aiResult.safetyAdvice}</Text>
-                                                                </View>
-                                                            )}
-
-                                                            {aiResult.materialsNeeded && (
-                                                                <View style={{ marginTop: 8 }}>
-                                                                    <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Expected Materials:</Text>
-                                                                    <Text style={[styles.aiValue, { color: colors.textPrimary, fontSize: 13 }]}>{aiResult.materialsNeeded}</Text>
-                                                                </View>
-                                                            )}
-                                                            
-                                                            {aiResult.estimatedCost && (
-                                                                <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                                    <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Estimated Cost:</Text>
-                                                                    <Text style={[styles.aiCostValue, { color: colors.success }]}>{aiResult.estimatedCost}</Text>
-                                                                </View>
-                                                            )}
+                                                    {aiResult.materialsNeeded && (
+                                                        <View style={{ marginTop: 8 }}>
+                                                            <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Expected Materials:</Text>
+                                                            <Text style={[styles.aiValue, { color: colors.textPrimary, fontSize: 13 }]}>{aiResult.materialsNeeded}</Text>
                                                         </View>
-                                                    </View>
-                                                )}
+                                                    )}
+                                                    
+                                                    {aiResult.estimatedCost && (
+                                                        <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                            <Text style={[styles.aiLabel, { color: colors.textSecondary }]}>Estimated Cost:</Text>
+                                                            <Text style={[styles.aiCostValue, { color: colors.success }]}>{aiResult.estimatedCost}</Text>
+                                                        </View>
+                                                    )}
+                                                </View>
                                             </View>
                                         )}
                                     </View>
@@ -524,7 +633,7 @@ const BookingModal = ({ service, visible, onClose }) => {
                                     <View style={[
                                         styles.imageTag,
                                         {
-                                            backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.08)'
+                                            backgroundColor: isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.08)'
                                         }
                                     ]}>
                                         <ImageIcon size={14} color={colors.accent} />

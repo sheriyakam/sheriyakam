@@ -16,6 +16,10 @@ mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Successfully connected to MongoDB Compass!'))
     .catch((error) => console.error('❌ MongoDB connection error:', error));
 
+// Auth Routes
+const authRouter = require('./routes/auth');
+app.use('/api/auth', authRouter);
+
 // Basic route to test the server
 app.get('/api/health', (req, res) => {
     res.json({ status: 'active', message: 'Sheriyakam Backend API is running properly' });

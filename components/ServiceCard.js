@@ -49,92 +49,97 @@ const ServiceCard = ({
     const borderCol = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
 
     return (
-        <Animated.View
-            style={[
-                styles.card,
-                {
-                    backgroundColor: cardBg,
-                    borderColor: borderCol,
-                    shadowColor: isDark ? '#000' : 'rgba(0,0,0,0.12)',
-                    shadowOpacity: isDark ? 0.4 : 0.08,
-                },
+        <Pressable
+            onPress={onPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            style={({ hovered }) => [
                 fullWidth ? { width: '100%' } : { width: cardWidth },
                 !fullWidth && !isSmallScreen && { maxWidth: 300 },
-                isEmergency && [styles.emergencyCard, {
-                    borderColor: 'rgba(239, 68, 68, 0.4)',
-                    backgroundColor: isDark ? 'rgba(239, 68, 68, 0.06)' : 'rgba(239, 68, 68, 0.03)',
-                }],
-                { transform: [{ scale: scaleValue }] }
             ]}
         >
-            {/* Image Section */}
-            <Pressable 
-                onPress={onPress} 
-                onPressIn={onPressIn} 
-                onPressOut={onPressOut}
-            >
-                <View style={styles.imageContainer}>
-                    <Image
-                        source={typeof image === 'string' ? { uri: image } : image}
-                        style={styles.image}
-                        resizeMode="cover"
-                    />
-                    {/* Subtle gradient overlay */}
-                    <View style={styles.imageOverlay} />
+            {({ hovered }) => (
+                <Animated.View
+                    style={[
+                        styles.card,
+                        {
+                            backgroundColor: cardBg,
+                            borderColor: hovered ? (isEmergency ? COLORS.danger : colors.accent) : borderCol,
+                            shadowColor: isDark ? '#000' : 'rgba(0,0,0,0.12)',
+                            shadowOpacity: isDark ? (hovered ? 0.6 : 0.4) : (hovered ? 0.15 : 0.08),
+                            shadowRadius: hovered ? 16 : 12,
+                        },
+                        isEmergency && [styles.emergencyCard, {
+                            backgroundColor: isDark ? 'rgba(239, 68, 68, 0.06)' : 'rgba(239, 68, 68, 0.03)',
+                        }],
+                        { transform: [{ scale: scaleValue }] }
+                    ]}
+                >
+                    {/* Image Section */}
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={typeof image === 'string' ? { uri: image } : image}
+                            style={styles.image}
+                            resizeMode="cover"
+                        />
+                        {/* Subtle gradient overlay */}
+                        <View style={styles.imageOverlay} />
 
-                    <View style={[
-                        styles.badge,
-                        isEmergency ? styles.badgeEmergency : {
-                            backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.92)',
-                        }
-                    ]}>
-                        <Star size={11} color={isEmergency ? "#fff" : "#F59E0B"} fill={isEmergency ? "#fff" : "#F59E0B"} />
-                        <Text style={[styles.badgeText, { color: isEmergency ? '#fff' : (isDark ? '#fff' : '#1a1a1a') }]}>{rating}</Text>
+                        <View style={[
+                            styles.badge,
+                            isEmergency ? styles.badgeEmergency : {
+                                backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.92)',
+                            }
+                        ]}>
+                            <Star size={11} color={isEmergency ? "#fff" : "#F59E0B"} fill={isEmergency ? "#fff" : "#F59E0B"} />
+                            <Text style={[styles.badgeText, { color: isEmergency ? '#fff' : (isDark ? '#fff' : '#1a1a1a') }]}>{rating}</Text>
+                        </View>
+
+                        {rating >= 4.8 && (
+                            <View style={styles.topRatedBadge}>
+                                <Text style={styles.topRatedText}>TOP RATED</Text>
+                            </View>
+                        )}
                     </View>
 
-                    {rating >= 4.8 && (
-                        <View style={styles.topRatedBadge}>
-                            <Text style={styles.topRatedText}>TOP RATED</Text>
+                    {/* Content Section */}
+                    <View style={styles.content}>
+                        <View style={[styles.header, { alignItems: 'flex-start' }]}>
+                            <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={2}>{name}</Text>
+                            {isEmergency && <Zap size={16} color={COLORS.danger} fill={COLORS.danger} style={{ marginTop: 3 }} />}
                         </View>
-                    )}
-                </View>
-            </Pressable>
 
-            {/* Content Section */}
-            <View style={styles.content}>
-                <View style={[styles.header, { alignItems: 'flex-start' }]}>
-                    <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={2}>{name}</Text>
-                    {isEmergency && <Zap size={16} color={COLORS.danger} fill={COLORS.danger} style={{ marginTop: 3 }} />}
-                </View>
+                        <Text style={[styles.specialty, { color: colors.accent }]}>{specialty}</Text>
 
-                <Text style={[styles.specialty, { color: colors.accent }]}>{specialty}</Text>
-
-                <View style={styles.metaContainer}>
-                    {distance && (
-                        <View style={styles.metaItem}>
-                            <MapPin size={11} color={colors.textTertiary} />
-                            <Text style={[styles.metaText, { color: colors.textTertiary }]}>{distance}</Text>
+                        <View style={styles.metaContainer}>
+                            {distance && (
+                                <View style={styles.metaItem}>
+                                    <MapPin size={11} color={colors.textTertiary} />
+                                    <Text style={[styles.metaText, { color: colors.textTertiary }]}>{distance}</Text>
+                                </View>
+                            )}
+                            <View style={styles.metaItem}>
+                                <Clock size={11} color={colors.textTertiary} />
+                                <Text style={[styles.metaText, { color: colors.textTertiary }]}>{time}</Text>
+                            </View>
                         </View>
-                    )}
-                    <View style={styles.metaItem}>
-                        <Clock size={11} color={colors.textTertiary} />
-                        <Text style={[styles.metaText, { color: colors.textTertiary }]}>{time}</Text>
+
+                        {/* Price & Action */}
+                        <View style={styles.footer}>
+                            <View>
+                              <Text style={[{ fontSize: 10, color: colors.textTertiary, fontWeight: '500', letterSpacing: 0.3 }]}>Starting from</Text>
+                              <Text style={[styles.price, { color: colors.textPrimary }]}>₹{price}</Text>
+                            </View>
+                            <View
+                                style={[styles.bookBtn, { backgroundColor: isEmergency ? COLORS.danger : colors.accent }]}
+                            >
+                                <Text style={styles.bookBtnText}>Book</Text>
+                            </View>
+                        </View>
                     </View>
-                </View>
-
-                {/* Price & Action */}
-                <View style={styles.footer}>
-                    <Text style={[styles.price, { color: colors.textPrimary }]}>₹{price}</Text>
-                    <TouchableOpacity
-                        style={[styles.bookBtn, { backgroundColor: colors.accent }]}
-                        onPress={onPress}
-                        activeOpacity={0.8}
-                    >
-                        <Text style={styles.bookBtnText}>Book</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Animated.View>
+                </Animated.View>
+            )}
+        </Pressable>
     );
 };
 
