@@ -8,27 +8,29 @@ import {
     StyleSheet,
     Dimensions,
     TouchableWithoutFeedback,
-    Switch,
     ScrollView,
     Animated,
-    Alert,
     Platform
 } from 'react-native';
 import {
-    X, User, LogIn, UserPlus, Info, FileText, ChevronRight, Moon, Sun, LogOut,
-    Settings, Bell, HelpCircle, Star, Gift, Zap, TrendingUp, Calendar, MapPin, Shield
+    X, User, LogIn, Info, FileText, ChevronRight, Moon, Sun, LogOut,
+    Settings, Bell, HelpCircle, Star, Gift, Zap, TrendingUp, Calendar, MapPin, Shield,
+    Crown, Search, ShoppingCart, Activity, Briefcase, DollarSign, Award, CheckCircle2,
+    Users, Newspaper, BookOpen, Layers, Phone, Key, Scale
 } from 'lucide-react-native';
-import { COLORS, SPACING } from '../constants/theme';
+import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
-const { width, height } = Dimensions.get('window');
-const MENU_WIDTH = Math.min(width * 0.85, 360);
+const { width } = Dimensions.get('window');
+const MENU_WIDTH = Math.min(width * 0.88, 380);
 
-const MenuModal = ({ visible, onClose }) => {
+export default function MenuModal({ visible, onClose }) {
     const router = useRouter();
     const { theme, toggleTheme, colors } = useTheme();
     const { user, logout } = useAuth();
+    const { itemCount } = useCart();
     const isDark = theme === 'dark';
     const [slideAnim] = useState(new Animated.Value(-MENU_WIDTH));
 
@@ -41,41 +43,33 @@ const MenuModal = ({ visible, onClose }) => {
         }).start();
     }, [visible]);
 
+    const navigateTo = (path) => {
+        onClose();
+        router.push(path);
+    };
+
     const handleLogout = () => {
         logout();
         onClose();
-    };
-
-    // AI-powered recommendations based on user behavior
-    const getAIRecommendations = () => {
-        if (!user) return null;
-
-        return {
-            title: "AI Recommendations",
-            items: [
-                { icon: TrendingUp, label: "Most Booked: AC Service", count: "3 times" },
-                { icon: Calendar, label: "Book Your Regular Service", subtitle: "Due in 5 days" }
-            ]
-        };
     };
 
     const MenuItem = ({ icon: Icon, label, onPress, color, badge, subtitle, rightText }) => {
         const iconColor = color || colors.textPrimary;
         return (
             <TouchableOpacity
-                style={[styles.menuItem, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}
+                style={[styles.menuItem, { backgroundColor: isDark ? '#18181B' : '#F9FAFB' }]}
                 onPress={onPress}
                 activeOpacity={0.7}
             >
                 <View style={styles.menuItemLeft}>
-                    <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.15)' }]}>
-                        <Icon size={20} color={iconColor} />
+                    <View style={[styles.iconContainer, { backgroundColor: isDark ? '#27272A' : '#EFF6FF' }]}>
+                        <Icon size={18} color={iconColor} />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                            <Text style={[styles.menuItemText, { color: iconColor }]}>{label}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>{label}</Text>
                             {badge && (
-                                <View style={[styles.badge, { backgroundColor: colors.accent }]}>
+                                <View style={[styles.badge, { backgroundColor: badge === 'VIP' ? '#F59E0B' : colors.accent }]}>
                                     <Text style={styles.badgeText}>{badge}</Text>
                                 </View>
                             )}
@@ -85,17 +79,15 @@ const MenuModal = ({ visible, onClose }) => {
                         )}
                     </View>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     {rightText && (
                         <Text style={[styles.rightText, { color: colors.textTertiary }]}>{rightText}</Text>
                     )}
-                    <ChevronRight size={16} color={colors.textTertiary} />
+                    <ChevronRight size={14} color={colors.textTertiary} />
                 </View>
             </TouchableOpacity>
         );
     };
-
-    const aiRecommendations = getAIRecommendations();
 
     return (
         <Modal
@@ -113,225 +105,275 @@ const MenuModal = ({ visible, onClose }) => {
                     style={[
                         styles.menuContainer,
                         {
-                            backgroundColor: colors.bgPrimary,
-                            borderColor: isDark ? colors.border : 'transparent',
+                            backgroundColor: isDark ? '#09090B' : '#FFFFFF',
+                            borderColor: isDark ? '#27272A' : '#E4E4E7',
                             transform: [{ translateX: slideAnim }]
                         }
                     ]}
                 >
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                         {/* Header */}
-                        <View style={styles.header}>
+                        <View style={[styles.header, { borderBottomColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                             <View style={{ flex: 1 }}>
-                                <Text style={[styles.title, { color: colors.textPrimary }]}>Menu</Text>
+                                <Text style={[styles.title, { color: colors.textPrimary }]}>Sheriyakam</Text>
                                 <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                                    {user ? `Welcome, ${user.name.split(' ')[0]}` : 'Welcome Guest'}
+                                    {user ? `Namaskaram, ${user.name.split(' ')[0]}` : 'Certified Electrical Services'}
                                 </Text>
                             </View>
                             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                                <X size={24} color={colors.textSecondary} />
+                                <X size={20} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
 
-                        {/* User Profile Card */}
-                        {user && (
-                            <View style={[styles.profileCard, {
-                                backgroundColor: isDark ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.15)',
-                                borderColor: colors.accent
-                            }]}>
-                                <View style={styles.profileRow}>
-                                    <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
-                                        <Text style={styles.avatarText}>
-                                            {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                        </Text>
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={[styles.profileName, { color: colors.textPrimary }]}>{user.name}</Text>
-                                        <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user.email}</Text>
-                                    </View>
-                                    <Star size={16} color={colors.accent} fill={colors.accent} />
-                                </View>
-                            </View>
-                        )}
-
-                        {/* AI Recommendations */}
-                        {aiRecommendations && (
-                            <View style={styles.section}>
-                                <View style={styles.sectionHeader}>
-                                    <Zap size={14} color={colors.accent} />
-                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>{aiRecommendations.title}</Text>
-                                    <View style={[styles.aiBadge, { backgroundColor: colors.accent }]}>
-                                        <Text style={styles.aiBadgeText}>AI</Text>
-                                    </View>
-                                </View>
-                                {aiRecommendations.items.map((item, index) => (
-                                    <MenuItem
-                                        key={index}
-                                        icon={item.icon}
-                                        label={item.label}
-                                        subtitle={item.subtitle || item.count}
-                                        onPress={() => { router.push('/bookings'); onClose(); }}
-                                    />
-                                ))}
-                            </View>
-                        )}
-
-                        {/* Account Section */}
-                        {!user && (
-                            <View style={styles.section}>
-                                <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ACCOUNT</Text>
-                                <MenuItem
-                                    icon={LogIn}
-                                    label="Login or Sign Up"
-                                    subtitle="Get personalized recommendations"
-                                    onPress={() => { router.push('/auth/login'); onClose(); }}
-                                />
-                            </View>
-                        )}
-
-                        {/* Dashboard Section */}
-                        {user && (
-                            <View style={styles.section}>
-                                <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>DASHBOARD</Text>
-                                <MenuItem
-                                    icon={User}
-                                    label="My Profile"
-                                    subtitle="Manage your account"
-                                    onPress={() => { router.push('/profile'); onClose(); }}
-                                />
-                                <MenuItem
-                                    icon={FileText}
-                                    label="My Bookings"
-                                    subtitle="View booking history"
-                                    badge="3"
-                                    onPress={() => { router.push('/bookings'); onClose(); }}
-                                />
-                                <MenuItem
-                                    icon={Gift}
-                                    label="Rewards & Offers"
-                                    subtitle="Exclusive deals for you"
-                                    badge="NEW"
-                                    onPress={() => { /* TODO */ onClose(); }}
-                                />
-                            </View>
-                        )}
-
-                        {/* Help & Support Section */}
+                        {/* Customer Quick Links */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>HELP & SUPPORT</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>DISCOVER & BOOK</Text>
                             <MenuItem
-                                icon={HelpCircle}
-                                label="Get Help"
-                                subtitle="Customer service & FAQs"
-                                onPress={() => { /* TODO */ onClose(); }}
+                                icon={Search}
+                                label="Search & Filter Services"
+                                subtitle="Instant rate card & bookings"
+                                onPress={() => navigateTo('/search')}
                             />
-                            {user && (
-                                <MenuItem
-                                    icon={Star}
-                                    label="Rate Our Service"
-                                    subtitle="Help us improve"
-                                    onPress={() => { /* TODO */ onClose(); }}
-                                />
+                            <MenuItem
+                                icon={ShoppingCart}
+                                label="Service Cart"
+                                subtitle="Review parts & checkout"
+                                badge={itemCount > 0 ? `${itemCount}` : null}
+                                onPress={() => navigateTo('/cart')}
+                            />
+                            <MenuItem
+                                icon={Crown}
+                                label="Sheriyakam VIP Club"
+                                subtitle="₹0 visit fee protection"
+                                badge="VIP"
+                                onPress={() => navigateTo('/paywall')}
+                            />
+                        </View>
+
+                        {/* Account & History */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ACCOUNT & ACTIVITY</Text>
+                            {user ? (
+                                <>
+                                    <MenuItem
+                                        icon={User}
+                                        label="My Profile"
+                                        subtitle={user.email}
+                                        onPress={() => navigateTo('/profile')}
+                                    />
+                                    <MenuItem
+                                        icon={FileText}
+                                        label="My Bookings"
+                                        subtitle="Live dispatch tracking"
+                                        onPress={() => navigateTo('/bookings')}
+                                    />
+                                    <MenuItem
+                                        icon={Bell}
+                                        label="Notification Center"
+                                        subtitle="Alerts and offers"
+                                        onPress={() => navigateTo('/notifications')}
+                                    />
+                                    <MenuItem
+                                        icon={Gift}
+                                        label="Invite & Earn ₹100"
+                                        subtitle="Share referral code"
+                                        badge="₹100"
+                                        onPress={() => navigateTo('/invite')}
+                                    />
+                                    <MenuItem
+                                        icon={Settings}
+                                        label="Settings & 2FA"
+                                        subtitle="Security and preferences"
+                                        onPress={() => navigateTo('/settings')}
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <MenuItem
+                                        icon={LogIn}
+                                        label="Login / Sign Up"
+                                        subtitle="Track bookings and warranties"
+                                        onPress={() => navigateTo('/auth/login')}
+                                    />
+                                    <MenuItem
+                                        icon={Zap}
+                                        label="Customer Onboarding"
+                                        subtitle="Feature walkthrough"
+                                        onPress={() => navigateTo('/onboarding')}
+                                    />
+                                </>
                             )}
                         </View>
 
-                        {/* App Section */}
+                        {/* Public Marketing & Trust */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ABOUT APP</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>STANDARDS & PRICING</Text>
                             <MenuItem
-                                icon={Info}
-                                label="About Sheriyakam"
-                                subtitle="Learn more about us"
-                                onPress={() => { router.push('/about'); onClose(); }}
+                                icon={Zap}
+                                label="Features & Standards"
+                                subtitle="30-min rapid emergency"
+                                onPress={() => navigateTo('/features')}
+                            />
+                            <MenuItem
+                                icon={DollarSign}
+                                label="Tariff & Fixed Rates"
+                                subtitle="Transparent labor rate card"
+                                onPress={() => navigateTo('/pricing')}
+                            />
+                            <MenuItem
+                                icon={Scale}
+                                label="Why Sheriyakam"
+                                subtitle="Comparison vs alternatives"
+                                onPress={() => navigateTo('/compare')}
+                            />
+                            <MenuItem
+                                icon={Star}
+                                label="Customer Reviews"
+                                subtitle="4.9★ from 1,480+ fixes"
+                                onPress={() => navigateTo('/testimonials')}
                             />
                             <MenuItem
                                 icon={Shield}
-                                label="Privacy & Safety"
-                                subtitle="Your data is secure"
-                                onPress={() => { /* TODO */ onClose(); }}
+                                label="Safety & Insurance"
+                                subtitle="₹5,00,000 protection"
+                                onPress={() => navigateTo('/security')}
                             />
                         </View>
 
-                        {/* Partner Section - Hidden for logged in users */}
-                        {!user && (
-                            <View style={styles.section}>
-                                <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>PARTNER WITH US</Text>
-                                <MenuItem
-                                    icon={TrendingUp}
-                                    label="Become a Partner"
-                                    subtitle="Apply to join our platform"
-                                    onPress={() => {
-                                        onClose();
-                                        router.push('/partner/auth');
-                                    }}
-                                />
-                            </View>
-                        )}
-
-                        {/* Settings Section */}
+                        {/* Admin & Dispatcher Control Center */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>PREFERENCES</Text>
-                            {user && (
-                                <MenuItem
-                                    icon={Bell}
-                                    label="Notifications"
-                                    subtitle="Manage notification preferences"
-                                    rightText="On"
-                                    onPress={() => { /* TODO */ onClose(); }}
-                                />
-                            )}
-                            <View style={[styles.menuItem, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
-                                <View style={styles.menuItemLeft}>
-                                    <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.15)' }]}>
-                                        {isDark ? (
-                                            <Moon size={20} color={colors.textPrimary} />
-                                        ) : (
-                                            <Sun size={20} color={colors.textPrimary} />
-                                        )}
-                                    </View>
-                                    <View>
-                                        <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>
-                                            {isDark ? "Dark Mode" : "Light Mode"}
-                                        </Text>
-                                        <Text style={[styles.menuItemSubtitle, { color: colors.textTertiary }]}>
-                                            Automatic theme switching
-                                        </Text>
-                                    </View>
-                                </View>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: colors.accent }}
-                                    thumbColor={isDark ? "#fff" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={toggleTheme}
-                                    value={isDark}
-                                />
-                            </View>
+                            <Text style={[styles.sectionTitle, { color: colors.accent }]}>ADMIN & ENTERPRISE HUB</Text>
+                            <MenuItem
+                                icon={Layers}
+                                label="Live Dispatch Kanban"
+                                subtitle="Real-time order board"
+                                onPress={() => navigateTo('/admin/kanban')}
+                            />
+                            <MenuItem
+                                icon={Calendar}
+                                label="Contractor Schedule Gantt"
+                                subtitle="Visual zone timeline"
+                                onPress={() => navigateTo('/admin/schedule')}
+                            />
+                            <MenuItem
+                                icon={Users}
+                                label="User & Partner Directory"
+                                subtitle="KYC & license vetting"
+                                onPress={() => navigateTo('/admin/users')}
+                            />
+                            <MenuItem
+                                icon={TrendingUp}
+                                label="Analytics & Growth"
+                                subtitle="Revenue and SLAs"
+                                onPress={() => navigateTo('/admin/analytics')}
+                            />
+                            <MenuItem
+                                icon={Key}
+                                label="API Keys & Webhooks"
+                                subtitle="REST integration tokens"
+                                onPress={() => navigateTo('/admin/api-keys')}
+                            />
+                            <MenuItem
+                                icon={Activity}
+                                label="Gateways & Integrations"
+                                subtitle="Supabase, Razorpay, Twilio"
+                                onPress={() => navigateTo('/admin/integrations')}
+                            />
+                            <MenuItem
+                                icon={Shield}
+                                label="Security Audit Trail"
+                                subtitle="Immutable event logging"
+                                onPress={() => navigateTo('/admin/audit-log')}
+                            />
                         </View>
 
-                        {/* Logout */}
-                        {user && (
-                            <View style={[styles.section, { borderBottomWidth: 0 }]}>
-                                <MenuItem
-                                    icon={LogOut}
-                                    label="Logout"
-                                    subtitle="Sign out of your account"
-                                    onPress={handleLogout}
-                                    color={colors.danger}
-                                />
-                            </View>
-                        )}
+                        {/* Company & Community */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>COMPANY & RESOURCES</Text>
+                            <MenuItem
+                                icon={BookOpen}
+                                label="Electrical Safety Blog"
+                                subtitle="Monsoon & inverter guides"
+                                onPress={() => navigateTo('/blog')}
+                            />
+                            <MenuItem
+                                icon={MapPin}
+                                label="District Waitlist"
+                                subtitle="Vote for next city"
+                                onPress={() => navigateTo('/waitlist')}
+                            />
+                            <MenuItem
+                                icon={Award}
+                                label="Affiliate Program"
+                                subtitle="Earn 20% commissions"
+                                onPress={() => navigateTo('/affiliate')}
+                            />
+                            <MenuItem
+                                icon={Newspaper}
+                                label="Press & Media Kit"
+                                subtitle="Brand assets and news"
+                                onPress={() => navigateTo('/press')}
+                            />
+                            <MenuItem
+                                icon={Users}
+                                label="Meet the Team"
+                                subtitle="Engineers & master wiremen"
+                                onPress={() => navigateTo('/team')}
+                            />
+                            <MenuItem
+                                icon={Briefcase}
+                                label="Careers & Jobs"
+                                subtitle="Join our field crew"
+                                onPress={() => navigateTo('/careers')}
+                            />
+                            <MenuItem
+                                icon={Activity}
+                                label="Live System Status"
+                                subtitle="99.99% uptime telemetry"
+                                onPress={() => navigateTo('/status')}
+                            />
+                            <MenuItem
+                                icon={HelpCircle}
+                                label="Help Center & FAQs"
+                                subtitle="Instant guides & answers"
+                                onPress={() => navigateTo('/help')}
+                            />
+                            <MenuItem
+                                icon={Phone}
+                                label="Contact & Emergency Desk"
+                                subtitle="24/7 Kozhikode helpline"
+                                onPress={() => navigateTo('/contact')}
+                            />
+                        </View>
 
-                        {/* Footer */}
-                        <View style={styles.footer}>
-                            <Text style={[styles.version, { color: colors.textTertiary }]}>Sheriyakam v1.0.0</Text>
-                            <Text style={[styles.powered, { color: colors.textTertiary }]}>Powered by AI • Made with ❤️</Text>
+                        {/* Theme Toggle & Logout */}
+                        <View style={[styles.footerSection, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <TouchableOpacity
+                                style={[styles.themeBtn, { backgroundColor: isDark ? '#18181B' : '#F4F4F5' }]}
+                                onPress={toggleTheme}
+                            >
+                                {isDark ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color={colors.textPrimary} />}
+                                <Text style={[styles.themeBtnText, { color: colors.textPrimary }]}>
+                                    {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            {user ? (
+                                <TouchableOpacity
+                                    style={[styles.logoutBtn, { borderColor: isDark ? '#27272A' : '#E4E4E7' }]}
+                                    onPress={handleLogout}
+                                >
+                                    <LogOut size={16} color={colors.danger} />
+                                    <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
+                                </TouchableOpacity>
+                            ) : null}
                         </View>
                     </ScrollView>
                 </Animated.View>
             </View>
         </Modal>
     );
-};
+}
 
 const styles = StyleSheet.create({
     overlay: {
@@ -339,114 +381,54 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     backdrop: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
     },
     menuContainer: {
         width: MENU_WIDTH,
         height: '100%',
-        backgroundColor: COLORS.bgPrimary,
-        paddingHorizontal: SPACING.lg,
-        paddingTop: SPACING.xl,
         borderRightWidth: 1,
-        borderColor: COLORS.border,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 0 },
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
-        elevation: 10,
+        paddingTop: Platform.OS === 'ios' ? 44 : 20,
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: SPACING.lg,
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: COLORS.textPrimary,
+        fontSize: 20,
+        fontWeight: '800',
+        letterSpacing: -0.5,
     },
     subtitle: {
-        fontSize: 14,
-        color: COLORS.textSecondary,
-        marginTop: 4,
-    },
-    closeBtn: {
-        padding: 8,
-        borderRadius: 8,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-    },
-    profileCard: {
-        padding: SPACING.md,
-        borderRadius: 12,
-        borderWidth: 1,
-        marginBottom: SPACING.lg,
-    },
-    profileRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    avatar: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    avatarText: {
-        color: '#000',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    profileName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    profileEmail: {
         fontSize: 12,
         marginTop: 2,
     },
-    section: {
-        marginBottom: SPACING.lg,
+    closeBtn: {
+        padding: 6,
     },
-    sectionHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    section: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
         gap: 6,
-        marginBottom: SPACING.md,
     },
     sectionTitle: {
         fontSize: 11,
-        fontWeight: 'bold',
-        color: COLORS.textTertiary,
-        textTransform: 'uppercase',
-        letterSpacing: 1.2,
-    },
-    aiBadge: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-        marginLeft: 4,
-    },
-    aiBadgeText: {
-        color: '#000',
-        fontSize: 9,
-        fontWeight: 'bold',
+        fontWeight: '800',
+        letterSpacing: 0.6,
+        marginBottom: 6,
+        paddingLeft: 4,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 12,
+        paddingVertical: 10,
         paddingHorizontal: 12,
-        borderRadius: 10,
-        marginBottom: 6,
+        borderRadius: 12,
     },
     menuItemLeft: {
         flexDirection: 'row',
@@ -455,47 +437,63 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     iconContainer: {
-        width: 36,
-        height: 36,
+        width: 34,
+        height: 34,
         borderRadius: 10,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     menuItemText: {
-        fontSize: 15,
+        fontSize: 13,
         fontWeight: '600',
     },
     menuItemSubtitle: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: 11,
+        marginTop: 1,
     },
     badge: {
-        paddingHorizontal: 8,
+        paddingHorizontal: 6,
         paddingVertical: 2,
-        borderRadius: 10,
+        borderRadius: 6,
     },
     badgeText: {
-        color: '#000',
-        fontSize: 10,
-        fontWeight: 'bold',
+        color: '#FFFFFF',
+        fontSize: 9,
+        fontWeight: '800',
     },
     rightText: {
-        fontSize: 12,
+        fontSize: 11,
     },
-    footer: {
-        marginTop: SPACING.lg,
+    footerSection: {
+        marginTop: 20,
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        gap: 10,
+    },
+    themeBtn: {
+        flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: SPACING.md,
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 12,
+        borderRadius: 12,
     },
-    version: {
-        color: COLORS.textTertiary,
-        fontSize: 12,
-        marginBottom: 4,
+    themeBtnText: {
+        fontSize: 13,
+        fontWeight: '600',
     },
-    powered: {
-        color: COLORS.textTertiary,
-        fontSize: 10,
+    logoutBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+    },
+    logoutText: {
+        fontSize: 13,
+        fontWeight: '700',
     },
 });
-
-export default MenuModal;

@@ -45,9 +45,10 @@ CREATE TABLE users (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert admin user
+-- Insert admin user (REPLACE 'your_hashed_admin_password' with the SHA-256 hash of your password)
+-- Hint: Hash password with salt: "sheriyakam_secure_salt_2026_!!"
 INSERT INTO users (name, email, mobile, password, role)
-VALUES ('Admin', 'sheriyakam.info@gmail.com', '+919000000000', 'admin123', 'admin');
+VALUES ('Admin', 'sheriyakam.info@gmail.com', '+919000000000', 'your_hashed_admin_password', 'admin');
 
 -- ========================================
 -- PARTNERS TABLE
@@ -140,3 +141,83 @@ Supabase free tier includes:
 - **Unlimited** API requests
 
 This is more than enough for Sheriyakam!
+
+---
+
+## 🔒 Step 6: Execute Row Level Security (RLS) & Audit Policies
+
+To implement secure authorization, execute the following SQL script in your Supabase **SQL Editor**:
+
+```sql
+-- 1. Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
+
+-- 2. Drop existing wide-open policies
+DROP POLICY IF EXISTS "Allow all users" ON users;
+DROP POLICY IF EXISTS "Allow all partners" ON partners;
+DROP POLICY IF EXISTS "Allow all bookings" ON bookings;
+
+-- 3. Create secure policies
+-- Users Profile Policies
+CREATE POLICY "Users can select own profile" ON users FOR SELECT
+  USING (auth.uid() = id OR role = 'admin');
+
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE
+  USING (auth.uid() = id OR role = 'admin')
+  WITH CHECK (auth.uid() = id OR role = 'admin');
+
+CREATE POLICY "Users can insert own profile" ON users FOR INSERT
+  WITH CHECK (true);
+
+-- Partners Policies
+CREATE POLICY "Everyone can select partners" ON partners FOR SELECT
+  USING (true);
+
+CREATE POLICY "Partners can update own details" ON partners FOR UPDATE
+  USING (auth.uid() = user_id OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "Partners can insert own profile" ON partners FOR INSERT
+  WITH CHECK (true);
+
+-- Bookings Policies
+CREATE POLICY "Users can select own bookings" ON bookings FOR SELECT
+  USING (
+    customer_id = auth.uid() 
+    OR partner_id = (SELECT id FROM partners WHERE user_id = auth.uid())
+    OR status = 'open'
+    OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+  );
+
+CREATE POLICY "Users can insert own bookings" ON bookings FOR INSERT
+  WITH CHECK (customer_id = auth.uid() OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "Users/Partners can update assigned bookings" ON bookings FOR UPDATE
+  USING (
+    customer_id = auth.uid()
+    OR partner_id = (SELECT id FROM partners WHERE user_id = auth.uid())
+    OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
+  );
+
+-- 4. Create Security Logs Table
+CREATE TABLE security_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type VARCHAR(100) NOT NULL,
+    description TEXT,
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    created_by UUID,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE security_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Only admin can view security logs" ON security_logs FOR SELECT
+  USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "System can insert security logs" ON security_logs FOR INSERT
+  WITH CHECK (true);
+```

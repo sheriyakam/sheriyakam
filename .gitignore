@@ -48,3 +48,5 @@ yarn-error.*
 # Logs
 logs
 *.log
+brain/
+scratch/
