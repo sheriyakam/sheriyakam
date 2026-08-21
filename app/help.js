@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     ArrowLeft, Search, Calendar, CreditCard, ShieldCheck, Zap,
     User, HelpCircle, ChevronRight, Scale, Mail, Phone, Clock,
-    AlertTriangle, ShieldAlert, CheckCircle2, FileText, Sparkles
+    AlertTriangle, ShieldAlert, CheckCircle2, FileText, Sparkles,
+    Flame, DollarSign, Wrench
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
@@ -53,7 +54,7 @@ const ESCALATION_TIERS = [
         tier: 'Tier 1',
         title: 'Frontline Customer Support',
         time: 'Immediate / < 15 Mins',
-        desc: 'Chat or phone assistance for live bookings, rescheduling, and general troubleshooting.',
+        desc: 'Live chat or phone assistance for bookings, rescheduling, and general troubleshooting.',
         action: 'Chat with Support',
         route: '/contact',
         badgeColor: 'blue'
@@ -71,7 +72,7 @@ const ESCALATION_TIERS = [
         tier: 'Tier 3',
         title: 'Statutory Grievance Redressal Officer',
         time: '24h Ack · 15d Resolution',
-        desc: 'Formal legal escalation under Rule 3(2) IT Rules 2021 & DPDP Act 2023 for data privacy, consumer rights, or disputes.',
+        desc: 'Formal legal escalation under Rule 3(2) IT Rules 2021 & DPDP Act 2023 for data privacy or consumer rights.',
         action: 'File Formal Grievance',
         route: '/grievance',
         badgeColor: 'purple'
@@ -86,15 +87,15 @@ export default function HelpCenterScreen() {
 
     const [searchQuery, setSearchQuery] = useState('');
 
-    const handleCallOfficer = () => {
-        Linking.openURL('tel:+914952800001').catch(() => {
-            success('Calling Grievance Desk (+91 495 280 0001)');
+    const handleCallEmergency = () => {
+        Linking.openURL('tel:+914952800000').catch(() => {
+            success('Calling 24/7 Emergency Incident Desk (+91 495 280 0000)');
         });
     };
 
-    const handleEmailOfficer = () => {
-        Linking.openURL('mailto:grievance@sheriyakam.in?subject=Statutory Grievance Escalation').catch(() => {
-            success('Opening email to grievance@sheriyakam.in');
+    const handleCallOfficer = () => {
+        Linking.openURL('tel:+914952800001').catch(() => {
+            success('Calling Grievance Desk (+91 495 280 0001)');
         });
     };
 
@@ -105,7 +106,7 @@ export default function HelpCenterScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessibilityRole="button" accessibilityLabel="Go back">
                     <ArrowLeft size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Help & Support Center</Text>
+                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Help & Knowledge Base</Text>
                 <View style={{ width: 32 }} />
             </View>
 
@@ -118,8 +119,79 @@ export default function HelpCenterScreen() {
                     <Searchbar
                         value={searchQuery}
                         onChangeText={setSearchQuery}
-                        placeholder="Search answers (e.g. grievance, warranty, invoice)..."
+                        placeholder="Search answers (e.g. damage claim, grievance, refund)..."
                     />
+                </View>
+
+                {/* ────────────────── ₹5 LAKH PROPERTY DAMAGE CLAIM DESK ────────────────── */}
+                <View style={styles.damageSection}>
+                    <View style={styles.sectionHeaderRow}>
+                        <View style={{ flex: 1 }}>
+                            <Badge variant="danger" size="sm">₹5,00,000 Insurance Protection</Badge>
+                            <Text style={[styles.damageMainTitle, { color: colors.textPrimary }]}>
+                                Property Damage Claim Desk
+                            </Text>
+                        </View>
+                        <View style={[styles.alertIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.15)' }]}>
+                            <ShieldAlert size={24} color="#EF4444" />
+                        </View>
+                    </View>
+                    <Text style={[styles.damageMainSubtitle, { color: colors.textSecondary }]}>
+                        In the rare event of accidental property damage, appliance burnout, or electrical fire during or immediately after a booking, our Commercial General Liability (CGL) policy provides up to ₹5,00,000 coverage.
+                    </Text>
+
+                    {/* Damage Protocol Points */}
+                    <View style={styles.damageGrid}>
+                        <View style={[styles.damagePointCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <Clock size={18} color="#F59E0B" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.pointTitle, { color: colors.textPrimary }]}>2-Hour On-Site Inspection</Text>
+                                <Text style={[styles.pointDesc, { color: colors.textSecondary }]}>
+                                    Senior KSELB certified supervisor dispatches with calibrated Megger insulation testers.
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={[styles.damagePointCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <Flame size={18} color="#EF4444" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.pointTitle, { color: colors.textPrimary }]}>Instant Escrow Lockdown</Text>
+                                <Text style={[styles.pointDesc, { color: colors.textSecondary }]}>
+                                    Technician payouts are frozen immediately in payment gateway escrow pending investigation.
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={[styles.damagePointCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <DollarSign size={18} color="#10B981" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.pointTitle, { color: colors.textPrimary }]}>Direct Payout / Insurance</Text>
+                                <Text style={[styles.pointDesc, { color: colors.textSecondary }]}>
+                                    Fast-track settlement up to ₹5,000 warranty cap or full CGL insurance claim up to ₹5 Lakh.
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Claim Desk Actions */}
+                    <View style={styles.damageActions}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            style={{ flex: 1 }}
+                            onPress={handleCallEmergency}
+                        >
+                            Emergency Desk
+                        </Button>
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            style={{ flex: 1.5, backgroundColor: '#EF4444', borderColor: '#EF4444' }}
+                            onPress={() => router.push('/damage-claim')}
+                        >
+                            File Damage Claim (2h SLA)
+                        </Button>
+                    </View>
                 </View>
 
                 {/* ────────────────── STATUTORY GRIEVANCE REDRESSAL MECHANISM ────────────────── */}
@@ -131,7 +203,7 @@ export default function HelpCenterScreen() {
                                 Grievance Redressal Mechanism
                             </Text>
                         </View>
-                        <Scale size={26} color={colors.accent} />
+                        <Scale size={24} color={colors.accent} />
                     </View>
                     <Text style={[styles.grievanceMainSubtitle, { color: colors.textSecondary }]}>
                         If you have an unresolved dispute, service dissatisfaction, consumer rights concern, or data privacy request under the DPDP Act 2023, you can escalate through our mandatory 3-Tier Redressal Mechanism.
@@ -304,8 +376,59 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: -0.3,
     },
+    damageSection: {
+        marginVertical: 12,
+        padding: 16,
+        borderRadius: 16,
+        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.25)',
+        gap: 12,
+    },
+    alertIconCircle: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    damageMainTitle: {
+        fontSize: 17,
+        fontWeight: '800',
+        marginTop: 6,
+    },
+    damageMainSubtitle: {
+        fontSize: 12,
+        lineHeight: 17,
+    },
+    damageGrid: {
+        gap: 8,
+        marginTop: 2,
+    },
+    damagePointCard: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        padding: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        gap: 10,
+    },
+    pointTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    pointDesc: {
+        fontSize: 11.5,
+        lineHeight: 16,
+        marginTop: 2,
+    },
+    damageActions: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 4,
+    },
     grievanceSection: {
-        marginVertical: 14,
+        marginVertical: 12,
         padding: 16,
         borderRadius: 16,
         backgroundColor: 'rgba(139, 92, 246, 0.06)',
