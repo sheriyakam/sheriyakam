@@ -378,7 +378,7 @@ export default function MenuModal({ visible, onClose }) {
                             <MenuItem
                                 icon={FileText}
                                 label="Terms of Service"
-                                subtitle="KSELB & consumer policies"
+                                subtitle="Limitation of liability cap"
                                 onPress={() => navigateTo('/terms')}
                             />
                             <MenuItem
@@ -386,6 +386,18 @@ export default function MenuModal({ visible, onClose }) {
                                 label="Privacy Policy"
                                 subtitle="DPDP Section 5 & CERT-In"
                                 onPress={() => navigateTo('/privacy')}
+                            />
+                            <MenuItem
+                                icon={Clock}
+                                label="Data Retention Schedule"
+                                subtitle="180-day logs & GST 6-yr policy"
+                                onPress={() => navigateTo('/data-retention')}
+                            />
+                            <MenuItem
+                                icon={FileText}
+                                label="Sample Digital Tax Invoice"
+                                subtitle="SAC 9987 & ISI spare parts"
+                                onPress={() => navigateTo('/invoice/INV-2026-8291')}
                             />
                         </View>
 

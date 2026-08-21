@@ -108,25 +108,52 @@ export default function TermsScreen() {
                     </View>
                 </View>
 
-                {/* Section 4: Property Damage Safety Protection */}
+                {/* Section 4: Limitation of Liability & Damage Cap */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Shield size={20} color="#8B5CF6" />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            4. ₹5,00,000 Domestic Safety Protection Cover
+                            4. Limitation of Liability & Statutory Damage Cap
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Every verified domestic booking on Sheriyakam is backed by our ₹5,00,000 property damage safety guarantee covering accidental electrical equipment damage occurring during an authorized repair.
+                        To the maximum extent permitted by Indian Law, the following statutory limitation terms govern platform liability:
+                    </Text>
+                    <View style={styles.bulletList}>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.1 Independent Contractor Status</Text>: The Platform operates purely as an on-demand digital intermediary connecting independent, certified electrical service professionals ("Technicians") with consumers. The Platform does not directly employ the Technicians.
+                        </Text>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.2 Exclusion of Indirect Damages</Text>: To the maximum extent permitted by applicable Indian law, the Platform shall not be held liable for any indirect, incidental, special, exemplary, or consequential damages. This includes, but is not limited to, loss of profits, loss of data, property damage, structural electrical fires, appliance burnouts, or personal injury arising from services rendered by the Technician.
+                        </Text>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.3 Maximum Liability Cap</Text>: In any event where the Platform is found liable by a competent legal court or consumer forum within India, the total aggregate liability of the Platform for any and all claims shall be strictly capped at: (a) The total service fee paid by the User for that specific booking, or (b) A maximum sum of ₹5,000 (Rupees Five Thousand Only), whichever is lower.
+                        </Text>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.4 Exceptions & Intentional Negligence</Text>: This cap does not apply to instances where damage is proven to be a direct result of gross negligence or fraudulent misrepresentation intentionally committed by the corporate platform entity itself.
+                        </Text>
+                    </View>
+                </View>
+
+                {/* Section 5: ₹5,00,000 Property Damage Guarantee */}
+                <View style={styles.section}>
+                    <View style={styles.sectionHeader}>
+                        <CheckCircle size={20} color="#10B981" />
+                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+                            5. ₹5,00,000 Domestic Property Damage Safety Cover
+                        </Text>
+                    </View>
+                    <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
+                        In addition to statutory caps, every verified domestic booking completed through the Sheriyakam platform is backed by our commercial third-party property damage policy up to ₹5,00,000 for accidental fires or structural electrical damage proven to have been caused during an authorized on-platform repair.
                     </Text>
                 </View>
 
-                {/* Section 5: Grievance Redressal & Jurisdiction */}
+                {/* Section 6: Grievance Redressal & Jurisdiction */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Scale size={20} color="#EC4899" />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            5. Grievance Redressal & Jurisdiction
+                            6. Grievance Redressal & Exclusive Jurisdiction
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
