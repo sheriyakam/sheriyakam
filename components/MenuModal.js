@@ -406,6 +406,19 @@ export default function MenuModal({ visible, onClose }) {
                                 badge="2-Hr Inspection"
                                 onPress={() => navigateTo('/damage-claim')}
                             />
+                            <MenuItem
+                                icon={Sparkles}
+                                label="Founder's Legal Roadmap"
+                                subtitle="Pre-launch milestone tracker"
+                                badge="4 Steps"
+                                onPress={() => navigateTo('/founder-checklist')}
+                            />
+                            <MenuItem
+                                icon={FileCheck}
+                                label="Technician Partner SLA"
+                                subtitle="Independent contractor terms"
+                                onPress={() => navigateTo('/partner/agreement')}
+                            />
                         </View>
 
                         {/* Theme Toggle & Logout */}
