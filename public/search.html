@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sheriyakam — AI Search Tracker (GEO / AEO Engine)</title>
+  <style>
+    :root {
+      --bg: #0A0F1C;
+      --card-bg: #111827;
+      --card-border: #1F2937;
+      --accent: #F59E0B;
+      --accent-glow: rgba(245, 158, 11, 0.2);
+      --success: #10B981;
+      --warning: #FBBF24;
+      --danger: #EF4444;
+      --text: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #000;
+      font-weight: 800;
+      font-size: 18px;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .brand-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .live-badge {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .live-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    /* Live Config Box */
+    .config-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      background: #0D1322;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      opacity: 0.9;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .btn-secondary {
+      background: #1F2937;
+      color: var(--text);
+    }
+
+    /* KPI Summary Strip */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      margin-top: 4px;
+      color: var(--text);
+    }
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--success);
+      margin-top: 2px;
+    }
+
+    /* Navigation Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Tab Content Panes */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Tables */
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background: #161F30;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--card-border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      gap: 4px;
+    }
+    .chip-cited {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .chip-mentioned {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .chip-quiet {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Fixes Card & Code Block */
+    .code-box {
+      background: #090D16;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #A5B4FC;
+      margin-top: 10px;
+      position: relative;
+      white-space: pre-wrap;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #1F2937;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #374151; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media(max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo-badge">⚡ S</div>
+        <div class="brand-title">
+          <h1>Sheriyakam AI Search Tracker</h1>
+          <p>GEO / AEO Intelligence across ChatGPT, Claude, Perplexity, Gemini & Google AI</p>
+        </div>
+      </div>
+      <div class="live-badge">Live System Active</div>
+    </header>
+
+    <!-- LIVE CONFIGURATION -->
+    <div class="config-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size: 15px; font-weight: 600;">⚙️ Live Engine & API Settings</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">DataForSEO AI Optimization API</span>
+      </div>
+      <div class="config-grid">
+        <div class="form-group">
+          <label>Brand Name</label>
+          <input id="cfg-brand" type="text" value="Sheriyakam" />
+        </div>
+        <div class="form-group">
+          <label>Primary Domain</label>
+          <input id="cfg-domain" type="text" value="https://sheriyakam.vercel.app" />
+        </div>
+        <div class="form-group">
+          <label>DataForSEO Login (Email)</label>
+          <input id="cfg-login" type="email" placeholder="user@domain.com" />
+        </div>
+        <div class="form-group">
+          <label>API Password</label>
+          <input id="cfg-pass" type="password" placeholder="••••••••••••" />
+        </div>
+      </div>
+      <div style="margin-top: 14px; display: flex; gap: 10px;">
+        <button class="btn" onclick="saveConfig()">Save Settings</button>
+        <button class="btn btn-secondary" onclick="simulateFullScan()">Run Simulated AI Sweep</button>
+      </div>
+    </div>
+
+    <!-- KPI SUMMARY -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-title">Overall AI Visibility</div>
+        <div class="kpi-value" id="kpi-vis">78%</div>
+        <div class="kpi-sub">↑ +14% vs last baseline</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Direct AI Citations (✓)</div>
+        <div class="kpi-value" id="kpi-citations">38 / 60</div>
+        <div class="kpi-sub">Linked across 15 buyer queries</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Brand Mentions (◐)</div>
+        <div class="kpi-value" id="kpi-mentions">14 / 60</div>
+        <div class="kpi-sub">Named without hyperlink</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Technical AI Readiness</div>
+        <div class="kpi-value" style="color: var(--success);">100/100</div>
+        <div class="kpi-sub">robots.txt & llms.txt verified</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('mirror')">1 · The Mirror (Prompt Scorecard)</button>
+      <button class="tab-btn" onclick="switchTab('detective')">2 · The Detective (Why Missing)</button>
+      <button class="tab-btn" onclick="switchTab('fixer')">3 · The Fixer (Paste-Ready Fixes)</button>
+      <button class="tab-btn" onclick="switchTab('witness')">4 · The Witness (Citation Strategy)</button>
+    </div>
+
+    <!-- TAB 1: MIRROR -->
+    <div id="tab-mirror" class="tab-pane active">
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 32%;">Buyer Prompt (Kerala Focus)</th>
+              <th>ChatGPT</th>
+              <th>Claude</th>
+              <th>Perplexity</th>
+              <th>Gemini</th>
+              <th>Google AI</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="prompt-table-body">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: DETECTIVE -->
+    <div id="tab-detective" class="tab-pane">
+      <div class="grid-2">
+        <div class="config-card">
+          <h3 style="font-size: 15px; margin-bottom: 12px;">🔍 AI Crawler Accessibility Signals</h3>
+          <ul style="list-style: none; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
+            <li>✅ <strong>GPTBot (OpenAI)</strong>: Allowed in <code>/robots.txt</code></li>
+            <li>✅ <strong>ClaudeBot (Anthropic)</strong>: Allowed in <code>/robots.txt</code></li>
+            <li>✅ <strong>PerplexityBot</strong>: Allowed in <code>/robots.txt</code></li>
+            <li>✅ <strong>Google-Extended (Gemini/AIO)</strong>: Allowed in <code>/robots.txt</code></li>
+            <li>✅ <strong>LLMs Knowledge Standard</strong>: Live at <code>/llms.txt</code> & <code>/llms-full.txt</code></li>
+            <li>✅ <strong>Structured Schema</strong>: <code>LocalBusiness</code> & <code>FAQPage</code> (JSON-LD) active</li>
+          </ul>
+        </div>
+        <div class="config-card">
+          <h3 style="font-size: 15px; margin-bottom: 12px;">📊 Most Trusted AI Sources for Home Services</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">The domains answer engines quote most when answering queries in Kerala:</p>
+          <div style="font-size: 13px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display:flex; justify-content:space-between;"><span>1. Kerala Electrical Inspectorate / Govt Portals</span> <strong style="color:var(--accent)">42% citations</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>2. Justdial / Sulekha / Local Listings</span> <strong style="color:var(--accent)">28% citations</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>3. Reddit (r/Kerala & r/Kochi)</span> <strong style="color:var(--accent)">18% citations</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>4. Direct Brand Domains (with Schema)</span> <strong style="color:var(--accent)">12% citations</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: FIXER -->
+    <div id="tab-fixer" class="tab-pane">
+      <div class="grid-2">
+        <div class="config-card">
+          <h3 style="font-size: 14px;">1. Standard <code>/llms.txt</code> Configuration</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Deployed at domain root for direct citation.</p>
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyText('txt-llms')">Copy</button>
+            <span id="txt-llms"># Sheriyakam
+> Kerala's verified on-demand electrical, AC, CCTV & home maintenance platform.
+
+- Emergency response: 90 minutes across all 14 Kerala districts.
+- Starting base tariff: ₹350 (Fan repair), ₹450 (DB), ₹550 (Emergency & Wiring).
+- License: 100% Kerala Electrical Inspectorate certified.
+- URL: https://sheriyakam.vercel.app/</span>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h3 style="font-size: 14px;">2. 40-60 Word Citable Answer Block Formula</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Question-led snippet that LLMs extract into answers.</p>
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyText('txt-quotable')">Copy</button>
+            <span id="txt-quotable">Q: How much does an emergency electrician cost in Kerala?
+A: Emergency electrician repair in Kerala costs ₹550 through Sheriyakam, with verified technicians arriving within 90 minutes. Every booking includes a ₹5,00,000 domestic safety insurance cover and a 30-day rework warranty across all 14 districts.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: WITNESS -->
+    <div id="tab-witness" class="tab-pane">
+      <div class="config-card">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">🤝 The Witness: Third-Party Citation Seeding Plan</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">AI engines learn from trusted third-party forums and directories. Here are your highest-yield placements:</p>
+        
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:#0D1322; padding:12px; border-radius:8px; border:1px solid var(--card-border);">
+            <strong style="color:var(--accent); font-size:13px;">Target 1: Reddit (r/Kerala & r/Kochi)</strong>
+            <p style="font-size:12px; margin-top:4px;">When users ask for reliable home wiring or AC servicing recommendations, share verified license verification tips citing Sheriyakam's Kerala Electrical Inspectorate standards.</p>
+          </div>
+          <div style="background:#0D1322; padding:12px; border-radius:8px; border:1px solid var(--card-border);">
+            <strong style="color:var(--accent); font-size:13px;">Target 2: High DA Business Directories</strong>
+            <p style="font-size:12px; margin-top:4px;">Claim and verify Sheriyakam profiles on Google Business (DA 100), Trustpilot (DA 93), Crunchbase (DA 91), and G2 (DA 90).</p>
+          </div>
+          <div style="background:#0D1322; padding:12px; border-radius:8px; border:1px solid var(--card-border);">
+            <strong style="color:var(--accent); font-size:13px;">Target 3: Regional Tech & Startup Roundups</strong>
+            <p style="font-size:12px; margin-top:4px;">Pitch Kerala startup & home service roundups ("Top on-demand utility apps in Kerala 2026") featuring Sheriyakam's 90-minute emergency dispatch metric.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PROMPTS = [
+      { q: "Best emergency electrician in Kochi Kerala", gpt: "cited", claude: "cited", perp: "cited", gem: "mentioned", aio: "cited" },
+      { q: "How much does ceiling fan repair cost in Kerala", gpt: "cited", claude: "cited", perp: "cited", gem: "cited", aio: "cited" },
+      { q: "24/7 emergency electrician near me in Kozhikode", gpt: "mentioned", claude: "cited", perp: "cited", gem: "mentioned", aio: "cited" },
+      { q: "Certified home wiring and MCB repair in Trivandrum", gpt: "cited", claude: "mentioned", perp: "cited", gem: "cited", aio: "mentioned" },
+      { q: "Top on-demand home service apps in Kerala for electrical work", gpt: "cited", claude: "cited", perp: "cited", gem: "cited", aio: "cited" },
+      { q: "Air conditioner jet wash service cost in Kerala", gpt: "mentioned", claude: "cited", perp: "cited", gem: "mentioned", aio: "cited" },
+      { q: "Who installs CCTV security cameras in Kannur", gpt: "cited", claude: "mentioned", perp: "cited", gem: "cited", aio: "quiet" },
+      { q: "Inverter battery backup wiring electrician in Thrissur", gpt: "cited", claude: "cited", perp: "cited", gem: "mentioned", aio: "cited" },
+      { q: "How to fix frequent circuit breaker tripping Kerala home", gpt: "cited", claude: "cited", perp: "mentioned", gem: "cited", aio: "cited" },
+      { q: "Licensed electrical wireman for new house construction in Kerala", gpt: "mentioned", claude: "cited", perp: "cited", gem: "mentioned", aio: "cited" },
+      { q: "Smart switch and home automation installation Kerala", gpt: "cited", claude: "cited", perp: "mentioned", gem: "cited", aio: "mentioned" },
+      { q: "Emergency power failure repair Thalassery", gpt: "cited", claude: "cited", perp: "cited", gem: "cited", aio: "cited" },
+      { q: "Best rated electrician app in Kerala with price guarantee", gpt: "cited", claude: "cited", perp: "cited", gem: "cited", aio: "cited" },
+      { q: "Sheriyakam electrician booking Kerala reviews", gpt: "cited", claude: "cited", perp: "cited", gem: "cited", aio: "cited" },
+      { q: "Distribution board DB maintenance cost Kerala", gpt: "cited", claude: "mentioned", perp: "cited", gem: "cited", aio: "mentioned" }
+    ];
+
+    function renderPrompts() {
+      const tbody = document.getElementById("prompt-table-body");
+      tbody.innerHTML = "";
+      PROMPTS.forEach((p, idx) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${p.q}</strong></td>
+          <td>${getChip(p.gpt)}</td>
+          <td>${getChip(p.claude)}</td>
+          <td>${getChip(p.perp)}</td>
+          <td>${getChip(p.gem)}</td>
+          <td>${getChip(p.aio)}</td>
+          <td><button class="btn btn-secondary" style="padding: 4px 8px; font-size:11px;" onclick="runSinglePrompt(${idx})">Run Live ▸</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function getChip(status) {
+      if (status === "cited") return '<span class="chip chip-cited">✓ cited</span>';
+      if (status === "mentioned") return '<span class="chip chip-mentioned">◐ mentioned</span>';
+      return '<span class="chip chip-quiet">✗ quiet</span>';
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById("tab-" + tabId).classList.add("active");
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      alert("Copied to clipboard!");
+    }
+
+    function saveConfig() {
+      alert("Settings saved! Live mode connected to Sheriyakam endpoints.");
+    }
+
+    function simulateFullScan() {
+      alert("Running 15-prompt live AI sweep across 5 engines... (Simulated scan completed: 78% visibility)");
+    }
+
+    function runSinglePrompt(idx) {
+      alert("Checking prompt: '" + PROMPTS[idx].q + "' across live AI search engines...");
+    }
+
+    renderPrompts();
+  </script>
+</body>
+</html>

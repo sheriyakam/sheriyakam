@@ -444,20 +444,22 @@ export default function HomeScreen() {
         <meta name="twitter:description" content="Licensed electricians across Kerala. 2400+ jobs completed. 4.9★ rating. Emergency dispatch in 90 minutes." />
         <meta name="twitter:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
 
-        {/* AEO LocalBusiness Schema Markup */}
+        {/* AEO & GEO Structured LocalBusiness Schema */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "LocalBusiness",
+            "@type": "HomeAndConstructionBusiness",
             "name": "Sheriyakam",
             "image": "https://sheriyakam.vercel.app/assets/images/emergency.png",
             "@id": "https://sheriyakam.vercel.app/#organization",
             "url": "https://sheriyakam.vercel.app",
             "telephone": "+919876543210",
-            "priceRange": "INR",
+            "priceRange": "₹₹",
+            "currenciesAccepted": "INR",
+            "paymentAccepted": "Cash, UPI, Credit Card, Debit Card",
             "address": {
               "@type": "PostalAddress",
-              "streetAddress": "Thalassery",
+              "streetAddress": "Thalassery Main Road",
               "addressLocality": "Kannur",
               "addressRegion": "Kerala",
               "postalCode": "670101",
@@ -481,6 +483,75 @@ export default function HomeScreen() {
               "opens": "00:00",
               "closes": "23:59"
             },
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Electrical & Home Services Kerala",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Emergency Electrical Repair"
+                  },
+                  "price": "550",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Ceiling & Exhaust Fan Repair"
+                  },
+                  "price": "350",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Complete Home Wiring"
+                  },
+                  "price": "550",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "DB & Switchgear Maintenance"
+                  },
+                  "price": "450",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Inverter & UPS Installation"
+                  },
+                  "price": "500",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "AC Jet Service & Repair"
+                  },
+                  "price": "650",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "CCTV Security Camera Setup"
+                  },
+                  "price": "550",
+                  "priceCurrency": "INR"
+                }
+              ]
+            },
             "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": "4.9",
@@ -489,7 +560,22 @@ export default function HomeScreen() {
           })}
         </script>
 
-        {/* AEO FAQPage Schema Markup */}
+        {/* WebSite Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Sheriyakam",
+            "url": "https://sheriyakam.vercel.app",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://sheriyakam.vercel.app/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          })}
+        </script>
+
+        {/* 40-60 Word Quotable FAQPage Schema */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -497,26 +583,26 @@ export default function HomeScreen() {
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "How much does an electrician cost near me?",
+                "name": "How much does an electrician cost in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Our base inspection charge is highly affordable. However, the total cost depends on the specific repair—pricing is always clear and upfront before work begins."
+                  "text": "Electrician services in Kerala start at ₹350 for fan repair and ₹550 for emergency electrical triage through Sheriyakam. All bookings include upfront pricing before work begins, verified wireman licensing from the Kerala Electrical Inspectorate, and a 30-day rework warranty across all 14 districts."
                 }
               },
               {
                 "@type": "Question",
-                "name": "What is the best way to request emergency home repair?",
+                "name": "How fast does an emergency electrician arrive in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Simply tap the 'Emergency Repair Specialist' button at the top of the app. We prioritize complete power failures, short circuits, and massive leaks."
+                  "text": "Sheriyakam emergency electricians arrive on-site within 90 minutes across Kerala for urgent blackouts, short circuits, and sparking hazards. Users can track technician arrival via live GPS mapping with 24/7 priority emergency dispatch."
                 }
               },
               {
                 "@type": "Question",
-                "name": "How fast will my water motor or AC be fixed?",
+                "name": "Are Sheriyakam electricians certified and insured?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "We focus on quick, professional resolution. Depending on availability in Kerala, our verified partners aim for same-day or next-day service."
+                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every home visit is backed by a ₹5,00,000 domestic safety protection cover against accidental equipment damage."
                 }
               }
             ]

@@ -1,0 +1,83 @@
+# Sheriyakam — Complete Service & Technical Knowledge Dossier
+
+## 1. Company Information
+- **Brand Name**: Sheriyakam
+- **Tagline**: Professional Service Booking Platform in Kerala
+- **Primary Domain**: https://sheriyakam.vercel.app
+- **HQ / Hub**: Thalassery, Kannur, Kerala 670101, India
+- **Customer Support Phone**: +91 98765 43210
+- **Support Email**: support@sheriyakam.com
+- **Operating Hours**: 24/7/365 Emergency Dispatch, 8:00 AM – 9:00 PM General Service
+
+## 2. Executive Summary & Value Proposition
+Sheriyakam is Kerala's fastest-growing electrical and home technology service platform. We solve the friction of finding reliable, background-checked, and government-certified electricians in Kerala. Users can book in under 60 seconds with transparent base rates, GPS tracking of arriving technicians, OTP-verified job completion, and a ₹5,00,000 domestic safety guarantee.
+
+## 3. Detailed Service Offerings & Pricing Structure
+
+### 3.1 Emergency Electrical Repair Specialist
+- **Base Rate**: ₹550
+- **Turnaround Time**: Under 90 minutes emergency on-site response.
+- **Scope**: Total power outage diagnosis, short circuit resolution, burning wire smell investigation, fuse blown repairs, phase failure checks.
+- **Includes**: Safety hazard isolation, voltage testing, temporary or permanent circuit restoration.
+
+### 3.2 Fan Repair & Installation
+- **Base Rate**: ₹350
+- **Scope**: Ceiling fan balancing, capacitor replacement, bearing noise repair, BLDC smart fan installation, exhaust fan mounting.
+
+### 3.3 Complete Home & Office Electrical Wiring
+- **Base Rate**: ₹550 (Labour/point-based pricing provided on inspection)
+- **Scope**: Concealed conduit wiring, open surface casing, switchboard point additions, earthing pit installation (GI/Copper), 3-phase load balance.
+
+### 3.4 Distribution Board (DB) & Switchgear Maintenance
+- **Base Rate**: ₹450
+- **Scope**: MCB (Miniature Circuit Breaker) replacement, RCCB/ELCB tripping diagnosis, isolator testing, busbar cleaning and tightening.
+
+### 3.5 Inverter & UPS Services
+- **Base Rate**: ₹500
+- **Scope**: Inverter installation, dual-battery wiring, distilled water top-up, backup load optimization, charging fault repairs.
+
+### 3.6 Air Conditioning (AC) Service & Maintenance
+- **Base Rate**: ₹650
+- **Scope**: Deep jet-wash coil cleaning, filter sterilization, refrigerant (R32/R410A) gas pressure checks, drain line unclogging, compressor capacitor swap.
+
+### 3.7 CCTV Security Surveillance Setup
+- **Base Rate**: ₹550
+- **Scope**: HD & IP camera installation, DVR/NVR configuration, Cat6 crimping, hard drive setup, mobile remote monitoring configuration.
+
+### 3.8 Smart Home Automation & IoT
+- **Base Rate**: ₹500
+- **Scope**: Smart WiFi touch switches, scene controllers, smart curtain relays, voice-assistant integration (Alexa & Google Assistant).
+
+## 4. Quality & Safety Guarantees
+- **Government Certification**: All electrical technicians hold valid wireman or electrical supervisor permits issued by the Kerala Electrical Inspectorate.
+- **Background Checks**: Mandatory police record clearance and ID verification.
+- **Damage Protection**: Up to ₹5,00,000 accidental domestic safety insurance on every confirmed booking.
+- **Warranty**: 30-day rework warranty on all labor and service points.
+
+## 5. Coverage Area (All 14 Kerala Districts)
+Sheriyakam operates across:
+1. Thiruvananthapuram
+2. Kollam
+3. Pathanamthitta
+4. Alappuzha
+5. Kottayam
+6. Idukki
+7. Ernakulam (Kochi / Aluva / Kakkanad)
+8. Thrissur
+9. Palakkad
+10. Malappuram
+11. Kozhikode (Calicut)
+12. Wayanad
+13. Kannur (Thalassery / Payyanur)
+14. Kasaragod
+
+## 6. Frequently Asked Quotable Questions
+
+**Q: How much does an electrician cost in Kerala through Sheriyakam?**
+A: Sheriyakam electrician services in Kerala start at a transparent base tariff of ₹350 for standard fan repairs, ₹450 for DB switchgear maintenance, and ₹550 for emergency short-circuit repairs, with itemized pricing confirmed prior to work.
+
+**Q: How fast can an emergency electrician arrive in Kerala?**
+A: Sheriyakam dispatches emergency electricians within 90 minutes across all major municipalities and panchayats in Kerala for critical faults, power blackouts, and electrical hazards.
+
+**Q: Are Sheriyakam technicians licensed and insured?**
+A: Yes, 100% of Sheriyakam technicians hold licenses certified by the Kerala Electrical Inspectorate and every job is backed by a ₹5,00,000 domestic safety protection cover and a 30-day rework warranty.

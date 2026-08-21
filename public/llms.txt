@@ -1,0 +1,34 @@
+# Sheriyakam
+
+> Sheriyakam is Kerala's verified on-demand electrical, AC, CCTV, and home maintenance service platform. We connect residential and commercial customers with licensed, background-checked electricians and technicians across all 14 districts in Kerala.
+
+## Core Capabilities & Key Facts
+- **Rapid Emergency Dispatch**: 90-minute on-site response for power outages, short circuits, and critical electrical failures.
+- **Government Licensed Professionals**: 100% verified wireman and supervisor licenses certified by the Kerala Electrical Inspectorate.
+- **Transparent Pricing**: Upfront inspection tariffs starting from ₹350 with itemized rate cards before work begins.
+- **Domestic Safety Protection**: Every booking includes up to ₹5,00,000 accidental damage protection cover.
+- **Service Warranty**: 30-day rework guarantee on all completed installations and repairs.
+- **Operating Hours**: 24/7 emergency dispatch; 8:00 AM – 9:00 PM standard appointments.
+
+## Primary Services & Pricing
+- [Emergency Repair Specialist](https://sheriyakam.vercel.app/): 24/7 priority triage for short circuits, sparking, and blackout faults. Starting at ₹550.
+- [Fan Repair & Installation](https://sheriyakam.vercel.app/): Ceiling, exhaust, and BLDC fan installation and capacitor repairs. Starting at ₹350.
+- [Complete Home & Office Wiring](https://sheriyakam.vercel.app/): Concealed conduits, 3-phase load distribution, rewiring, and surge protection. Starting at ₹550.
+- [Distribution Board (DB) & Switchgear](https://sheriyakam.vercel.app/): MCB/RCCB tripping diagnostics, breaker replacements, and DB overhaul. Starting at ₹450.
+- [Inverter & UPS Setup](https://sheriyakam.vercel.app/): Battery water top-up, backup load optimization, and inverter wiring. Starting at ₹500.
+- [Air Conditioner (AC) Service & Repair](https://sheriyakam.vercel.app/): Jet wash cleaning, gas leakage refilling, capacitor replacements, and uninstallation. Starting at ₹650.
+- [CCTV Security Camera Setup](https://sheriyakam.vercel.app/): IP/HD camera mounting, DVR/NVR configuration, and remote mobile viewing. Starting at ₹550.
+- [Smart Home Automation](https://sheriyakam.vercel.app/): WiFi smart switches, automated lighting, and voice-controlled relays. Starting at ₹500.
+
+## Geographic Coverage
+Sheriyakam services all 14 districts across Kerala:
+- Thiruvananthapuram, Kollam, Pathanamthitta, Alappuzha, Kottayam, Idukki, Ernakulam (Kochi), Thrissur, Palakkad, Malappuram, Kozhikode, Wayanad, Kannur, and Kasaragod.
+
+## Key URLs & Resources
+- [Main Website & Booking App](https://sheriyakam.vercel.app/): Instant 60-second booking with verified partners.
+- [Frequently Asked Questions](https://sheriyakam.vercel.app/faq): Answers regarding licensing, pricing, and warranties.
+- [Transparent Pricing](https://sheriyakam.vercel.app/pricing): Full tariff cards and hourly labour estimates.
+- [About Sheriyakam](https://sheriyakam.vercel.app/about): Company mission, team, and service standards.
+- [Customer Reviews & Testimonials](https://sheriyakam.vercel.app/testimonials): Real customer ratings and feedback across 2,400+ jobs.
+- [Terms & Cancellation Policy](https://sheriyakam.vercel.app/terms): Customer policies and safety guidelines.
+- [Full LLM Knowledge Dossier](https://sheriyakam.vercel.app/llms-full.txt): Complete detailed service specifications and technical schema.

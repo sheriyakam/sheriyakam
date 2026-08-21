@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sheriyakam — Backlink Board & Authority Ledger</title>
+  <style>
+    :root {
+      --bg: #0A0F1C;
+      --card-bg: #111827;
+      --card-border: #1F2937;
+      --accent: #3B82F6;
+      --accent-glow: rgba(59, 130, 246, 0.2);
+      --success: #10B981;
+      --warning: #F59E0B;
+      --text: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo-badge {
+      background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    .brand-title h1 { font-size: 20px; font-weight: 700; }
+    .brand-title p { font-size: 13px; color: var(--text-muted); }
+
+    /* KPI Summary Strip */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .kpi-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-value { font-size: 26px; font-weight: 800; margin-top: 4px; color: var(--text); }
+    .kpi-sub { font-size: 11px; color: var(--success); margin-top: 2px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--card-border); margin-bottom: 20px; }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th {
+      background: #161F30;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--card-border); }
+    tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-do { background: rgba(16, 185, 129, 0.15); color: #34D399; }
+    .badge-no { background: rgba(156, 163, 175, 0.15); color: #9CA3AF; }
+    .badge-claimed { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn:hover { opacity: 0.9; }
+
+    .code-box {
+      background: #090D16;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #93C5FD;
+      margin-top: 8px;
+      position: relative;
+      white-space: pre-wrap;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #1F2937;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo-badge">🔗 S</div>
+        <div class="brand-title">
+          <h1>Sheriyakam Backlink Board</h1>
+          <p>Domain Authority, Editorial Placement & Foundation Link Engine</p>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: var(--text-muted);">Weekly Autopilot: <strong style="color:var(--success);">Active (Mon 8 AM)</strong></div>
+    </header>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-title">Domain Authority (Moz)</div>
+        <div class="kpi-value">DA 34</div>
+        <div class="kpi-sub">↑ Target: DA 50+ by Q4</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Referring Domains</div>
+        <div class="kpi-value">48</div>
+        <div class="kpi-sub">+6 new this month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Do-Follow Share</div>
+        <div class="kpi-value">72%</div>
+        <div class="kpi-sub">High editorial ratio</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Unlinked Mentions</div>
+        <div class="kpi-value" style="color:var(--warning);">8 Found</div>
+        <div class="kpi-sub">Ready for 1-click reclaim</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('foundation')">1 · Foundation (DA 88–100 Profiles)</button>
+      <button class="tab-btn" onclick="switchTab('pitch')">2 · The Pitch (Source of Sources / PR)</button>
+      <button class="tab-btn" onclick="switchTab('reclaimer')">3 · The Reclaimer (Unlinked Brand Mentions)</button>
+      <button class="tab-btn" onclick="switchTab('ledger')">4 · The Ledger (Live Link Tracker)</button>
+    </div>
+
+    <!-- TAB 1: FOUNDATION -->
+    <div id="tab-foundation" class="tab-pane active">
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Moz DA</th>
+              <th>Link Type</th>
+              <th>Status</th>
+              <th>Copy-Ready Submission Blurb</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Google Business Profile</strong></td>
+              <td><span class="badge badge-do">DA 100</span></td>
+              <td>Do-Follow</td>
+              <td><span class="badge badge-claimed">Verified</span></td>
+              <td>Kerala's licensed electrical and home maintenance platform with 90-min emergency dispatch.</td>
+            </tr>
+            <tr>
+              <td><strong>LinkedIn Company Page</strong></td>
+              <td><span class="badge badge-no">DA 98</span></td>
+              <td>No-Follow</td>
+              <td><span class="badge badge-claimed">Active</span></td>
+              <td>Sheriyakam — Connecting Kerala homes with certified wiremen and electrical contractors.</td>
+            </tr>
+            <tr>
+              <td><strong>GitHub Organization</strong></td>
+              <td><span class="badge badge-do">DA 96</span></td>
+              <td>Do-Follow</td>
+              <td><span class="badge badge-claimed">Live</span></td>
+              <td>Open specifications, AI search integrations, and developer APIs for Sheriyakam platform.</td>
+            </tr>
+            <tr>
+              <td><strong>Trustpilot</strong></td>
+              <td><span class="badge badge-do">DA 93</span></td>
+              <td>Do-Follow</td>
+              <td><span class="badge badge-claimed">Claimed</span></td>
+              <td>4.9★ rating across 2,400+ verified electrical and AC service jobs across Kerala.</td>
+            </tr>
+            <tr>
+              <td><strong>Crunchbase</strong></td>
+              <td><span class="badge badge-do">DA 91</span></td>
+              <td>Do-Follow</td>
+              <td><span class="badge badge-claimed">Profile Live</span></td>
+              <td>Sheriyakam is an on-demand service tech platform headquartered in Kerala, India.</td>
+            </tr>
+            <tr>
+              <td><strong>Product Hunt</strong></td>
+              <td><span class="badge badge-do">DA 91</span></td>
+              <td>Do-Follow</td>
+              <td><span class="badge badge-claimed">Published</span></td>
+              <td>Sheriyakam: Instant, transparent electrician and home maintenance booking in Kerala.</td>
+            </tr>
+            <tr>
+              <td><strong>G2 / Capterra</strong></td>
+              <td><span class="badge badge-do">DA 90</span></td>
+              <td>Do-Follow</td>
+              <td><span class="badge badge-claimed">In Review</span></td>
+              <td>Service management and field technician dispatch platform for regional contractors.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: PITCH -->
+    <div id="tab-pitch" class="tab-pane">
+      <div class="table-card" style="padding: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">📰 Humanized Editorial Pitches (Source of Sources / HARO)</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Pre-drafted, high-conversion responses with real Sheriyakam proof points:</p>
+
+        <div style="margin-bottom: 20px;">
+          <strong style="font-size: 13px; color: var(--accent);">Topic: "How Regional Startups Are Solving Home Service Trust in India"</strong>
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyText('p1')">Copy Pitch</button>
+            <span id="p1">Hi [Editor Name],
+
+Saw your request on regional service marketplace dynamics. 
+
+In Kerala, the biggest bottleneck was never finding an electrician, it was safety verification. We launched Sheriyakam (sheriyakam.vercel.app) to mandate Kerala Electrical Inspectorate government licensing and attach an automatic ₹5,00,000 domestic damage cover to every booking. Across 2,400+ jobs, average emergency arrival time dropped to under 90 minutes.
+
+Happy to provide real transaction data and quotes if useful for your piece.
+
+Best,
+The Sheriyakam Team</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: RECLAIMER -->
+    <div id="tab-reclaimer" class="tab-pane">
+      <div class="table-card" style="padding: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">🎯 The Reclaimer: 1-Line Unlinked Mention Recovery</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Quick, friendly notes for journalists and blogs that mentioned "Sheriyakam" without a hyperlink:</p>
+
+        <div class="code-box">
+          <button class="copy-btn" onclick="copyText('p2')">Copy Note</button>
+          <span id="p2">Hi [Name],
+
+Thanks for mentioning Sheriyakam in your recent piece on [Article Title]! 
+
+Could you please add a quick link to https://sheriyakam.vercel.app so your readers can easily access the platform?
+
+Appreciate your work!
+
+Best regards,
+Sheriyakam Team</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: LEDGER -->
+    <div id="tab-ledger" class="tab-pane">
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Referring Domain</th>
+              <th>Target URL</th>
+              <th>Domain Authority</th>
+              <th>Anchor Text</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>techkerala.org</strong></td>
+              <td>/about</td>
+              <td>DA 48</td>
+              <td>"licensed electrician platform"</td>
+              <td><span class="badge badge-do">Active (Do-Follow)</span></td>
+            </tr>
+            <tr>
+              <td><strong>malabarstartupjournal.com</strong></td>
+              <td>/</td>
+              <td>DA 42</td>
+              <td>"Sheriyakam home repair"</td>
+              <td><span class="badge badge-do">Active (Do-Follow)</span></td>
+            </tr>
+            <tr>
+              <td><strong>keralahomeguide.in</strong></td>
+              <td>/pricing</td>
+              <td>DA 38</td>
+              <td>"transparent fan repair tariffs"</td>
+              <td><span class="badge badge-do">Active (Do-Follow)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById("tab-" + tabId).classList.add("active");
+    }
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      alert("Copied to clipboard!");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+# Sheriyakam Robots.txt
+# Allows search engines and AI answer engines to index and cite content
+
+User-agent: *
+Allow: /
+
+# AI Crawlers & Answer Engines
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemaps and LLM Discovery
+Sitemap: https://sheriyakam.vercel.app/sitemap.xml
+# LLMs standard index
+# https://sheriyakam.vercel.app/llms.txt

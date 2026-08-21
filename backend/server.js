@@ -20,6 +20,13 @@ mongoose.connect(MONGODB_URI)
 const authRouter = require('./routes/auth');
 app.use('/api/auth', authRouter);
 
+// Autonomous AI Agents Routes (SEO, GEO, AEO, Backlinks, Content)
+const agentsRouter = require('./routes/agents');
+app.use('/api/agents', agentsRouter);
+
+// Agent Orchestrator Daemon
+const AgentOrchestrator = require('./agents/AgentOrchestrator');
+
 // Basic route to test the server
 app.get('/api/health', (req, res) => {
     res.json({ status: 'active', message: 'Sheriyakam Backend API is running properly' });
@@ -29,4 +36,7 @@ app.get('/api/health', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    // Start silent background AI Agent Daemon
+    AgentOrchestrator.startDaemon(3000);
 });
+
