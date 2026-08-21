@@ -252,6 +252,18 @@ export default function PartnerDashboard() {
                 </Text>
             </TouchableOpacity>
 
+            {/* BGV & Statutory PPE Safety Strip */}
+            <TouchableOpacity
+                onPress={() => router.push('/partner/onboarding-checklist')}
+                style={styles.safetyStrip}
+            >
+                <CheckCircle size={14} color="#10B981" />
+                <Text style={styles.safetyStripText}>
+                    e-Shram & KSELB Verified • PPE Safety Audit Active
+                </Text>
+                <ChevronRight size={14} color={COLORS.textTertiary} />
+            </TouchableOpacity>
+
             {/* Quick Stats Bar */}
             <View style={styles.quickStats}>
                 <View style={styles.quickStatItem}>
@@ -347,6 +359,26 @@ const styles = StyleSheet.create({
     },
     toggleDot: { width: 10, height: 10, borderRadius: 5 },
     toggleText: { fontSize: 14, fontWeight: '800', letterSpacing: 0.5 },
+    safetyStrip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginHorizontal: SPACING.lg,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.25)',
+        marginBottom: SPACING.sm,
+    },
+    safetyStripText: {
+        flex: 1,
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#10B981',
+        marginHorizontal: 6,
+    },
     quickStats: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around',
         marginHorizontal: SPACING.lg, paddingVertical: 12,

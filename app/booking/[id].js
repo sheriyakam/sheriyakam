@@ -198,10 +198,10 @@ export default function SingleBookingTrackingScreen() {
                     <View style={styles.invoiceRow}>
                         <View>
                             <Text style={[styles.invoiceTitle, { color: colors.textPrimary }]}>
-                                Payment: ₹294 Paid
+                                Payment: ₹294 Paid (SAC 9987)
                             </Text>
                             <Text style={[styles.invoiceSub, { color: colors.textTertiary }]}>
-                                GST Invoice #INV-2026-8291
+                                GST Invoice #INV-2026-8291 • 100% Genuine ISI Spares
                             </Text>
                         </View>
 
@@ -215,6 +215,18 @@ export default function SingleBookingTrackingScreen() {
                         </Button>
                     </View>
                 </Card>
+
+                {/* Fair Policy Quick Link */}
+                <TouchableOpacity
+                    onPress={() => router.push('/cancellation-policy')}
+                    style={[styles.policyLinkCard, { borderColor: isDark ? '#27272A' : '#E4E4E7' }]}
+                >
+                    <ShieldCheck size={16} color="#10B981" />
+                    <Text style={[styles.policyLinkText, { color: colors.textSecondary }]}>
+                        View Doorstep Cancellation & Refund Matrix
+                    </Text>
+                    <ChevronRight size={16} color={colors.textTertiary} />
+                </TouchableOpacity>
             </ScrollView>
 
             {/* Manage Booking ActionSheet */}
@@ -233,6 +245,11 @@ export default function SingleBookingTrackingScreen() {
                         label: 'Download Digital Invoice',
                         icon: Download,
                         onPress: handleDownloadInvoice,
+                    },
+                    {
+                        label: 'Cancellation & Refund Rules',
+                        icon: ShieldCheck,
+                        onPress: () => router.push('/cancellation-policy'),
                     },
                     {
                         label: 'Cancel Booking',
@@ -392,5 +409,20 @@ const styles = StyleSheet.create({
     invoiceSub: {
         fontSize: 12,
         marginTop: 2,
+    },
+    policyLinkCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        marginTop: 12,
+    },
+    policyLinkText: {
+        flex: 1,
+        fontSize: 12.5,
+        fontWeight: '600',
+        marginLeft: 8,
     },
 });

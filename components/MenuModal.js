@@ -364,6 +364,18 @@ export default function MenuModal({ visible, onClose }) {
                                 onPress={() => navigateTo('/grievance')}
                             />
                             <MenuItem
+                                icon={RefreshCw}
+                                label="Cancellation & Refund Rules"
+                                subtitle="Fair travel allowance matrix"
+                                onPress={() => navigateTo('/cancellation-policy')}
+                            />
+                            <MenuItem
+                                icon={Award}
+                                label="BIS Material Standards"
+                                subtitle="100% genuine ISI certified"
+                                onPress={() => navigateTo('/materials-safety')}
+                            />
+                            <MenuItem
                                 icon={FileText}
                                 label="Terms of Service"
                                 subtitle="KSELB & consumer policies"
