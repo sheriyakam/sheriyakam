@@ -432,6 +432,13 @@ export default function MenuModal({ visible, onClose }) {
                                 subtitle="Resolution workflows & scripts"
                                 onPress={() => navigateTo('/dispute-sop')}
                             />
+                            <MenuItem
+                                icon={Split}
+                                label="Split-Payout & Escrow Engine"
+                                subtitle="Razorpay Route API logic"
+                                badge="Paise API"
+                                onPress={() => navigateTo('/admin/split-payouts')}
+                            />
                         </View>
 
                         {/* Theme Toggle & Logout */}
