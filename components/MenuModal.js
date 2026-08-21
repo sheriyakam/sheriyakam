@@ -419,6 +419,13 @@ export default function MenuModal({ visible, onClose }) {
                                 subtitle="Independent contractor terms"
                                 onPress={() => navigateTo('/partner/agreement')}
                             />
+                            <MenuItem
+                                icon={Award}
+                                label="Startup India (DPIIT) Hub"
+                                subtitle="80-IAC tax holiday & grants"
+                                badge="Tax Relief"
+                                onPress={() => navigateTo('/startup-benefits')}
+                            />
                         </View>
 
                         {/* Theme Toggle & Logout */}
