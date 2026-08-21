@@ -19,6 +19,7 @@ export default function AuthScreen() {
     // State to toggle between Login (true) and SignUp (false)
     const [isLogin, setIsLogin] = useState(true);
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [agreeMarketing, setAgreeMarketing] = useState(false);
 
     // Form States
     const [name, setName] = useState('');
@@ -381,33 +382,72 @@ export default function AuthScreen() {
                         )}
 
                         {!isLogin && (
-                            <View style={styles.termsContainer}>
-                                <TouchableOpacity 
-                                    style={[styles.checkbox, { borderColor: COLORS.textTertiary, backgroundColor: agreeTerms ? COLORS.accent : 'transparent' }]}
-                                    onPress={() => setAgreeTerms(!agreeTerms)}
-                                >
-                                    {agreeTerms && <Text style={styles.checkmark}>✓</Text>}
-                                </TouchableOpacity>
-                                <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
-                                    <Text style={{ color: COLORS.textSecondary, fontSize: 13 }}>By signing up, you agree to our </Text>
-                                    <TouchableOpacity onPress={() => router.push('/terms')}>
-                                        <Text style={{ color: COLORS.accent, fontSize: 13, fontWeight: 'bold' }}>Terms of Service</Text>
+                            <View style={{ gap: 10, marginVertical: 8 }}>
+                                {/* Mandatory Consent */}
+                                <View style={styles.termsContainer}>
+                                    <TouchableOpacity 
+                                        style={[styles.checkbox, { borderColor: agreeTerms ? COLORS.accent : COLORS.textTertiary, backgroundColor: agreeTerms ? COLORS.accent : 'transparent', marginTop: 2 }]}
+                                        onPress={() => setAgreeTerms(!agreeTerms)}
+                                        accessibilityRole="checkbox"
+                                        accessibilityState={{ checked: agreeTerms }}
+                                        accessibilityLabel="Mandatory Privacy and Terms Consent"
+                                    >
+                                        {agreeTerms && <Text style={styles.checkmark}>✓</Text>}
                                     </TouchableOpacity>
-                                    <Text style={{ color: COLORS.textSecondary, fontSize: 13 }}> and </Text>
-                                    <TouchableOpacity onPress={() => router.push('/privacy')}>
-                                        <Text style={{ color: COLORS.accent, fontSize: 13, fontWeight: 'bold' }}>Privacy Policy</Text>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ color: COLORS.textPrimary, fontSize: 12.5, fontWeight: '700' }}>
+                                            * Mandatory Privacy & Terms Consent
+                                        </Text>
+                                        <Text style={{ color: COLORS.textSecondary, fontSize: 12, lineHeight: 17, marginTop: 2 }}>
+                                            By checking this box, I explicitly consent to Sheriyakam collecting my phone number, name, and live GPS location solely to match and route electrical technicians to my address.
+                                        </Text>
+                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginTop: 2 }}>
+                                            <Text style={{ color: COLORS.textTertiary, fontSize: 12 }}>Read our </Text>
+                                            <TouchableOpacity onPress={() => router.push('/terms')}>
+                                                <Text style={{ color: COLORS.accent, fontSize: 12, fontWeight: '700' }}>Terms of Service</Text>
+                                            </TouchableOpacity>
+                                            <Text style={{ color: COLORS.textTertiary, fontSize: 12 }}> and </Text>
+                                            <TouchableOpacity onPress={() => router.push('/privacy')}>
+                                                <Text style={{ color: COLORS.accent, fontSize: 12, fontWeight: '700' }}>Privacy Policy</Text>
+                                            </TouchableOpacity>
+                                            <Text style={{ color: COLORS.textTertiary, fontSize: 12 }}>.</Text>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                {/* Optional Communication Consent */}
+                                <View style={styles.termsContainer}>
+                                    <TouchableOpacity 
+                                        style={[styles.checkbox, { borderColor: agreeMarketing ? COLORS.accent : COLORS.textTertiary, backgroundColor: agreeMarketing ? COLORS.accent : 'transparent', marginTop: 2 }]}
+                                        onPress={() => setAgreeMarketing(!agreeMarketing)}
+                                        accessibilityRole="checkbox"
+                                        accessibilityState={{ checked: agreeMarketing }}
+                                        accessibilityLabel="Optional Communication Updates Consent"
+                                    >
+                                        {agreeMarketing && <Text style={styles.checkmark}>✓</Text>}
                                     </TouchableOpacity>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ color: COLORS.textPrimary, fontSize: 12.5, fontWeight: '700' }}>
+                                            (Optional) Update Communication
+                                        </Text>
+                                        <Text style={{ color: COLORS.textSecondary, fontSize: 12, lineHeight: 17, marginTop: 2 }}>
+                                            I agree to receive booking updates, service invoices, and technician details via WhatsApp and SMS messages.
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
                         )}
 
                         <TouchableOpacity
-                            style={styles.loginBtn}
+                            style={[
+                                styles.loginBtn,
+                                !isLogin && !agreeTerms && { opacity: 0.5 }
+                            ]}
                             onPress={handleAuth}
-                            disabled={isLoading}
+                            disabled={isLoading || (!isLogin && !agreeTerms)}
                         >
                             <Text style={styles.loginBtnText}>
-                                {isLoading ? 'Processing...' : (isLogin ? 'Log In' : 'Sign Up')}
+                                {isLoading ? 'Processing...' : (isLogin ? 'Log In' : 'Create Account')}
                             </Text>
                         </TouchableOpacity>
 

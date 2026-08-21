@@ -426,6 +426,12 @@ export default function MenuModal({ visible, onClose }) {
                                 badge="Tax Relief"
                                 onPress={() => navigateTo('/startup-benefits')}
                             />
+                            <MenuItem
+                                icon={Headphones}
+                                label="Support Dispute & Damage SOP"
+                                subtitle="Resolution workflows & scripts"
+                                onPress={() => navigateTo('/dispute-sop')}
+                            />
                         </View>
 
                         {/* Theme Toggle & Logout */}
