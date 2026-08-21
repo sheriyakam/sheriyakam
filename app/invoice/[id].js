@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Download, Share2, Printer, CheckCircle2, ShieldCheck, QrCode, FileText, Award, Scale } from 'lucide-react-native';
+import { ArrowLeft, Download, Share2, Printer, CheckCircle2, ShieldCheck, QrCode, FileText, Award, Scale, HelpCircle } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { COLORS } from '../../constants/theme';
 import { useToast } from '../../context/ToastContext';
@@ -17,58 +17,52 @@ export default function DigitalInvoiceScreen() {
     const { success } = useToast();
     const isDark = theme === 'dark';
 
-    const invoiceId = params.id || 'INV-2026-8291';
-    const bookingId = params.bookingId || 'BK-9482';
+    const invoiceId = params.id || 'VF-2026-89102';
+    const bookingId = params.bookingId || 'BK-9981273';
 
-    const lineItems = [
+    // 1. Service & Labor (SAC: 998732)
+    const baseLabor = 350.00;
+    const platformFee = 29.00;
+    const subtotalA = baseLabor + platformFee; // 379.00
+    const cgstA = Number((subtotalA * 0.09).toFixed(2)); // 34.11
+    const sgstA = Number((subtotalA * 0.09).toFixed(2)); // 34.11
+
+    // 2. Materials & Spares (HSN: 8536)
+    const materials = [
         {
-            desc: 'Short Circuit Diagnostic & Breaker Trip Rectification',
-            sac: 'SAC 9987',
-            rate: 199.00,
-            gstPct: 18,
-            type: 'labor'
+            name: 'Havells 32A Single Pole MCB (IS/IEC 60898-1)',
+            qty: 1,
+            rate: 220.00,
+            origin: 'India',
+            manufacturer: 'Havells India Ltd.',
         },
         {
-            desc: 'Havells 32A Single Pole MCB (IS/IEC 60898-1)',
-            hsn: 'HSN 8536',
-            origin: 'Made in India',
-            rate: 185.00,
-            gstPct: 18,
-            type: 'material'
+            name: 'Anchor Insulated Electrical Tape (IS 7809)',
+            qty: 1,
+            rate: 20.00,
+            origin: 'India',
+            manufacturer: 'Panasonic Life Solutions India Pvt Ltd.',
         },
-        {
-            desc: 'Finolex 2.5 sq mm FR Copper Wire (IS 694) - 5m',
-            hsn: 'HSN 8544',
-            origin: 'Made in India',
-            rate: 120.00,
-            gstPct: 18,
-            type: 'material'
-        },
-        {
-            desc: 'Platform Safety, CGL Insurance & Emergency Dispatch Fee',
-            sac: 'SAC 9987',
-            rate: 25.00,
-            gstPct: 18,
-            type: 'fee'
-        }
     ];
+    const subtotalB = materials.reduce((acc, m) => acc + (m.rate * m.qty), 0); // 240.00
+    const cgstB = Number((subtotalB * 0.09).toFixed(2)); // 21.60
+    const sgstB = Number((subtotalB * 0.09).toFixed(2)); // 21.60
 
-    const subtotal = lineItems.reduce((acc, item) => acc + item.rate, 0);
-    const cgstAmount = Number(((subtotal * 0.09)).toFixed(2));
-    const sgstAmount = Number(((subtotal * 0.09)).toFixed(2));
-    const totalAmount = Number((subtotal + cgstAmount + sgstAmount).toFixed(2));
+    // 3. Totals
+    const totalTax = Number((cgstA + sgstA + cgstB + sgstB).toFixed(2)); // 111.42
+    const grandTotal = Math.round(subtotalA + subtotalB + totalTax); // 730.00
 
     const handleShare = async () => {
         try {
             await Share.share({
-                message: `Sheriyakam Tax Invoice ${invoiceId} - Total: ₹${totalAmount}. Download at https://sheriyakam.com/invoice/${invoiceId}`,
+                message: `Sheriyakam Tax Invoice ${invoiceId} - Grand Total: ₹${grandTotal}. Download at https://sheriyakam.com/invoice/${invoiceId}`,
                 title: `Tax Invoice ${invoiceId}`,
             });
         } catch (e) {}
     };
 
     const handleDownloadPdf = () => {
-        success(`Tax Invoice ${invoiceId}.pdf generated and saved!`, 'Invoice Downloaded');
+        success(`Tax Invoice ${invoiceId}.pdf downloaded successfully!`, 'Invoice Saved');
     };
 
     return (
@@ -94,7 +88,7 @@ export default function DigitalInvoiceScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Official Tax Invoice Container */}
                 <Card variant="elevated" style={styles.invoicePaper}>
-                    {/* Brand & GSTIN Header */}
+                    {/* Brand Header */}
                     <View style={styles.paperHeader}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.brandTitle}>SHERIYAKAM</Text>
@@ -102,10 +96,10 @@ export default function DigitalInvoiceScreen() {
                                 Sheriyakam Technologies Private Limited
                             </Text>
                             <Text style={[styles.companyAddr, { color: colors.textTertiary }]}>
-                                3rd Floor, Malabar Trade Centre, Civil Station Road, Kozhikode, Kerala - 673020
+                                Regd. Office: 3rd Floor, Malabar Trade Centre, Civil Station Road, Kozhikode, Kerala - 673020
                             </Text>
                             <Text style={[styles.gstinText, { color: colors.textPrimary }]}>
-                                GSTIN: <Text style={{ fontWeight: '800' }}>32AABCS8492K1Z8</Text> (State: Kerala - 32)
+                                CIN: <Text style={{ fontWeight: '700' }}>U72900KL2026PTC123456</Text> | GSTIN: <Text style={{ fontWeight: '800' }}>32AABCS8492K1Z8</Text> (Kerala: 32)
                             </Text>
                         </View>
                         <Badge variant="gold" size="sm">TAX INVOICE</Badge>
@@ -116,12 +110,12 @@ export default function DigitalInvoiceScreen() {
                     {/* Metadata Grid */}
                     <View style={styles.metaGrid}>
                         <View style={styles.metaCol}>
-                            <Text style={[styles.metaLabel, { color: colors.textTertiary }]}>INVOICE NO:</Text>
+                            <Text style={[styles.metaLabel, { color: colors.textTertiary }]}>INVOICE NUMBER:</Text>
                             <Text style={[styles.metaVal, { color: colors.textPrimary }]}>{invoiceId}</Text>
 
-                            <Text style={[styles.metaLabel, { color: colors.textTertiary, marginTop: 8 }]}>DATE OF ISSUE:</Text>
+                            <Text style={[styles.metaLabel, { color: colors.textTertiary, marginTop: 8 }]}>DATE & TIME:</Text>
                             <Text style={[styles.metaVal, { color: colors.textPrimary }]}>
-                                {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                22-August-2026 • 11:30 AM IST
                             </Text>
                         </View>
 
@@ -134,85 +128,133 @@ export default function DigitalInvoiceScreen() {
                         </View>
                     </View>
 
-                    {/* Billed To / Technician Info */}
+                    {/* Customer Details */}
                     <View style={[styles.partyBox, { backgroundColor: isDark ? '#27272A50' : '#F4F4F5' }]}>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.partyLabel, { color: colors.textTertiary }]}>BILLED TO (CUSTOMER):</Text>
+                            <Text style={[styles.partyLabel, { color: colors.textTertiary }]}>CUSTOMER DETAILS (BILLED TO):</Text>
                             <Text style={[styles.partyName, { color: colors.textPrimary }]}>Rahul Menon</Text>
                             <Text style={[styles.partyAddr, { color: colors.textSecondary }]}>
-                                Flat 4B, Emerald Residency, Civil Station, Kozhikode - 673020
-                            </Text>
-                        </View>
-                        <View style={{ flex: 1, borderLeftWidth: 1, borderLeftColor: isDark ? '#3F3F46' : '#E4E4E7', paddingLeft: 12 }}>
-                            <Text style={[styles.partyLabel, { color: colors.textTertiary }]}>EXECUTING WIREMAN:</Text>
-                            <Text style={[styles.partyName, { color: colors.textPrimary }]}>Sanoop K. (KSELB Class W)</Text>
-                            <Text style={[styles.partyAddr, { color: colors.textSecondary }]}>
-                                License: KL-EL-2021-9482 • e-Shram UAN Verified
+                                Flat 4B, Emerald Residency, Civil Station, Kozhikode, Kerala - 673020
                             </Text>
                         </View>
                     </View>
 
-                    {/* Itemized Table */}
-                    <Text style={[styles.tableHeaderTitle, { color: colors.textSecondary }]}>
-                        ITEMIZED SERVICES & MATERIAL BREAKDOWN
-                    </Text>
+                    {/* 1. Service & Labor Breakdown (SAC 998732) */}
+                    <View style={styles.sectionBlock}>
+                        <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>
+                            1. SERVICE & LABOR BREAKDOWN (SAC: 998732 - Electrical Installation)
+                        </Text>
+                        <View style={styles.lineItemRow}>
+                            <Text style={[styles.lineItemDesc, { color: colors.textSecondary }]}>
+                                Distribution Board (DB) Box Repair & MCB Replacement
+                            </Text>
+                            <Text style={[styles.lineItemAmt, { color: colors.textPrimary }]}>₹{baseLabor.toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.lineItemRow}>
+                            <Text style={[styles.lineItemDesc, { color: colors.textSecondary }]}>
+                                Platform Convenience & Dispatch Safety Fee
+                            </Text>
+                            <Text style={[styles.lineItemAmt, { color: colors.textPrimary }]}>₹{platformFee.toFixed(2)}</Text>
+                        </View>
+                        <View style={[styles.subtotalRow, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <Text style={[styles.subtotalLabel, { color: colors.textPrimary }]}>SUBTOTAL (A):</Text>
+                            <Text style={[styles.subtotalVal, { color: colors.textPrimary }]}>₹{subtotalA.toFixed(2)}</Text>
+                        </View>
+                    </View>
 
-                    <View style={styles.table}>
-                        {lineItems.map((item, idx) => (
-                            <View key={idx} style={[styles.tableRow, { borderBottomColor: isDark ? '#27272A' : '#F4F4F5' }]}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.itemName, { color: colors.textPrimary }]}>
-                                        {item.desc}
+                    {/* 2. Material & Spare Parts Breakdown (HSN 8536) */}
+                    <View style={styles.sectionBlock}>
+                        <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>
+                            2. MATERIAL & SPARE PARTS BREAKDOWN (HSN: 8536 - Electrical Switches/MCB)
+                        </Text>
+                        {materials.map((m, idx) => (
+                            <View key={idx} style={styles.materialItemWrap}>
+                                <View style={styles.lineItemRow}>
+                                    <Text style={[styles.lineItemDesc, { color: colors.textPrimary, fontWeight: '600' }]}>
+                                        {m.name} (Qty: {m.qty})
                                     </Text>
-                                    <View style={styles.tagRow}>
-                                        <Badge variant="neutral" size="sm">{item.sac || item.hsn}</Badge>
-                                        {item.origin && (
-                                            <Badge variant="success" size="sm">{item.origin}</Badge>
-                                        )}
-                                    </View>
+                                    <Text style={[styles.lineItemAmt, { color: colors.textPrimary }]}>₹{m.rate.toFixed(2)}</Text>
                                 </View>
-                                <Text style={[styles.itemRate, { color: colors.textPrimary }]}>
-                                    ₹{item.rate.toFixed(2)}
-                                </Text>
+                                <View style={styles.tagWrap}>
+                                    <Text style={[styles.tagText, { color: colors.textTertiary }]}>
+                                        • Country of Origin: <Text style={{ color: '#10B981', fontWeight: '700' }}>{m.origin}</Text>
+                                    </Text>
+                                    <Text style={[styles.tagText, { color: colors.textTertiary }]}>
+                                        • Manufacturer: {m.manufacturer}
+                                    </Text>
+                                </View>
                             </View>
                         ))}
+                        <View style={[styles.subtotalRow, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <Text style={[styles.subtotalLabel, { color: colors.textPrimary }]}>SUBTOTAL (B):</Text>
+                            <Text style={[styles.subtotalVal, { color: colors.textPrimary }]}>₹{subtotalB.toFixed(2)}</Text>
+                        </View>
                     </View>
 
-                    {/* Tax & Total Summary */}
-                    <View style={[styles.summaryBox, { backgroundColor: isDark ? '#18181B' : '#FAFAFA' }]}>
-                        <View style={styles.summaryRow}>
-                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Taxable Subtotal:</Text>
-                            <Text style={[styles.summaryVal, { color: colors.textPrimary }]}>₹{subtotal.toFixed(2)}</Text>
+                    {/* 3. Tax & Duty Breakdown */}
+                    <View style={styles.sectionBlock}>
+                        <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>
+                            3. TAX & DUTY BREAKDOWN (18% GST: 9% CGST + 9% KERALA SGST)
+                        </Text>
+                        <View style={styles.lineItemRow}>
+                            <Text style={[styles.taxLabel, { color: colors.textSecondary }]}>CGST on Service (A) @ 9%:</Text>
+                            <Text style={[styles.taxVal, { color: colors.textPrimary }]}>₹{cgstA.toFixed(2)}</Text>
                         </View>
-                        <View style={styles.summaryRow}>
-                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>CGST @ 9% (Central Tax):</Text>
-                            <Text style={[styles.summaryVal, { color: colors.textPrimary }]}>₹{cgstAmount.toFixed(2)}</Text>
+                        <View style={styles.lineItemRow}>
+                            <Text style={[styles.taxLabel, { color: colors.textSecondary }]}>SGST on Service (A) @ 9%:</Text>
+                            <Text style={[styles.taxVal, { color: colors.textPrimary }]}>₹{sgstA.toFixed(2)}</Text>
                         </View>
-                        <View style={styles.summaryRow}>
-                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Kerala SGST @ 9% (State Tax):</Text>
-                            <Text style={[styles.summaryVal, { color: colors.textPrimary }]}>₹{sgstAmount.toFixed(2)}</Text>
+                        <View style={styles.lineItemRow}>
+                            <Text style={[styles.taxLabel, { color: colors.textSecondary }]}>CGST on Materials (B) @ 9%:</Text>
+                            <Text style={[styles.taxVal, { color: colors.textPrimary }]}>₹{cgstB.toFixed(2)}</Text>
                         </View>
+                        <View style={styles.lineItemRow}>
+                            <Text style={[styles.taxLabel, { color: colors.textSecondary }]}>SGST on Materials (B) @ 9%:</Text>
+                            <Text style={[styles.taxVal, { color: colors.textPrimary }]}>₹{sgstB.toFixed(2)}</Text>
+                        </View>
+                        <View style={[styles.subtotalRow, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                            <Text style={[styles.subtotalLabel, { color: colors.textPrimary }]}>TOTAL TAXATION (C):</Text>
+                            <Text style={[styles.subtotalVal, { color: colors.textPrimary }]}>₹{totalTax.toFixed(2)}</Text>
+                        </View>
+                    </View>
 
-                        <View style={[styles.totalDivider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
-
-                        <View style={styles.totalRow}>
-                            <Text style={[styles.totalLabel, { color: colors.textPrimary }]}>TOTAL AMOUNT (INR):</Text>
-                            <Text style={[styles.totalVal, { color: colors.accent }]}>₹{totalAmount.toFixed(2)}</Text>
+                    {/* Grand Total */}
+                    <View style={[styles.grandTotalBox, { backgroundColor: isDark ? '#18181B' : '#EFF6FF' }]}>
+                        <View style={styles.grandTotalRow}>
+                            <Text style={[styles.grandTotalLabel, { color: colors.textPrimary }]}>GRAND TOTAL (Rounded):</Text>
+                            <Text style={[styles.grandTotalVal, { color: colors.accent }]}>₹{grandTotal.toFixed(2)}</Text>
                         </View>
-                        <Badge variant="success" size="sm" style={{ alignSelf: 'flex-end', marginTop: 4 }}>
-                            PAID VIA UPI (TRANSACTION ID: TXN-829148)
+                        <Text style={[styles.amountWords, { color: colors.textSecondary }]}>
+                            Amount in Words: Seven Hundred and Thirty Rupees Only.
+                        </Text>
+                        <Badge variant="success" size="sm" style={{ alignSelf: 'flex-start', marginTop: 4 }}>
+                            PAID VIA UPI • TRANSACTION ID: TXN-829148
                         </Badge>
                     </View>
 
-                    {/* Statutory Guarantee & Warranty Footer */}
-                    <View style={[styles.warrantyStrip, { backgroundColor: isDark ? '#27272A50' : '#EFF6FF80' }]}>
-                        <ShieldCheck size={18} color="#10B981" />
+                    {/* Provider Details */}
+                    <View style={[styles.providerBox, { backgroundColor: isDark ? '#27272A50' : '#F4F4F5' }]}>
+                        <Text style={[styles.providerHeading, { color: colors.textPrimary }]}>PROVIDER DETAILS</Text>
+                        <Text style={[styles.providerText, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Assigned Technician</Text>: Rajesh Kumar / Sanoop K. (ID: TECH-7731)
+                        </Text>
+                        <Text style={[styles.providerText, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Electrical Wireman License No</Text>: LIC/EL/2021/99482 (KSELB Verified)
+                        </Text>
+                        <Text style={[styles.providerText, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Background Verification Status</Text>: <Text style={{ color: '#10B981', fontWeight: '800' }}>PASSED</Text> (Aadhaar e-KYC & Police PVC)
+                        </Text>
+                    </View>
+
+                    {/* Grievance Redressal & Support */}
+                    <View style={[styles.grievanceBox, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                        <Scale size={16} color={colors.accent} />
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.warrantyTitle, { color: colors.textPrimary }]}>
-                                30-Day Free Rework Warranty & ₹5 Lakh Damage Cover
+                            <Text style={[styles.grievanceTitle, { color: colors.textPrimary }]}>
+                                GRIEVANCE REDRESSAL & SUPPORT (48-HR SLA)
                             </Text>
-                            <Text style={[styles.warrantyText, { color: colors.textSecondary }]}>
-                                Valid till {new Date(Date.now() + 30 * 86400000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}. Genuine manufacturer warranty applies to all ISI spares.
+                            <Text style={[styles.grievanceText, { color: colors.textSecondary }]}>
+                                For complaints, contact our Grievance Officer at <Text style={{ color: colors.accent, fontWeight: '700' }}>grievance@sheriyakam.com</Text> or call +91 495 280 0001. Acknowledged within 48 hours under Indian E-Commerce Rules.
                             </Text>
                         </View>
                     </View>
@@ -268,7 +310,7 @@ const styles = StyleSheet.create({
     invoicePaper: {
         padding: 18,
         borderRadius: 16,
-        gap: 14,
+        gap: 12,
     },
     paperHeader: {
         flexDirection: 'row',
@@ -292,7 +334,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     gstinText: {
-        fontSize: 12,
+        fontSize: 11,
         marginTop: 4,
     },
     paperDivider: {
@@ -316,10 +358,8 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     partyBox: {
-        flexDirection: 'row',
         padding: 12,
         borderRadius: 10,
-        gap: 12,
     },
     partyLabel: {
         fontSize: 10,
@@ -327,93 +367,126 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     partyName: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '700',
         marginTop: 2,
     },
     partyAddr: {
         fontSize: 11,
         lineHeight: 15,
-        marginTop: 1,
+        marginTop: 2,
     },
-    tableHeaderTitle: {
+    sectionBlock: {
+        gap: 6,
+        marginTop: 4,
+    },
+    sectionHeading: {
         fontSize: 11,
-        fontWeight: '700',
+        fontWeight: '800',
         letterSpacing: 0.5,
-        marginTop: 6,
     },
-    table: {
-        gap: 8,
-    },
-    tableRow: {
+    lineItemRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
     },
-    itemName: {
-        fontSize: 13,
-        fontWeight: '600',
-        marginBottom: 4,
+    lineItemDesc: {
+        fontSize: 12.5,
+        flex: 1,
     },
-    tagRow: {
-        flexDirection: 'row',
-        gap: 6,
-    },
-    itemRate: {
-        fontSize: 13,
+    lineItemAmt: {
+        fontSize: 12.5,
         fontWeight: '700',
-        marginLeft: 12,
+        marginLeft: 10,
     },
-    summaryBox: {
+    materialItemWrap: {
+        gap: 2,
+        marginVertical: 2,
+    },
+    tagWrap: {
+        paddingLeft: 8,
+        gap: 2,
+    },
+    tagText: {
+        fontSize: 11,
+    },
+    subtotalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderTopWidth: 1,
+        paddingTop: 4,
+        marginTop: 2,
+    },
+    subtotalLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    subtotalVal: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    taxLabel: {
+        fontSize: 12,
+    },
+    taxVal: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    grandTotalBox: {
         padding: 14,
         borderRadius: 12,
-        gap: 6,
+        gap: 4,
+        marginTop: 6,
     },
-    summaryRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    summaryLabel: {
-        fontSize: 12,
-    },
-    summaryVal: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    totalDivider: {
-        height: 1,
-        marginVertical: 4,
-    },
-    totalRow: {
+    grandTotalRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    totalLabel: {
-        fontSize: 13,
-        fontWeight: '800',
-    },
-    totalVal: {
-        fontSize: 16,
+    grandTotalLabel: {
+        fontSize: 14,
         fontWeight: '900',
     },
-    warrantyStrip: {
-        flexDirection: 'row',
+    grandTotalVal: {
+        fontSize: 18,
+        fontWeight: '900',
+    },
+    amountWords: {
+        fontSize: 11,
+        fontStyle: 'italic',
+    },
+    providerBox: {
         padding: 12,
         borderRadius: 10,
+        gap: 4,
+        marginTop: 4,
+    },
+    providerHeading: {
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    providerText: {
+        fontSize: 11.5,
+        lineHeight: 16,
+    },
+    grievanceBox: {
+        flexDirection: 'row',
         gap: 10,
-        alignItems: 'center',
+        borderTopWidth: 1,
+        paddingTop: 10,
+        marginTop: 6,
+        alignItems: 'flex-start',
     },
-    warrantyTitle: {
-        fontSize: 12,
-        fontWeight: '700',
+    grievanceTitle: {
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 0.5,
     },
-    warrantyText: {
+    grievanceText: {
         fontSize: 11,
         lineHeight: 15,
-        marginTop: 1,
+        marginTop: 2,
     },
     actionButtons: {
         marginTop: 16,

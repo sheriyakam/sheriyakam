@@ -12,58 +12,49 @@ import { Button } from '../components/ui/Button';
 
 const RETENTION_SCHEDULES = [
     {
-        category: 'CERT-In Infrastructure & Access Logs',
-        duration: '180 Days (Mandatory)',
-        statute: 'CERT-In Directions under IT Act Sec 70B',
-        desc: 'IP addresses, login timestamps, API tokens, and server request headers synchronized with Indian Standard Time (IST) NTP servers.',
-        purgeMethod: 'Automated cryptographic overwrite after 180 days.',
-        icon: Lock,
-        color: '#EF4444',
-    },
-    {
-        category: 'Financial GST Invoices & Ledger Records',
-        duration: '6 Years (Mandatory)',
-        statute: 'Central & Kerala SGST Act, 2017 (Sec 36)',
-        desc: 'Tax invoices, SAC 9987 breakdowns, CGST/SGST collected, UPI transaction IDs, and customer billing names.',
-        purgeMethod: 'Statutory archive maintained for 72 months for tax audits.',
-        icon: FileCheck,
-        color: '#3B82F6',
-    },
-    {
-        category: 'Personal Identity & Profile PII',
-        duration: 'Active Account or 30-Day Erasure',
-        statute: 'DPDP Act, 2023 (Sec 12 & 13)',
-        desc: 'Names, phone numbers, saved addresses, and payment tokens. Purged immediately or within 30 days upon user account deletion request.',
-        purgeMethod: 'Self-service 1-tap permanent cryptographic erasure.',
-        icon: Trash2,
-        color: '#10B981',
-    },
-    {
-        category: 'Foreground GPS Coordinates & Trip Routes',
-        duration: '30 Days Post-Booking',
-        statute: 'DPDP Act 2023 & Consumer Protection Rules',
-        desc: 'Latitude/longitude tracking points captured during active electrician transit for SLA route verification.',
-        purgeMethod: 'Hard deleted from Redis/database clusters after 30 days.',
+        category: 'User GPS & Location Logs',
+        duration: '180 Days',
+        statute: 'DPDP Act 2023 & Criminal Procedure Safety',
+        desc: 'Operational tracking and safety audit in case of residential incident investigations.',
+        deletionTrigger: 'Automatically deleted 180 days after order closure unless an active dispute is open.',
         icon: Clock,
         color: '#F59E0B',
     },
     {
-        category: 'Masked VoIP Call Detail Records (CDR)',
-        duration: '90 Days Metadata / 30 Days Audio',
-        statute: 'DoT Virtual PBX & Telecom Guidelines',
-        desc: 'Call duration, timestamp, and virtual masked bridge identifiers. Voice recordings encrypted and deleted after 30 days.',
-        purgeMethod: 'Permanent audio purge after 30 days; metadata purged after 90 days.',
+        category: 'Server Traffic & IP Access Logs',
+        duration: '1 Year (365 Days)',
+        statute: 'CERT-In Cybersecurity Directives (IT Act Sec 70B)',
+        desc: 'Mandatory compliance under CERT-In cybersecurity directions with NTP Indian Standard Time synchronization.',
+        deletionTrigger: 'Purged automatically after 1 year via automated systemic cron jobs.',
+        icon: Lock,
+        color: '#EF4444',
+    },
+    {
+        category: 'Masked Call & Audio Recordings',
+        duration: '30 Days',
+        statute: 'DoT Virtual PBX & Telecom Intermediary Rules',
+        desc: 'Resolving customer-technician behavior disputes, quality assurance, and checkout bypass prevention.',
+        deletionTrigger: 'Deleted 30 days after job completion if no dispute is raised.',
         icon: Database,
         color: '#8B5CF6',
     },
     {
-        category: 'Contractor BGV, PVC & KSELB Dossiers',
-        duration: 'Active Lifecycle + 3 Years Post-Exit',
-        statute: 'Workmen & Vicarious Liability Law',
-        desc: 'Aadhaar e-KYC logs, Police Verification Certificates, e-Shram UAN, and Kerala wireman license copies.',
-        purgeMethod: 'Encrypted cold storage vault; purged 36 months after deactivation.',
+        category: 'Aadhaar e-KYC Verification Tokens',
+        duration: 'Duration of Employment + 30 Days',
+        statute: 'UIDAI Ecosystem & Labor BGV Mandates',
+        desc: 'Validating the background check and police clearance status of on-boarded electricians.',
+        deletionTrigger: 'Completely wiped within 30 days of the technician off-boarding from the platform.',
         icon: ShieldCheck,
-        color: '#EC4899',
+        color: '#10B981',
+    },
+    {
+        category: 'Financial Invoice & Tax Ledgers',
+        duration: '8 Financial Years (96 Months)',
+        statute: 'Indian Income Tax Act, 1961 & GST Rules',
+        desc: 'Statutory account audit records, SAC 9987 / HSN 8536 itemized invoices, and GST remittance filings.',
+        deletionTrigger: 'Cannot be deleted by user request due to overlapping financial tax mandates.',
+        icon: FileCheck,
+        color: '#3B82F6',
     },
 ];
 
@@ -85,7 +76,7 @@ export default function DataRetentionScreen() {
                     <ArrowLeft size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-                    Data Retention & Cyber Log Schedule
+                    Backend Data Retention Schedule
                 </Text>
                 <View style={{ width: 32 }} />
             </View>
@@ -93,18 +84,18 @@ export default function DataRetentionScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Hero */}
                 <View style={styles.hero}>
-                    <Badge variant="purple" size="md">Indian Cyber Law & DPDP Compliance</Badge>
+                    <Badge variant="purple" size="md">DPDP Act 2023 & CERT-In Cyber Directives</Badge>
                     <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
-                        Statutory Data Lifecycles & Purge Protocols
+                        Statutory System Log Lifecycles & Purge Rules
                     </Text>
                     <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-                        Transparent schedules detailing how long Sheriyakam stores system logs, GPS coordinates, financial invoices, and call records under CERT-In, DPDP Act 2023, and GST rules.
+                        Under the Digital Personal Data Protection (DPDP) Act, 2023 and CERT-In cyber guidelines, our backend systems retain specific system logs for statutory legal audits while honoring user data deletion rights.
                     </Text>
                 </View>
 
                 {/* Schedules List */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                    STATUTORY DATA RETENTION SCHEDULE
+                    STATUTORY DATA RETENTION MATRIX
                 </Text>
 
                 <View style={styles.scheduleList}>
@@ -125,7 +116,7 @@ export default function DataRetentionScreen() {
                                 </View>
 
                                 <View style={styles.statuteRow}>
-                                    <Text style={[styles.statuteLabel, { color: colors.textTertiary }]}>Governing Law:</Text>
+                                    <Text style={[styles.statuteLabel, { color: colors.textTertiary }]}>Governing Mandate:</Text>
                                     <Text style={[styles.statuteVal, { color: colors.accent, fontWeight: '700' }]}>{item.statute}</Text>
                                 </View>
 
@@ -134,8 +125,8 @@ export default function DataRetentionScreen() {
                                 </Text>
 
                                 <View style={[styles.purgeBox, { backgroundColor: isDark ? '#27272A50' : '#F4F4F5' }]}>
-                                    <Text style={[styles.purgeLabel, { color: colors.textTertiary }]}>Purge Lifecycle:</Text>
-                                    <Text style={[styles.purgeText, { color: colors.textPrimary }]}>{item.purgeMethod}</Text>
+                                    <Text style={[styles.purgeLabel, { color: colors.textTertiary }]}>Deletion Trigger (DPDP Rules):</Text>
+                                    <Text style={[styles.purgeText, { color: colors.textPrimary }]}>{item.deletionTrigger}</Text>
                                 </View>
                             </Card>
                         );

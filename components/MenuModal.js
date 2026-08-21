@@ -399,6 +399,13 @@ export default function MenuModal({ visible, onClose }) {
                                 subtitle="SAC 9987 & ISI spare parts"
                                 onPress={() => navigateTo('/invoice/INV-2026-8291')}
                             />
+                            <MenuItem
+                                icon={ShieldAlert}
+                                label="₹5 Lakh Damage Claim Desk"
+                                subtitle="On-site fire & burnout SOP"
+                                badge="2-Hr Inspection"
+                                onPress={() => navigateTo('/damage-claim')}
+                            />
                         </View>
 
                         {/* Theme Toggle & Logout */}
