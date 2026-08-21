@@ -7,7 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     ShieldAlert, Users, Briefcase, TrendingUp, CheckCircle,
     Clock, LogOut, BarChart2, Activity, XCircle, AlertTriangle,
-    MapPin, Phone, Star, RefreshCw, Settings, Zap, Search
+    MapPin, Phone, Star, RefreshCw, Settings, Zap, Search,
+    ChevronRight, Split, Webhook, FileText, Layers, Calendar, Scale, Award
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
 import { useRouter } from 'expo-router';
@@ -306,6 +307,47 @@ export default function AdminDashboard() {
                                     </View>
                                 ))
                             )}
+                        </View>
+
+                        {/* Operations & Compliance Modules */}
+                        <View style={s.sectionCard}>
+                            <Text style={s.sectionTitle}>Operations & Financial Engines</Text>
+                            <View style={{ gap: 8 }}>
+                                {[
+                                    { icon: Layers, label: 'Live Dispatch Kanban', route: '/admin/kanban', sub: 'Real-time order board', color: C.accent },
+                                    { icon: Calendar, label: 'Contractor Schedule Gantt', route: '/admin/schedule', sub: 'Visual zone timeline', color: '#8b5cf6' },
+                                    { icon: Split, label: 'Split-Payout API & Escrow', route: '/admin/split-payouts', sub: 'Razorpay Route engine', color: C.success },
+                                    { icon: Webhook, label: 'Payment Webhooks & Dispute Lockout', route: '/admin/webhooks', sub: 'HMAC-SHA256 receiver', color: C.warning },
+                                    { icon: TrendingUp, label: 'Founder Legal & Tech Roadmap', route: '/founder-checklist', sub: '4-phase milestone tracker', color: C.accent },
+                                    { icon: Award, label: 'Startup India (DPIIT) Hub', route: '/startup-benefits', sub: '80-IAC tax holiday & grants', color: '#ec4899' },
+                                    { icon: ShieldAlert, label: '₹5 Lakh Damage Claim Desk', route: '/damage-claim', sub: 'Emergency on-site incident SOP', color: C.danger },
+                                    { icon: Scale, label: 'Customer Dispute Playbook', route: '/dispute-sop', sub: 'Agent de-escalation scripts', color: C.sub },
+                                ].map((mod, i) => (
+                                    <TouchableOpacity
+                                        key={i}
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            padding: 12,
+                                            borderRadius: 10,
+                                            backgroundColor: C.surface,
+                                            borderWidth: 1,
+                                            borderColor: C.border,
+                                            gap: 12,
+                                        }}
+                                        onPress={() => router.push(mod.route)}
+                                    >
+                                        <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: mod.color + '20', alignItems: 'center', justifyContent: 'center' }}>
+                                            <mod.icon size={16} color={mod.color} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ color: C.text, fontSize: 13, fontWeight: '700' }}>{mod.label}</Text>
+                                            <Text style={{ color: C.muted, fontSize: 11, marginTop: 1 }}>{mod.sub}</Text>
+                                        </View>
+                                        <ChevronRight size={16} color={C.muted} />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
                         </View>
                     </View>
                 )}

@@ -13,11 +13,10 @@ import {
     Platform
 } from 'react-native';
 import {
-    X, User, LogIn, Info, FileText, ChevronRight, Moon, Sun, LogOut,
-    Settings, Bell, HelpCircle, Star, Gift, Zap, TrendingUp, Calendar, MapPin, Shield,
-    Crown, Search, ShoppingCart, Activity, Briefcase, DollarSign, Award, CheckCircle2,
-    Users, Newspaper, BookOpen, Layers, Phone, Key, Scale, ShieldCheck, RefreshCw,
-    Clock, ShieldAlert, Sparkles, FileCheck, Headphones, Split, Webhook
+    X, User, LogIn, FileText, ChevronRight, Moon, Sun, LogOut,
+    Settings, Bell, HelpCircle, Zap, Shield, Crown, Search,
+    ShoppingCart, Phone, Scale, ShieldAlert, Sparkles, Briefcase,
+    RefreshCw, LayoutDashboard
 } from 'lucide-react-native';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -39,62 +38,76 @@ export default function MenuModal({ visible, onClose }) {
         Animated.spring(slideAnim, {
             toValue: visible ? 0 : -MENU_WIDTH,
             useNativeDriver: true,
-            tension: 65,
-            friction: 11
+            friction: 8,
+            tension: 65
         }).start();
     }, [visible]);
 
-    const navigateTo = (path) => {
+    const navigateTo = (route) => {
         onClose();
-        router.push(path);
+        setTimeout(() => {
+            router.push(route);
+        }, 150);
     };
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
         onClose();
+        try {
+            await logout();
+            router.replace('/auth/login');
+        } catch (e) {
+            console.error('Logout error:', e);
+        }
     };
 
-    const MenuItem = ({ icon: Icon, label, onPress, color, badge, subtitle, rightText }) => {
-        const iconColor = color || colors.textPrimary;
-        return (
-            <TouchableOpacity
-                style={[styles.menuItem, { backgroundColor: isDark ? '#18181B' : '#F9FAFB' }]}
-                onPress={onPress}
-                activeOpacity={0.7}
-            >
-                <View style={styles.menuItemLeft}>
-                    <View style={[styles.iconContainer, { backgroundColor: isDark ? '#27272A' : '#EFF6FF' }]}>
-                        <Icon size={18} color={iconColor} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>{label}</Text>
-                            {badge && (
-                                <View style={[styles.badge, { backgroundColor: badge === 'VIP' ? '#F59E0B' : colors.accent }]}>
-                                    <Text style={styles.badgeText}>{badge}</Text>
-                                </View>
-                            )}
-                        </View>
-                        {subtitle && (
-                            <Text style={[styles.menuItemSubtitle, { color: colors.textTertiary }]}>{subtitle}</Text>
-                        )}
-                    </View>
+    const MenuItem = ({ icon: Icon, label, subtitle, badge, onPress, isDestructive, highlight }) => (
+        <TouchableOpacity
+            style={[
+                styles.menuItem,
+                highlight && { backgroundColor: isDark ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.05)' }
+            ]}
+            onPress={onPress}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+        >
+            <View style={[
+                styles.iconContainer,
+                { backgroundColor: highlight ? colors.accent + '20' : (isDark ? '#18181B' : '#F4F4F5') }
+            ]}>
+                <Icon size={18} color={isDestructive ? '#EF4444' : (highlight ? colors.accent : colors.textPrimary)} />
+            </View>
+            <View style={styles.menuTextContainer}>
+                <Text style={[
+                    styles.menuLabel,
+                    { color: isDestructive ? '#EF4444' : colors.textPrimary },
+                    highlight && { fontWeight: '700', color: colors.accent }
+                ]}>
+                    {label}
+                </Text>
+                {subtitle ? (
+                    <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]} numberOfLines={1}>
+                        {subtitle}
+                    </Text>
+                ) : null}
+            </View>
+            {badge ? (
+                <View style={[styles.badge, { backgroundColor: highlight ? colors.accent : colors.surface }]}>
+                    <Text style={[styles.badgeText, { color: highlight ? '#FFFFFF' : colors.accent }]}>
+                        {badge}
+                    </Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    {rightText && (
-                        <Text style={[styles.rightText, { color: colors.textTertiary }]}>{rightText}</Text>
-                    )}
-                    <ChevronRight size={14} color={colors.textTertiary} />
-                </View>
-            </TouchableOpacity>
-        );
-    };
+            ) : (
+                <ChevronRight size={16} color={colors.textTertiary} />
+            )}
+        </TouchableOpacity>
+    );
 
     return (
         <Modal
             visible={visible}
-            animationType="fade"
-            transparent={true}
+            transparent
+            animationType="none"
             onRequestClose={onClose}
         >
             <View style={styles.overlay}>
@@ -112,26 +125,26 @@ export default function MenuModal({ visible, onClose }) {
                         }
                     ]}
                 >
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 36 }}>
                         {/* Header */}
                         <View style={[styles.header, { borderBottomColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.title, { color: colors.textPrimary }]}>Sheriyakam</Text>
                                 <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                                    {user ? `Namaskaram, ${user.name.split(' ')[0]}` : 'Certified Electrical Services'}
+                                    {user ? `Namaskaram, ${user.name ? user.name.split(' ')[0] : 'User'}` : 'Certified Electrical Services'}
                                 </Text>
                             </View>
-                            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                            <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityRole="button" accessibilityLabel="Close Menu">
                                 <X size={20} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
 
-                        {/* Customer Quick Links */}
+                        {/* SECTION 1: DISCOVER & BOOK */}
                         <View style={styles.section}>
                             <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>DISCOVER & BOOK</Text>
                             <MenuItem
                                 icon={Search}
-                                label="Search & Filter Services"
+                                label="Search & Book Services"
                                 subtitle="Instant rate card & bookings"
                                 onPress={() => navigateTo('/search')}
                             />
@@ -145,13 +158,13 @@ export default function MenuModal({ visible, onClose }) {
                             <MenuItem
                                 icon={Crown}
                                 label="Sheriyakam VIP Club"
-                                subtitle="₹0 visit fee protection"
+                                subtitle="₹0 visit fee & priority dispatch"
                                 badge="VIP"
                                 onPress={() => navigateTo('/paywall')}
                             />
                         </View>
 
-                        {/* Account & History */}
+                        {/* SECTION 2: ACCOUNT & ACTIVITY */}
                         <View style={styles.section}>
                             <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ACCOUNT & ACTIVITY</Text>
                             {user ? (
@@ -165,21 +178,14 @@ export default function MenuModal({ visible, onClose }) {
                                     <MenuItem
                                         icon={FileText}
                                         label="My Bookings"
-                                        subtitle="Live dispatch tracking"
+                                        subtitle="Live dispatch tracking & invoices"
                                         onPress={() => navigateTo('/bookings')}
                                     />
                                     <MenuItem
                                         icon={Bell}
-                                        label="Notification Center"
-                                        subtitle="Alerts and offers"
+                                        label="Notifications"
+                                        subtitle="Booking alerts & updates"
                                         onPress={() => navigateTo('/notifications')}
-                                    />
-                                    <MenuItem
-                                        icon={Gift}
-                                        label="Invite & Earn ₹100"
-                                        subtitle="Share referral code"
-                                        badge="₹100"
-                                        onPress={() => navigateTo('/invite')}
                                     />
                                     <MenuItem
                                         icon={Settings}
@@ -194,175 +200,57 @@ export default function MenuModal({ visible, onClose }) {
                                         icon={LogIn}
                                         label="Login / Sign Up"
                                         subtitle="Track bookings and warranties"
+                                        highlight
                                         onPress={() => navigateTo('/auth/login')}
                                     />
                                     <MenuItem
                                         icon={Zap}
-                                        label="Customer Onboarding"
-                                        subtitle="Feature walkthrough"
+                                        label="How It Works"
+                                        subtitle="Onboarding walkthrough"
                                         onPress={() => navigateTo('/onboarding')}
                                     />
                                 </>
                             )}
                         </View>
 
-                        {/* Public Marketing & Trust */}
+                        {/* SECTION 3: SAFETY & CUSTOMER SUPPORT */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>STANDARDS & PRICING</Text>
-                            <MenuItem
-                                icon={Zap}
-                                label="Features & Standards"
-                                subtitle="30-min rapid emergency"
-                                onPress={() => navigateTo('/features')}
-                            />
-                            <MenuItem
-                                icon={DollarSign}
-                                label="Tariff & Fixed Rates"
-                                subtitle="Transparent labor rate card"
-                                onPress={() => navigateTo('/pricing')}
-                            />
-                            <MenuItem
-                                icon={Scale}
-                                label="Why Sheriyakam"
-                                subtitle="Comparison vs alternatives"
-                                onPress={() => navigateTo('/compare')}
-                            />
-                            <MenuItem
-                                icon={Star}
-                                label="Customer Reviews"
-                                subtitle="4.9★ from 1,480+ fixes"
-                                onPress={() => navigateTo('/testimonials')}
-                            />
-                            <MenuItem
-                                icon={Shield}
-                                label="Safety & Insurance"
-                                subtitle="₹5,00,000 protection"
-                                onPress={() => navigateTo('/security')}
-                            />
-                        </View>
-
-                        {/* Admin & Dispatcher Control Center */}
-                        <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.accent }]}>ADMIN & ENTERPRISE HUB</Text>
-                            <MenuItem
-                                icon={Layers}
-                                label="Live Dispatch Kanban"
-                                subtitle="Real-time order board"
-                                onPress={() => navigateTo('/admin/kanban')}
-                            />
-                            <MenuItem
-                                icon={Calendar}
-                                label="Contractor Schedule Gantt"
-                                subtitle="Visual zone timeline"
-                                onPress={() => navigateTo('/admin/schedule')}
-                            />
-                            <MenuItem
-                                icon={Users}
-                                label="User & Partner Directory"
-                                subtitle="KYC & license vetting"
-                                onPress={() => navigateTo('/admin/users')}
-                            />
-                            <MenuItem
-                                icon={TrendingUp}
-                                label="Analytics & Growth"
-                                subtitle="Revenue and SLAs"
-                                onPress={() => navigateTo('/admin/analytics')}
-                            />
-                            <MenuItem
-                                icon={Key}
-                                label="API Keys & Webhooks"
-                                subtitle="REST integration tokens"
-                                onPress={() => navigateTo('/admin/api-keys')}
-                            />
-                            <MenuItem
-                                icon={Activity}
-                                label="Gateways & Integrations"
-                                subtitle="Supabase, Razorpay, Twilio"
-                                onPress={() => navigateTo('/admin/integrations')}
-                            />
-                            <MenuItem
-                                icon={Shield}
-                                label="Security Audit Trail"
-                                subtitle="Immutable event logging"
-                                onPress={() => navigateTo('/admin/audit-log')}
-                            />
-                        </View>
-
-                        {/* Company & Community */}
-                        <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>COMPANY & RESOURCES</Text>
-                            <MenuItem
-                                icon={BookOpen}
-                                label="Electrical Safety Blog"
-                                subtitle="Monsoon & inverter guides"
-                                onPress={() => navigateTo('/blog')}
-                            />
-                            <MenuItem
-                                icon={MapPin}
-                                label="District Waitlist"
-                                subtitle="Vote for next city"
-                                onPress={() => navigateTo('/waitlist')}
-                            />
-                            <MenuItem
-                                icon={Award}
-                                label="Affiliate Program"
-                                subtitle="Earn 20% commissions"
-                                onPress={() => navigateTo('/affiliate')}
-                            />
-                            <MenuItem
-                                icon={Newspaper}
-                                label="Press & Media Kit"
-                                subtitle="Brand assets and news"
-                                onPress={() => navigateTo('/press')}
-                            />
-                            <MenuItem
-                                icon={Users}
-                                label="Meet the Team"
-                                subtitle="Engineers & master wiremen"
-                                onPress={() => navigateTo('/team')}
-                            />
-                            <MenuItem
-                                icon={Briefcase}
-                                label="Careers & Jobs"
-                                subtitle="Join our field crew"
-                                onPress={() => navigateTo('/careers')}
-                            />
-                            <MenuItem
-                                icon={Activity}
-                                label="Live System Status"
-                                subtitle="99.99% uptime telemetry"
-                                onPress={() => navigateTo('/status')}
-                            />
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SUPPORT & SAFETY</Text>
                             <MenuItem
                                 icon={HelpCircle}
                                 label="Help Center & FAQs"
-                                subtitle="Instant guides & answers"
+                                subtitle="Instant guides & support"
                                 onPress={() => navigateTo('/help')}
                             />
                             <MenuItem
                                 icon={Phone}
-                                label="Contact & Emergency Desk"
-                                subtitle="24/7 Kozhikode helpline"
+                                label="24/7 Support & Emergency Desk"
+                                subtitle="Kozhikode helpline assistance"
                                 onPress={() => navigateTo('/contact')}
+                            />
+                            <MenuItem
+                                icon={ShieldAlert}
+                                label="₹5 Lakh Property Damage Claim"
+                                subtitle="Emergency fire & burnout desk"
+                                badge="2-Hr SLA"
+                                onPress={() => navigateTo('/damage-claim')}
                             />
                         </View>
 
-                        {/* Legal & Statutory Compliance */}
+                        {/* SECTION 4: LEGAL & POLICIES */}
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>LEGAL & STATUTORY COMPLIANCE</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>LEGAL & POLICIES</Text>
                             <MenuItem
-                                icon={Scale}
-                                label="Compliance & DPDP Hub"
-                                subtitle="National & Kerala frameworks"
-                                badge="DPDP 2023"
-                                onPress={() => navigateTo('/compliance')}
+                                icon={FileText}
+                                label="Terms of Service"
+                                subtitle="₹5,000 liability cap & rules"
+                                onPress={() => navigateTo('/terms')}
                             />
                             <MenuItem
-                                icon={ShieldCheck}
-                                label="Grievance Redressal Officer"
-                                subtitle="Rule 3(2) IT Rules 2021"
-                                badge="24-Hr SLA"
-                                onPress={() => navigateTo('/grievance')}
+                                icon={Shield}
+                                label="Privacy Policy"
+                                subtitle="DPDP Act 2023 Section 5 Notice"
+                                onPress={() => navigateTo('/privacy')}
                             />
                             <MenuItem
                                 icon={RefreshCw}
@@ -371,81 +259,29 @@ export default function MenuModal({ visible, onClose }) {
                                 onPress={() => navigateTo('/cancellation-policy')}
                             />
                             <MenuItem
-                                icon={Award}
-                                label="BIS Material Standards"
-                                subtitle="100% genuine ISI certified"
-                                onPress={() => navigateTo('/materials-safety')}
+                                icon={Scale}
+                                label="Grievance Redressal Officer"
+                                subtitle="Rule 3(2) IT Rules 2021"
+                                badge="24-Hr Ack"
+                                onPress={() => navigateTo('/grievance')}
+                            />
+                        </View>
+
+                        {/* SECTION 5: PARTNERS & MANAGEMENT */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.accent }]}>PROFESSIONALS & OPERATIONS</Text>
+                            <MenuItem
+                                icon={Briefcase}
+                                label="Partner / Electrician Portal"
+                                subtitle="Jobs, earnings & safety SLA"
+                                onPress={() => navigateTo('/partner')}
                             />
                             <MenuItem
-                                icon={FileText}
-                                label="Terms of Service"
-                                subtitle="Limitation of liability cap"
-                                onPress={() => navigateTo('/terms')}
-                            />
-                            <MenuItem
-                                icon={Shield}
-                                label="Privacy Policy"
-                                subtitle="DPDP Section 5 & CERT-In"
-                                onPress={() => navigateTo('/privacy')}
-                            />
-                            <MenuItem
-                                icon={Clock}
-                                label="Data Retention Schedule"
-                                subtitle="180-day logs & GST 6-yr policy"
-                                onPress={() => navigateTo('/data-retention')}
-                            />
-                            <MenuItem
-                                icon={FileText}
-                                label="Sample Digital Tax Invoice"
-                                subtitle="SAC 9987 & ISI spare parts"
-                                onPress={() => navigateTo('/invoice/INV-2026-8291')}
-                            />
-                            <MenuItem
-                                icon={ShieldAlert}
-                                label="₹5 Lakh Damage Claim Desk"
-                                subtitle="On-site fire & burnout SOP"
-                                badge="2-Hr Inspection"
-                                onPress={() => navigateTo('/damage-claim')}
-                            />
-                            <MenuItem
-                                icon={Sparkles}
-                                label="Founder's Legal Roadmap"
-                                subtitle="Pre-launch milestone tracker"
-                                badge="4 Steps"
-                                onPress={() => navigateTo('/founder-checklist')}
-                            />
-                            <MenuItem
-                                icon={FileCheck}
-                                label="Technician Partner SLA"
-                                subtitle="Independent contractor terms"
-                                onPress={() => navigateTo('/partner/agreement')}
-                            />
-                            <MenuItem
-                                icon={Award}
-                                label="Startup India (DPIIT) Hub"
-                                subtitle="80-IAC tax holiday & grants"
-                                badge="Tax Relief"
-                                onPress={() => navigateTo('/startup-benefits')}
-                            />
-                            <MenuItem
-                                icon={Headphones}
-                                label="Support Dispute & Damage SOP"
-                                subtitle="Resolution workflows & scripts"
-                                onPress={() => navigateTo('/dispute-sop')}
-                            />
-                            <MenuItem
-                                icon={Split}
-                                label="Split-Payout & Escrow Engine"
-                                subtitle="Razorpay Route API logic"
-                                badge="Paise API"
-                                onPress={() => navigateTo('/admin/split-payouts')}
-                            />
-                            <MenuItem
-                                icon={Webhook}
-                                label="Payment Webhook Engine"
-                                subtitle="Dispute lockdown & events"
-                                badge="HMAC-256"
-                                onPress={() => navigateTo('/admin/webhooks')}
+                                icon={LayoutDashboard}
+                                label="Admin & Operations Console"
+                                subtitle="Dispatch, webhooks & analytics"
+                                badge="Admin"
+                                onPress={() => navigateTo('/admin')}
                             />
                         </View>
 
@@ -454,6 +290,8 @@ export default function MenuModal({ visible, onClose }) {
                             <TouchableOpacity
                                 style={[styles.themeBtn, { backgroundColor: isDark ? '#18181B' : '#F4F4F5' }]}
                                 onPress={toggleTheme}
+                                accessibilityRole="button"
+                                accessibilityLabel="Toggle theme"
                             >
                                 {isDark ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color={colors.textPrimary} />}
                                 <Text style={[styles.themeBtnText, { color: colors.textPrimary }]}>
@@ -465,9 +303,11 @@ export default function MenuModal({ visible, onClose }) {
                                 <TouchableOpacity
                                     style={[styles.logoutBtn, { borderColor: isDark ? '#27272A' : '#E4E4E7' }]}
                                     onPress={handleLogout}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Log out"
                                 >
-                                    <LogOut size={16} color={colors.danger} />
-                                    <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
+                                    <LogOut size={16} color="#EF4444" />
+                                    <Text style={styles.logoutBtnText}>Log Out</Text>
                                 </TouchableOpacity>
                             ) : null}
                         </View>
@@ -491,53 +331,58 @@ const styles = StyleSheet.create({
         width: MENU_WIDTH,
         height: '100%',
         borderRightWidth: 1,
-        paddingTop: Platform.OS === 'ios' ? 44 : 20,
+        zIndex: 10,
+        ...Platform.select({
+            web: {
+                boxShadow: '4px 0 24px rgba(0, 0, 0, 0.3)',
+            },
+            default: {
+                elevation: 16,
+            }
+        })
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        paddingBottom: 16,
+        paddingTop: Platform.OS === 'ios' ? 56 : 24,
+        paddingBottom: 18,
         borderBottomWidth: 1,
     },
     title: {
         fontSize: 20,
-        fontWeight: '800',
+        fontWeight: '900',
         letterSpacing: -0.5,
     },
     subtitle: {
         fontSize: 12,
+        fontWeight: '500',
         marginTop: 2,
     },
     closeBtn: {
-        padding: 6,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(150, 150, 150, 0.1)',
     },
     section: {
-        paddingHorizontal: 16,
         paddingTop: 16,
-        gap: 6,
+        paddingHorizontal: 12,
     },
     sectionTitle: {
-        fontSize: 11,
+        fontSize: 10.5,
         fontWeight: '800',
-        letterSpacing: 0.6,
+        letterSpacing: 0.8,
         marginBottom: 6,
-        paddingLeft: 4,
+        paddingHorizontal: 10,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         paddingVertical: 10,
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         borderRadius: 12,
-    },
-    menuItemLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        flex: 1,
+        marginBottom: 2,
     },
     iconContainer: {
         width: 34,
@@ -545,32 +390,33 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginRight: 12,
     },
-    menuItemText: {
-        fontSize: 13,
+    menuTextContainer: {
+        flex: 1,
+    },
+    menuLabel: {
+        fontSize: 13.5,
         fontWeight: '600',
     },
-    menuItemSubtitle: {
+    menuSubtitle: {
         fontSize: 11,
         marginTop: 1,
     },
     badge: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 12,
+        marginRight: 4,
     },
     badgeText: {
-        color: '#FFFFFF',
-        fontSize: 9,
-        fontWeight: '800',
-    },
-    rightText: {
-        fontSize: 11,
+        fontSize: 10.5,
+        fontWeight: '700',
     },
     footerSection: {
-        marginTop: 20,
-        paddingHorizontal: 20,
+        marginTop: 16,
         paddingTop: 16,
+        paddingHorizontal: 16,
         borderTopWidth: 1,
         gap: 10,
     },
@@ -578,9 +424,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 12,
+        paddingVertical: 11,
         borderRadius: 12,
+        gap: 8,
     },
     themeBtnText: {
         fontSize: 13,
@@ -590,13 +436,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
         paddingVertical: 10,
         borderRadius: 12,
         borderWidth: 1,
+        gap: 6,
     },
-    logoutText: {
+    logoutBtnText: {
+        color: '#EF4444',
         fontSize: 13,
-        fontWeight: '700',
+        fontWeight: '600',
     },
 });
