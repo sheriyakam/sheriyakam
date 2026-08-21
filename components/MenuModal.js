@@ -16,7 +16,8 @@ import {
     X, User, LogIn, Info, FileText, ChevronRight, Moon, Sun, LogOut,
     Settings, Bell, HelpCircle, Star, Gift, Zap, TrendingUp, Calendar, MapPin, Shield,
     Crown, Search, ShoppingCart, Activity, Briefcase, DollarSign, Award, CheckCircle2,
-    Users, Newspaper, BookOpen, Layers, Phone, Key, Scale
+    Users, Newspaper, BookOpen, Layers, Phone, Key, Scale, ShieldCheck, RefreshCw,
+    Clock, ShieldAlert, Sparkles, FileCheck, Headphones, Split, Webhook
 } from 'lucide-react-native';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
