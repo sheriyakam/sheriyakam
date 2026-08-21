@@ -6,7 +6,7 @@ import {
     ArrowLeft, Search, Calendar, CreditCard, ShieldCheck, Zap,
     User, HelpCircle, ChevronRight, Scale, Mail, Phone, Clock,
     AlertTriangle, ShieldAlert, CheckCircle2, FileText, Sparkles,
-    Flame, DollarSign, Wrench
+    Flame, DollarSign, Wrench, Shield, RefreshCw, BookOpen, Layers
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
@@ -46,6 +46,49 @@ const HELP_CATEGORIES = [
         desc: 'Managing passwords, active sessions, and data deletion',
         icon: User,
         color: '#8B5CF6',
+    },
+];
+
+const LEGAL_POLICIES = [
+    {
+        title: 'Terms of Service',
+        desc: 'Platform intermediary model, user obligations, and ₹5,000 limitation of liability cap.',
+        route: '/terms',
+        icon: FileText,
+        badge: '₹5k Cap',
+        badgeColor: 'blue'
+    },
+    {
+        title: 'Privacy Policy & DPDP Notice',
+        desc: 'Section 5 statutory notice, data collection boundaries, purpose limitation, and user rights.',
+        route: '/privacy',
+        icon: Shield,
+        badge: 'DPDP 2023',
+        badgeColor: 'purple'
+    },
+    {
+        title: 'Cancellation & Refund Rules',
+        desc: 'Doorstep travel allowance matrix, zero cancellation fees before dispatch, and refund SLAs.',
+        route: '/cancellation-policy',
+        icon: RefreshCw,
+        badge: '48h SLA',
+        badgeColor: 'amber'
+    },
+    {
+        title: 'Compliance & Statutory Hub',
+        desc: 'Overview of Digital Personal Data Protection, IT Rules 2021, and KSELB standards.',
+        route: '/compliance',
+        icon: Scale,
+        badge: 'Statutory',
+        badgeColor: 'green'
+    },
+    {
+        title: 'Data Retention & Log Schedule',
+        desc: 'CERT-In 1-year cybersecurity logs, 180-day GPS purge, and 8-year GST tax invoice records.',
+        route: '/data-retention',
+        icon: Clock,
+        badge: 'CERT-In',
+        badgeColor: 'gray'
     },
 ];
 
@@ -119,7 +162,7 @@ export default function HelpCenterScreen() {
                     <Searchbar
                         value={searchQuery}
                         onChangeText={setSearchQuery}
-                        placeholder="Search answers (e.g. damage claim, grievance, refund)..."
+                        placeholder="Search answers (e.g. legal, damage claim, refund)..."
                     />
                 </View>
 
@@ -287,9 +330,46 @@ export default function HelpCenterScreen() {
                     </Card>
                 </View>
 
+                {/* ────────────────── LEGAL, TERMS & STATUTORY POLICIES ────────────────── */}
+                <View style={styles.legalSection}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 0 }]}>
+                        LEGAL, TERMS & STATUTORY POLICIES
+                    </Text>
+                    <View style={styles.legalList}>
+                        {LEGAL_POLICIES.map((policy, idx) => {
+                            const Icon = policy.icon;
+                            return (
+                                <TouchableOpacity
+                                    key={idx}
+                                    onPress={() => router.push(policy.route)}
+                                    activeOpacity={0.75}
+                                >
+                                    <Card variant="default" style={[styles.legalCard, { borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                                        <View style={[styles.legalIconWrap, { backgroundColor: isDark ? '#18181B' : '#F4F4F5' }]}>
+                                            <Icon size={18} color={colors.accent} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <View style={styles.legalHeaderRow}>
+                                                <Text style={[styles.legalTitle, { color: colors.textPrimary }]}>
+                                                    {policy.title}
+                                                </Text>
+                                                <Badge variant={policy.badgeColor} size="sm">{policy.badge}</Badge>
+                                            </View>
+                                            <Text style={[styles.legalDesc, { color: colors.textSecondary }]}>
+                                                {policy.desc}
+                                            </Text>
+                                        </View>
+                                        <ChevronRight size={16} color={colors.textTertiary} />
+                                    </Card>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+
                 {/* ────────────────── BROWSE HELP TOPICS ────────────────── */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                    BROWSE HELP TOPICS
+                    BROWSE GENERAL HELP TOPICS
                 </Text>
 
                 <View style={styles.categoriesList}>
@@ -377,7 +457,7 @@ const styles = StyleSheet.create({
         letterSpacing: -0.3,
     },
     damageSection: {
-        marginVertical: 12,
+        marginVertical: 10,
         padding: 16,
         borderRadius: 16,
         backgroundColor: 'rgba(239, 68, 68, 0.05)',
@@ -543,6 +623,41 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 8,
         marginTop: 2,
+    },
+    legalSection: {
+        marginVertical: 12,
+        gap: 10,
+    },
+    legalList: {
+        gap: 8,
+    },
+    legalCard: {
+        padding: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        borderRadius: 12,
+    },
+    legalIconWrap: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    legalHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 2,
+    },
+    legalTitle: {
+        fontSize: 13.5,
+        fontWeight: '700',
+    },
+    legalDesc: {
+        fontSize: 11.5,
+        lineHeight: 16,
     },
     sectionTitle: {
         fontSize: 12,
