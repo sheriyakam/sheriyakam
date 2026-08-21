@@ -439,6 +439,13 @@ export default function MenuModal({ visible, onClose }) {
                                 badge="Paise API"
                                 onPress={() => navigateTo('/admin/split-payouts')}
                             />
+                            <MenuItem
+                                icon={Webhook}
+                                label="Payment Webhook Engine"
+                                subtitle="Dispute lockdown & events"
+                                badge="HMAC-256"
+                                onPress={() => navigateTo('/admin/webhooks')}
+                            />
                         </View>
 
                         {/* Theme Toggle & Logout */}
