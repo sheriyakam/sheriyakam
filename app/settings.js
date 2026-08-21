@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Moon, Sun, Bell, Shield, KeyRound, Globe, HelpCircle, FileText, ChevronRight, Check } from 'lucide-react-native';
+import { ArrowLeft, Moon, Sun, Bell, Shield, KeyRound, Globe, HelpCircle, FileText, ChevronRight, Check, ShieldCheck, Scale } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
 import { useToast } from '../context/ToastContext';
 import { Card } from '../components/ui/Card';
 import { Toggle } from '../components/ui/Toggle';
 import { TwoFactorAuthModal } from '../components/TwoFactorAuthModal';
+import { ConsentManagerModal } from '../components/ConsentManagerModal';
 import { InAppBrowser } from '../components/InAppBrowser';
 import { Badge } from '../components/ui/Badge';
 
@@ -23,6 +24,7 @@ export default function SettingsScreen() {
     const [whatsappEnabled, setWhatsappEnabled] = useState(true);
     const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
     const [show2FAModal, setShow2FAModal] = useState(false);
+    const [showConsentModal, setShowConsentModal] = useState(false);
     const [showBrowser, setShowBrowser] = useState(false);
 
     return (
@@ -133,6 +135,79 @@ export default function SettingsScreen() {
                     </TouchableOpacity>
                 </Card>
 
+                {/* Statutory & Legal Compliance */}
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 16 }]}>
+                    LEGAL & DATA PRIVACY (INDIA & KERALA)
+                </Text>
+                <Card variant="default" style={styles.cardGroup}>
+                    <TouchableOpacity
+                        onPress={() => setShowConsentModal(true)}
+                        style={styles.settingRow}
+                    >
+                        <View style={styles.rowLeft}>
+                            <View style={[styles.iconWrap, { backgroundColor: '#10B98115' }]}>
+                                <ShieldCheck size={18} color="#10B981" />
+                            </View>
+                            <View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                                        DPDP Consent Preferences
+                                    </Text>
+                                    <Badge variant="success" size="sm">Active</Badge>
+                                </View>
+                                <Text style={[styles.rowSubtitle, { color: colors.textTertiary }]}>
+                                    Section 5/6 granular permissions & language
+                                </Text>
+                            </View>
+                        </View>
+                        <ChevronRight size={18} color={colors.textTertiary} />
+                    </TouchableOpacity>
+
+                    <View style={[styles.divider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
+
+                    <TouchableOpacity
+                        onPress={() => router.push('/compliance')}
+                        style={styles.settingRow}
+                    >
+                        <View style={styles.rowLeft}>
+                            <View style={[styles.iconWrap, { backgroundColor: colors.accent + '15' }]}>
+                                <Scale size={18} color={colors.accent} />
+                            </View>
+                            <View>
+                                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                                    Compliance & Regulatory Hub
+                                </Text>
+                                <Text style={[styles.rowSubtitle, { color: colors.textTertiary }]}>
+                                    DPDP, IT Rules, CERT-In, Dark Patterns, KSELB
+                                </Text>
+                            </View>
+                        </View>
+                        <ChevronRight size={18} color={colors.textTertiary} />
+                    </TouchableOpacity>
+
+                    <View style={[styles.divider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
+
+                    <TouchableOpacity
+                        onPress={() => router.push('/grievance')}
+                        style={styles.settingRow}
+                    >
+                        <View style={styles.rowLeft}>
+                            <View style={[styles.iconWrap, { backgroundColor: '#8B5CF615' }]}>
+                                <Scale size={18} color="#8B5CF6" />
+                            </View>
+                            <View>
+                                <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>
+                                    Grievance Redressal Officer
+                                </Text>
+                                <Text style={[styles.rowSubtitle, { color: colors.textTertiary }]}>
+                                    Adv. Arun V. Nair • 24-hr statutory SLA
+                                </Text>
+                            </View>
+                        </View>
+                        <ChevronRight size={18} color={colors.textTertiary} />
+                    </TouchableOpacity>
+                </Card>
+
                 {/* Legal & About */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 16 }]}>
                     MORE INFORMATION
@@ -174,19 +249,6 @@ export default function SettingsScreen() {
                         </View>
                         <ChevronRight size={18} color={colors.textTertiary} />
                     </TouchableOpacity>
-
-                    <View style={[styles.divider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
-
-                    <TouchableOpacity
-                        onPress={() => setShowBrowser(true)}
-                        style={styles.settingRow}
-                    >
-                        <View style={styles.rowLeft}>
-                            <HelpCircle size={18} color={colors.textSecondary} style={{ marginRight: 12 }} />
-                            <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>Open Web Portal</Text>
-                        </View>
-                        <ChevronRight size={18} color={colors.textTertiary} />
-                    </TouchableOpacity>
                 </Card>
 
                 <Text style={[styles.appVersion, { color: colors.textTertiary }]}>
@@ -207,6 +269,12 @@ export default function SettingsScreen() {
                 url="https://sheriyakam.com"
                 title="Sheriyakam Home Services"
                 onClose={() => setShowBrowser(false)}
+            />
+
+            {/* DPDP Consent Manager Modal */}
+            <ConsentManagerModal
+                visible={showConsentModal}
+                onClose={() => setShowConsentModal(false)}
             />
         </SafeAreaView>
     );

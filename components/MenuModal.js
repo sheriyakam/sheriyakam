@@ -346,6 +346,37 @@ export default function MenuModal({ visible, onClose }) {
                             />
                         </View>
 
+                        {/* Legal & Statutory Compliance */}
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>LEGAL & STATUTORY COMPLIANCE</Text>
+                            <MenuItem
+                                icon={Scale}
+                                label="Compliance & DPDP Hub"
+                                subtitle="National & Kerala frameworks"
+                                badge="DPDP 2023"
+                                onPress={() => navigateTo('/compliance')}
+                            />
+                            <MenuItem
+                                icon={ShieldCheck}
+                                label="Grievance Redressal Officer"
+                                subtitle="Rule 3(2) IT Rules 2021"
+                                badge="24-Hr SLA"
+                                onPress={() => navigateTo('/grievance')}
+                            />
+                            <MenuItem
+                                icon={FileText}
+                                label="Terms of Service"
+                                subtitle="KSELB & consumer policies"
+                                onPress={() => navigateTo('/terms')}
+                            />
+                            <MenuItem
+                                icon={Shield}
+                                label="Privacy Policy"
+                                subtitle="DPDP Section 5 & CERT-In"
+                                onPress={() => navigateTo('/privacy')}
+                            />
+                        </View>
+
                         {/* Theme Toggle & Logout */}
                         <View style={[styles.footerSection, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                             <TouchableOpacity

@@ -12,27 +12,33 @@ import { Button } from '../components/ui/Button';
 const SECURITY_PILLARS = [
     {
         icon: UserCheck,
-        title: '3-Tier Contractor Vetting',
+        title: '3-Tier Kerala Wireman Vetting (KSELB)',
         desc: 'Every electrician undergoes government license verification with the Kerala Electrical Inspectorate, criminal background check, and a practical bench test on 3-phase wiring safety.',
         color: '#10B981',
     },
     {
         icon: Lock,
-        title: 'Bank-Grade Data Encryption',
+        title: 'Bank-Grade TLS 1.3 & Zero-Knowledge Encryption',
         desc: 'All communications are protected by TLS 1.3 in transit. Sensitive identity data is encrypted at rest using AES-256 with managed zero-knowledge authentication via Supabase.',
         color: '#3B82F6',
     },
     {
         icon: Shield,
-        title: '₹5,00,000 Property Damage Insurance',
+        title: '₹5,00,000 Domestic Property Damage Guarantee',
         desc: 'Every domestic booking on Sheriyakam is backed by our domestic property protection policy, covering accidental electrical equipment damages during repair.',
         color: '#F59E0B',
     },
     {
         icon: FileCheck,
-        title: 'DPDP & GDPR Compliance',
-        desc: 'We comply fully with India’s Digital Personal Data Protection (DPDP) Act 2023 and GDPR. Users can export data or trigger 1-tap in-app permanent account deletion at any time.',
+        title: 'DPDP Act 2023 & Consent Governance',
+        desc: 'Bilingual Section 5 notice and Section 6 consent management with 1-tap data export and permanent cryptographic erasure.',
         color: '#6366F1',
+    },
+    {
+        icon: AlertTriangle,
+        title: 'CERT-In 6-Hour Incident Reporting & 180-Day Logs',
+        desc: 'Strict cybersecurity protocol reporting any breach to CERT-In within 6 hours. Infrastructure access logs preserved for 180+ days synchronized via IST NTP.',
+        color: '#EF4444',
     },
 ];
 
@@ -94,10 +100,30 @@ export default function SecurityScreen() {
                         Official Trade & Legal Compliance
                     </Text>
                     <View style={styles.compBadges}>
-                        <Badge variant="success">Kerala Wireman Licensed</Badge>
+                        <Badge variant="success">KSELB Wireman Licensed</Badge>
                         <Badge variant="info">TLS 1.3 HTTPS Secured</Badge>
                         <Badge variant="neutral">DPDP India Act 2023</Badge>
-                        <Badge variant="purple">PCI-DSS Level 1 Payments</Badge>
+                        <Badge variant="purple">IT Rules 2021 (Rule 3(2))</Badge>
+                        <Badge variant="gold">CERT-In 6-Hr Reporting</Badge>
+                    </View>
+
+                    <View style={{ width: '100%', gap: 8, marginTop: 10 }}>
+                        <Button
+                            variant="primary"
+                            size="md"
+                            fullWidth
+                            onPress={() => router.push('/compliance')}
+                        >
+                            Open Compliance Hub
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="md"
+                            fullWidth
+                            onPress={() => router.push('/grievance')}
+                        >
+                            Contact Grievance Redressal Officer
+                        </Button>
                     </View>
                 </Card>
             </ScrollView>
