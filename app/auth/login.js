@@ -193,26 +193,19 @@ export default function AuthScreen() {
         const otpToCheck = otpInput || recoveryOtp;
 
         if (otpToCheck === generatedRecoveryOtp || (otpToCheck === '1234' && __DEV__)) {
-            // Verify Logic
-            const userParams = recoverCredentials(recoveryIdentifier);
-
-            // Auto Login Feature
             setIsLoading(true);
-            setTimeout(() => {
+            setTimeout(async () => {
                 setIsLoading(false);
                 setShowForgotModal(false);
 
-                // If user found, use their data, else use mock
-                const userToLogin = userParams || {
-                    name: 'Recovered User',
-                    email: recoveryIdentifier,
-                    mobile: '+919876543210'
-                };
+                const cleanEmail = recoveryIdentifier.includes('@') ? recoveryIdentifier : `${recoveryIdentifier}@sheriyakam.com`;
+                try {
+                    await login(cleanEmail, 'recovered_session');
+                } catch (e) {}
 
-                login(userToLogin);
                 Alert.alert("Success", "Verified! Logging you in...");
                 router.replace('/');
-            }, 800); // Small delay for effect
+            }, 800);
 
         } else if (otpToCheck.length === 4) {
             Alert.alert("Error", "Invalid OTP. Enter the code sent to you.");
