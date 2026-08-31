@@ -21,8 +21,8 @@ const firebaseConfig = {
     measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || ""
 };
 
-// Check if Firebase is properly configured
-const isConfigured = !!firebaseConfig.apiKey;
+// Check if Firebase is properly configured with real credentials (not placeholders)
+const isConfigured = Boolean(firebaseConfig.apiKey) && !firebaseConfig.apiKey.includes('your-firebase');
 
 let app = null;
 let auth = null;

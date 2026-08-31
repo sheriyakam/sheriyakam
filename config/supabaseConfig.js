@@ -9,8 +9,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Check if Supabase is configured
-export const isSupabaseConfigured = SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0;
+// Check if Supabase is properly configured with real credentials (not placeholders)
+export const isSupabaseConfigured = 
+    Boolean(SUPABASE_URL && SUPABASE_ANON_KEY) && 
+    !SUPABASE_URL.includes('YOUR-PROJECT') && 
+    !SUPABASE_ANON_KEY.includes('your-anon-key');
 
 // Create Supabase client
 export const supabase = isSupabaseConfigured
