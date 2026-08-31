@@ -211,4 +211,20 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        return {
+            user: null,
+            isLoading: false,
+            isAdmin: false,
+            login: async () => {},
+            logout: async () => {},
+            register: async () => {},
+            signInWithOAuth: async () => {},
+            sendPasswordReset: async () => {},
+            deleteAccount: async () => {}
+        };
+    }
+    return context;
+};

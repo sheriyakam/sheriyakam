@@ -62,7 +62,7 @@ const ErrorFallbackUI = ({ error, errorInfo, onRetry, fallbackMessage }) => {
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(errorDetails);
                 }
-            } else if (Clipboard && typeof Clipboard.setString === 'function') {
+            } else if (typeof Clipboard !== 'undefined' && Clipboard?.setString) {
                 Clipboard.setString(errorDetails);
             }
             setCopied(true);

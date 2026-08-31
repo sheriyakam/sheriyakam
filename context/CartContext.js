@@ -241,7 +241,30 @@ export const CartProvider = ({ children }) => {
 export const useCart = () => {
     const context = useContext(CartContext);
     if (!context) {
-        throw new Error('useCart must be used within a CartProvider');
+        return {
+            items: [],
+            itemCount: 0,
+            subtotal: 0,
+            discount: 0,
+            tax: 0,
+            deliveryFee: 0,
+            total: 0,
+            promoCode: '',
+            promoData: null,
+            selectedAddress: null,
+            selectedAddressId: null,
+            bookingSchedule: { date: 'Today', timeSlot: 'ASAP' },
+            addToCart: () => {},
+            removeFromCart: () => {},
+            updateQuantity: () => {},
+            clearCart: () => {},
+            applyPromoCode: () => ({ success: false, message: 'Cart not ready' }),
+            removePromoCode: () => {},
+            setSelectedAddress: () => {},
+            setSelectedAddressId: () => {},
+            addAddress: () => {},
+            setBookingSchedule: () => {},
+        };
     }
     return context;
 };

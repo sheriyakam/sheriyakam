@@ -22,4 +22,10 @@ export const ThemeProvider = ({ children }) => {
     );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        return { theme: 'dark', toggleTheme: () => {}, colors: darkTheme };
+    }
+    return context;
+};

@@ -14,21 +14,21 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 export default function Layout() {
     return (
         <ThemeProvider>
-            <ErrorBoundary>
-                <AuthProvider>
-                    <ToastProvider>
-                        <CartProvider>
-                            <SafeAreaProvider>
+            <AuthProvider>
+                <ToastProvider>
+                    <CartProvider>
+                        <SafeAreaProvider>
+                            <ErrorBoundary>
                                 <StatusBar style="auto" />
                                 <View style={{ flex: 1 }}>
                                     <Stack screenOptions={{ headerShown: false }} />
                                     <BottomNav />
                                 </View>
-                            </SafeAreaProvider>
-                        </CartProvider>
-                    </ToastProvider>
-                </AuthProvider>
-            </ErrorBoundary>
+                            </ErrorBoundary>
+                        </SafeAreaProvider>
+                    </CartProvider>
+                </ToastProvider>
+            </AuthProvider>
         </ThemeProvider>
     );
 }
