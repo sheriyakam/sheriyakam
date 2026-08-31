@@ -54,6 +54,8 @@ const AI_SUGGESTIONS = [
 ];
 
 const BookingModal = ({ service, visible, onClose }) => {
+    if (!visible || !service) return null;
+
     const { user } = useAuth();
     const router = useRouter();
     const { theme, colors } = useTheme();

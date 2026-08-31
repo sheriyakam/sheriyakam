@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Clipboard } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useRouter } from 'expo-router';
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Copy, Check, Home } from 'lucide-react-native';

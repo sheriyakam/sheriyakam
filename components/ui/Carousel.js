@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,6 +32,15 @@ export const Carousel = ({
             setActiveIndex(targetIndex);
         }
     };
+
+    useEffect(() => {
+        if (!autoPlay || items.length <= 1) return;
+        const timer = setInterval(() => {
+            const nextIndex = (activeIndex + 1) % items.length;
+            scrollToIndex(nextIndex);
+        }, interval);
+        return () => clearInterval(timer);
+    }, [autoPlay, interval, activeIndex, items.length]);
 
     return (
         <View style={[styles.container, style]}>

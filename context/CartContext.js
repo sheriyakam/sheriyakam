@@ -130,7 +130,11 @@ export const CartProvider = ({ children }) => {
         }
 
         const promo = PROMO_CODES[cleanCode];
-        const currentSubtotal = items.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+        const currentSubtotal = items.reduce((acc, item) => {
+            const itemBase = item.price * item.quantity;
+            const addonTotal = (item.addons || []).reduce((sum, a) => sum + (a.price || 0), 0) * item.quantity;
+            return acc + itemBase + addonTotal;
+        }, 0);
 
         if (currentSubtotal < promo.minOrder) {
             return { 

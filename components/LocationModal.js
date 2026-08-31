@@ -265,13 +265,7 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                         {/* Map Selection Option */}
                         <TouchableOpacity
                             style={styles.optionItem}
-                            onPress={() => {
-                                if (Platform.OS === 'web') {
-                                    Alert.alert('Not Supported', 'Map selection is currently available only on the mobile app.');
-                                    return;
-                                }
-                                setShowMap(true);
-                            }}
+                            onPress={() => setShowMap(true)}
                         >
                             <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)' }]}>
                                 <MapPin size={20} color={colors.textPrimary} />
@@ -285,19 +279,21 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                         <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SUGGESTED CITIES</Text>
 
                         {/* City List */}
-                        {filteredCities.map((city, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[styles.cityItem, { borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
-                                onPress={() => {
-                                    onLocationSelect(city);
-                                    onClose();
-                                }}
-                            >
-                                <MapPin size={16} color={colors.textTertiary} />
-                                <Text style={[styles.cityText, { color: colors.textSecondary }]}>{city}</Text>
-                            </TouchableOpacity>
-                        ))}
+                        <ScrollView style={{ maxHeight: 240 }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                            {filteredCities.map((city, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[styles.cityItem, { borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
+                                    onPress={() => {
+                                        onLocationSelect(city);
+                                        onClose();
+                                    }}
+                                >
+                                    <MapPin size={16} color={colors.textTertiary} />
+                                    <Text style={[styles.cityText, { color: colors.textSecondary }]}>{city}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
                     </View>
                 )}
             </View>

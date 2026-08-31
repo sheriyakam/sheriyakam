@@ -78,7 +78,7 @@ const ServiceCard = ({
                     {/* Image Section */}
                     <View style={styles.imageContainer}>
                         <Image
-                            source={typeof image === 'string' ? { uri: image } : image}
+                            source={typeof image === 'string' ? { uri: image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=80' } : (image || { uri: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=80' })}
                             style={styles.image}
                             resizeMode="cover"
                         />
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         gap: 4,
         ...Platform.select({
-            ios: { backdropFilter: 'blur(10px)' },
+            web: { backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' },
             default: {},
         }),
     },

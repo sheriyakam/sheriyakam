@@ -116,6 +116,9 @@ const styles = StyleSheet.create({
         padding: 20,
         paddingBottom: 36,
         maxHeight: '75%',
+        maxWidth: 500,
+        width: '100%',
+        alignSelf: 'center',
     },
     handleIndicator: {
         width: 36,

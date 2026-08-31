@@ -34,6 +34,9 @@ const RescheduleModal = ({ booking, visible, onClose, onConfirm }) => {
     if (!booking) return null;
 
     const handleConfirm = () => {
+        if (onConfirm && booking?.id) {
+            onConfirm(booking.id, selectedDate);
+        }
         setStep(2);
     };
 

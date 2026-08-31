@@ -14,7 +14,7 @@ export default function BottomNav() {
 
     // Hide BottomNav on admin, partner, and login pages
     const hiddenPaths = ['/admin', '/partner', '/auth/login', '/about'];
-    const isHidden = hiddenPaths.some(path => pathname.startsWith(path));
+    const isHidden = Boolean(pathname && hiddenPaths.some(path => pathname.startsWith(path)));
 
     if (isHidden) return null;
 
@@ -146,7 +146,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         maxWidth: 560,
         width: '100%',
-        marginHorizontal: 'auto',
         alignSelf: 'center',
     },
     navItem: {

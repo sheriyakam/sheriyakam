@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Linking, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Phone, MessageSquare, MapPin, Calendar, Clock, Download, AlertTriangle, ShieldCheck, CheckCircle2, RotateCw } from 'lucide-react-native';
+import { ArrowLeft, Phone, MessageSquare, MapPin, Calendar, Clock, Download, AlertTriangle, ShieldCheck, CheckCircle2, RotateCw, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { COLORS } from '../../constants/theme';
 import { useToast } from '../../context/ToastContext';
