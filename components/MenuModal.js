@@ -30,7 +30,6 @@ const MENU_WIDTH = Math.min(width * 0.90, 390);
 const PERSONA_TABS = [
     { id: 'customer', label: 'Customer', icon: User },
     { id: 'partner', label: 'Partner', icon: HardHat },
-    { id: 'admin', label: 'Admin', icon: LayoutDashboard },
     { id: 'legal', label: 'Legal', icon: Scale },
 ];
 
@@ -178,7 +177,7 @@ export default function MenuModal({ visible, onClose }) {
 
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 36 }}>
 
-                        {/* ─────────────────── 1. CUSTOMER PERSONA ─────────────────── */}
+                        {/* ─────────────────── 1. CUSTOMER PERSONA (PHASE 1 MVP) ─────────────────── */}
                         {activePersona === 'customer' && (
                             <>
                                 <View style={styles.section}>
@@ -197,11 +196,10 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/cart')}
                                     />
                                     <MenuItem
-                                        icon={Crown}
-                                        label="Sheriyakam VIP Club"
-                                        subtitle="₹0 visit fee & priority dispatch"
-                                        badge="VIP"
-                                        onPress={() => navigateTo('/paywall')}
+                                        icon={Zap}
+                                        label="Standard Rates & Pricing"
+                                        subtitle="Upfront Kerala labour rates"
+                                        onPress={() => navigateTo('/pricing')}
                                     />
                                 </View>
 
@@ -218,19 +216,13 @@ export default function MenuModal({ visible, onClose }) {
                                             <MenuItem
                                                 icon={FileText}
                                                 label="My Bookings"
-                                                subtitle="Live tracking & GST tax invoices"
+                                                subtitle="Live tracking & OTP verification"
                                                 onPress={() => navigateTo('/bookings')}
                                             />
                                             <MenuItem
-                                                icon={Bell}
-                                                label="Notifications"
-                                                subtitle="Booking alerts & updates"
-                                                onPress={() => navigateTo('/notifications')}
-                                            />
-                                            <MenuItem
                                                 icon={Settings}
-                                                label="Settings & 2FA"
-                                                subtitle="Security and preferences"
+                                                label="Settings & Preferences"
+                                                subtitle="Security and app options"
                                                 onPress={() => navigateTo('/settings')}
                                             />
                                         </>
@@ -246,7 +238,7 @@ export default function MenuModal({ visible, onClose }) {
                                             <MenuItem
                                                 icon={Zap}
                                                 label="How It Works"
-                                                subtitle="Customer onboarding walkthrough"
+                                                subtitle="4-step simple booking guide"
                                                 onPress={() => navigateTo('/onboarding')}
                                             />
                                         </>
@@ -258,7 +250,7 @@ export default function MenuModal({ visible, onClose }) {
                                     <MenuItem
                                         icon={HelpCircle}
                                         label="Help Center & FAQs"
-                                        subtitle="Instant guides & support"
+                                        subtitle="Instant guides & common questions"
                                         onPress={() => navigateTo('/help')}
                                     />
                                     <MenuItem
@@ -268,151 +260,55 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/contact')}
                                     />
                                     <MenuItem
-                                        icon={ShieldAlert}
-                                        label="₹5 Lakh Damage Claim Desk"
-                                        subtitle="Emergency on-site fire & burnout"
-                                        badge="2-Hr SLA"
-                                        onPress={() => navigateTo('/damage-claim')}
+                                        icon={Shield}
+                                        label="30-Day Rework Warranty"
+                                        subtitle="Zero-cost follow-up guarantee"
+                                        badge="Warranty"
+                                        onPress={() => navigateTo('/refund-policy')}
                                     />
                                 </View>
                             </>
                         )}
 
-                        {/* ─────────────────── 2. PARTNER PERSONA ─────────────────── */}
+                        {/* ─────────────────── 2. PARTNER PERSONA (PHASE 1 MVP) ─────────────────── */}
                         {activePersona === 'partner' && (
                             <>
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>TECHNICIAN DISPATCH & EARNINGS</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>TECHNICIAN ACCESS & EARNINGS</Text>
+                                    <MenuItem
+                                        icon={LogIn}
+                                        label="Partner Login / Register"
+                                        subtitle="Electrician onboarding & access"
+                                        highlight
+                                        onPress={() => navigateTo('/partner/auth')}
+                                    />
                                     <MenuItem
                                         icon={Briefcase}
-                                        label="Partner Dashboard"
-                                        subtitle="Live job leads & map routing"
-                                        highlight
+                                        label="Partner Job Dashboard"
+                                        subtitle="Live leads & map routing"
                                         onPress={() => navigateTo('/partner')}
-                                    />
-                                    <MenuItem
-                                        icon={MessageSquare}
-                                        label="Customer Chat & Masked Calls"
-                                        subtitle="VoIP telephone bridge"
-                                        onPress={() => navigateTo('/partner/messages')}
-                                    />
-                                    <MenuItem
-                                        icon={Zap}
-                                        label="Active Job Workflow"
-                                        subtitle="Check-in & completion OTP"
-                                        onPress={() => navigateTo('/partner/job/JOB-101')}
                                     />
                                 </View>
 
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>COMPLIANCE & SAFETY</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>STANDARDS & AGREEMENT</Text>
                                     <MenuItem
                                         icon={FileText}
-                                        label="Independent Partner SLA"
-                                        subtitle="85% payout & 15% commission terms"
-                                        badge="e-Sign"
+                                        label="Partner Service Agreement"
+                                        subtitle="Transparent payout & terms"
                                         onPress={() => navigateTo('/partner/agreement')}
                                     />
                                     <MenuItem
-                                        icon={HardHat}
-                                        label="Safety & PPE Onboarding"
-                                        subtitle="e-Shram UAN & 5-point PPE audit"
-                                        badge="KSELB"
-                                        onPress={() => navigateTo('/partner/onboarding-checklist')}
-                                    />
-                                    <MenuItem
                                         icon={Award}
-                                        label="BIS Material Standards"
-                                        subtitle="100% genuine ISI certified spares"
+                                        label="Safety & Material Standards"
+                                        subtitle="ISI certified cabling & safety"
                                         onPress={() => navigateTo('/materials-safety')}
                                     />
                                 </View>
                             </>
                         )}
 
-                        {/* ─────────────────── 3. ADMIN PERSONA ─────────────────── */}
-                        {activePersona === 'admin' && (
-                            <>
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>OPERATIONS & DISPATCH</Text>
-                                    <MenuItem
-                                        icon={LayoutDashboard}
-                                        label="Admin Dashboard"
-                                        subtitle="Central metrics & quick controls"
-                                        highlight
-                                        onPress={() => navigateTo('/admin')}
-                                    />
-                                    <MenuItem
-                                        icon={Layers}
-                                        label="Live Dispatch Kanban"
-                                        subtitle="Real-time order board"
-                                        onPress={() => navigateTo('/admin/kanban')}
-                                    />
-                                    <MenuItem
-                                        icon={Calendar}
-                                        label="Contractor Schedule Gantt"
-                                        subtitle="Visual zone timeline"
-                                        onPress={() => navigateTo('/admin/schedule')}
-                                    />
-                                    <MenuItem
-                                        icon={Users}
-                                        label="User & Partner Directory"
-                                        subtitle="KYC & license approvals"
-                                        onPress={() => navigateTo('/admin/users')}
-                                    />
-                                </View>
-
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>FINANCIAL & API ENGINES</Text>
-                                    <MenuItem
-                                        icon={Split}
-                                        label="Split-Payout API & Escrow"
-                                        subtitle="Razorpay Route payload engine"
-                                        badge="Paise API"
-                                        onPress={() => navigateTo('/admin/split-payouts')}
-                                    />
-                                    <MenuItem
-                                        icon={Webhook}
-                                        label="Payment Webhook Engine"
-                                        subtitle="Dispute lockdown & events"
-                                        badge="HMAC-256"
-                                        onPress={() => navigateTo('/admin/webhooks')}
-                                    />
-                                    <MenuItem
-                                        icon={TrendingUp}
-                                        label="Analytics & Revenue Growth"
-                                        subtitle="Financial and SLA reports"
-                                        onPress={() => navigateTo('/admin/analytics')}
-                                    />
-                                </View>
-
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>FOUNDER & SUPPORT TOOLS</Text>
-                                    <MenuItem
-                                        icon={Sparkles}
-                                        label="Founder Legal & Tech Roadmap"
-                                        subtitle="4-phase pre-launch checklist"
-                                        badge="4 Steps"
-                                        onPress={() => navigateTo('/founder-checklist')}
-                                    />
-                                    <MenuItem
-                                        icon={Award}
-                                        label="Startup India (DPIIT) Hub"
-                                        subtitle="80-IAC tax holiday & grants"
-                                        badge="Tax Relief"
-                                        onPress={() => navigateTo('/startup-benefits')}
-                                    />
-                                    <MenuItem
-                                        icon={HelpCircle}
-                                        label="Support Dispute SOP"
-                                        subtitle="Agent de-escalation playbooks"
-                                        onPress={() => navigateTo('/dispute-sop')}
-                                    />
-                                </View>
-                            </>
-                        )}
-
-                        {/* ─────────────────── 4. LEGAL PERSONA ─────────────────── */}
+                        {/* ─────────────────── 3. LEGAL PERSONA (PHASE 1 MVP) ─────────────────── */}
                         {activePersona === 'legal' && (
                             <>
                                 <View style={styles.section}>
@@ -420,69 +316,26 @@ export default function MenuModal({ visible, onClose }) {
                                     <MenuItem
                                         icon={FileText}
                                         label="Terms of Service"
-                                        subtitle="₹5,000 liability cap & rules"
+                                        subtitle="Customer terms & liability rules"
                                         onPress={() => navigateTo('/terms')}
                                     />
                                     <MenuItem
                                         icon={Shield}
                                         label="Privacy Policy"
-                                        subtitle="DPDP Act 2023 Section 5 Notice"
+                                        subtitle="Data protection & privacy notice"
                                         onPress={() => navigateTo('/privacy')}
                                     />
                                     <MenuItem
                                         icon={RefreshCw}
                                         label="Cancellation & Refund Policy"
-                                        subtitle="Doorstep travel allowance matrix"
+                                        subtitle="Clear cancellation & refund rules"
                                         onPress={() => navigateTo('/cancellation-policy')}
                                     />
                                     <MenuItem
                                         icon={Scale}
                                         label="Grievance Redressal Desk"
-                                        subtitle="Rule 3(2) IT Rules 2021"
-                                        badge="24-Hr Ack"
+                                        subtitle="Statutory escalation & support"
                                         onPress={() => navigateTo('/grievance')}
-                                    />
-                                </View>
-
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>STATUTORY & CYBER FRAMEWORKS</Text>
-                                    <MenuItem
-                                        icon={Scale}
-                                        label="Compliance & DPDP Hub"
-                                        subtitle="National & Kerala frameworks"
-                                        badge="DPDP 2023"
-                                        onPress={() => navigateTo('/compliance')}
-                                    />
-                                    <MenuItem
-                                        icon={Clock}
-                                        label="Data Retention Schedule"
-                                        subtitle="CERT-In 1-year logs & GPS purge"
-                                        onPress={() => navigateTo('/data-retention')}
-                                    />
-                                    <MenuItem
-                                        icon={Shield}
-                                        label="Cookie Policy & Preferences"
-                                        subtitle="Consent management & storage"
-                                        onPress={() => navigateTo('/cookie-policy')}
-                                    />
-                                    <MenuItem
-                                        icon={RefreshCw}
-                                        label="30-Day Warranty & Refund"
-                                        subtitle="₹0 free rework & claim SLAs"
-                                        badge="30-Day"
-                                        onPress={() => navigateTo('/refund-policy')}
-                                    />
-                                    <MenuItem
-                                        icon={HelpCircle}
-                                        label="Accessibility Statement"
-                                        subtitle="WCAG 2.1 AA & TalkBack support"
-                                        onPress={() => navigateTo('/accessibility')}
-                                    />
-                                    <MenuItem
-                                        icon={ShieldAlert}
-                                        label="Responsible Disclosure"
-                                        subtitle="Bug bounty & safe harbor"
-                                        onPress={() => navigateTo('/responsible-disclosure')}
                                     />
                                 </View>
                             </>
