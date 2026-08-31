@@ -459,6 +459,31 @@ export default function MenuModal({ visible, onClose }) {
                                         subtitle="CERT-In 1-year logs & GPS purge"
                                         onPress={() => navigateTo('/data-retention')}
                                     />
+                                    <MenuItem
+                                        icon={Shield}
+                                        label="Cookie Policy & Preferences"
+                                        subtitle="Consent management & storage"
+                                        onPress={() => navigateTo('/cookie-policy')}
+                                    />
+                                    <MenuItem
+                                        icon={RefreshCw}
+                                        label="30-Day Warranty & Refund"
+                                        subtitle="₹0 free rework & claim SLAs"
+                                        badge="30-Day"
+                                        onPress={() => navigateTo('/refund-policy')}
+                                    />
+                                    <MenuItem
+                                        icon={HelpCircle}
+                                        label="Accessibility Statement"
+                                        subtitle="WCAG 2.1 AA & TalkBack support"
+                                        onPress={() => navigateTo('/accessibility')}
+                                    />
+                                    <MenuItem
+                                        icon={ShieldAlert}
+                                        label="Responsible Disclosure"
+                                        subtitle="Bug bounty & safe harbor"
+                                        onPress={() => navigateTo('/responsible-disclosure')}
+                                    />
                                 </View>
                             </>
                         )}
