@@ -144,6 +144,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         paddingHorizontal: 8,
+        maxWidth: 560,
+        width: '100%',
+        marginHorizontal: 'auto',
+        alignSelf: 'center',
     },
     navItem: {
         alignItems: 'center',

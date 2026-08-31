@@ -192,7 +192,10 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { width: screenWidth } = useWindowDimensions();
-  const isDesktop = screenWidth >= 768;
+  const isTablet = screenWidth >= 640 && screenWidth < 1024;
+  const isDesktop = screenWidth >= 1024;
+  const isWide = screenWidth >= 768;
+  const cardWidth = isDesktop ? '23.8%' : isTablet ? '31.6%' : '48.5%';
 
   const [selectedService, setSelectedService] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -862,7 +865,7 @@ export default function HomeScreen() {
                 return (
                   <Animated.View
                     key={service.id}
-                    style={{ opacity: cardOpacity, transform: [{ translateY: cardTranslateY }], width: '48%', marginBottom: SPACING.md }}
+                    style={{ opacity: cardOpacity, transform: [{ translateY: cardTranslateY }], width: cardWidth, marginBottom: SPACING.md }}
                   >
                     <ServiceCard
                       {...service}
@@ -885,15 +888,25 @@ export default function HomeScreen() {
             <Text style={[styles.sectionSubtitleCenter, { color: colors.textSecondary }]}>
               Four simple steps to get expert help at your doorstep
             </Text>
-            <View style={styles.stepsContainer}>
+            <View style={[
+              styles.stepsContainer,
+              isWide && { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }
+            ]}>
               {HOW_IT_WORKS.map((step, index) => (
-                <View key={index} style={[styles.stepCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+                <View 
+                  key={index} 
+                  style={[
+                    styles.stepCard, 
+                    { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' },
+                    isDesktop ? { width: '23.5%' } : isTablet ? { width: '48.5%', marginBottom: 12 } : { width: '100%' }
+                  ]}
+                >
                   <View style={[styles.stepNumber, { backgroundColor: step.color + '20' }]}>
                     <Text style={[styles.stepNumberText, { color: step.color }]}>{step.step}</Text>
                   </View>
                   <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>{step.title}</Text>
                   <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>{step.description}</Text>
-                  {index < HOW_IT_WORKS.length - 1 && (
+                  {!isWide && index < HOW_IT_WORKS.length - 1 && (
                     <View style={[styles.stepConnector, { borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }]} />
                   )}
                 </View>
@@ -908,22 +921,37 @@ export default function HomeScreen() {
             <Text style={[styles.sectionTitleCenter, { color: colors.textPrimary }]}>
               Why Sheriyakam?
             </Text>
-            <View style={styles.whyGrid}>
-              <View style={[styles.whyCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+            <View style={[
+              styles.whyGrid,
+              isWide && { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }
+            ]}>
+              <View style={[
+                styles.whyCard, 
+                { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' },
+                isDesktop ? { width: '31.5%' } : isTablet ? { width: '48.5%', marginBottom: 12 } : { width: '100%' }
+              ]}>
                 <View style={[styles.whyIconWrap, { backgroundColor: '#2563EB18' }]}>
                   <Shield size={28} color={colors.accent} />
                 </View>
                 <Text style={[styles.whyCardTitle, { color: colors.textPrimary }]}>Verified Partners</Text>
                 <Text style={[styles.whyCardText, { color: colors.textSecondary }]}>All electricians are licensed & background-verified for your safety</Text>
               </View>
-              <View style={[styles.whyCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+              <View style={[
+                styles.whyCard, 
+                { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' },
+                isDesktop ? { width: '31.5%' } : isTablet ? { width: '48.5%', marginBottom: 12 } : { width: '100%' }
+              ]}>
                 <View style={[styles.whyIconWrap, { backgroundColor: '#10B98118' }]}>
                   <CheckCircle size={28} color={COLORS.success} />
                 </View>
                 <Text style={[styles.whyCardTitle, { color: colors.textPrimary }]}>OTP-Locked Safety</Text>
                 <Text style={[styles.whyCardText, { color: colors.textSecondary }]}>Secure job start & end with verification codes only you control</Text>
               </View>
-              <View style={[styles.whyCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+              <View style={[
+                styles.whyCard, 
+                { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' },
+                isDesktop ? { width: '31.5%' } : isTablet ? { width: '100%', marginBottom: 12 } : { width: '100%' }
+              ]}>
                 <View style={[styles.whyIconWrap, { backgroundColor: '#F59E0B18' }]}>
                   <Zap size={28} color={COLORS.gold} />
                 </View>
@@ -1118,6 +1146,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 80,
+    maxWidth: 1280,
+    width: '100%',
+    marginHorizontal: 'auto',
+    alignSelf: 'center',
   },
 
   /* ─── EMERGENCY STRIP ─── */
@@ -1156,6 +1188,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 8,
+    maxWidth: 1280,
+    width: '100%',
+    marginHorizontal: 'auto',
+    alignSelf: 'center',
   },
   leftSection: {
     flexDirection: 'row',

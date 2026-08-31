@@ -577,6 +577,12 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         padding: SPACING.lg,
+        paddingVertical: 32,
+        maxWidth: 480,
+        width: '100%',
+        marginHorizontal: 'auto',
+        alignSelf: 'center',
+        justifyContent: 'center',
     },
     backBtn: {
         marginBottom: SPACING.lg,

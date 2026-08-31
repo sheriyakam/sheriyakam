@@ -127,7 +127,11 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 16,
-        paddingBottom: 40,
+        paddingBottom: 60,
+        maxWidth: 880,
+        width: '100%',
+        marginHorizontal: 'auto',
+        alignSelf: 'center',
     },
     hero: {
         alignItems: 'center',

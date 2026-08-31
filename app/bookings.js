@@ -355,6 +355,10 @@ const styles = StyleSheet.create({
         paddingTop: SPACING.xs,
         paddingBottom: 100, // Space for BottomNav
         gap: 14,
+        maxWidth: 960,
+        width: '100%',
+        marginHorizontal: 'auto',
+        alignSelf: 'center',
     },
     card: {
         borderWidth: 1,

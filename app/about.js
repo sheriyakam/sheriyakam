@@ -202,7 +202,11 @@ const styles = StyleSheet.create({
     content: {
         padding: SPACING.lg,
         paddingTop: SPACING.sm,
-        paddingBottom: 40,
+        paddingBottom: 60,
+        maxWidth: 960,
+        width: '100%',
+        marginHorizontal: 'auto',
+        alignSelf: 'center',
     },
     heroSection: {
         alignItems: 'center',
