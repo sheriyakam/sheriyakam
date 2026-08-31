@@ -55,10 +55,13 @@ export const AuthProvider = ({ children }) => {
     /** Sign in with email and password */
     const login = useCallback(async (email, password) => {
         if (!isSupabaseConfigured) {
-            // Dev Mock Bypass
-            const mockUser = { id: 'mock_uid', email, name: email.split('@')[0], mobile: '', role: 'user' };
-            setUser(mockUser);
-            return { user: mockUser };
+            if (__DEV__) {
+                // Dev Mock Bypass strictly in local development
+                const mockUser = { id: 'mock_uid', email, name: email.split('@')[0], mobile: '', role: 'user' };
+                setUser(mockUser);
+                return { user: mockUser };
+            }
+            throw new Error('Authentication service not configured');
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -72,8 +75,10 @@ export const AuthProvider = ({ children }) => {
     /** Sign up with email, password and meta fields */
     const register = useCallback(async (email, password, name, mobile) => {
         if (!isSupabaseConfigured) {
-            // Dev Mock Bypass
-            return { user: { email, name } };
+            if (__DEV__) {
+                return { user: { email, name } };
+            }
+            throw new Error('Authentication service not configured');
         }
 
         const { data, error } = await supabase.auth.signUp({

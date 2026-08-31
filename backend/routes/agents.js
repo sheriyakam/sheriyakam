@@ -2,6 +2,21 @@ const express = require('express');
 const router = express.Router();
 const AgentOrchestrator = require('../agents/AgentOrchestrator');
 const AgentLog = require('../models/AgentLog');
+const { requireAuth } = require('../middleware/auth');
+
+/**
+ * Admin-only authorization guard.
+ * Must be used AFTER requireAuth so req.user is populated.
+ */
+const requireAdmin = (req, res, next) => {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden: Admin access required' });
+    }
+    next();
+};
+
+// Protect ALL agent routes — authentication + admin role required
+router.use(requireAuth, requireAdmin);
 
 /**
  * GET /api/agents/status
@@ -61,7 +76,8 @@ router.post('/run/:agent', async (req, res) => {
  */
 router.get('/logs', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 20;
+        const parsedLimit = parseInt(req.query.limit, 10);
+        const limit = (!isNaN(parsedLimit) && parsedLimit > 0) ? Math.min(parsedLimit, 100) : 20;
         let logs = [];
         try {
             logs = await AgentLog.find().sort({ createdAt: -1 }).limit(limit);

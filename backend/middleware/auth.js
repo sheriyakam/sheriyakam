@@ -18,11 +18,10 @@ const supabase = (supabaseUrl && supabaseAnonKey)
  * Middleware to protect private routes using Supabase JWT
  */
 const requireAuth = async (req, res, next) => {
-    // 1. Check configuration
+    // 1. Check configuration — FAIL CLOSED (never bypass auth)
     if (!supabase) {
-        console.warn('[Security/Auth] Supabase is not configured on the backend. Bypassing auth check (Development mode only).');
-        req.user = { id: 'dev_user_bypass', email: 'dev@example.com', role: 'user' };
-        return next();
+        console.error('[Security/Auth] CRITICAL: Supabase client is NOT configured. Blocking all authenticated requests.');
+        return res.status(503).json({ error: 'Authentication service unavailable. Contact administrator.' });
     }
 
     try {

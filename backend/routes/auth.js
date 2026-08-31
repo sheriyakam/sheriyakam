@@ -29,13 +29,21 @@ const supabaseAdmin = (supabaseUrl && supabaseAdminKey)
  */
 router.post('/webhook', async (req, res) => {
     try {
-        // Secure verification checks
-        if (SUPABASE_WEBHOOK_SECRET) {
-            const signature = req.headers['x-supabase-webhook-secret'];
-            if (signature !== SUPABASE_WEBHOOK_SECRET) {
-                console.warn('[Security Warning] Blocked unauthorized webhook request.');
-                return res.status(401).json({ error: 'Unauthorized: Invalid webhook secret' });
-            }
+        // Secure verification — FAIL CLOSED if secret is not configured
+        if (!SUPABASE_WEBHOOK_SECRET) {
+            console.error('[Security] CRITICAL: SUPABASE_WEBHOOK_SECRET is not configured. Webhook processing disabled.');
+            return res.status(500).json({ error: 'Webhook processing disabled: secret not configured' });
+        }
+
+        // Timing-safe signature comparison to prevent timing attacks
+        const crypto = require('crypto');
+        const signature = req.headers['x-supabase-webhook-secret'] || '';
+        const secretBuf = Buffer.from(SUPABASE_WEBHOOK_SECRET);
+        const sigBuf = Buffer.from(signature);
+
+        if (secretBuf.length !== sigBuf.length || !crypto.timingSafeEqual(secretBuf, sigBuf)) {
+            console.warn('[Security Warning] Blocked unauthorized webhook request.');
+            return res.status(401).json({ error: 'Unauthorized: Invalid webhook secret' });
         }
 
         const { type, record, old_record } = req.body;
@@ -55,7 +63,7 @@ router.post('/webhook', async (req, res) => {
                 name: raw_user_meta_data?.name || email.split('@')[0],
                 email: email,
                 mobile: raw_user_meta_data?.mobile || '',
-                role: raw_user_meta_data?.role || 'user'
+                role: 'user' // SECURITY: Never trust client-supplied role from user_metadata. Assign admin via server-side admin API only.
             });
 
             await newUser.save();

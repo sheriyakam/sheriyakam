@@ -3,6 +3,17 @@
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /invoice/
+Disallow: /settings
+Disallow: /profile
+Disallow: /bookings
+Disallow: /notifications
+Disallow: /partner/
+Disallow: /auth/
 
 # AI Crawlers & Answer Engines
 User-agent: GPTBot

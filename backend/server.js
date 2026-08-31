@@ -3,11 +3,41 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+const { ipRateLimiter } = require('./utils/security');
+
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Trust proxy for correct IP resolution behind Vercel/Nginx reverse proxies
+app.set('trust proxy', 1);
+
+// Restricted CORS — only allow requests from the Sheriyakam frontend
+const allowedOrigins = [
+    process.env.FRONTEND_URL || 'https://sheriyakam.vercel.app',
+    'http://localhost:8081',
+    'http://localhost:19006'
+];
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, server-to-server)
+        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('Blocked by CORS policy'));
+    },
+    credentials: true
+}));
+
+app.use(express.json({ limit: '1mb' }));
+
+// Global security headers (Helmet-equivalent)
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+    next();
+});
+
+// Global rate limiting (from utils/security.js — was previously unused)
+app.use(ipRateLimiter);
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sheriyakam';
