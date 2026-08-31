@@ -9,7 +9,8 @@ import {
     ActivityIndicator,
     Alert,
     Platform,
-    Dimensions
+    Dimensions,
+    ScrollView
 } from 'react-native';
 import { X, MapPin, Navigation, Search, Check } from 'lucide-react-native';
 import * as Location from 'expo-location';
