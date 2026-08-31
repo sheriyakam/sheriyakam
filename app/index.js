@@ -447,19 +447,24 @@ export default function HomeScreen() {
         <meta name="twitter:description" content="Licensed electricians across Kerala. 2400+ jobs completed. 4.9★ rating. Emergency dispatch in 90 minutes." />
         <meta name="twitter:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
 
-        {/* AEO & GEO Structured LocalBusiness Schema */}
+        {/* ═══════════════════════════════════════════════════════ */}
+        {/* 1. SCHEMA.ORG & GOOGLE RICH RESULTS DUAL-VALIDATED JSON-LD */}
+        {/* ═══════════════════════════════════════════════════════ */}
+
+        {/* LocalBusiness & HomeAndConstructionBusiness */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "HomeAndConstructionBusiness",
             "name": "Sheriyakam",
+            "alternateName": "Sheriyakam Home & Electrical Services Kerala",
             "image": "https://sheriyakam.vercel.app/assets/images/emergency.png",
             "@id": "https://sheriyakam.vercel.app/#organization",
             "url": "https://sheriyakam.vercel.app",
             "telephone": "+919876543210",
             "priceRange": "₹₹",
             "currenciesAccepted": "INR",
-            "paymentAccepted": "Cash, UPI, Credit Card, Debit Card",
+            "paymentAccepted": "Cash, UPI, Credit Card, Debit Card, Net Banking",
             "address": {
               "@type": "PostalAddress",
               "streetAddress": "Thalassery Main Road",
@@ -474,9 +479,20 @@ export default function HomeScreen() {
               "longitude": 75.4891
             },
             "areaServed": [
-              "Kasaragod", "Kannur", "Wayanad", "Kozhikode", "Malappuram",
-              "Palakkad", "Thrissur", "Ernakulam", "Idukki", "Kottayam",
-              "Alappuzha", "Pathanamthitta", "Kollam", "Thiruvananthapuram"
+              { "@type": "AdministrativeArea", "name": "Kasaragod" },
+              { "@type": "AdministrativeArea", "name": "Kannur" },
+              { "@type": "AdministrativeArea", "name": "Wayanad" },
+              { "@type": "AdministrativeArea", "name": "Kozhikode" },
+              { "@type": "AdministrativeArea", "name": "Malappuram" },
+              { "@type": "AdministrativeArea", "name": "Palakkad" },
+              { "@type": "AdministrativeArea", "name": "Thrissur" },
+              { "@type": "AdministrativeArea", "name": "Ernakulam" },
+              { "@type": "AdministrativeArea", "name": "Idukki" },
+              { "@type": "AdministrativeArea", "name": "Kottayam" },
+              { "@type": "AdministrativeArea", "name": "Alappuzha" },
+              { "@type": "AdministrativeArea", "name": "Pathanamthitta" },
+              { "@type": "AdministrativeArea", "name": "Kollam" },
+              { "@type": "AdministrativeArea", "name": "Thiruvananthapuram" }
             ],
             "openingHoursSpecification": {
               "@type": "OpeningHoursSpecification",
@@ -494,7 +510,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "Emergency Electrical Repair"
+                    "name": "Emergency Electrical Repair",
+                    "description": "Urgent on-site electrical triage for blackouts, short circuits, and sparking within 90 minutes."
                   },
                   "price": "550",
                   "priceCurrency": "INR"
@@ -503,7 +520,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "Ceiling & Exhaust Fan Repair"
+                    "name": "Ceiling & Exhaust Fan Repair",
+                    "description": "Capacitor fix, noise troubleshooting, and regulator replacement."
                   },
                   "price": "350",
                   "priceCurrency": "INR"
@@ -512,7 +530,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "Complete Home Wiring"
+                    "name": "Complete Home Wiring",
+                    "description": "Full house rewiring, conduit cable pulling, and safety earthing setup."
                   },
                   "price": "550",
                   "priceCurrency": "INR"
@@ -521,7 +540,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "DB & Switchgear Maintenance"
+                    "name": "DB & Switchgear Maintenance",
+                    "description": "MCB tripping resolution, ELCB leakage testing, and distribution board repair."
                   },
                   "price": "450",
                   "priceCurrency": "INR"
@@ -530,7 +550,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "Inverter & UPS Installation"
+                    "name": "Inverter & UPS Installation",
+                    "description": "Battery wiring, bypass switch setup, and load balancing."
                   },
                   "price": "500",
                   "priceCurrency": "INR"
@@ -539,7 +560,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "AC Jet Service & Repair"
+                    "name": "AC Jet Service & Repair",
+                    "description": "Deep indoor coil jet pump wash, outdoor unit fin cleaning, and gas top-up."
                   },
                   "price": "650",
                   "priceCurrency": "INR"
@@ -548,7 +570,8 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "CCTV Security Camera Setup"
+                    "name": "CCTV Security Camera Setup",
+                    "description": "IP/HD camera installation, NVR configuration, and mobile remote live view."
                   },
                   "price": "550",
                   "priceCurrency": "INR"
@@ -558,12 +581,14 @@ export default function HomeScreen() {
             "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": "4.9",
-              "reviewCount": "2400"
+              "reviewCount": "2400",
+              "bestRating": "5",
+              "worstRating": "1"
             }
           })}
         </script>
 
-        {/* WebSite Schema */}
+        {/* WebSite Schema with Google Sitelinks SearchBox EntryPoint */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -572,13 +597,44 @@ export default function HomeScreen() {
             "url": "https://sheriyakam.vercel.app",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://sheriyakam.vercel.app/search?q={search_term_string}",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://sheriyakam.vercel.app/search?q={search_term_string}"
+              },
               "query-input": "required name=search_term_string"
             }
           })}
         </script>
 
-        {/* 40-60 Word Quotable FAQPage Schema */}
+        {/* BreadcrumbList Schema for Google Rich Results */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://sheriyakam.vercel.app/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Services",
+                "item": "https://sheriyakam.vercel.app/#services"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Pricing",
+                "item": "https://sheriyakam.vercel.app/pricing"
+              }
+            ]
+          })}
+        </script>
+
+        {/* 40-60 Word Quotable FAQPage Schema (Google Rich Results & AEO Validated) */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
