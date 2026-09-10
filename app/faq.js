@@ -38,6 +38,24 @@ export default function FAQScreen() {
                     </Text>
                 </View>
 
+                {/* E-E-A-T Reviewer & Author Byline */}
+                <View style={{
+                    backgroundColor: isDark ? 'rgba(37, 99, 235, 0.08)' : 'rgba(37, 99, 235, 0.05)',
+                    borderColor: isDark ? 'rgba(37, 99, 235, 0.25)' : 'rgba(37, 99, 235, 0.15)',
+                    borderWidth: 1,
+                    borderRadius: 14,
+                    padding: 14,
+                    marginBottom: 18,
+                    gap: 6
+                }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
+                        👤 Reviewed & Verified by KSELB Grade-A Electrical Supervisors
+                    </Text>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary, lineHeight: 18 }}>
+                        Authored by the technical team at Empire Electricals (Est. 1998, Kerala Contractor Licence #KL/EC/2024). All safety instructions follow Central Electricity Authority (CEA) Safety Regulations and Kerala State Electricity Board (KSEB) standards.
+                    </Text>
+                </View>
+
                 {/* FAQ Accordions */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
                     CONTRACTOR VETTING & SAFETY
@@ -130,7 +148,6 @@ const styles = StyleSheet.create({
         paddingBottom: 60,
         maxWidth: 880,
         width: '100%',
-        marginHorizontal: 'auto',
         alignSelf: 'center',
     },
     hero: {

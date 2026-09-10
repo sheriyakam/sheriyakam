@@ -246,6 +246,18 @@ export default function MenuModal({ visible, onClose }) {
                                 </View>
 
                                 <View style={styles.section}>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>CAREER & GROWTH</Text>
+                                    <MenuItem
+                                        icon={Sparkles}
+                                        label="CV & LinkedIn Optimize"
+                                        subtitle="100% Free ATS resume & profile makeover"
+                                        badge="100% FREE"
+                                        highlight
+                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
+                                    />
+                                </View>
+
+                                <View style={styles.section}>
                                     <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SUPPORT & SAFETY</Text>
                                     <MenuItem
                                         icon={HelpCircle}
@@ -303,6 +315,18 @@ export default function MenuModal({ visible, onClose }) {
                                         label="Safety & Material Standards"
                                         subtitle="ISI certified cabling & safety"
                                         onPress={() => navigateTo('/materials-safety')}
+                                    />
+                                </View>
+
+                                <View style={styles.section}>
+                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>GROWTH & GULF OPPORTUNITIES</Text>
+                                    <MenuItem
+                                        icon={Sparkles}
+                                        label="CV & LinkedIn Optimize"
+                                        subtitle="100% Free GCC & electrical CV upgrade"
+                                        badge="100% FREE"
+                                        highlight
+                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
                                     />
                                 </View>
                             </>

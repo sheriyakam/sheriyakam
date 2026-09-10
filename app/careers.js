@@ -94,6 +94,39 @@ export default function CareersScreen() {
                     </Text>
                 </View>
 
+                {/* CV & LinkedIn Optimizer Banner */}
+                <TouchableOpacity
+                    style={[
+                        {
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: 14,
+                            borderRadius: 14,
+                            backgroundColor: isDark ? '#1E1B2E' : '#EEF2FF',
+                            borderWidth: 1,
+                            borderColor: colors.accent + '40',
+                            marginBottom: 20,
+                            gap: 12
+                        }
+                    ]}
+                    onPress={() => router.push('/cv-linkedin-optimize')}
+                    activeOpacity={0.8}
+                >
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.accent + '20', alignItems: 'center', justifyContent: 'center' }}>
+                        <Sparkles size={18} color={colors.accent} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 13.5, fontWeight: '700', color: colors.textPrimary }}>
+                            Need to polish your CV or LinkedIn?
+                        </Text>
+                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>
+                            Get an ATS score audit and recruiter-ready makeover.
+                        </Text>
+                    </View>
+                    <ChevronRight size={18} color={colors.accent} />
+                </TouchableOpacity>
+
                 {/* Job Openings */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
                     OPEN POSITIONS ({JOBS.length})
