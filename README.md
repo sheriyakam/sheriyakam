@@ -86,7 +86,7 @@ Sheriyakam is a modern, professional service booking platform built with React N
 - **Version Control**: Git & GitHub
 - **Package Manager**: npm
 - **Build Tool**: Expo CLI
-- **Deployment**: Vercel (recommended) / Netlify
+- **Deployment**: Vercel (Production CI/CD)
 
 ---
 

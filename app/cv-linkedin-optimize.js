@@ -794,6 +794,172 @@ export default function CvLinkedinOptimizeScreen() {
         );
     };
 
+    // Category filter chips for the 10 tools
+    const ADVANCED_TOOL_CATEGORIES = [
+        { id: 'all', label: 'All 10 Tools' },
+        { id: 'mock_interview', label: '1. Mock Interview' },
+        { id: 'ab_test', label: '2. A/B Compare' },
+        { id: 'recruiter_view', label: '3. Recruiter Heatmap' },
+        { id: 'deep_fit', label: '4. 4-D Job Fit' },
+        { id: 'auto_apply', label: '5. Auto-Apply' },
+        { id: 'freshness', label: '6. Freshness Alerts' },
+        { id: 'industry_packs', label: '7. Industry Packs' },
+        { id: 'counselor', label: '8. Counselor Mode' },
+        { id: 'gdocs', label: '9. Google Docs' },
+        { id: 'audit_log', label: '10. AI Audit Log' }
+    ];
+
+    const renderAdvancedModules = () => (
+        <View style={{ gap: 14 }}>
+            {/* Filter Chips Bar */}
+            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Sparkles size={16} color="#10B981" />
+                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
+                            10 Advanced AI Career Modules
+                        </Text>
+                        <Badge variant="success" size="sm">FALLBACK AGENT BACKEND</Badge>
+                    </View>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                        Select a module to focus, or view all
+                    </Text>
+                </View>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+                    {ADVANCED_TOOL_CATEGORIES.map(cat => (
+                        <TouchableOpacity
+                            key={cat.id}
+                            style={{
+                                paddingHorizontal: 12,
+                                paddingVertical: 6,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                backgroundColor: selectedCategory === cat.id ? '#10B981' : (isDark ? '#0B1120' : '#FFFFFF'),
+                                borderColor: selectedCategory === cat.id ? '#10B981' : (isDark ? '#1E293B' : '#CBD5E1')
+                            }}
+                            onPress={() => setSelectedCategory(cat.id)}
+                        >
+                            <Text style={{
+                                fontSize: 11,
+                                fontWeight: '700',
+                                color: selectedCategory === cat.id ? '#FFFFFF' : colors.textPrimary
+                            }}>
+                                {cat.label}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+
+            {/* 1. AI Mock Interview Simulator */}
+            {(selectedCategory === 'all' || selectedCategory === 'mock_interview') && (
+                <MockInterviewSimulator
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                    targetRole={targetJob.title || 'Director of Operations'}
+                />
+            )}
+
+            {/* 2. Resume A/B Strategy Comparison */}
+            {(selectedCategory === 'all' || selectedCategory === 'ab_test') && (
+                <ResumeABComparison
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                    onSelectVariant={(variantKey) => {
+                        success('Export configuration switched to ' + variantKey);
+                    }}
+                />
+            )}
+
+            {/* 3. Recruiter-View Simulator (6-Second Skim Heatmap) */}
+            {(selectedCategory === 'all' || selectedCategory === 'recruiter_view') && (
+                <RecruiterViewSimulator
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                />
+            )}
+
+            {/* 4. Multi-Dimensional Job Fit (Beyond Keywords) */}
+            {(selectedCategory === 'all' || selectedCategory === 'deep_fit') && (
+                <DeepJobFitBreakdown
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                />
+            )}
+
+            {/* 5. Auto-Apply Draft (Clipboard-Ready) */}
+            {(selectedCategory === 'all' || selectedCategory === 'auto_apply') && (
+                <AutoApplyDraftModal
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                />
+            )}
+
+            {/* 6. Resume Staleness & Job Expiry Alerts */}
+            {(selectedCategory === 'all' || selectedCategory === 'freshness') && (
+                <ResumeFreshnessAlert
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                    onRefreshBase={() => {
+                        success('Base resume recency score boosted to 100%!');
+                    }}
+                />
+            )}
+
+            {/* 7. Industry-Specific Template Packs & Keyword Banks */}
+            {(selectedCategory === 'all' || selectedCategory === 'industry_packs') && (
+                <IndustryTemplatePacks
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                    onAddKeyword={(kw) => {
+                        if (!baseResume.skills.includes(kw)) {
+                            setBaseResume(prev => ({
+                                ...prev,
+                                skills: [...prev.skills, kw]
+                            }));
+                        }
+                    }}
+                />
+            )}
+
+            {/* 8. Team & Career-Counselor Review Mode */}
+            {(selectedCategory === 'all' || selectedCategory === 'counselor') && (
+                <CounselorReviewDrawer
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                />
+            )}
+
+            {/* 9. Export to Google Docs */}
+            {(selectedCategory === 'all' || selectedCategory === 'gdocs') && (
+                <GoogleDocsExportModal
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                    resumeData={baseResume}
+                />
+            )}
+
+            {/* 10. Granular Audit Log & Per-Line Revert */}
+            {(selectedCategory === 'all' || selectedCategory === 'audit_log') && (
+                <AuditLogDiffViewer
+                    colors={colors}
+                    isDark={isDark}
+                    userToast={{ success, error: showError, info }}
+                />
+            )}
+        </View>
+    );
+
     return (
         <SafeAreaView style={[styles.screenContainer, { backgroundColor: isDark ? '#080B11' : '#F8FAFC' }]} edges={['top']}>
             <Head>
@@ -1181,7 +1347,11 @@ export default function CvLinkedinOptimizeScreen() {
                                         Interview prep, application tracker, salary benchmark & Kerala multi-language toggle.
                                     </Text>
                                 </View>
-                                <Badge variant="success" size="sm">EXCLUSIVE</Badge>
+                                <Badge variant="success" size="sm">EXCLUSIVE 10-TOOL SUITE</Badge>
+                            </View>
+
+                            <View style={{ marginBottom: 16 }}>
+                                {renderAdvancedModules()}
                             </View>
 
                             {/* Differentiator 1: Multi-Language Toggle (Malayalam / Hindi / English) */}
@@ -1515,173 +1685,7 @@ export default function CvLinkedinOptimizeScreen() {
                                                 const isTicked = confirmedMissingSkills.includes(term);
                                                 
 
-    // Category filter chips for the 10 tools
-    const ADVANCED_TOOL_CATEGORIES = [
-        { id: 'all', label: 'All 10 Tools' },
-        { id: 'mock_interview', label: '1. Mock Interview' },
-        { id: 'ab_test', label: '2. A/B Compare' },
-        { id: 'recruiter_view', label: '3. Recruiter Heatmap' },
-        { id: 'deep_fit', label: '4. 4-D Job Fit' },
-        { id: 'auto_apply', label: '5. Auto-Apply' },
-        { id: 'freshness', label: '6. Freshness Alerts' },
-        { id: 'industry_packs', label: '7. Industry Packs' },
-        { id: 'counselor', label: '8. Counselor Mode' },
-        { id: 'gdocs', label: '9. Google Docs' },
-        { id: 'audit_log', label: '10. AI Audit Log' }
-    ];
-
-    const renderAdvancedModules = () => (
-        <View style={{ gap: 14 }}>
-            {/* Filter Chips Bar */}
-            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Sparkles size={16} color="#10B981" />
-                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
-                            10 Advanced AI Career Modules
-                        </Text>
-                        <Badge variant="success" size="sm">FALLBACK AGENT BACKEND</Badge>
-                    </View>
-                    <Text style={{ fontSize: 11, color: colors.textSecondary }}>
-                        Select a module to focus, or view all
-                    </Text>
-                </View>
-
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
-                    {ADVANCED_TOOL_CATEGORIES.map(cat => (
-                        <TouchableOpacity
-                            key={cat.id}
-                            style={{
-                                paddingHorizontal: 12,
-                                paddingVertical: 6,
-                                borderRadius: 8,
-                                borderWidth: 1,
-                                backgroundColor: selectedCategory === cat.id ? '#10B981' : (isDark ? '#0B1120' : '#FFFFFF'),
-                                borderColor: selectedCategory === cat.id ? '#10B981' : (isDark ? '#1E293B' : '#CBD5E1')
-                            }}
-                            onPress={() => setSelectedCategory(cat.id)}
-                        >
-                            <Text style={{
-                                fontSize: 11,
-                                fontWeight: '700',
-                                color: selectedCategory === cat.id ? '#FFFFFF' : colors.textPrimary
-                            }}>
-                                {cat.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
-
-            {/* 1. AI Mock Interview Simulator */}
-            {(selectedCategory === 'all' || selectedCategory === 'mock_interview') && (
-                <MockInterviewSimulator
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                    targetRole={targetJob.title || 'Director of Operations'}
-                />
-            )}
-
-            {/* 2. Resume A/B Strategy Comparison */}
-            {(selectedCategory === 'all' || selectedCategory === 'ab_test') && (
-                <ResumeABComparison
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                    onSelectVariant={(variantKey) => {
-                        success('Export configuration switched to ' + variantKey);
-                    }}
-                />
-            )}
-
-            {/* 3. Recruiter-View Simulator (6-Second Skim Heatmap) */}
-            {(selectedCategory === 'all' || selectedCategory === 'recruiter_view') && (
-                <RecruiterViewSimulator
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                />
-            )}
-
-            {/* 4. Multi-Dimensional Job Fit (Beyond Keywords) */}
-            {(selectedCategory === 'all' || selectedCategory === 'deep_fit') && (
-                <DeepJobFitBreakdown
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                />
-            )}
-
-            {/* 5. Auto-Apply Draft (Clipboard-Ready) */}
-            {(selectedCategory === 'all' || selectedCategory === 'auto_apply') && (
-                <AutoApplyDraftModal
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                />
-            )}
-
-            {/* 6. Resume Staleness & Job Expiry Alerts */}
-            {(selectedCategory === 'all' || selectedCategory === 'freshness') && (
-                <ResumeFreshnessAlert
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                    onRefreshBase={() => {
-                        success('Base resume recency score boosted to 100%!');
-                    }}
-                />
-            )}
-
-            {/* 7. Industry-Specific Template Packs & Keyword Banks */}
-            {(selectedCategory === 'all' || selectedCategory === 'industry_packs') && (
-                <IndustryTemplatePacks
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                    onAddKeyword={(kw) => {
-                        if (!baseResume.skills.includes(kw)) {
-                            setBaseResume(prev => ({
-                                ...prev,
-                                skills: [...prev.skills, kw]
-                            }));
-                        }
-                    }}
-                />
-            )}
-
-            {/* 8. Team & Career-Counselor Review Mode */}
-            {(selectedCategory === 'all' || selectedCategory === 'counselor') && (
-                <CounselorReviewDrawer
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                />
-            )}
-
-            {/* 9. Export to Google Docs */}
-            {(selectedCategory === 'all' || selectedCategory === 'gdocs') && (
-                <GoogleDocsExportModal
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                    resumeData={baseResume}
-                />
-            )}
-
-            {/* 10. Granular Audit Log & Per-Line Revert */}
-            {(selectedCategory === 'all' || selectedCategory === 'audit_log') && (
-                <AuditLogDiffViewer
-                    colors={colors}
-                    isDark={isDark}
-                    userToast={{ success, error: showError, info }}
-                />
-            )}
-        </View>
-    );
-
-return (
+    return (
                                                     <TouchableOpacity
                                                         key={idx}
                                                         style={[
