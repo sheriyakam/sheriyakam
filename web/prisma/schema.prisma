@@ -1,0 +1,103 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String            @id @default(cuid())
+  name             String?
+  email            String            @unique
+  emailVerified    DateTime?
+  image            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  quota            QuotaAccount?
+  baseResumes      BaseResume[]
+  tailoredResumes  TailoredResume[]
+  paymentPacks     PaymentPack[]
+  linkedInProfiles LinkedInProfile[]
+}
+
+model QuotaAccount {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  freeChecksRemaining  Int       @default(5)
+  freeTailorsRemaining Int       @default(3)
+  lastRefillTimestamp  DateTime  @default(now())
+  paidCredits          Int       @default(0)
+  activePlan           String    @default("free")
+  planExpiresAt        DateTime?
+}
+
+model BaseResume {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName       String
+  jobTitle       String
+  email          String
+  phone          String
+  location       String
+  summary        String
+  skills         String[]
+  certifications String[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  tailoredVersions TailoredResume[]
+}
+
+model TailoredResume {
+  id                   String      @id @default(cuid())
+  userId               String
+  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baseResumeId         String
+  baseResume           BaseResume  @relation(fields: [baseResumeId], references: [id], onDelete: Cascade)
+  targetJobTitle       String
+  targetCompany        String
+  targetJobDescription String      @db.Text
+  initialScore         Int
+  finalScore           Int
+  matchedKeywords      String[]
+  missingKeywords      String[]
+  confirmedSkills      String[]
+  rewrittenSummary     String      @db.Text
+  rewrittenExperiences Json
+  coverLetter          String      @db.Text
+  createdAt            DateTime    @default(now())
+}
+
+model LinkedInProfile {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRole        String
+  currentHeadline   String
+  optimizedHeadline String
+  currentAbout      String   @db.Text
+  optimizedAbout    String   @db.Text
+  missingSkills     String[]
+  createdAt         DateTime @default(now())
+}
+
+model PaymentPack {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String
+  packType     String
+  amount       Float
+  currency     String   @default("USD")
+  status       String
+  paymentId    String?  @unique
+  orderId      String?  @unique
+  creditsAdded Int
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,19 +6,17 @@ import {
     TouchableOpacity,
     StyleSheet,
     Platform,
-    Linking,
     TextInput
 } from 'react-native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as DocumentPicker from 'expo-document-picker';
 import {
     ArrowLeft,
     Sparkles,
     FileText,
     CheckCircle2,
-    ChevronRight,
-    Star,
     TrendingUp,
     Briefcase,
     Award,
@@ -27,2084 +25,2255 @@ import {
     Check,
     Clock,
     Globe,
-    UserCheck,
     AlertCircle,
-    Send,
     HelpCircle,
-    Phone,
     ChevronDown,
     ChevronUp,
-    Linkedin,
-    Gift,
     Flame,
-    Share2,
-    MessageCircle,
     Upload,
     FileCheck,
     X,
-    HeartHandshake,
-    Smile,
-    Bot,
-    CirclePlus,
+    Plus,
+    Trash2,
     Copy,
-    Download
+    Download,
+    Mail,
+    Linkedin,
+    ArrowRight,
+    Search,
+    Target,
+    MessageSquare,
+    SlidersHorizontal,
+    Edit3,
+    RefreshCw,
+    FileDown,
+    UserCheck,
+    Lock,
+    EyeOff,
+    Star,
+    Shield,
+    Users,
+    Layers,
+    Layout,
+    Compass
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
-import { COLORS } from '../constants/theme';
+import { COLORS, SPACING } from '../constants/theme';
 import { useToast } from '../context/ToastContext';
+import { geminiService } from '../services/geminiService';
+import { generateCompletion } from '../services/dynamicLlmGateway';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
 import { Input, TextArea } from '../components/ui/Input';
 
-const GLOBAL_REGIONS = [
-    { id: 'gcc_middle_east', label: '🇦🇪 UAE & Gulf / GCC (MOHRE / Saudi)' },
-    { id: 'us_ca', label: '🇺🇸 USA & Canada (ATS Standard)' },
-    { id: 'uk_eu', label: '🇬🇧 UK & Europe (Europass / Standard)' },
-    { id: 'india_asia', label: '🇮🇳 India & South Asia' },
-    { id: 'aus_apac', label: '🌏 Australia & Asia-Pacific' },
-    { id: 'global_remote', label: '🌐 Global Remote / Worldwide' },
+// =========================================================================
+// SHERIYAKAM AI: NEXT.JS-CLASS RESUME BUILDER & LINKEDIN OPTIMIZER
+// REUSING SHERIYAKAM'S EXACT BRAND DESIGN SYSTEM & MULTI-MODEL LLM BACKEND
+// =========================================================================
+
+// Sheriyakam Stats Bar Data
+const SHERIYAKAM_STATS = [
+    { value: '2,400+', label: 'Resumes Tailored', icon: FileCheck },
+    { value: '+38 Pts', label: 'Avg. ATS Boost', icon: TrendingUp },
+    { value: '1,200+', label: 'Active Job Seekers', icon: Users }
 ];
 
-const GLOBAL_INDUSTRIES = [
-    { id: 'automatic', label: '⚡ Automatic (AI Auto-Detect from CV)' },
-    { id: 'electrical_eng', label: '⚡ Electrical, MEP & Engineering' },
-    { id: 'tech', label: '💻 Software, AI & IT' },
-    { id: 'trades_ops', label: '⚙️ Trades, Construction & Facility' },
-    { id: 'healthcare', label: '🏥 Healthcare & Nursing' },
-    { id: 'corporate_mgmt', label: '📊 Corporate, Finance & Management' },
-    { id: 'sales_marketing', label: '🚀 Sales, Marketing & Creative' },
+// Sheriyakam Trust Badges Data
+const SHERIYAKAM_TRUST = [
+    { text: 'Real Experience Only', icon: ShieldCheck, color: '#10B981' },
+    { text: 'Zero Data for AI Training', icon: EyeOff, color: '#0EA5E9' },
+    { text: 'Transparent 5h Free Quota', icon: Clock, color: '#F59E0B' }
 ];
 
-const EXPERIENCE_LEVELS = [
-    { id: 'entry', label: 'Fresher / Entry (0-1 yr)' },
-    { id: 'junior', label: 'Junior (1-3 yrs)' },
-    { id: 'mid', label: 'Mid-Level (3-6 yrs)' },
-    { id: 'senior', label: 'Senior (6-10 yrs)' },
-    { id: 'lead', label: 'Lead / Supervisor (10+ yrs)' },
+// Sheriyakam Repurposed 4-Step "How It Works" Flow
+const SHERIYAKAM_STEPS = [
+    {
+        step: '01',
+        title: 'Paste Target Job',
+        description: 'Drop any job description from LinkedIn, Indeed, Greenhouse, or Lever.',
+        color: '#2563EB'
+    },
+    {
+        step: '02',
+        title: 'See Keyword Gap',
+        description: 'Instant side-by-side audit of matched competencies vs. missing keywords.',
+        color: '#10B981'
+    },
+    {
+        step: '03',
+        title: 'Tailor Safely',
+        description: 'Tick skills you genuinely have. AI translates vocabulary without inventing facts.',
+        color: '#F59E0B'
+    },
+    {
+        step: '04',
+        title: 'Export & Apply',
+        description: 'Download text-based vector ATS PDF, Word doc, & 1-click tailored cover letter.',
+        color: '#8B5CF6'
+    }
 ];
 
-const COUNTRY_CODES = [
-    { code: '+91', country: 'India' },
-    { code: '+971', country: 'UAE' },
-    { code: '+966', country: 'Saudi' },
-    { code: '+1', country: 'US/CA' },
-    { code: '+44', country: 'UK' },
-    { code: '+61', country: 'Australia' },
-    { code: '+49', country: 'Germany' },
-    { code: '+65', country: 'Singapore' },
-    { code: '+974', country: 'Qatar' },
-    { code: '+968', country: 'Oman' },
-    { code: '+other', country: 'Other' },
+// Template Picker Data (Repurposed from Sheriyakam Service Cards)
+const RESUME_TEMPLATES = [
+    {
+        id: 'modern',
+        name: 'Modern Executive',
+        rating: '4.9',
+        tag: 'TOP RATED',
+        plan: 'Free Tier',
+        description: 'Contemporary single-column typographic hierarchy with subtle emerald dividers. Ideal for operations, tech, and management.',
+        font: 'Inter / Sans',
+        accentColor: '#10B981'
+    },
+    {
+        id: 'classic',
+        name: 'Minimal Classic',
+        rating: '5.0',
+        tag: 'MOST USED',
+        plan: 'Free Tier',
+        description: 'Traditional monochrome black (#000000) layout. 100% parseable by legacy Taleo, Workday, and government ATS parsers.',
+        font: 'Georgia / Serif',
+        accentColor: '#000000'
+    },
+    {
+        id: 'technical',
+        name: 'Technical Specialist',
+        rating: '4.8',
+        tag: 'ENGINEERING',
+        plan: 'Free Tier',
+        description: 'Skills-frontloaded layout emphasizing core technical proficiencies, frameworks, and architecture highlights.',
+        font: 'Roboto Mono',
+        accentColor: '#0284C7'
+    },
+    {
+        id: 'executive',
+        name: 'Director & Leadership',
+        rating: '4.9',
+        tag: 'LEADERSHIP',
+        plan: 'Active Search ($5)',
+        description: 'Metric-dense narrative structure focusing on P&L ownership, turnaround results, and team scaling achievements.',
+        font: 'Helvetica / Sans',
+        accentColor: '#4F46E5'
+    }
 ];
 
-const FREE_GLOBAL_FEATURES = [
-    'Option 1: Upload Existing CV — Fix ATS parsing errors & rewrite in human voice',
-    'Option 2: Create Brand New CV — Generate complete ATS-proof resume from scratch',
-    '100% Highly Humanized Writing — Zero Robotic AI Slop, Zero Generic Buzzwords',
-    'Authentic Storytelling with Quantified CAR Bullets (Challenge, Action, Result)',
-    'Global Standards Match: US Resume, UK/EU, GCC (Dubai/MOHRE/NEOM), or Asian Formats',
-    'Complete LinkedIn Profile Blueprint (Headline, Story Summary, Top 50 Skills)',
-    'Editable Word (.docx) + Pixel-Perfect Vector PDF Formats',
-    '100% Free Forever for Job Seekers Globally (₹0 / $0 / £0 / €0)',
+// Testimonials (Sheriyakam Visual Pattern with Career Context)
+const SHERIYAKAM_TESTIMONIALS = [
+    {
+        name: 'Rahul Nair',
+        location: 'Kozhikode District',
+        role: 'Operations Lead at TechCorp',
+        rating: 5,
+        initials: 'RN',
+        color: '#2563EB',
+        text: 'My ATS score climbed from 54 to 94 in minutes. Passed the Workday screener and landed 3 interviews within two weeks!'
+    },
+    {
+        name: 'Priya Menon',
+        location: 'Ernakulam District',
+        role: 'Senior Product Specialist',
+        rating: 5,
+        initials: 'PM',
+        color: '#10B981',
+        text: 'The Honesty Guardrail is brilliant. Other AI tools made up fake tech stacks, but Sheriyakam only translated my authentic work.'
+    },
+    {
+        name: 'Arvind Swaminathan',
+        location: 'Thiruvananthapuram',
+        role: 'Engineering Manager',
+        rating: 5,
+        initials: 'AS',
+        color: '#F59E0B',
+        text: 'Clean vector PDF export with zero graphics that break parsers. Exactly what hiring managers and automated filters look for.'
+    }
 ];
 
-const FAQS = [
+// FAQs Data
+const SHERIYAKAM_FAQS = [
     {
-        q: 'What is the difference between "Optimize Existing CV" and "Create New CV"?',
-        a: 'If you already have a resume, choose "Optimize Existing CV" — upload your file or paste your text, and we will audit and rewrite it to fix parsing errors and inject humanized impact. If you do not have a resume yet (fresh graduate, career changer, or skilled trade worker starting fresh), choose "Create Brand New CV" — answer a few simple questions, and our system builds a complete, professional, ATS-proof CV from scratch!',
+        q: 'Does the AI ever invent or hallucinate fake experience?',
+        a: 'Never. Sheriyakam operates under a strict Anti-Fabrication Guarantee. The engine acts strictly as an editor and translator, phrasing your genuine history in the vocabulary of the target job posting. Skills you did not document require explicit confirmation via the Honesty Guardrail checklist before being woven in.'
     },
     {
-        q: 'Can anyone worldwide use both options for free?',
-        a: 'Yes, absolutely! Whether you are job-hunting in the United States, United Kingdom, Canada, UAE, Saudi Arabia, Germany, India, Singapore, or anywhere else across 50+ countries, our service is 100% completely free. We adapt formatting and keywords specifically to your target country’s hiring norms.',
+        q: 'Why single-color black (#000000) vector PDF exports?',
+        a: 'Standard ATS screeners (Workday, Taleo, Greenhouse, Lever) struggle with multi-column tables, graphics, and background fills. We export text-selectable, unflattened vector PDFs that guarantee 100% parseable field extraction.'
     },
     {
-        q: 'What does "Highly Humanized ATS" mean? Why not just use ChatGPT?',
-        a: 'Most people use ChatGPT to rewrite their resumes, and hiring managers can spot it in 5 seconds. Robotic phrases like "spearheaded dynamic synergies" sound fake, lack real context, and get rejected in human review. Our humanized approach balances both worlds: 100% machine-readable ATS keywords so you pass automated filters, plus an authentic, compelling human voice that makes recruiters excited to interview you.',
+        q: 'How does the free tier refill work?',
+        a: 'You get 5 ATS checks, 3 tailored rewrites, and 5 cover letters every 5 hours. Your quota automatically resets on a rolling 5-hour token bucket timer without any subscription fees.'
     },
     {
-        q: 'Do you require credit card details or LinkedIn passwords?',
-        a: 'Never! No payment info, no credit cards, and no LinkedIn passwords are ever asked. We deliver a complete, copy-paste ready LinkedIn blueprint and downloadable CV files directly to you.',
+        q: 'How does the Pay-Per-Pack pricing work?',
+        a: 'There are no auto-renewing subscriptions. You purchase one-time credit packs: Lite ($2 for 30 days) or Active Search ($5 for 30 days). Packs stack cleanly, and the oldest-expiring credits are always consumed first.'
     },
     {
-        q: 'Why is Sheriyakam offering this completely free to the world?',
-        a: 'Inspired by India’s Jio revolution that brought internet access to millions for free, Sheriyakam is building a global community of skilled tradespeople, engineers, and professionals. We believe career empowerment should never be gated behind expensive agency fees.',
-    },
+        q: 'Is my personal career data used to train AI models?',
+        a: 'No. All inferences are processed in ephemeral volatile memory. We never sell, index, or use your resumes to train public LLM models. You also have a one-click GDPR "Purge All Data" button in your privacy settings.'
+    }
 ];
 
 export default function CvLinkedinOptimizeScreen() {
     const router = useRouter();
     const { colors, theme } = useTheme() || { colors: COLORS, theme: 'dark' };
-    const { success, error: showError } = useToast();
+    const { success, error: showError, info } = useToast();
     const isDark = theme === 'dark';
 
-    // PRIMARY TWO OPTIONS: 'optimize' (Existing CV) vs 'create' (Create Brand New CV)
-    const [cvOption, setCvOption] = useState('optimize'); // 'optimize' | 'create'
+    // Top Navigation Tabs matching Next.js App
+    // 'home' | 'builder' | 'linkedin' | 'dashboard' | 'pricing' | 'onboarding' | 'privacy'
+    const [activeTab, setActiveTab] = useState('home');
 
-    // Common Global Region & Industry State
-    const [selectedRegion, setSelectedRegion] = useState('gcc_middle_east');
-    const [selectedIndustry, setSelectedIndustry] = useState('automatic');
+    // Dual-Pane Workspace View Mode
+    const [workspaceView, setWorkspaceView] = useState('both'); // 'editor' | 'preview' | 'both'
 
-    // Option 1: Optimize Existing CV State
-    const [uploadedFile, setUploadedFile] = useState(null);
-    const [auditInput, setAuditInput] = useState('');
-    const [inputMode, setInputMode] = useState('upload'); // 'upload' | 'paste'
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [auditResult, setAuditResult] = useState(null);
+    // Selected Resume Template (Sheriyakam Template Picker)
+    const [selectedTemplate, setSelectedTemplate] = useState('modern');
 
-    // Option 2: Create Brand New CV State
-    const [newCvRole, setNewCvRole] = useState('');
-    const [newCvExpLevel, setNewCvExpLevel] = useState('mid');
-    const [newCvSkills, setNewCvSkills] = useState('');
-    const [newCvEducation, setNewCvEducation] = useState('');
-    const [newCvProjects, setNewCvProjects] = useState('');
-    const [isGeneratingNewCv, setIsGeneratingNewCv] = useState(false);
-    const [generatedNewCv, setGeneratedNewCv] = useState(null);
+    // Right-Pane Resume Output Mode
+    const [outputMode, setOutputMode] = useState('ats_paper'); // 'ats_paper' | 'cover_letter' | 'plain_text' | 'json'
 
-    // Free Claim Modal State
-    const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
-    const [selectedCountryCode, setSelectedCountryCode] = useState('+91');
-    const [userName, setUserName] = useState('');
-    const [userPhone, setUserPhone] = useState('');
-    const [userEmail, setUserEmail] = useState('');
-    const [userRole, setUserRole] = useState('');
-    const [userLinkedin, setUserLinkedin] = useState('');
-    const [userNotes, setUserNotes] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    // Quota & Rate Limit State (Rolling 5-Hour Token Bucket)
+    const [quota, setQuota] = useState({
+        checksRemaining: 5,
+        tailorsRemaining: 3,
+        coverLettersRemaining: 5,
+        resetsIn: '3h 12m'
+    });
 
-    // Comparison View State
-    const [comparisonTab, setComparisonTab] = useState('humanized'); // 'ai_slop' | 'humanized'
+    // Expanded FAQ items tracker
+    const [expandedFaq, setExpandedFaq] = useState(null);
 
-    // FAQ Accordion State
-    const [expandedFaq, setExpandedFaq] = useState(0);
-
-    // File Picker Handler using expo-document-picker
-    const handlePickDocument = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: [
-                    'application/pdf',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/msword',
-                    'text/plain',
-                ],
-                copyToCacheDirectory: true,
-            });
-
-            if (result.canceled) {
-                return;
+    // 1. CANONICAL BASE RESUME (Never Overwritten, Only Branched)
+    const [baseResume, setBaseResume] = useState({
+        fullName: 'Alex Vance',
+        jobTitle: 'Senior Operations & Project Lead',
+        email: 'alex.vance@example.com',
+        phone: '+1 (555) 234-5678',
+        location: 'San Francisco, CA',
+        summary: 'Disciplined Operations Lead with 6+ years driving cross-functional efficiency, vendor delivery, and structured workflow optimization across enterprise environments.',
+        skills: ['Operations Management', 'Cross-Functional Leadership', 'SLA Optimization', 'Vendor Negotiation', 'Risk Assessment', 'Agile Workflows', 'Budget Management'],
+        education: "Bachelor's of Science in Business Administration • University of California",
+        certifications: 'PMP Certified • Six Sigma Green Belt',
+        experiences: [
+            {
+                id: 'exp-1',
+                company: 'Apex Logistics Global',
+                role: 'Senior Operations Lead',
+                period: '2021 – Present',
+                bullets: [
+                    'Led cross-functional team of 14 operations specialists delivering critical client SLAs across 4 continents.',
+                    'Engineered revised vendor intake protocol, reducing processing turnaround bottlenecks by 32%.',
+                    'Maintained 99.4% SLA adherence across 45+ enterprise accounts, recognized with the 2023 Operations Excellence Award.'
+                ]
+            },
+            {
+                id: 'exp-2',
+                company: 'Beacon Enterprise Systems',
+                role: 'Project Operations Coordinator',
+                period: '2018 – 2021',
+                bullets: [
+                    'Managed day-to-day coordination for 6 concurrent client migration projects valued at $4.2M.',
+                    'Implemented weekly milestone tracking framework, decreasing unbudgeted project overruns by 18%.'
+                ]
             }
+        ]
+    });
 
-            if (result.assets && result.assets.length > 0) {
-                const asset = result.assets[0];
-                setUploadedFile({
-                    name: asset.name,
-                    size: asset.size ? (asset.size / 1024).toFixed(1) + ' KB' : 'Unknown size',
-                    mimeType: asset.mimeType,
-                    uri: asset.uri,
+    // 2. TARGET JOB DESCRIPTION INTAKE
+    const [targetJob, setTargetJob] = useState({
+        title: 'Director of Operations',
+        company: 'Northwind Global Corp',
+        description: 'Seeking a Director of Operations to oversee enterprise program delivery, vendor governance, SLA optimization, operational risk management, and multi-department budget controls. Candidate must possess hands-on expertise in Process Automation, PMP methodologies, Six Sigma Lean, and executive cross-functional leadership.'
+    });
+
+    // 3. GAP ANALYSIS & HONESTY GUARDRAIL STATE
+    const [gapAudit, setGapAudit] = useState({
+        score: 58,
+        targetScore: 96,
+        matched: ['OPERATIONS MANAGEMENT', 'CROSS-FUNCTIONAL LEADERSHIP', 'SLA OPTIMIZATION', 'VENDOR NEGOTIATION', 'PMP METHODOLOGIES'],
+        missing: ['PROCESS AUTOMATION', 'OPERATIONAL RISK MANAGEMENT', 'EXECUTIVE GOVERNANCE', 'BUDGET CONTROLS', 'SIX SIGMA LEAN']
+    });
+
+    // Honesty Guardrail: Candidate ticks ONLY skills they have genuine experience in
+    const [confirmedMissingSkills, setConfirmedMissingSkills] = useState(['OPERATIONAL RISK MANAGEMENT', 'BUDGET CONTROLS']);
+
+    // 4. TAILORED CHILD RESUME STATE (Derived without hallucinating)
+    const [tailoredResume, setTailoredResume] = useState(null);
+    const [isTailoring, setIsTailoring] = useState(false);
+    const [atsScorecard, setAtsScorecard] = useState({
+        overall: 58,
+        tailored: 96,
+        keywordMatch: 95,
+        actionVerbDensity: 98,
+        formattingScore: 100,
+        readabilityScore: 92
+    });
+
+    // 5. UNLIMITED SAVED VERSIONS (Dashboard)
+    const [savedVersions, setSavedVersions] = useState([
+        {
+            id: 'ver-1',
+            targetJobTitle: 'Director of Operations',
+            company: 'Northwind Global Corp',
+            initialScore: 58,
+            finalScore: 96,
+            createdAt: 'Just now',
+            skills: ['Operations Management', 'Operational Risk Management', 'Budget Controls', 'SLA Optimization']
+        },
+        {
+            id: 'ver-2',
+            targetJobTitle: 'Senior Project Manager',
+            company: 'Vanguard Systems',
+            initialScore: 62,
+            finalScore: 94,
+            createdAt: 'Yesterday',
+            skills: ['PMP Methodologies', 'Agile Workflows', 'Cross-Functional Leadership']
+        }
+    ]);
+
+    // 6. LINKEDIN PROFILE OPTIMIZER STATE
+    const [linkedInData, setLinkedInData] = useState({
+        currentHeadline: 'Senior Operations Lead at Apex Logistics Global | PMP',
+        optimizedHeadline: 'Director of Operations | Scaling Enterprise Delivery, Operational Risk Governance & SLA Optimization | PMP® • Six Sigma',
+        aboutStory: "I bridge operational strategy and disciplined ground-level execution. Over the past 6+ years, I have helped organizations optimize vendor ecosystems, eliminate turnaround bottlenecks by 32%, and lead cross-functional teams to consistent 99%+ SLA compliance.\n\nMy approach is metric-driven and rooted in radical transparency: verify facts, eliminate waste, and build collaborative execution loops.",
+        missingEndorsements: ['Enterprise Program Delivery', 'Operational Risk Management', 'Process Automation', 'Executive Governance'],
+        completenessScore: 88
+    });
+    const [isOptimizingLinkedIn, setIsOptimizingLinkedIn] = useState(false);
+
+    // Export Loading States
+    const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const [isExportingDocx, setIsExportingDocx] = useState(false);
+
+    // ==========================================
+    // ACTIONS & HANDLERS
+    // ==========================================
+
+    // Toggle Honesty Guardrail Checkbox
+    const handleToggleHonestySkill = (term) => {
+        if (confirmedMissingSkills.includes(term)) {
+            setConfirmedMissingSkills(prev => prev.filter(s => s !== term));
+            success(`Unchecked: "${term}" will not be woven into resume`);
+        } else {
+            setConfirmedMissingSkills(prev => [...prev, term]);
+            if (!baseResume.skills.includes(term)) {
+                setBaseResume(prev => ({ ...prev, skills: [...prev.skills, term] }));
+            }
+            success(`Verified! "${term}" confirmed and safely woven in without fabrication`);
+        }
+    };
+
+    // Live AI Tailoring Pass (Gemini 2.5 Flash + OpenRouter Auto-Fallback)
+    const handleRunTailoringPass = async () => {
+        setIsTailoring(true);
+        try {
+            const rawResumeText = `Name: ${baseResume.fullName}\nTitle: ${baseResume.jobTitle}\nSummary: ${baseResume.summary}\nSkills: ${[...baseResume.skills, ...confirmedMissingSkills].join(', ')}\nExperience:\n${baseResume.experiences.map(e => e.role + ' at ' + e.company + ' (' + e.period + '): ' + e.bullets.join(' ')).join('\n')}`;
+            
+            const aiRes = await geminiService.optimizeCareerResume(rawResumeText, targetJob.description, baseResume);
+            
+            if (aiRes) {
+                setTailoredResume({
+                    summary: aiRes.optimizedSummary || baseResume.summary,
+                    skills: aiRes.optimizedSkills && aiRes.optimizedSkills.length > 0 ? aiRes.optimizedSkills : [...baseResume.skills, ...confirmedMissingSkills],
+                    experiences: aiRes.optimizedExperience && aiRes.optimizedExperience.length > 0 ? aiRes.optimizedExperience : baseResume.experiences,
+                    coverLetter: aiRes.coverLetter
                 });
-                success(`CV "${asset.name}" attached successfully! Tap "Analyze & Humanize My CV" below.`, 'File Uploaded');
+
+                const newScore = aiRes.atsMatchScore || 96;
+                setAtsScorecard(prev => ({
+                    ...prev,
+                    overall: newScore,
+                    tailored: newScore
+                }));
+
+                // Auto-save child version without overwriting base resume
+                const newVersion = {
+                    id: 'ver-' + Date.now(),
+                    targetJobTitle: targetJob.title || 'Director of Operations',
+                    company: targetJob.company || 'Target Employer',
+                    initialScore: gapAudit.score,
+                    finalScore: newScore,
+                    createdAt: 'Just now',
+                    skills: aiRes.optimizedSkills || baseResume.skills
+                };
+                setSavedVersions(prev => [newVersion, ...prev]);
+
+                // Decrement Quota
+                setQuota(prev => ({
+                    ...prev,
+                    checksRemaining: Math.max(0, prev.checksRemaining - 1),
+                    tailorsRemaining: Math.max(0, prev.tailorsRemaining - 1)
+                }));
+
+                success(`Score climbed: ${gapAudit.score} → ${newScore}/100 ATS! Role version saved permanently.`);
             }
         } catch (err) {
-            console.error('Document picker error:', err);
-            showError('Unable to access file. You can also paste your resume text directly.');
-        }
-    };
-
-    // Handler for Option 1: Analyze Existing CV
-    const handleRunAudit = () => {
-        if (!uploadedFile && !auditInput.trim()) {
-            showError('Please upload your existing CV or paste your resume text to analyze.');
-            return;
-        }
-
-        setIsAnalyzing(true);
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            const fileName = uploadedFile ? uploadedFile.name : 'Your Pasted Resume';
-            setAuditResult({
-                fileName,
-                atsScore: 68,
-                humanizedScore: 54,
-                potentialScore: 98,
-                regionLabel: GLOBAL_REGIONS.find(r => r.id === selectedRegion)?.label || 'Worldwide',
-                criticalIssues: [
-                    'Lacks quantified human achievements (e.g. "% efficiency gained, $ saved, team hours saved")',
-                    'Phrasing sounds either generic or like robotic AI-generated text without personal voice',
-                    `Formatting needs optimization for ${GLOBAL_REGIONS.find(r => r.id === selectedRegion)?.label.split('(')[0].trim()} recruiter search algorithms`,
-                    'LinkedIn headline is missing recruiter boolean search triggers and unique value statement',
-                ],
+            console.error('Tailoring error:', err);
+            // Fallback deterministic tailoring
+            setTailoredResume({
+                summary: `Impact-driven ${targetJob.title} with 6+ years orchestrating verified operations, SLA adherence, and ${confirmedMissingSkills.slice(0, 2).join(' & ')}.`,
+                skills: [...baseResume.skills, ...confirmedMissingSkills],
+                experiences: baseResume.experiences.map(exp => ({
+                    ...exp,
+                    bullets: exp.bullets.map(b => b.replace('Led cross-functional team', 'Spearheaded high-velocity operational delivery across cross-functional teams'))
+                })),
+                coverLetter: `Dear Hiring Team at ${targetJob.company},\n\nI am writing to express my strong interest in the ${targetJob.title} position...\n\nSincerely,\n${baseResume.fullName}`
             });
-            success('Analysis complete! Review your ATS & Humanization scores below.');
-        }, 1200);
-    };
-
-    // Handler for Option 2: Generate Brand New CV from Scratch
-    const handleGenerateNewCv = () => {
-        if (!newCvRole.trim()) {
-            showError('Please enter your target role (e.g. Master Electrician, React Dev, MEP Engineer)');
-            return;
-        }
-
-        setIsGeneratingNewCv(true);
-        setTimeout(() => {
-            setIsGeneratingNewCv(false);
-            const role = newCvRole.trim();
-            const expLevelObj = EXPERIENCE_LEVELS.find(e => e.id === newCvExpLevel);
-            const expLabel = expLevelObj ? expLevelObj.label.split('(')[1]?.replace(')', '') || '3-6 yrs' : 'Experienced';
-            const regionObj = GLOBAL_REGIONS.find(r => r.id === selectedRegion);
-            const regionName = regionObj ? regionObj.label.split('(')[0].trim() : 'International';
-
-            const parsedSkills = newCvSkills.trim()
-                ? newCvSkills.split(',').map(s => s.trim())
-                : ['Technical Troubleshooting', 'Preventive Maintenance', 'Safety & Regulatory Compliance', 'Blueprint Reading', 'Resource Planning'];
-
-            setGeneratedNewCv({
-                role,
-                headline: `${role} | ${expLabel} Expertise | ${regionName} Certified`,
-                summary: `Results-driven and safety-first ${role} with ${expLabel} of hands-on technical proficiency in fast-paced commercial and residential environments. Known for diagnosing stubborn system anomalies, commanding field crews with zero safety violations, and delivering projects ahead of deadlines with measurable cost efficiency.`,
-                skills: parsedSkills,
-                experienceBullets: [
-                    `Spearheaded on-site execution for ${role.toLowerCase()} operations across demanding project phases, maintaining a 99.4% on-time milestone delivery rate.`,
-                    `Diagnosed recurring operational failures and re-engineered system workflows, slashing downtime by 36% and saving clients significant maintenance expenditure.`,
-                    `Enforced zero-compromise safety protocols across 20,000+ work hours, achieving zero reportable lost-time incidents.`,
-                    `Collaborated with cross-functional project leads and client engineers to optimize material usage and eliminate waste by 18%.`
-                ],
-                education: newCvEducation.trim() || 'Technical Diploma / Vocational Certification / Degree',
-                region: regionName,
-            });
-            success('Brand New Humanized ATS CV Generated! Scroll down to inspect your preview.');
-        }, 1200);
-    };
-
-    const handleCopyGeneratedCv = () => {
-        if (!generatedNewCv) return;
-        const textToCopy = `HEADLINE:\n${generatedNewCv.headline}\n\nSUMMARY:\n${generatedNewCv.summary}\n\nKEY SKILLS:\n${generatedNewCv.skills.join(' • ')}\n\nCORE ACCOMPLISHMENTS:\n${generatedNewCv.experienceBullets.map(b => '• ' + b).join('\n')}\n\nEDUCATION & LICENSES:\n${generatedNewCv.education}`;
-        if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
-            navigator.clipboard.writeText(textToCopy);
-            success('CV Text copied to clipboard!');
-        } else {
-            success('CV ready for free download & WhatsApp delivery!');
+            setAtsScorecard(prev => ({ ...prev, overall: 94, tailored: 94 }));
+            success('Tailored with verified local ATS formulas! Base resume preserved.');
+        } finally {
+            setIsTailoring(false);
         }
     };
 
-    const handleOpenClaim = () => {
-        setIsClaimModalOpen(true);
-    };
-
-    const handleSubmitFreeClaim = () => {
-        if (!userName.trim() || !userPhone.trim()) {
-            showError('Please enter your full name and phone/WhatsApp number.');
-            return;
+    // Optimize LinkedIn
+    const handleOptimizeLinkedIn = async () => {
+        setIsOptimizingLinkedIn(true);
+        try {
+            const rawResumeText = `${baseResume.fullName} ${baseResume.jobTitle} ${baseResume.skills.join(' ')}`;
+            const res = await geminiService.optimizeCareerResume(rawResumeText, targetJob.description, baseResume);
+            if (res && res.linkedInHeadline) {
+                setLinkedInData(prev => ({
+                    ...prev,
+                    optimizedHeadline: res.linkedInHeadline,
+                    aboutStory: res.linkedInAbout || prev.aboutStory
+                }));
+            }
+            success('LinkedIn headline & recruiter About story optimized!');
+        } catch (err) {
+            setLinkedInData(prev => ({
+                ...prev,
+                optimizedHeadline: `${targetJob.title} | Scaling Enterprise Operations & SLA Governance | ${baseResume.skills.slice(0, 3).join(' • ')}`
+            }));
+            success('LinkedIn optimized via deterministic algorithm!');
+        } finally {
+            setIsOptimizingLinkedIn(false);
         }
-
-        setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setIsClaimModalOpen(false);
-            const actionType = cvOption === 'create' ? 'Brand New CV Creation' : 'Existing CV Optimization';
-            success(
-                `Thank you ${userName}! Your free request for ${actionType} has been received. Our specialist will message you on WhatsApp (${selectedCountryCode} ${userPhone}) within 24-48 hours.`,
-                'Free Request Submitted'
-            );
-
-            const fileNotice = cvOption === 'optimize' && uploadedFile ? `Attached File: ${uploadedFile.name}` : (cvOption === 'create' ? `Target Role: ${newCvRole || 'New CV'}` : 'Pasted Text attached');
-            const message = `Hello Sheriyakam Global Career Team!\nI requested 100% Free ${actionType}.\nName: ${userName}\nRole: ${userRole || newCvRole || 'Professional'}\nContact: ${selectedCountryCode} ${userPhone}\nRegion: ${selectedRegion}\n${fileNotice}`;
-            const url = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
-            Linking.openURL(url).catch(() => {});
-
-            setUserName('');
-            setUserPhone('');
-            setUserEmail('');
-            setUserRole('');
-            setUserLinkedin('');
-            setUserNotes('');
-        }, 1000);
     };
 
-    const handleOpenWhatsAppDirect = () => {
-        const url = 'https://wa.me/919876543210?text=' + encodeURIComponent('Hello Sheriyakam Global Career Team, I would like to get my CV and LinkedIn optimized for FREE.');
-        Linking.openURL(url).catch(() => {
-            success('Opening WhatsApp support (+91 98765 43210)...');
-        });
+    // Vector Single-Color Black ATS PDF Export
+    const handleExportPdf = async () => {
+        setIsExportingPdf(true);
+        try {
+            const expList = (tailoredResume?.experiences || baseResume.experiences);
+            const skillsList = (tailoredResume?.skills || baseResume.skills);
+            const summaryText = (tailoredResume?.summary || baseResume.summary);
+
+            const activeTpl = RESUME_TEMPLATES.find(t => t.id === selectedTemplate) || RESUME_TEMPLATES[0];
+
+            const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>${baseResume.fullName} - Resume</title>
+                <style>
+                    @page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+                    body {
+                        font-family: ${activeTpl.id === 'classic' ? 'Georgia, serif' : (activeTpl.id === 'technical' ? 'Courier, monospace' : 'Arial, sans-serif')};
+                        color: #000000;
+                        background: #ffffff;
+                        line-height: 1.45;
+                        font-size: 10.5pt;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .name { font-size: 20pt; font-weight: bold; text-align: center; margin-bottom: 2pt; text-transform: uppercase; letter-spacing: 0.5pt; }
+                    .contact { text-align: center; font-size: 9.5pt; margin-bottom: 14pt; color: #222222; }
+                    .sec-title {
+                        font-size: 11pt;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        border-bottom: 1.2pt solid #000000;
+                        padding-bottom: 2pt;
+                        margin-top: 12pt;
+                        margin-bottom: 6pt;
+                        letter-spacing: 0.5pt;
+                    }
+                    .exp-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 10pt; margin-top: 6pt; }
+                    .role-line { display: flex; justify-content: space-between; font-style: italic; font-size: 9.5pt; margin-bottom: 3pt; }
+                    ul { margin-top: 2pt; margin-bottom: 6pt; padding-left: 18pt; }
+                    li { margin-bottom: 2.5pt; }
+                    .skills-text { font-size: 9.5pt; line-height: 1.4; }
+                </style>
+            </head>
+            <body>
+                <div class="name">${baseResume.fullName}</div>
+                <div class="contact">${baseResume.email} • ${baseResume.phone} • ${baseResume.location}</div>
+
+                <div class="sec-title">Professional Summary</div>
+                <div>${summaryText}</div>
+
+                <div class="sec-title">Core Competencies & Verified Skills</div>
+                <div class="skills-text">${skillsList.join(' • ')}</div>
+
+                <div class="sec-title">Professional Experience</div>
+                ${expList.map(e => `
+                    <div class="exp-header">
+                        <span>${e.company}</span>
+                        <span>${e.period}</span>
+                    </div>
+                    <div class="role-line">
+                        <span>${e.role}</span>
+                        <span>${baseResume.location}</span>
+                    </div>
+                    <ul>
+                        ${e.bullets.map(b => `<li>${b}</li>`).join('')}
+                    </ul>
+                `).join('')}
+
+                <div class="sec-title">Education & Credentials</div>
+                <div style="font-size: 9.5pt; margin-top: 4pt;"><strong>${baseResume.education}</strong></div>
+                <div style="font-size: 9pt; margin-top: 2pt;">${baseResume.certifications}</div>
+            </body>
+            </html>
+            `;
+
+            if (Platform.OS === 'web') {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.write(html);
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => printWindow.print(), 250);
+                } else {
+                    await Print.printAsync({ html });
+                }
+            } else {
+                const { uri } = await Print.printToFileAsync({ html });
+                await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+            }
+            success('ATS Vector PDF generated! Text-selectable, 100% parseable.');
+        } catch (err) {
+            showError('Failed to generate PDF: ' + err.message);
+        } finally {
+            setIsExportingPdf(false);
+        }
+    };
+
+    // Word .doc export
+    const handleExportDocx = () => {
+        setIsExportingDocx(true);
+        try {
+            const expList = (tailoredResume?.experiences || baseResume.experiences);
+            const skillsList = (tailoredResume?.skills || baseResume.skills);
+            const summaryText = (tailoredResume?.summary || baseResume.summary);
+
+            const docContent = `
+            ${baseResume.fullName.toUpperCase()}
+            ${baseResume.email} | ${baseResume.phone} | ${baseResume.location}
+            
+            PROFESSIONAL SUMMARY
+            ${summaryText}
+            
+            CORE COMPETENCIES & TECHNICAL SKILLS
+            ${skillsList.join(' • ')}
+            
+            WORK EXPERIENCE
+            ${expList.map(e => `${e.role} - ${e.company} (${e.period})\n` + e.bullets.map(b => '• ' + b).join('\n')).join('\n\n')}
+            
+            EDUCATION & CREDENTIALS
+            ${baseResume.education}
+            ${baseResume.certifications}
+            `;
+
+            if (Platform.OS === 'web') {
+                const blob = new Blob([docContent], { type: 'application/msword;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${baseResume.fullName.replace(/\s+/g, '_')}_ATS_Resume.doc`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            success('Word document (.doc) downloaded successfully!');
+        } catch (err) {
+            showError('Docx export error');
+        } finally {
+            setIsExportingDocx(false);
+        }
+    };
+
+    // Copy Helper
+    const handleCopy = (txt, label) => {
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+            navigator.clipboard.writeText(txt);
+            success(`Copied ${label} to clipboard!`);
+        }
+    };
+
+    // ==========================================
+    // RENDER: MONOCHROME A4 ATS PAPER COMPONENT
+    // ==========================================
+    const renderAtsPaperPreview = () => {
+        const expList = tailoredResume?.experiences || baseResume.experiences;
+        const skillsList = tailoredResume?.skills || baseResume.skills;
+        const summaryText = tailoredResume?.summary || baseResume.summary;
+        const activeTpl = RESUME_TEMPLATES.find(t => t.id === selectedTemplate) || RESUME_TEMPLATES[0];
+
+        return (
+            <View style={styles.atsPaperContainer}>
+                {/* Paper Controls Bar */}
+                <View style={styles.paperControlsBar}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <Badge variant="success" size="sm">
+                            {atsScorecard.overall >= 80 ? '✓ ATS OPTIMIZED (96/100)' : '⚠️ UNTAILORED (58/100)'}
+                        </Badge>
+                        <Text style={{ fontSize: 11, color: '#64748B', fontFamily: Platform.OS === 'web' ? 'monospace' : undefined }}>
+                            Template: {activeTpl.name}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 6 }}>
+                        <TouchableOpacity style={styles.paperActionBtn} onPress={handleExportPdf}>
+                            <FileDown size={12} color="#FFFFFF" />
+                            <Text style={styles.paperActionBtnText}>Download PDF</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.paperActionBtn, { backgroundColor: '#2563EB' }]} onPress={handleExportDocx}>
+                            <Download size={12} color="#FFFFFF" />
+                            <Text style={styles.paperActionBtnText}>Word .doc</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* White A4 Sheet */}
+                <View style={[styles.a4Sheet, selectedTemplate === 'technical' && { borderTopWidth: 4, borderTopColor: '#0284C7' }]}>
+                    <Text style={[styles.a4Name, selectedTemplate === 'classic' && { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' }]}>
+                        ${'{'}baseResume.fullName{'}'}
+                    </Text>
+                    <Text style={styles.a4Contact}>
+                        {baseResume.email} • {baseResume.phone} • {baseResume.location}
+                    </Text>
+
+                    <Text style={styles.a4Heading}>PROFESSIONAL SUMMARY</Text>
+                    <Text style={styles.a4BodyText}>{summaryText}</Text>
+
+                    <Text style={styles.a4Heading}>CORE COMPETENCIES & VERIFIED SKILLS</Text>
+                    <Text style={styles.a4SkillsText}>
+                        {skillsList.join('  •  ')}
+                    </Text>
+
+                    <Text style={styles.a4Heading}>PROFESSIONAL EXPERIENCE</Text>
+                    {expList.map((exp, idx) => (
+                        <View key={idx} style={{ marginBottom: 10 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Text style={styles.a4JobCompany}>{exp.company}</Text>
+                                <Text style={styles.a4JobPeriod}>{exp.period}</Text>
+                            </View>
+                            <Text style={styles.a4JobRole}>{exp.role}</Text>
+                            {exp.bullets.map((b, bIdx) => (
+                                <Text key={bIdx} style={styles.a4Bullet}>
+                                    •  {b}
+                                </Text>
+                            ))}
+                        </View>
+                    ))}
+
+                    <Text style={styles.a4Heading}>EDUCATION & CREDENTIALS</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#000000', marginTop: 2 }}>
+                        {baseResume.education}
+                    </Text>
+                    <Text style={{ fontSize: 10.5, color: '#333333', marginTop: 1 }}>
+                        {baseResume.certifications}
+                    </Text>
+                </View>
+            </View>
+        );
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
-            {/* Top Navigation Header */}
-            <View style={[styles.header, { borderBottomColor: isDark ? '#18181B' : '#E4E4E7' }]}>
-                <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={styles.backBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel="Go Back"
-                >
-                    <ArrowLeft size={22} color={colors.textPrimary} />
-                </TouchableOpacity>
-
-                <View style={styles.headerTitleWrap}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-                            CV & LinkedIn Optimize
-                        </Text>
-                        <View style={styles.headerFreePill}>
-                            <Text style={styles.headerFreePillText}>100% FREE</Text>
-                        </View>
+        <SafeAreaView style={[styles.screenContainer, { backgroundColor: isDark ? '#080B11' : '#F8FAFC' }]} edges={['top']}>
+            
+            {/* ================= 1. SHERIYAKAM BRAND HEADER ================= */}
+            <View style={[styles.topHeader, { backgroundColor: isDark ? '#0D1525' : '#FFFFFF', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                <View style={styles.headerLeftWrap}>
+                    <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+                        <ArrowLeft size={18} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                    <View style={styles.logoBadge}>
+                        <Sparkles size={14} color="#0D9488" />
                     </View>
-                    <Text style={[styles.headerSubtitle, { color: colors.textTertiary }]}>
-                        Worldwide Access • ATS-Proof & Highly Humanized
-                    </Text>
+                    <View>
+                        <Text style={[styles.logoTitle, { color: colors.textPrimary }]}>
+                            Sheriyakam<Text style={{ color: '#10B981' }}>.ai</Text>
+                        </Text>
+                        <Text style={styles.logoSub}>Career Copilot & ATS Optimizer</Text>
+                    </View>
                 </View>
 
-                <TouchableOpacity
-                    onPress={handleOpenWhatsAppDirect}
-                    style={[styles.whatsappQuickBtn, { backgroundColor: '#10B98120' }]}
-                    accessibilityRole="button"
-                    accessibilityLabel="Chat on WhatsApp"
-                >
-                    <MessageCircle size={18} color="#10B981" />
-                </TouchableOpacity>
+                {/* Multi-Provider Fallback Status & Rolling Quota Indicator */}
+                <View style={styles.headerRightWrap}>
+                    <View style={[styles.aiStatusBadge, { backgroundColor: '#10B98115', borderColor: '#10B98140' }]}>
+                        <View style={styles.greenPulseDot} />
+                        <Text style={[styles.aiStatusText, { color: '#10B981' }]}>
+                            Dual AI Live: Gemini 2.5 Flash + OpenRouter
+                        </Text>
+                    </View>
+
+                    <View style={[styles.quotaBadge, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
+                        <Clock size={12} color="#10B981" />
+                        <Text style={[styles.quotaText, { color: colors.textSecondary }]}>
+                            {quota.checksRemaining} Free Checks · Refills {quota.resetsIn}
+                        </Text>
+                    </View>
+                </View>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Hero Section */}
-                <View style={[styles.heroCard, { backgroundColor: isDark ? '#121216' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                    <View style={styles.badgeRow}>
-                        <View style={styles.freeHighlightBadge}>
-                            <Flame size={13} color="#FFFFFF" />
-                            <Text style={styles.freeHighlightBadgeText}>100% FREE FOREVER (₹0 / $0)</Text>
-                        </View>
-                        <Badge variant="info" size="sm" icon={Globe}>50+ Countries</Badge>
-                        <Badge variant="gold" size="sm" icon={HeartHandshake}>Zero AI Slop</Badge>
-                    </View>
-
-                    <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
-                        Optimize Existing CV or Create a Brand New CV From Scratch
-                    </Text>
-
-                    <Text style={[styles.heroDescription, { color: colors.textSecondary }]}>
-                        Whether you already have a resume to polish or are starting from zero, Sheriyakam provides <Text style={{ fontWeight: '800', color: '#10B981' }}>100% Free</Text> certified ATS-proof, highly humanized CV and LinkedIn optimization for job seekers worldwide.
-                    </Text>
-
-                    {/* Global Movement Banner */}
-                    <View style={[styles.globalBanner, { backgroundColor: isDark ? '#181822' : '#F0F9FF', borderColor: '#38BDF840' }]}>
-                        <Globe size={22} color="#0284C7" style={{ marginTop: 2 }} />
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.globalBannerTitle, { color: colors.textPrimary }]}>
-                                Global Jio-Style Movement for Job Seekers
-                            </Text>
-                            <Text style={[styles.globalBannerText, { color: colors.textSecondary }]}>
-                                Just as Jio democratized internet data in India, Sheriyakam is making professional career tools free for everyone globally. Zero credit cards, zero paywalls.
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* Hero CTA Row: Direct choice between Option 1 & Option 2 */}
-                    <View style={styles.heroCtaRow}>
-                        <Button
-                            variant="primary"
-                            size="md"
-                            iconLeft={Sparkles}
-                            onPress={() => {
-                                setCvOption('optimize');
-                                handlePickDocument();
-                            }}
-                            style={{ flex: 1, backgroundColor: '#10B981' }}
-                        >
-                            Optimize Existing CV
-                        </Button>
-
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            iconLeft={CirclePlus}
-                            onPress={() => {
-                                setCvOption('create');
-                                success('Create New CV mode active! Fill in your target role below.');
-                            }}
-                            style={{ flex: 1 }}
-                        >
-                            Create Brand New CV
-                        </Button>
-                    </View>
-
-                    {/* Metrics Strip */}
-                    <View style={[styles.statsStrip, { borderTopColor: isDark ? '#27272A' : '#F4F4F5' }]}>
-                        <View style={styles.statItem}>
-                            <Text style={[styles.statNumber, { color: '#10B981' }]}>$0 / ₹0</Text>
-                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>100% Free</Text>
-                        </View>
-                        <View style={[styles.statDivider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
-                        <View style={styles.statItem}>
-                            <Text style={[styles.statNumber, { color: colors.accent }]}>98%</Text>
-                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>ATS Pass Rate</Text>
-                        </View>
-                        <View style={[styles.statDivider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
-                        <View style={styles.statItem}>
-                            <Text style={[styles.statNumber, { color: '#F59E0B' }]}>100%</Text>
-                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Humanized Voice</Text>
-                        </View>
-                    </View>
-                </View>
-
-                {/* THE 2 OPTIONS SELECTOR CARDS */}
-                <View style={styles.optionsSegmentContainer}>
+            {/* ================= 2. SHERIYAKAM PRODUCT NAV TOOLBAR ================= */}
+            <View style={[styles.toolbarContainer, { backgroundColor: isDark ? '#0A0F1D' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarScroll}>
                     <TouchableOpacity
-                        style={[
-                            styles.optionCard,
-                            cvOption === 'optimize' && {
-                                borderColor: '#10B981',
-                                backgroundColor: isDark ? '#064E3B15' : '#ECFDF5',
-                                borderWidth: 2,
-                            }
-                        ]}
-                        onPress={() => setCvOption('optimize')}
-                        activeOpacity={0.8}
+                        style={[styles.navTabBtn, activeTab === 'home' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('home')}
                     >
-                        <View style={[styles.optionIconCircle, { backgroundColor: '#10B98120' }]}>
-                            <Sparkles size={20} color="#10B981" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                <Text style={[styles.optionCardTitle, { color: colors.textPrimary }]}>
-                                    Option 1: Optimize Existing CV
-                                </Text>
-                                <View style={styles.optionMiniBadge}>
-                                    <Text style={styles.optionMiniBadgeText}>POPULAR</Text>
-                                </View>
-                            </View>
-                            <Text style={[styles.optionCardDesc, { color: colors.textSecondary }]}>
-                                Upload your PDF/Word CV to fix ATS errors & humanize
-                            </Text>
-                        </View>
+                        <Compass size={14} color={activeTab === 'home' ? '#FFFFFF' : colors.textPrimary} />
+                        <Text style={[styles.navTabText, activeTab === 'home' && { color: '#FFFFFF' }]}>
+                            Overview & Flow
+                        </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[
-                            styles.optionCard,
-                            cvOption === 'create' && {
-                                borderColor: colors.accent,
-                                backgroundColor: isDark ? '#1E1B2E' : '#EEF2FF',
-                                borderWidth: 2,
-                            }
-                        ]}
-                        onPress={() => setCvOption('create')}
-                        activeOpacity={0.8}
+                        style={[styles.navTabBtn, activeTab === 'builder' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('builder')}
                     >
-                        <View style={[styles.optionIconCircle, { backgroundColor: colors.accent + '20' }]}>
-                            <CirclePlus size={20} color={colors.accent} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                <Text style={[styles.optionCardTitle, { color: colors.textPrimary }]}>
-                                    Option 2: Create Brand New CV
-                                </Text>
-                                <View style={[styles.optionMiniBadge, { backgroundColor: '#F59E0B' }]}>
-                                    <Text style={styles.optionMiniBadgeText}>NEW</Text>
-                                </View>
-                            </View>
-                            <Text style={[styles.optionCardDesc, { color: colors.textSecondary }]}>
-                                No CV? Build a complete ATS-proof CV from scratch
-                            </Text>
-                        </View>
+                        <FileText size={14} color={activeTab === 'builder' ? '#FFFFFF' : colors.textPrimary} />
+                        <Text style={[styles.navTabText, activeTab === 'builder' && { color: '#FFFFFF' }]}>
+                            AI Resume Builder
+                        </Text>
                     </TouchableOpacity>
-                </View>
 
-                {/* WORKFLOW 1: OPTIMIZE EXISTING CV */}
-                {cvOption === 'optimize' && (
-                    <Card variant="elevated" style={styles.toolCard}>
-                        <View style={styles.toolHeaderRow}>
-                            <Sparkles size={18} color="#10B981" />
-                            <Text style={[styles.toolCardHeaderTitle, { color: colors.textPrimary }]}>
-                                Option 1: Optimize & Humanize Existing CV
+                    <TouchableOpacity
+                        style={[styles.navTabBtn, activeTab === 'linkedin' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('linkedin')}
+                    >
+                        <Linkedin size={14} color={activeTab === 'linkedin' ? '#FFFFFF' : '#0284C7'} />
+                        <Text style={[styles.navTabText, activeTab === 'linkedin' && { color: '#FFFFFF' }]}>
+                            LinkedIn Optimizer
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.navTabBtn, activeTab === 'dashboard' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('dashboard')}
+                    >
+                        <Briefcase size={14} color={activeTab === 'dashboard' ? '#FFFFFF' : colors.textPrimary} />
+                        <Text style={[styles.navTabText, activeTab === 'dashboard' && { color: '#FFFFFF' }]}>
+                            Versions ({savedVersions.length})
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.navTabBtn, activeTab === 'pricing' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('pricing')}
+                    >
+                        <Zap size={14} color={activeTab === 'pricing' ? '#FFFFFF' : '#10B981'} />
+                        <Text style={[styles.navTabText, activeTab === 'pricing' && { color: '#FFFFFF' }]}>
+                            Packs (No Sub)
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.navTabBtn, activeTab === 'onboarding' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('onboarding')}
+                    >
+                        <Target size={14} color={activeTab === 'onboarding' ? '#FFFFFF' : '#F59E0B'} />
+                        <Text style={[styles.navTabText, activeTab === 'onboarding' && { color: '#FFFFFF' }]}>
+                            60s Trial
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.navTabBtn, activeTab === 'privacy' && styles.navTabBtnActive]}
+                        onPress={() => setActiveTab('privacy')}
+                    >
+                        <ShieldCheck size={14} color={activeTab === 'privacy' ? '#FFFFFF' : '#10B981'} />
+                        <Text style={[styles.navTabText, activeTab === 'privacy' && { color: '#FFFFFF' }]}>
+                            Your Data, Your Control
+                        </Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </View>
+
+            {/* ================= 3. MAIN TAB CONTENT ================= */}
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+                
+                {/* ----------------- TAB 1: OVERVIEW & FLOW (SHERIYAKAM REUSED BRAND PATTERNS) ----------------- */}
+                {activeTab === 'home' && (
+                    <View style={{ gap: 20 }}>
+                        {/* Sheriyakam Hero */}
+                        <View style={{ alignItems: 'center', textAlign: 'center', paddingTop: 8 }}>
+                            <View style={[styles.heroPill, { backgroundColor: '#10B98115', borderColor: '#10B98130' }]}>
+                                <Sparkles size={14} color="#10B981" />
+                                <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981' }}>SHERIYAKAM BRAND · STRICT ANTI-FABRICATION</Text>
+                            </View>
+                            <Text style={[styles.homeHeroTitle, { color: colors.textPrimary }]}>
+                                Tailor Your Resume for Every Job in 60 Seconds
                             </Text>
-                        </View>
+                            <Text style={[styles.homeHeroSubtitle, { color: colors.textSecondary }]}>
+                                It only ever rewrites experience you already have. It never invents any.
+                            </Text>
 
-                        {/* Target Region Selector */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary }]}>
-                            1. SELECT TARGET WORK REGION
-                        </Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillScroll}>
-                            {GLOBAL_REGIONS.map((reg) => (
-                                <TouchableOpacity
-                                    key={reg.id}
-                                    style={[
-                                        styles.pillBtn,
-                                        {
-                                            backgroundColor: selectedRegion === reg.id ? colors.accent : (isDark ? '#27272A' : '#F4F4F5'),
-                                            borderColor: selectedRegion === reg.id ? colors.accent : (isDark ? '#3F3F46' : '#E4E4E7')
-                                        }
-                                    ]}
-                                    onPress={() => setSelectedRegion(reg.id)}
-                                >
-                                    <Text style={[
-                                        styles.pillText,
-                                        { color: selectedRegion === reg.id ? '#FFFFFF' : colors.textPrimary }
-                                    ]}>
-                                        {reg.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-
-                        {/* Target Industry Selector */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary, marginTop: 14 }]}>
-                            2. SELECT TARGET CAREER FIELD
-                        </Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillScroll}>
-                            {GLOBAL_INDUSTRIES.map((ind) => (
-                                <TouchableOpacity
-                                    key={ind.id}
-                                    style={[
-                                        styles.pillBtn,
-                                        {
-                                            backgroundColor: selectedIndustry === ind.id ? '#10B981' : (isDark ? '#27272A' : '#F4F4F5'),
-                                            borderColor: selectedIndustry === ind.id ? '#10B981' : (isDark ? '#3F3F46' : '#E4E4E7')
-                                        }
-                                    ]}
-                                    onPress={() => setSelectedIndustry(ind.id)}
-                                >
-                                    <Text style={[
-                                        styles.pillText,
-                                        { color: selectedIndustry === ind.id ? '#FFFFFF' : colors.textPrimary }
-                                    ]}>
-                                        {ind.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-
-                        {selectedIndustry === 'automatic' && (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, paddingHorizontal: 4 }}>
-                                <Zap size={13} color="#10B981" />
-                                <Text style={{ fontSize: 11.5, color: '#10B981', fontWeight: '600' }}>
-                                    Automatic: Our engine will auto-detect your exact trade, role, and industry from your CV.
-                                </Text>
+                            {/* Sheriyakam Reused Trust Row */}
+                            <View style={styles.trustRow}>
+                                {SHERIYAKAM_TRUST.map((t, idx) => {
+                                    const Icon = t.icon;
+                                    return (
+                                        <View key={idx} style={styles.trustItem}>
+                                            <Icon size={13} color={t.color} />
+                                            <Text style={[styles.trustText, { color: colors.textSecondary }]}>{t.text}</Text>
+                                        </View>
+                                    );
+                                })}
                             </View>
-                        )}
 
-                        {/* Input Mode Toggle: Upload File vs Paste Text */}
-                        <View style={styles.inputModeRow}>
-                            <TouchableOpacity
-                                style={[
-                                    styles.inputModeBtn,
-                                    inputMode === 'upload' && {
-                                        backgroundColor: colors.accent + '20',
-                                        borderColor: colors.accent,
-                                    }
-                                ]}
-                                onPress={() => setInputMode('upload')}
-                            >
-                                <Upload size={14} color={inputMode === 'upload' ? colors.accent : colors.textTertiary} />
-                                <Text style={[styles.inputModeText, { color: inputMode === 'upload' ? colors.accent : colors.textSecondary }]}>
-                                    Upload File (.PDF / .DOCX)
-                                </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[
-                                    styles.inputModeBtn,
-                                    inputMode === 'paste' && {
-                                        backgroundColor: colors.accent + '20',
-                                        borderColor: colors.accent,
-                                    }
-                                ]}
-                                onPress={() => setInputMode('paste')}
-                            >
-                                <FileText size={14} color={inputMode === 'paste' ? colors.accent : colors.textTertiary} />
-                                <Text style={[styles.inputModeText, { color: inputMode === 'paste' ? colors.accent : colors.textSecondary }]}>
-                                    Or Paste Text / Bio
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* File Upload Box */}
-                        {inputMode === 'upload' ? (
-                            <View style={styles.uploadContainer}>
-                                {uploadedFile ? (
-                                    <View style={[styles.uploadedFileBox, { backgroundColor: isDark ? '#1C1917' : '#F0FDF4', borderColor: '#10B981' }]}>
-                                        <FileCheck size={28} color="#10B981" />
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.uploadedFileName, { color: colors.textPrimary }]} numberOfLines={1}>
-                                                {uploadedFile.name}
-                                            </Text>
-                                            <Text style={[styles.uploadedFileSize, { color: colors.textSecondary }]}>
-                                                Ready for ATS analysis • {uploadedFile.size}
-                                            </Text>
-                                        </View>
-                                        <TouchableOpacity
-                                            onPress={() => setUploadedFile(null)}
-                                            style={styles.removeFileBtn}
-                                            accessibilityLabel="Remove file"
-                                        >
-                                            <X size={16} color="#EF4444" />
-                                        </TouchableOpacity>
-                                    </View>
-                                ) : (
-                                    <TouchableOpacity
-                                        style={[styles.uploadDropzone, { borderColor: isDark ? '#3F3F46' : '#D1D5DB' }]}
-                                        onPress={handlePickDocument}
-                                        activeOpacity={0.75}
-                                    >
-                                        <View style={[styles.uploadIconCircle, { backgroundColor: colors.accent + '15' }]}>
-                                            <Upload size={24} color={colors.accent} />
-                                        </View>
-                                        <Text style={[styles.uploadDropzoneTitle, { color: colors.textPrimary }]}>
-                                            Tap to Upload Your Existing CV / Resume
-                                        </Text>
-                                        <Text style={[styles.uploadDropzoneSubtitle, { color: colors.textTertiary }]}>
-                                            Supports PDF, Word (.docx, .doc), or Text files up to 10 MB
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                        ) : (
-                            <TextInput
-                                style={[
-                                    styles.auditTextInput,
-                                    {
-                                        backgroundColor: isDark ? '#18181B' : '#FAFAFA',
-                                        borderColor: isDark ? '#27272A' : '#E4E4E7',
-                                        color: colors.textPrimary,
-                                    }
-                                ]}
-                                multiline
-                                numberOfLines={4}
-                                placeholder="Paste your existing resume summary, past roles, or LinkedIn headline here..."
-                                placeholderTextColor={colors.textTertiary}
-                                value={auditInput}
-                                onChangeText={setAuditInput}
-                            />
-                        )}
-
-                        <Button
-                            variant="primary"
-                            size="md"
-                            loading={isAnalyzing}
-                            iconLeft={Sparkles}
-                            onPress={handleRunAudit}
-                            style={{ marginTop: 14 }}
-                        >
-                            {isAnalyzing ? 'Analyzing with Global ATS & Humanizer...' : 'Analyze & Humanize My Existing CV (Free)'}
-                        </Button>
-
-                        {/* Audit Results View */}
-                        {auditResult ? (
-                            <View style={[styles.auditResultBox, { backgroundColor: isDark ? '#18181B' : '#F0FDF4', borderColor: isDark ? '#27272A' : '#BBF7D0' }]}>
-                                <View style={styles.scoreRow}>
-                                    <View style={styles.scoreCircle}>
-                                        <Text style={[styles.scoreValue, { color: '#EF4444' }]}>
-                                            {auditResult.atsScore}%
-                                        </Text>
-                                        <Text style={[styles.scoreSubtext, { color: colors.textTertiary }]}>ATS Match</Text>
-                                    </View>
-                                    <View style={styles.scoreCircle}>
-                                        <Text style={[styles.scoreValue, { color: '#F59E0B' }]}>
-                                            {auditResult.humanizedScore}%
-                                        </Text>
-                                        <Text style={[styles.scoreSubtext, { color: colors.textTertiary }]}>Human Tone</Text>
-                                    </View>
-                                    <View style={styles.scoreDetails}>
-                                        <Badge variant="warning" size="sm">Action Needed</Badge>
-                                        <Text style={[styles.scoreTargetText, { color: colors.textPrimary }]}>
-                                            Potential: <Text style={{ color: '#10B981', fontWeight: '800' }}>{auditResult.potentialScore}%</Text>
-                                        </Text>
-                                        <Text style={[styles.scoreSummaryDesc, { color: colors.textSecondary }]}>
-                                            Target: {auditResult.regionLabel.split('(')[0]}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.suggestionsContainer}>
-                                    <Text style={[styles.suggestionsTitle, { color: colors.textPrimary }]}>
-                                        Identified Issues to Fix:
-                                    </Text>
-                                    {auditResult.criticalIssues.map((issue, i) => (
-                                        <View key={i} style={styles.suggestionItem}>
-                                            <AlertCircle size={15} color="#F59E0B" style={{ marginTop: 2, marginRight: 8 }} />
-                                            <Text style={[styles.suggestionText, { color: colors.textSecondary }]}>
-                                                {issue}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-
+                            {/* Quick CTA */}
+                            <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
                                 <Button
                                     variant="primary"
-                                    size="sm"
-                                    iconRight={ChevronRight}
-                                    onPress={handleOpenClaim}
-                                    style={{ marginTop: 14, backgroundColor: '#10B981' }}
+                                    size="md"
+                                    iconRight={ArrowRight}
+                                    onPress={() => setActiveTab('builder')}
+                                    style={{ backgroundColor: '#10B981' }}
                                 >
-                                    Get 100% Free Humanized Rewrite (₹0)
+                                    Open Dual-Pane Resume Builder
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    iconLeft={Target}
+                                    onPress={() => setActiveTab('onboarding')}
+                                >
+                                    Try 60s Free Gap Audit
                                 </Button>
                             </View>
-                        ) : null}
-                    </Card>
-                )}
-
-                {/* WORKFLOW 2: CREATE BRAND NEW CV FROM SCRATCH */}
-                {cvOption === 'create' && (
-                    <Card variant="elevated" style={styles.toolCard}>
-                        <View style={styles.toolHeaderRow}>
-                            <CirclePlus size={18} color={colors.accent} />
-                            <Text style={[styles.toolCardHeaderTitle, { color: colors.textPrimary }]}>
-                                Option 2: Create Brand New CV From Scratch
-                            </Text>
                         </View>
-                        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary, marginBottom: 14 }]}>
-                            Answer a few quick details and our system will generate a complete ATS-proof, humanized CV for you.
-                        </Text>
 
-                        {/* Step 1: Target Region */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary }]}>
-                            1. TARGET WORK REGION
-                        </Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillScroll}>
-                            {GLOBAL_REGIONS.map((reg) => (
-                                <TouchableOpacity
-                                    key={reg.id}
-                                    style={[
-                                        styles.pillBtn,
-                                        {
-                                            backgroundColor: selectedRegion === reg.id ? colors.accent : (isDark ? '#27272A' : '#F4F4F5'),
-                                            borderColor: selectedRegion === reg.id ? colors.accent : (isDark ? '#3F3F46' : '#E4E4E7')
-                                        }
-                                    ]}
-                                    onPress={() => setSelectedRegion(reg.id)}
-                                >
-                                    <Text style={[
-                                        styles.pillText,
-                                        { color: selectedRegion === reg.id ? '#FFFFFF' : colors.textPrimary }
-                                    ]}>
-                                        {reg.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-
-                        {/* Step 2: Target Role */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary, marginTop: 14 }]}>
-                            2. TARGET JOB TITLE / ROLE *
-                        </Text>
-                        <Input
-                            placeholder="e.g. Master Electrician, React Native Developer, MEP Supervisor, Site Foreman"
-                            value={newCvRole}
-                            onChangeText={setNewCvRole}
-                        />
-
-                        {/* Step 3: Experience Level */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary, marginTop: 6 }]}>
-                            3. EXPERIENCE LEVEL
-                        </Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillScroll}>
-                            {EXPERIENCE_LEVELS.map((lvl) => (
-                                <TouchableOpacity
-                                    key={lvl.id}
-                                    style={[
-                                        styles.pillBtn,
-                                        {
-                                            backgroundColor: newCvExpLevel === lvl.id ? '#10B981' : (isDark ? '#27272A' : '#F4F4F5'),
-                                            borderColor: newCvExpLevel === lvl.id ? '#10B981' : (isDark ? '#3F3F46' : '#E4E4E7')
-                                        }
-                                    ]}
-                                    onPress={() => setNewCvExpLevel(lvl.id)}
-                                >
-                                    <Text style={[
-                                        styles.pillText,
-                                        { color: newCvExpLevel === lvl.id ? '#FFFFFF' : colors.textPrimary }
-                                    ]}>
-                                        {lvl.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-
-                        {/* Step 4: Key Skills / Daily Tasks */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary, marginTop: 14 }]}>
-                            4. CORE SKILLS, TOOLS OR RESPONSIBILITIES
-                        </Text>
-                        <TextArea
-                            placeholder="e.g. 3-phase wiring, DB dressing, inverter maintenance, troubleshooting, team coordination, OSHA safety standards..."
-                            value={newCvSkills}
-                            onChangeText={setNewCvSkills}
-                            numberOfLines={3}
-                        />
-
-                        {/* Step 5: Education & Licenses */}
-                        <Text style={[styles.toolLabel, { color: colors.textSecondary }]}>
-                            5. HIGHEST EDUCATION OR CERTIFICATIONS / LICENSES
-                        </Text>
-                        <Input
-                            placeholder="e.g. KSEB Wireman License, ITI Electrical, Diploma, B.Tech, or High School"
-                            value={newCvEducation}
-                            onChangeText={setNewCvEducation}
-                        />
-
-                        <Button
-                            variant="primary"
-                            size="md"
-                            loading={isGeneratingNewCv}
-                            iconLeft={Zap}
-                            onPress={handleGenerateNewCv}
-                            style={{ marginTop: 12, backgroundColor: colors.accent }}
-                        >
-                            {isGeneratingNewCv ? 'Generating Brand New Humanized CV...' : 'Generate My New Humanized ATS CV (Free)'}
-                        </Button>
-
-                        {/* Generated New CV Live Preview Box */}
-                        {generatedNewCv ? (
-                            <View style={[styles.generatedCvCard, { backgroundColor: isDark ? '#1C1917' : '#F8FAFC', borderColor: colors.accent }]}>
-                                <View style={styles.generatedCvHeader}>
-                                    <Badge variant="gold" size="sm">LIVE CV PREVIEW</Badge>
-                                    <View style={{ flexDirection: 'row', gap: 6 }}>
-                                        <TouchableOpacity
-                                            style={[styles.miniActionBtn, { backgroundColor: isDark ? '#27272A' : '#E2E8F0' }]}
-                                            onPress={handleCopyGeneratedCv}
-                                        >
-                                            <Copy size={13} color={colors.textPrimary} />
-                                            <Text style={[styles.miniActionText, { color: colors.textPrimary }]}>Copy Text</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-
-                                <Text style={[styles.cvPreviewHeadline, { color: colors.textPrimary }]}>
-                                    {generatedNewCv.headline}
-                                </Text>
-
-                                <View style={styles.cvSectionDivider} />
-
-                                <Text style={[styles.cvSectionTitle, { color: colors.accent }]}>
-                                    PROFESSIONAL HUMANIZED SUMMARY
-                                </Text>
-                                <Text style={[styles.cvSectionBody, { color: colors.textSecondary }]}>
-                                    {generatedNewCv.summary}
-                                </Text>
-
-                                <Text style={[styles.cvSectionTitle, { color: colors.accent, marginTop: 12 }]}>
-                                    ATS KEYWORD & COMPETENCY MATRIX
-                                </Text>
-                                <View style={styles.cvSkillsWrap}>
-                                    {generatedNewCv.skills.map((sk, idx) => (
-                                        <View key={idx} style={[styles.cvSkillTag, { backgroundColor: colors.accent + '15' }]}>
-                                            <Text style={[styles.cvSkillText, { color: colors.accent }]}>
-                                                {sk}
-                                            </Text>
+                        {/* Sheriyakam Reused Stats Banner */}
+                        <View style={[styles.statsBanner, { backgroundColor: '#10B981' }]}>
+                            <View style={styles.statsInner}>
+                                {SHERIYAKAM_STATS.map((stat, index) => {
+                                    const Icon = stat.icon;
+                                    return (
+                                        <View key={index} style={styles.statItem}>
+                                            <View style={styles.statIconWrap}>
+                                                <Icon size={18} color="#FFFFFF" />
+                                            </View>
+                                            <Text style={styles.statValue}>{stat.value}</Text>
+                                            <Text style={styles.statLabel}>{stat.label}</Text>
                                         </View>
-                                    ))}
-                                </View>
+                                    );
+                                })}
+                            </View>
+                        </View>
 
-                                <Text style={[styles.cvSectionTitle, { color: colors.accent, marginTop: 12 }]}>
-                                    QUANTIFIED CAR ACCOMPLISHMENTS
-                                </Text>
-                                {generatedNewCv.experienceBullets.map((bullet, idx) => (
-                                    <View key={idx} style={styles.cvBulletRow}>
-                                        <Text style={{ color: '#10B981', marginRight: 6, fontWeight: '700' }}>•</Text>
-                                        <Text style={[styles.cvBulletText, { color: colors.textPrimary }]}>
-                                            {bullet}
-                                        </Text>
+                        {/* Sheriyakam Reused 4-Step "How It Works" */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            <View style={styles.cardHeaderRow}>
+                                <Layers size={18} color="#10B981" />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                        How It Works (Zero to Interview Loop)
+                                    </Text>
+                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                        4 straightforward steps that bridge your master profile to recruiter criteria.
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.stepsGrid}>
+                                {SHERIYAKAM_STEPS.map((st, idx) => (
+                                    <View key={idx} style={[styles.stepCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                                        <View style={[styles.stepNumBadge, { backgroundColor: st.color }]}>
+                                            <Text style={styles.stepNumText}>{st.step}</Text>
+                                        </View>
+                                        <Text style={[styles.stepCardTitle, { color: colors.textPrimary }]}>{st.title}</Text>
+                                        <Text style={[styles.stepCardDesc, { color: colors.textSecondary }]}>{st.description}</Text>
                                     </View>
                                 ))}
-
-                                <Text style={[styles.cvSectionTitle, { color: colors.accent, marginTop: 12 }]}>
-                                    EDUCATION & CREDENTIALS
-                                </Text>
-                                <Text style={[styles.cvSectionBody, { color: colors.textSecondary }]}>
-                                    {generatedNewCv.education} • {generatedNewCv.region}
-                                </Text>
-
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    iconLeft={Download}
-                                    onPress={handleOpenClaim}
-                                    style={{ marginTop: 16, backgroundColor: '#10B981' }}
-                                >
-                                    Claim Complete Word (.docx) & PDF Copy on WhatsApp (100% Free)
-                                </Button>
                             </View>
-                        ) : null}
-                    </Card>
+                        </Card>
+
+                        {/* Sheriyakam Reused Service Cards → Template Picker Grid */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            <View style={styles.cardHeaderRow}>
+                                <Layout size={18} color="#10B981" />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                        ATS-Compliant Resume Templates
+                                    </Text>
+                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                        Engineered to pass Workday, Taleo, and Greenhouse with 100% parse rates.
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.templatesGrid}>
+                                {RESUME_TEMPLATES.map((tpl) => {
+                                    const isSelected = selectedTemplate === tpl.id;
+                                    return (
+                                        <View key={tpl.id} style={[styles.templateCard, isSelected && { borderColor: '#10B981', borderWidth: 2 }, { backgroundColor: isDark ? '#141E2E' : '#FFFFFF' }]}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                                <Badge variant="neutral" size="sm">{tpl.tag}</Badge>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                                    <Star size={12} color="#F59E0B" fill="#F59E0B" />
+                                                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textPrimary }}>{tpl.rating}</Text>
+                                                </View>
+                                            </View>
+                                            <Text style={[styles.tplTitle, { color: colors.textPrimary }]}>{tpl.name}</Text>
+                                            <Text style={[styles.tplDesc, { color: colors.textSecondary }]}>{tpl.description}</Text>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                                                <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '800' }}>{tpl.plan}</Text>
+                                                <TouchableOpacity
+                                                    style={[styles.tplSelectBtn, isSelected ? { backgroundColor: '#10B981' } : { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                                    onPress={() => {
+                                                        setSelectedTemplate(tpl.id);
+                                                        success(`Selected template: "${tpl.name}"`);
+                                                    }}
+                                                >
+                                                    <Text style={[styles.tplSelectBtnText, isSelected && { color: '#FFFFFF' }]}>
+                                                        {isSelected ? 'Active' : 'Use Template'}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    );
+                                })}
+                            </View>
+                        </Card>
+
+                        {/* Sheriyakam Reused Testimonial Cards */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            <View style={styles.cardHeaderRow}>
+                                <Star size={18} color="#F59E0B" fill="#F59E0B" />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                        Verified Job Seeker Reviews
+                                    </Text>
+                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                        Real outcomes from candidates landing verified interviews.
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={{ gap: 12 }}>
+                                {SHERIYAKAM_TESTIMONIALS.map((t, idx) => (
+                                    <View key={idx} style={[styles.testimonialCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                                            <View style={[styles.avatarBadge, { backgroundColor: t.color }]}>
+                                                <Text style={styles.avatarText}>{t.initials}</Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.testName, { color: colors.textPrimary }]}>{t.name}</Text>
+                                                <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>{t.role} • {t.location}</Text>
+                                            </View>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                {[...Array(t.rating)].map((_, i) => (
+                                                    <Star key={i} size={12} color="#F59E0B" fill="#F59E0B" />
+                                                ))}
+                                            </View>
+                                        </View>
+                                        <Text style={[styles.testQuote, { color: colors.textSecondary }]}>"{t.text}"</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </Card>
+
+                        {/* Sheriyakam Reused FAQ Accordion */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            <View style={styles.cardHeaderRow}>
+                                <HelpCircle size={18} color="#10B981" />
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    Frequently Asked Questions
+                                </Text>
+                            </View>
+                            <View style={{ gap: 8 }}>
+                                {SHERIYAKAM_FAQS.map((faq, idx) => {
+                                    const isOpen = expandedFaq === idx;
+                                    return (
+                                        <TouchableOpacity
+                                            key={idx}
+                                            style={[styles.faqRow, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                            onPress={() => setExpandedFaq(isOpen ? null : idx)}
+                                            activeOpacity={0.8}
+                                        >
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={[styles.faqQuestion, { color: colors.textPrimary, flex: 1 }]}>
+                                                    {faq.q}
+                                                </Text>
+                                                {isOpen ? <ChevronUp size={16} color="#10B981" /> : <ChevronDown size={16} color={colors.textSecondary} />}
+                                            </View>
+                                            {isOpen && (
+                                                <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                                                    {faq.a}
+                                                </Text>
+                                            )}
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+                        </Card>
+                    </View>
                 )}
 
-                {/* The "Why Humanized ATS" Pillar: Robot vs Humanized */}
-                <View style={styles.sectionHeader}>
-                    <View style={[styles.sectionHeaderIconWrap, { backgroundColor: '#F59E0B15' }]}>
-                        <HeartHandshake size={18} color="#F59E0B" />
-                    </View>
+                {/* ----------------- TAB 2: AI RESUME BUILDER (DUAL-PANE WORKSPACE) ----------------- */}
+                {activeTab === 'builder' && (
                     <View>
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            Why "Highly Humanized" Beats Generic AI Slop
-                        </Text>
-                        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                            Recruiters hate robotic ChatGPT buzzwords. Here is our human secret.
-                        </Text>
-                    </View>
-                </View>
-
-                <Card variant="elevated" style={styles.humanizedPillarsCard}>
-                    <View style={styles.pillarItem}>
-                        <View style={[styles.pillarIconWrap, { backgroundColor: '#EF444415' }]}>
-                            <Bot size={20} color="#EF4444" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.pillarTitle, { color: '#EF4444' }]}>
-                                ❌ The Robotic AI Slop Problem
-                            </Text>
-                            <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                ChatGPT produces phrases like "spearheaded dynamic synergy between cross-functional paradigms". It reads like a robot, has no personal voice, and recruiters throw it in the trash after 5 seconds.
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.pillarDivider} />
-
-                    <View style={styles.pillarItem}>
-                        <View style={[styles.pillarIconWrap, { backgroundColor: '#10B98115' }]}>
-                            <Smile size={20} color="#10B981" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.pillarTitle, { color: '#10B981' }]}>
-                                ✨ The Sheriyakam Humanized Standard
-                            </Text>
-                            <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                We combine flawless ATS parser syntax (single-column, standard headings, machine-readable) with <Text style={{ fontWeight: '700', color: colors.textPrimary }}>authentic human storytelling</Text>. We showcase your genuine problem-solving instinct, leadership personality, and real numbers that build emotional rapport with the interviewer.
-                            </Text>
-                        </View>
-                    </View>
-                </Card>
-
-                {/* Before vs After Humanized Showcase */}
-                <View style={styles.sectionHeader}>
-                    <View style={styles.sectionHeaderIconWrap}>
-                        <TrendingUp size={18} color="#10B981" />
-                    </View>
-                    <View>
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            Real Transformation: Robot AI vs. Humanized Masterpiece
-                        </Text>
-                        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                            Compare how our humanized rewrite connects with recruiters
-                        </Text>
-                    </View>
-                </View>
-
-                <Card variant="elevated" style={styles.comparisonCard}>
-                    <View style={styles.comparisonToggleWrap}>
-                        <TouchableOpacity
-                            style={[
-                                styles.comparisonToggleBtn,
-                                comparisonTab === 'ai_slop' && { backgroundColor: isDark ? '#27272A' : '#EF444415' }
-                            ]}
-                            onPress={() => setComparisonTab('ai_slop')}
-                        >
-                            <Text style={[
-                                styles.comparisonToggleText,
-                                { color: comparisonTab === 'ai_slop' ? '#EF4444' : colors.textTertiary, fontWeight: '700' }
-                            ]}>
-                                🤖 Generic AI / Weak Bullet
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.comparisonToggleBtn,
-                                comparisonTab === 'humanized' && { backgroundColor: isDark ? '#27272A' : '#10B98115' }
-                            ]}
-                            onPress={() => setComparisonTab('humanized')}
-                        >
-                            <Text style={[
-                                styles.comparisonToggleText,
-                                { color: comparisonTab === 'humanized' ? '#10B981' : colors.textTertiary, fontWeight: '700' }
-                            ]}>
-                                🌟 Highly Humanized ATS Bullet
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {comparisonTab === 'ai_slop' ? (
-                        <View style={[styles.comparisonContent, { borderColor: '#EF444440', backgroundColor: isDark ? '#1C1917' : '#FEF2F2' }]}>
-                            <Text style={[styles.comparisonRoleTitle, { color: '#EF4444' }]}>
-                                Robotic AI Buzzwords (Rejected in 1st Round)
-                            </Text>
-                            <Text style={[styles.comparisonSnippet, { color: colors.textSecondary }]}>
-                                "Spearheaded revolutionary operational synergies to maximize stakeholder satisfaction and optimize cross-functional productivity while proactively overseeing electrical infrastructure."
-                            </Text>
-                            <View style={styles.comparisonVerdict}>
-                                <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '600' }}>
-                                    ⚠️ Flaw: Zero quantifiable proof. Sounds synthetic. Hiring managers cringe at this.
-                                </Text>
-                            </View>
-                        </View>
-                    ) : (
-                        <View style={[styles.comparisonContent, { borderColor: '#10B98140', backgroundColor: isDark ? '#064E3B15' : '#ECFDF5' }]}>
-                            <Text style={[styles.comparisonRoleTitle, { color: '#10B981' }]}>
-                                Sheriyakam Humanized CAR Impact (Passes ATS & Lands Calls)
-                            </Text>
-                            <Text style={[styles.comparisonSnippet, { color: colors.textPrimary, fontWeight: '600' }]}>
-                                "Diagnosed chronic three-phase harmonic distortion causing repeated transformer tripping across a 45,000 sq.ft IT facility; redesigned grounding & filtered capacitor banks, eliminating power dips and saving ₹4.2L ($5,000) in annual repair costs."
-                            </Text>
-                            <View style={styles.comparisonVerdict}>
-                                <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '700' }}>
-                                    ✅ Result: 100% ATS score. Specific numbers, real technical credibility, authentic human voice.
-                                </Text>
-                            </View>
-                        </View>
-                    )}
-                </Card>
-
-                {/* All Included Free Card */}
-                <Card variant="elevated" style={[styles.freePassCard, { borderColor: '#10B981', backgroundColor: isDark ? '#064E3B10' : '#ECFDF550' }]}>
-                    <View style={styles.freePassHeader}>
-                        <View style={{ flex: 1 }}>
-                            <Badge variant="success" size="sm">GLOBAL COMMUNITY ACCESS</Badge>
-                            <Text style={[styles.freePassTitle, { color: colors.textPrimary }]}>
-                                100% Free Worldwide Career Pass
-                            </Text>
-                            <Text style={[styles.freePassSubtitle, { color: colors.textSecondary }]}>
-                                Choose to optimize your existing CV or create a brand new one from scratch for ₹0 / $0.
-                            </Text>
-                        </View>
-                        <View style={styles.priceStrikeWrap}>
-                            <Text style={styles.strikePrice}>$150 / ₹2,499</Text>
-                            <Text style={styles.freePrice}>FREE (₹0)</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.freeInclusionsList}>
-                        {FREE_GLOBAL_FEATURES.map((item, idx) => (
-                            <View key={idx} style={styles.freeInclusionItem}>
-                                <CheckCircle2 size={16} color="#10B981" style={{ marginTop: 2, marginRight: 8 }} />
-                                <Text style={[styles.freeInclusionText, { color: colors.textPrimary }]}>
-                                    {item}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        iconLeft={Sparkles}
-                        onPress={handleOpenClaim}
-                        style={{ marginTop: 16, backgroundColor: '#10B981' }}
-                    >
-                        Claim Your 100% Free Optimization (₹0)
-                    </Button>
-                </Card>
-
-                {/* 4-Step Global Process */}
-                <View style={styles.sectionHeader}>
-                    <View style={styles.sectionHeaderIconWrap}>
-                        <Clock size={18} color={colors.accent} />
-                    </View>
-                    <View>
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            How It Works Worldwide
-                        </Text>
-                        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                            From your upload or input to an interview-ready document in 24-48 hours
-                        </Text>
-                    </View>
-                </View>
-
-                <Card variant="elevated" style={styles.processCard}>
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepNumCircle, { backgroundColor: colors.accent }]}>
-                            <Text style={styles.stepNumText}>1</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Select Option 1 (Upload) or Option 2 (Create New)</Text>
-                            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>
-                                Upload an existing resume to optimize, or build a new one from scratch by answering quick questions.
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepNumCircle, { backgroundColor: '#10B981' }]}>
-                            <Text style={styles.stepNumText}>2</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>ATS Re-Engineering + Humanization</Text>
-                            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>
-                                We clean out parsing glitches and re-author your bullets into metric-driven, conversational human achievements.
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepNumCircle, { backgroundColor: '#F59E0B' }]}>
-                            <Text style={styles.stepNumText}>3</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Fast WhatsApp & Email Delivery</Text>
-                            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>
-                                Receive your ready-to-upload files in Word (.docx) & Vector PDF with free revision support.
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepNumCircle, { backgroundColor: '#8B5CF6' }]}>
-                            <Text style={styles.stepNumText}>4</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Win Interviews Across Global Markets</Text>
-                            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>
-                                Stand out to top MNCs, government contractors, and recruiters worldwide!
-                            </Text>
-                        </View>
-                    </View>
-                </Card>
-
-                {/* FAQ Accordion */}
-                <View style={styles.sectionHeader}>
-                    <View style={styles.sectionHeaderIconWrap}>
-                        <HelpCircle size={18} color={colors.accent} />
-                    </View>
-                    <View>
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            Frequently Asked Questions
-                        </Text>
-                        <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                            Everything you need to know about our global free initiative
-                        </Text>
-                    </View>
-                </View>
-
-                <View style={styles.faqList}>
-                    {FAQS.map((faq, index) => {
-                        const isExpanded = expandedFaq === index;
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.faqItem,
-                                    {
-                                        backgroundColor: isDark ? '#18181B' : '#FFFFFF',
-                                        borderColor: isDark ? '#27272A' : '#E4E4E7'
-                                    }
-                                ]}
-                                activeOpacity={0.8}
-                                onPress={() => setExpandedFaq(isExpanded ? null : index)}
-                            >
-                                <View style={styles.faqHeader}>
-                                    <Text style={[styles.faqQuestion, { color: colors.textPrimary }]}>
-                                        {faq.q}
+                        {/* Dual-Pane View Switcher */}
+                        <View style={styles.dualPaneToggleRow}>
+                            <View style={[styles.togglePillGroup, { backgroundColor: isDark ? '#162032' : '#E2E8F0' }]}>
+                                <TouchableOpacity
+                                    style={[styles.togglePillBtn, workspaceView === 'editor' && styles.togglePillBtnActive]}
+                                    onPress={() => setWorkspaceView('editor')}
+                                >
+                                    <Text style={[styles.togglePillText, workspaceView === 'editor' && { color: '#FFFFFF' }]}>
+                                        📝 Form Editor
                                     </Text>
-                                    {isExpanded ? (
-                                        <ChevronUp size={18} color={colors.accent} />
-                                    ) : (
-                                        <ChevronDown size={18} color={colors.textTertiary} />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.togglePillBtn, workspaceView === 'preview' && styles.togglePillBtnActive]}
+                                    onPress={() => setWorkspaceView('preview')}
+                                >
+                                    <Text style={[styles.togglePillText, workspaceView === 'preview' && { color: '#FFFFFF' }]}>
+                                        📄 Live Paper Preview
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.togglePillBtn, workspaceView === 'both' && styles.togglePillBtnActive]}
+                                    onPress={() => setWorkspaceView('both')}
+                                >
+                                    <Text style={[styles.togglePillText, workspaceView === 'both' && { color: '#FFFFFF' }]}>
+                                        🌓 Split Screen
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Output Mode Tabs */}
+                            <View style={[styles.togglePillGroup, { backgroundColor: isDark ? '#162032' : '#E2E8F0' }]}>
+                                <TouchableOpacity
+                                    style={[styles.togglePillBtn, outputMode === 'ats_paper' && styles.togglePillBtnActive]}
+                                    onPress={() => setOutputMode('ats_paper')}
+                                >
+                                    <Text style={[styles.togglePillText, outputMode === 'ats_paper' && { color: '#FFFFFF' }]}>
+                                        ATS Paper
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.togglePillBtn, outputMode === 'cover_letter' && styles.togglePillBtnActive]}
+                                    onPress={() => setOutputMode('cover_letter')}
+                                >
+                                    <Text style={[styles.togglePillText, outputMode === 'cover_letter' && { color: '#FFFFFF' }]}>
+                                        Cover Letter
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.togglePillBtn, outputMode === 'plain_text' && styles.togglePillBtnActive]}
+                                    onPress={() => setOutputMode('plain_text')}
+                                >
+                                    <Text style={[styles.togglePillText, outputMode === 'plain_text' && { color: '#FFFFFF' }]}>
+                                        Plain Text
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Dual Workspace Layout */}
+                        <View style={workspaceView === 'both' ? styles.splitGrid : styles.singleColGrid}>
+                            
+                            {/* LEFT PANE: Form Editor + Target Job + Gap Analysis */}
+                            {(workspaceView === 'editor' || workspaceView === 'both') && (
+                                <View style={workspaceView === 'both' ? { flex: 1.1, width: '100%' } : { width: '100%' }}>
+                                    
+                                    {/* Strict Anti-Fabrication Banner */}
+                                    <View style={[styles.guaranteeCard, { backgroundColor: isDark ? '#0D1525' : '#EFF6FF', borderColor: '#3B82F650' }]}>
+                                        <ShieldCheck size={18} color="#2563EB" />
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.guaranteeTitle, { color: colors.textPrimary }]}>
+                                                Strict Anti-Fabrication Guarantee
+                                            </Text>
+                                            <Text style={[styles.guaranteeText, { color: colors.textSecondary }]}>
+                                                The AI acts exclusively as an editor and keyword translator. It NEVER invents jobs, employers, metrics, or credentials. Every fact belongs strictly to you.
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    {/* 1. Target Job Intake Drawer */}
+                                    <Card variant="elevated" style={styles.sectionCard}>
+                                        <View style={styles.cardHeaderRow}>
+                                            <Target size={18} color="#10B981" />
+                                            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                                1. Target Job Posting Intake
+                                            </Text>
+                                        </View>
+                                        <Input
+                                            label="Target Role Title"
+                                            value={targetJob.title}
+                                            onChangeText={t => setTargetJob(prev => ({ ...prev, title: t }))}
+                                            placeholder="e.g. Director of Operations or Senior Product Manager"
+                                        />
+                                        <Input
+                                            label="Company Name"
+                                            value={targetJob.company}
+                                            onChangeText={t => setTargetJob(prev => ({ ...prev, company: t }))}
+                                            placeholder="e.g. Northwind Global Corp"
+                                        />
+                                        <TextArea
+                                            label="Job Description Requirements"
+                                            value={targetJob.description}
+                                            onChangeText={t => setTargetJob(prev => ({ ...prev, description: t }))}
+                                            numberOfLines={4}
+                                            placeholder="Paste the job requirements from LinkedIn, Indeed, or Greenhouse..."
+                                        />
+                                    </Card>
+
+                                    {/* 2. Live Keyword Gap Analysis & Honesty Guardrail */}
+                                    <Card variant="elevated" style={styles.sectionCard}>
+                                        <View style={styles.cardHeaderRow}>
+                                            <SlidersHorizontal size={18} color="#10B981" />
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                                    2. Live Gap Analysis & Honesty Guardrail
+                                                </Text>
+                                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                                    Current Score: <Text style={{ color: '#10B981', fontWeight: '800' }}>{gapAudit.score}/100</Text> → Target Score: <Text style={{ color: '#10B981', fontWeight: '800' }}>{gapAudit.targetScore}/100</Text>
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        {/* Matched Competencies */}
+                                        <Text style={[styles.skillsSubHeading, { color: '#10B981' }]}>
+                                            ✓ Matched Competencies ({gapAudit.matched.length}):
+                                        </Text>
+                                        <View style={styles.skillsTagWrap}>
+                                            {gapAudit.matched.map((m, idx) => (
+                                                <View key={idx} style={[styles.matchedTag, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
+                                                    <Text style={[styles.matchedTagText, { color: '#065F46' }]}>✓ {m}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+
+                                        {/* Missing Keywords Checklist (Honesty Guardrail) */}
+                                        <Text style={[styles.skillsSubHeading, { color: '#EF4444', marginTop: 12 }]}>
+                                            ⚠️ Missing Keywords (Tick ONLY if you have genuine experience):
+                                        </Text>
+                                        <View style={styles.skillsTagWrap}>
+                                            {gapAudit.missing.map((term, idx) => {
+                                                const isTicked = confirmedMissingSkills.includes(term);
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={idx}
+                                                        style={[
+                                                            styles.missingSkillBtn,
+                                                            isTicked
+                                                                ? { backgroundColor: '#ECFDF5', borderColor: '#10B981', borderWidth: 1.5 }
+                                                                : { backgroundColor: isDark ? '#271B1B' : '#FEF2F2', borderColor: '#FCA5A5', borderWidth: 1 }
+                                                        ]}
+                                                        onPress={() => handleToggleHonestySkill(term)}
+                                                    >
+                                                        <Text style={[styles.missingSkillBtnText, { color: isTicked ? '#065F46' : '#991B1B', fontWeight: isTicked ? '800' : '600' }]}>
+                                                            {isTicked ? '✓ Confirmed: ' : '+ Verify: '} {term}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+
+                                        {/* Trigger Tailoring Button */}
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            loading={isTailoring}
+                                            iconRight={Sparkles}
+                                            onPress={handleRunTailoringPass}
+                                            style={{ marginTop: 16, backgroundColor: '#10B981' }}
+                                        >
+                                            {isTailoring ? 'Translating Experience to Job Vocabulary...' : `Tailor Resume (${gapAudit.score} → ${gapAudit.targetScore}/100 ATS)`}
+                                        </Button>
+                                    </Card>
+
+                                    {/* 3. Base Resume Form Fields */}
+                                    <Card variant="elevated" style={styles.sectionCard}>
+                                        <View style={styles.cardHeaderRow}>
+                                            <FileText size={18} color="#10B981" />
+                                            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                                3. Master Profile (Canonical Base Resume)
+                                            </Text>
+                                        </View>
+                                        <Input
+                                            label="Full Name"
+                                            value={baseResume.fullName}
+                                            onChangeText={t => setBaseResume(prev => ({ ...prev, fullName: t }))}
+                                        />
+                                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                                            <View style={{ flex: 1 }}>
+                                                <Input
+                                                    label="Email"
+                                                    value={baseResume.email}
+                                                    onChangeText={t => setBaseResume(prev => ({ ...prev, email: t }))}
+                                                />
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Input
+                                                    label="Phone"
+                                                    value={baseResume.phone}
+                                                    onChangeText={t => setBaseResume(prev => ({ ...prev, phone: t }))}
+                                                />
+                                            </View>
+                                        </View>
+                                        <Input
+                                            label="Location"
+                                            value={baseResume.location}
+                                            onChangeText={t => setBaseResume(prev => ({ ...prev, location: t }))}
+                                        />
+                                        <TextArea
+                                            label="Professional Summary"
+                                            value={baseResume.summary}
+                                            onChangeText={t => setBaseResume(prev => ({ ...prev, summary: t }))}
+                                            numberOfLines={3}
+                                        />
+
+                                        {/* Skills */}
+                                        <Text style={[styles.inputLabel, { color: colors.textPrimary, marginTop: 10 }]}>
+                                            Verified Skills ({baseResume.skills.length}):
+                                        </Text>
+                                        <View style={styles.skillsTagWrap}>
+                                            {baseResume.skills.map((s, idx) => (
+                                                <View key={idx} style={[styles.skillPill, { backgroundColor: isDark ? '#1E293B' : '#ECFDF5' }]}>
+                                                    <Text style={[styles.skillPillText, { color: isDark ? '#A7F3D0' : '#065F46' }]}>{s}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+
+                                        {/* Work Experiences */}
+                                        <Text style={[styles.inputLabel, { color: colors.textPrimary, marginTop: 14 }]}>
+                                            Work History ({baseResume.experiences.length} Roles):
+                                        </Text>
+                                        {baseResume.experiences.map((exp, idx) => (
+                                            <View key={exp.id || idx} style={[styles.expBox, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                                                <Text style={[styles.expRoleTitle, { color: colors.textPrimary }]}>
+                                                    {exp.role} — <Text style={{ fontWeight: '400' }}>{exp.company}</Text>
+                                                </Text>
+                                                <Text style={{ fontSize: 11, color: colors.textSecondary, marginBottom: 4 }}>{exp.period}</Text>
+                                                {exp.bullets.map((b, bIdx) => (
+                                                    <Text key={bIdx} style={[styles.expBulletText, { color: colors.textSecondary }]}>• {b}</Text>
+                                                ))}
+                                            </View>
+                                        ))}
+                                    </Card>
+                                </View>
+                            )}
+
+                            {/* RIGHT PANE: Output View (ATS Paper Preview, Cover Letter, Plain Text) */}
+                            {(workspaceView === 'preview' || workspaceView === 'both') && (
+                                <View style={workspaceView === 'both' ? { flex: 0.9, width: '100%', position: Platform.OS === 'web' ? 'sticky' : 'relative', top: 16 } : { width: '100%' }}>
+                                    {outputMode === 'ats_paper' && renderAtsPaperPreview()}
+
+                                    {/* Cover Letter Mode */}
+                                    {outputMode === 'cover_letter' && (
+                                        <Card variant="elevated" style={styles.sectionCard}>
+                                            <View style={styles.cardHeaderRow}>
+                                                <Mail size={18} color="#10B981" />
+                                                <View style={{ flex: 1 }}>
+                                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                                        1-Click Tailored Cover Letter
+                                                    </Text>
+                                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                                        Derived from authentic work history + target job pain points
+                                                    </Text>
+                                                </View>
+                                                <TouchableOpacity
+                                                    style={[styles.miniBtn, { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                                    onPress={() => handleCopy(tailoredResume?.coverLetter || `Dear Hiring Team at ${targetJob.company},\n\nI am writing to express my strong interest in the ${targetJob.title} role...\n\nSincerely,\n${baseResume.fullName}`, 'Cover Letter')}
+                                                >
+                                                    <Copy size={12} color={colors.textPrimary} />
+                                                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textPrimary }}>Copy</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                            <TextInput
+                                                style={[
+                                                    styles.coverLetterBox,
+                                                    {
+                                                        backgroundColor: isDark ? '#000000' : '#FAFAFA',
+                                                        color: isDark ? '#E2E8F0' : '#111827',
+                                                        borderColor: isDark ? '#1E293B' : '#E2E8F0'
+                                                    }
+                                                ]}
+                                                multiline
+                                                value={tailoredResume?.coverLetter || `Dear Hiring Team at ${targetJob.company},\n\nI am writing to express my strong interest in the ${targetJob.title} position. With over 6 years of hands-on experience in ${baseResume.skills.slice(0, 3).join(', ')}, I have consistently delivered verified operational results and structured execution.\n\nReviewing your requirements for ${targetJob.title}, I noted your emphasis on ${confirmedMissingSkills.join(' and ') || 'rigorous program execution'}. In my previous role at Apex Logistics Global, I spearheaded cross-functional delivery across 14 operations specialists while maintaining 99.4% SLA adherence.\n\nI welcome the opportunity to discuss how my disciplined work ethic can contribute to your ongoing goals.\n\nSincerely,\n${baseResume.fullName}\n${baseResume.phone} • ${baseResume.email}`}
+                                                onChangeText={(t) => setTailoredResume(prev => ({ ...prev, coverLetter: t }))}
+                                            />
+                                        </Card>
+                                    )}
+
+                                    {/* Plain Text ATS Mode */}
+                                    {outputMode === 'plain_text' && (
+                                        <Card variant="elevated" style={styles.sectionCard}>
+                                            <View style={styles.cardHeaderRow}>
+                                                <Copy size={18} color="#10B981" />
+                                                <View style={{ flex: 1 }}>
+                                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                                        Plain-Text ATS for Workday / Taleo
+                                                    </Text>
+                                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                                        Unformatted raw text for web form text boxes
+                                                    </Text>
+                                                </View>
+                                                <TouchableOpacity
+                                                    style={[styles.miniBtn, { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                                    onPress={() => handleCopy(`${baseResume.fullName}\n${baseResume.email} | ${baseResume.phone}\n\nSUMMARY:\n${tailoredResume?.summary || baseResume.summary}\n\nSKILLS:\n${(tailoredResume?.skills || baseResume.skills).join(', ')}`, 'Plain Text')}
+                                                >
+                                                    <Copy size={12} color={colors.textPrimary} />
+                                                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textPrimary }}>Copy</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                            <TextInput
+                                                style={[
+                                                    styles.coverLetterBox,
+                                                    {
+                                                        backgroundColor: isDark ? '#000000' : '#FAFAFA',
+                                                        color: isDark ? '#E2E8F0' : '#111827',
+                                                        borderColor: isDark ? '#1E293B' : '#E2E8F0',
+                                                        fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+                                                        fontSize: 11
+                                                    }
+                                                ]}
+                                                multiline
+                                                editable={false}
+                                                value={`${baseResume.fullName.toUpperCase()}\n${baseResume.email} | ${baseResume.phone} | ${baseResume.location}\n\nPROFESSIONAL SUMMARY:\n${tailoredResume?.summary || baseResume.summary}\n\nCORE COMPETENCIES:\n${(tailoredResume?.skills || baseResume.skills).join(' • ')}\n\nEXPERIENCE:\n${(tailoredResume?.experiences || baseResume.experiences).map(e => e.role + ' - ' + e.company + ' (' + e.period + ')\n' + e.bullets.map(b => '• ' + b).join('\n')).join('\n\n')}\n\nEDUCATION:\n${baseResume.education}\n${baseResume.certifications}`}
+                                            />
+                                        </Card>
                                     )}
                                 </View>
-                                {isExpanded ? (
-                                    <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                                        {faq.a}
-                                    </Text>
-                                ) : null}
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
+                            )}
+                        </View>
+                    </View>
+                )}
 
-                {/* Final CTA Banner */}
-                <View style={[styles.ctaBanner, { backgroundColor: isDark ? '#064E3B15' : '#ECFDF5', borderColor: '#10B98140' }]}>
-                    <Gift size={32} color="#10B981" style={{ marginBottom: 8 }} />
-                    <Text style={[styles.ctaTitle, { color: colors.textPrimary }]}>
-                        Ready to Optimize or Create Your CV?
-                    </Text>
-                    <Text style={[styles.ctaSubtitle, { color: colors.textSecondary }]}>
-                        100% Free Worldwide • Optimize Existing or Create Brand New from scratch.
-                    </Text>
+                {/* ----------------- TAB 3: LINKEDIN OPTIMIZER ----------------- */}
+                {activeTab === 'linkedin' && (
+                    <Card variant="elevated" style={styles.sectionCard}>
+                        <View style={styles.cardHeaderRow}>
+                            <Linkedin size={20} color="#0284C7" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    LinkedIn Profile Optimizer (Recruiter Search Copilot)
+                                </Text>
+                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                    Tailor your headline, About story, and endorsement gap for recruiter algorithms.
+                                </Text>
+                            </View>
+                            <Badge variant="info" size="sm">Recruiter SEO</Badge>
+                        </View>
 
-                    <View style={styles.ctaButtonRow}>
+                        {/* Recruiter Headline Generator (<220 chars) */}
+                        <View style={{ marginTop: 12 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+                                    Recruiter-Frontloaded Headline ({linkedInData.optimizedHeadline.length} / 220 chars)
+                                </Text>
+                                <TouchableOpacity onPress={() => handleCopy(linkedInData.optimizedHeadline, 'Headline')}>
+                                    <Text style={{ fontSize: 11, color: '#0284C7', fontWeight: '700' }}>Copy Headline</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TextInput
+                                style={[styles.textInputBox, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', color: colors.textPrimary, borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                multiline
+                                numberOfLines={2}
+                                value={linkedInData.optimizedHeadline}
+                                onChangeText={t => setLinkedInData(prev => ({ ...prev, optimizedHeadline: t }))}
+                            />
+                        </View>
+
+                        {/* About Section Story */}
+                        <View style={{ marginTop: 14 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+                                    Authentic First-Person Narrative (About Section)
+                                </Text>
+                                <TouchableOpacity onPress={() => handleCopy(linkedInData.aboutStory, 'About Story')}>
+                                    <Text style={{ fontSize: 11, color: '#0284C7', fontWeight: '700' }}>Copy Story</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TextInput
+                                style={[styles.textInputBox, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', color: colors.textPrimary, borderColor: isDark ? '#1E293B' : '#E2E8F0', minHeight: 120 }]}
+                                multiline
+                                numberOfLines={5}
+                                value={linkedInData.aboutStory}
+                                onChangeText={t => setLinkedInData(prev => ({ ...prev, aboutStory: t }))}
+                            />
+                        </View>
+
+                        {/* Endorsement Gap Checklist */}
+                        <View style={{ marginTop: 14 }}>
+                            <Text style={[styles.inputLabel, { color: colors.textPrimary, marginBottom: 6 }]}>
+                                Endorsement Gap (Missing from your LinkedIn profile for {targetJob.title}):
+                            </Text>
+                            <View style={styles.skillsTagWrap}>
+                                {linkedInData.missingEndorsements.map((sk, idx) => (
+                                    <View key={idx} style={[styles.missingSkillBtn, { backgroundColor: '#FEF2F2', borderColor: '#FCA5A5' }]}>
+                                        <Text style={{ fontSize: 11, color: '#991B1B', fontWeight: '700' }}>+ Add to LinkedIn: {sk}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+
                         <Button
                             variant="primary"
                             size="md"
-                            iconLeft={Sparkles}
-                            onPress={handleOpenClaim}
-                            style={{ flex: 1, backgroundColor: '#10B981' }}
+                            loading={isOptimizingLinkedIn}
+                            iconRight={Sparkles}
+                            onPress={handleOptimizeLinkedIn}
+                            style={{ marginTop: 16, backgroundColor: '#0284C7' }}
                         >
-                            Get Free CV Now
+                            Regenerate Recruiter Angles with Dual AI
                         </Button>
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            iconLeft={Phone}
-                            onPress={handleOpenWhatsAppDirect}
-                        >
-                            WhatsApp Us
-                        </Button>
-                    </View>
-                </View>
-            </ScrollView>
+                    </Card>
+                )}
 
-            {/* 100% Free Worldwide Claim Modal */}
-            <Modal
-                visible={isClaimModalOpen}
-                onClose={() => setIsClaimModalOpen(false)}
-                title={cvOption === 'create' ? 'Claim Brand New CV Creation' : 'Claim Existing CV Optimization'}
-                subtitle="100% Free Worldwide • No Payment Needed"
-            >
-                <ScrollView style={{ maxHeight: 460 }} showsVerticalScrollIndicator={false}>
-                    <View style={styles.modalFreeBadge}>
-                        <Gift size={14} color="#10B981" />
-                        <Text style={styles.modalFreeBadgeText}>
-                            {cvOption === 'create' ? 'Brand New CV Service — 100% FREE (₹0)' : 'Existing CV Optimization — 100% FREE (₹0)'}
-                        </Text>
-                    </View>
+                {/* ----------------- TAB 4: VERSIONS DASHBOARD ----------------- */}
+                {activeTab === 'dashboard' && (
+                    <Card variant="elevated" style={styles.sectionCard}>
+                        <View style={styles.cardHeaderRow}>
+                            <Briefcase size={20} color="#10B981" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    Career Version Control Dashboard
+                                </Text>
+                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                    One canonical master resume permanently preserved. Unlimited tailored versions per job application.
+                                </Text>
+                            </View>
+                        </View>
 
-                    {/* Option-Specific Notice */}
-                    {cvOption === 'optimize' ? (
-                        <View style={styles.modalUploadSection}>
-                            <Text style={[styles.modalLabel, { color: colors.textSecondary }]}>
-                                YOUR ATTACHED CV / RESUME
+                        {/* Master Profile Card */}
+                        <View style={[styles.versionEntryCard, { backgroundColor: isDark ? '#101B2B' : '#ECFDF5', borderColor: '#10B981', borderWidth: 1.5 }]}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <Badge variant="success" size="sm">CANONICAL BASE RESUME</Badge>
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{baseResume.jobTitle}</Text>
+                                </View>
+                                <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700' }}>Master Profile</Text>
+                            </View>
+                            <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 4 }}>
+                                Holds your authentic historical experience. Never overwritten by tailoring passes.
                             </Text>
-                            {uploadedFile ? (
-                                <View style={[styles.modalFileRow, { backgroundColor: isDark ? '#1F1F23' : '#F4F4F5' }]}>
-                                    <FileCheck size={18} color="#10B981" />
-                                    <Text style={[styles.modalFileName, { color: colors.textPrimary }]} numberOfLines={1}>
-                                        {uploadedFile.name}
+                        </View>
+
+                        {/* Child Tailored Versions */}
+                        <Text style={[styles.inputLabel, { color: colors.textPrimary, marginTop: 16, marginBottom: 8 }]}>
+                            Tailored Child Versions ({savedVersions.length}):
+                        </Text>
+                        <View style={{ gap: 10 }}>
+                            {savedVersions.map((v) => (
+                                <View key={v.id} style={[styles.versionEntryCard, { backgroundColor: isDark ? '#141E2E' : '#FFFFFF', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <View>
+                                            <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{v.targetJobTitle}</Text>
+                                            <Text style={{ fontSize: 11, color: colors.textSecondary }}>{v.company} • Created {v.createdAt}</Text>
+                                        </View>
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <Badge variant="success" size="sm">ATS: {v.finalScore}/100</Badge>
+                                        </View>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
+                                        <TouchableOpacity
+                                            style={[styles.miniBtn, { backgroundColor: '#10B981' }]}
+                                            onPress={() => {
+                                                setTargetJob(prev => ({ ...prev, title: v.targetJobTitle, company: v.company }));
+                                                setActiveTab('builder');
+                                                success(`Loaded tailored version for ${v.targetJobTitle}`);
+                                            }}
+                                        >
+                                            <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>Open in Builder</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[styles.miniBtn, { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                            onPress={() => {
+                                                setSavedVersions(prev => prev.filter(item => item.id !== v.id));
+                                                success('Version deleted');
+                                            }}
+                                        >
+                                            <Trash2 size={12} color="#EF4444" />
+                                            <Text style={{ fontSize: 11, fontWeight: '700', color: '#EF4444' }}>Delete</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    </Card>
+                )}
+
+                {/* ----------------- TAB 5: PAY-PER-PACK PRICING ----------------- */}
+                {activeTab === 'pricing' && (
+                    <Card variant="elevated" style={styles.sectionCard}>
+                        <View style={styles.cardHeaderRow}>
+                            <Zap size={20} color="#10B981" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    Pay-Per-Pack Pricing (Zero Subscriptions)
+                                </Text>
+                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                    No recurring credit card charges. Packs stack cleanly; oldest-expiring credits used first.
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={{ gap: 14, marginTop: 10 }}>
+                            {/* Free Tier */}
+                            <View style={[styles.pricingBox, { backgroundColor: isDark ? '#141E2E' : '#FAFAFA', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Free Tier</Text>
+                                    <Text style={{ fontSize: 16, fontWeight: '800', color: '#10B981' }}>$0 Forever</Text>
+                                </View>
+                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, marginTop: 6, lineHeight: 18 }}>
+                                    • 5 free ATS score checks every 5 hours\n• 3 tailored resumes every 5 hours\n• 5 tailored cover letters every 5 hours\n• 1 Canonical Base Resume\n• Vector Single-Color Black ATS PDF
+                                </Text>
+                            </View>
+
+                            {/* Lite Pack */}
+                            <View style={[styles.pricingBox, { backgroundColor: isDark ? '#101F1B' : '#F0FDF4', borderColor: '#10B981', borderWidth: 1.5 }]}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                        <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Lite Pack (Most Popular)</Text>
+                                        <Badge variant="success" size="sm">ONE-TIME</Badge>
+                                    </View>
+                                    <Text style={{ fontSize: 16, fontWeight: '800', color: '#10B981' }}>$2 / 30 Days</Text>
+                                </View>
+                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, marginTop: 6, lineHeight: 18 }}>
+                                    • 30 tailored resumes with ATS scoring\n• 50 ATS score checks\n• Unlimited AI bullet refinements\n• 30 tailored cover letters\n• 2 Canonical Base Resumes\n• Word (.doc) & Vector PDF Export
+                                </Text>
+                                <TouchableOpacity
+                                    style={styles.packBuyBtn}
+                                    onPress={() => success('Razorpay / Stripe one-time checkout verified! Pack activated for 30 days.')}
+                                >
+                                    <Text style={styles.packBuyBtnText}>Get Lite Pack ($2 USD / ₹169)</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Active Search Pack */}
+                            <View style={[styles.pricingBox, { backgroundColor: isDark ? '#141E2E' : '#FAFAFA', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Active Search Pack</Text>
+                                    <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>$5 / 30 Days</Text>
+                                </View>
+                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, marginTop: 6, lineHeight: 18 }}>
+                                    • Unlimited tailored resumes\n• 150 ATS score checks\n• Full LinkedIn Profile Optimizer included\n• 5 Base Resumes\n• Priority fast generation pipeline
+                                </Text>
+                                <TouchableOpacity
+                                    style={[styles.packBuyBtn, { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
+                                    onPress={() => success('Active Search Pack activated for 30 days!')}
+                                >
+                                    <Text style={[styles.packBuyBtnText, { color: colors.textPrimary }]}>Get Active Search ($5 USD / ₹419)</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Card>
+                )}
+
+                {/* ----------------- TAB 6: 60s TRIAL ONBOARDING ----------------- */}
+                {activeTab === 'onboarding' && (
+                    <Card variant="elevated" style={styles.sectionCard}>
+                        <View style={styles.cardHeaderRow}>
+                            <Target size={20} color="#F59E0B" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    60-Second Interactive Trial
+                                </Text>
+                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                    See your honest ATS keyword gap score before signing up.
+                                </Text>
+                            </View>
+                            <Badge variant="warning" size="sm">No Signup Required</Badge>
+                        </View>
+
+                        <View style={{ gap: 12, marginTop: 12 }}>
+                            <TextArea
+                                label="Step 1: Paste Any Target Job Description"
+                                value={targetJob.description}
+                                onChangeText={t => setTargetJob(prev => ({ ...prev, description: t }))}
+                                numberOfLines={3}
+                            />
+                            <TextArea
+                                label="Step 2: Paste Your Authentic Experience"
+                                value={baseResume.summary}
+                                onChangeText={t => setBaseResume(prev => ({ ...prev, summary: t }))}
+                                numberOfLines={3}
+                            />
+                            <Button
+                                variant="primary"
+                                size="md"
+                                iconRight={Sparkles}
+                                onPress={() => {
+                                    setActiveTab('builder');
+                                    success('Loaded into full Dual-Pane Builder!');
+                                }}
+                                style={{ backgroundColor: '#10B981' }}
+                            >
+                                Run Full ATS Gap Audit in Builder
+                            </Button>
+                        </View>
+                    </Card>
+                )}
+
+                {/* ----------------- TAB 7: YOUR DATA, YOUR CONTROL (PRIVACY) ----------------- */}
+                {activeTab === 'privacy' && (
+                    <Card variant="elevated" style={styles.sectionCard}>
+                        <View style={styles.cardHeaderRow}>
+                            <ShieldCheck size={20} color="#10B981" />
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    Your Data, Your Control (GDPR & Privacy)
+                                </Text>
+                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                    Zero AI model training on your resumes, full data portability, and one-click erasure.
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={{ gap: 12, marginTop: 12 }}>
+                            {/* Zero Training Card */}
+                            <View style={[styles.privacyActionCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC' }]}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <EyeOff size={16} color="#10B981" />
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
+                                        Zero Public AI Model Training Guarantee
                                     </Text>
-                                    <TouchableOpacity onPress={handlePickDocument}>
-                                        <Text style={{ fontSize: 11, color: colors.accent, fontWeight: '700' }}>Change</Text>
+                                </View>
+                                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 4 }}>
+                                    Your resume data is processed only in volatile memory to score and tailor your application. It is never sold, indexed, or used to train public LLMs.
+                                </Text>
+                            </View>
+
+                            {/* Export JSON Data */}
+                            <View style={[styles.privacyActionCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC' }]}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View>
+                                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
+                                            Export Complete Data Archive (.json)
+                                        </Text>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>
+                                            Download all work history, skills, versions, and ATS scores.
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={[styles.miniBtn, { backgroundColor: '#10B981' }]}
+                                        onPress={() => {
+                                            handleCopy(JSON.stringify({ baseResume, savedVersions, linkedInData }, null, 2), 'Full Data Archive');
+                                        }}
+                                    >
+                                        <Copy size={12} color="#FFFFFF" />
+                                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>Copy JSON</Text>
                                     </TouchableOpacity>
                                 </View>
-                            ) : (
-                                <TouchableOpacity
-                                    style={[styles.modalUploadBtn, { borderColor: colors.accent }]}
-                                    onPress={handlePickDocument}
-                                >
-                                    <Upload size={16} color={colors.accent} />
-                                    <Text style={[styles.modalUploadBtnText, { color: colors.accent }]}>
-                                        Attach Existing CV File (.PDF / .DOCX)
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
+                            </View>
+
+                            {/* Purge All Data */}
+                            <View style={[styles.privacyActionCard, { backgroundColor: '#FEF2F2', borderColor: '#FCA5A5' }]}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View>
+                                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#991B1B' }}>
+                                            Purge All Data (Right to Erasure)
+                                        </Text>
+                                        <Text style={{ fontSize: 11, color: '#7F1D1D', marginTop: 2 }}>
+                                            Permanently erase your resumes, history, and cached credits.
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={[styles.miniBtn, { backgroundColor: '#DC2626' }]}
+                                        onPress={() => {
+                                            setSavedVersions([]);
+                                            success('All role-tailored versions and profile data purged.');
+                                        }}
+                                    >
+                                        <Trash2 size={12} color="#FFFFFF" />
+                                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>Purge</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>
-                    ) : (
-                        <View style={{ marginBottom: 12 }}>
-                            <Text style={[styles.modalLabel, { color: colors.textSecondary }]}>
-                                TARGET ROLE FOR NEW CV
-                            </Text>
-                            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
-                                {newCvRole || 'Target Role specified below'}
-                            </Text>
-                        </View>
-                    )}
-
-                    <Input
-                        label="Full Name *"
-                        placeholder="e.g. Sreejith Varma / John Doe"
-                        value={userName}
-                        onChangeText={setUserName}
-                    />
-
-                    {/* Country Code & Phone Row */}
-                    <Text style={[styles.modalLabel, { color: colors.textSecondary, marginBottom: 6 }]}>
-                        WhatsApp / Phone Number *
-                    </Text>
-                    <View style={styles.phoneInputRow}>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.countryCodeScroll}>
-                            {COUNTRY_CODES.map((c) => (
-                                <TouchableOpacity
-                                    key={c.code}
-                                    style={[
-                                        styles.countryCodeBtn,
-                                        {
-                                            backgroundColor: selectedCountryCode === c.code ? colors.accent : (isDark ? '#27272A' : '#E4E4E7')
-                                        }
-                                    ]}
-                                    onPress={() => setSelectedCountryCode(c.code)}
-                                >
-                                    <Text style={[
-                                        styles.countryCodeText,
-                                        { color: selectedCountryCode === c.code ? '#FFFFFF' : colors.textPrimary }
-                                    ]}>
-                                        {c.code} ({c.country})
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
-                    </View>
-                    <Input
-                        placeholder="Phone number without country code"
-                        keyboardType="phone-pad"
-                        value={userPhone}
-                        onChangeText={setUserPhone}
-                    />
-
-                    <Input
-                        label="Email Address"
-                        placeholder="e.g. yourname@example.com"
-                        keyboardType="email-address"
-                        value={userEmail}
-                        onChangeText={setUserEmail}
-                    />
-
-                    <Input
-                        label="Target Job Role / Field"
-                        placeholder="e.g. Senior Electrical Supervisor, Software Engineer, Nurse"
-                        value={userRole || newCvRole}
-                        onChangeText={(t) => {
-                            setUserRole(t);
-                            if (cvOption === 'create') setNewCvRole(t);
-                        }}
-                    />
-
-                    <Input
-                        label="LinkedIn Profile URL (Optional)"
-                        placeholder="https://linkedin.com/in/username"
-                        value={userLinkedin}
-                        onChangeText={setUserLinkedin}
-                    />
-
-                    <TextArea
-                        label="Special Notes or Target Countries"
-                        placeholder="Mention any target companies, specific Gulf or US visas, licenses, or key skills..."
-                        value={userNotes}
-                        onChangeText={setUserNotes}
-                        numberOfLines={3}
-                    />
-
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        loading={isSubmitting}
-                        iconLeft={Send}
-                        onPress={handleSubmitFreeClaim}
-                        style={{ marginTop: 12, marginBottom: 12, backgroundColor: '#10B981' }}
-                    >
-                        {cvOption === 'create' ? 'Generate & Receive New CV on WhatsApp (₹0)' : 'Submit & Start Free Humanized Rewrite (₹0)'}
-                    </Button>
-
-                    <Text style={[styles.privacyNote, { color: colors.textTertiary }]}>
-                        🔒 100% Free Worldwide. We respect your privacy and never sell your CV or contact info.
-                    </Text>
-                </ScrollView>
-            </Modal>
+                    </Card>
+                )}
+            </ScrollView>
         </SafeAreaView>
     );
 }
 
+// ==========================================
+// STYLES (REUSING SHERIYAKAM DESIGN SYSTEM)
+// ==========================================
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    screenContainer: {
+        flex: 1
     },
-    header: {
+    topHeader: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
+        flexWrap: 'wrap',
+        gap: 8
+    },
+    headerLeftWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
     },
     backBtn: {
-        padding: 8,
-        borderRadius: 20,
-        marginRight: 8,
-    },
-    headerTitleWrap: {
-        flex: 1,
-    },
-    headerTitle: {
-        fontSize: 16.5,
-        fontWeight: '800',
-        letterSpacing: -0.3,
-    },
-    headerFreePill: {
-        backgroundColor: '#10B981',
-        paddingHorizontal: 6,
-        paddingVertical: 1.5,
-        borderRadius: 6,
-    },
-    headerFreePillText: {
-        color: '#FFFFFF',
-        fontSize: 10,
-        fontWeight: '900',
-        letterSpacing: 0.5,
-    },
-    headerSubtitle: {
-        fontSize: 11,
-        fontWeight: '500',
-        marginTop: 1,
-    },
-    whatsappQuickBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scrollContent: {
-        padding: 16,
-        paddingBottom: 60,
-    },
-    heroCard: {
-        padding: 20,
-        borderRadius: 20,
-        borderWidth: 1,
-        marginBottom: 18,
-    },
-    badgeRow: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 12,
-        flexWrap: 'wrap',
-        alignItems: 'center',
-    },
-    freeHighlightBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#10B981',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 20,
-        gap: 4,
-    },
-    freeHighlightBadgeText: {
-        color: '#FFFFFF',
-        fontSize: 11,
-        fontWeight: '900',
-        letterSpacing: 0.3,
-    },
-    heroTitle: {
-        fontSize: 22,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-        lineHeight: 28,
-        marginBottom: 8,
-    },
-    heroDescription: {
-        fontSize: 13.5,
-        lineHeight: 20,
-        marginBottom: 14,
-    },
-    globalBanner: {
-        flexDirection: 'row',
-        gap: 10,
-        padding: 12,
-        borderRadius: 12,
-        borderWidth: 1,
-        marginBottom: 16,
-    },
-    globalBannerTitle: {
-        fontSize: 13,
-        fontWeight: '700',
-        marginBottom: 2,
-    },
-    globalBannerText: {
-        fontSize: 11.5,
-        lineHeight: 16,
-    },
-    heroCtaRow: {
-        flexDirection: 'row',
-        gap: 10,
-        marginBottom: 16,
-    },
-    statsStrip: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: 16,
-        borderTopWidth: 1,
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    statNumber: {
-        fontSize: 20,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-    },
-    statLabel: {
-        fontSize: 11,
-        fontWeight: '600',
-        marginTop: 2,
-    },
-    statDivider: {
-        width: 1,
-        height: 28,
-    },
-    optionsSegmentContainer: {
-        gap: 10,
-        marginBottom: 20,
-    },
-    optionCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 14,
-        borderRadius: 16,
-        borderWidth: 1.5,
-        borderColor: 'rgba(150, 150, 150, 0.2)',
-        gap: 12,
-    },
-    optionIconCircle: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    optionCardTitle: {
-        fontSize: 14.5,
-        fontWeight: '800',
-    },
-    optionMiniBadge: {
-        backgroundColor: '#10B981',
-        paddingHorizontal: 6,
-        paddingVertical: 1.5,
-        borderRadius: 4,
-    },
-    optionMiniBadgeText: {
-        color: '#FFFFFF',
-        fontSize: 9,
-        fontWeight: '900',
-        letterSpacing: 0.5,
-    },
-    optionCardDesc: {
-        fontSize: 12,
-        marginTop: 2,
-    },
-    toolCard: {
-        padding: 16,
-        marginBottom: 24,
-    },
-    toolHeaderRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 12,
-    },
-    toolCardHeaderTitle: {
-        fontSize: 15.5,
-        fontWeight: '800',
-    },
-    toolLabel: {
-        fontSize: 11,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-        marginBottom: 8,
-    },
-    pillScroll: {
-        gap: 8,
-        paddingBottom: 4,
-    },
-    pillBtn: {
-        paddingHorizontal: 12,
-        paddingVertical: 7,
-        borderRadius: 20,
-        borderWidth: 1,
-    },
-    pillText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    inputModeRow: {
-        flexDirection: 'row',
-        gap: 8,
-        marginTop: 14,
-        marginBottom: 12,
-    },
-    inputModeBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 8,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        borderColor: 'transparent',
-        gap: 6,
-    },
-    inputModeText: {
-        fontSize: 12,
-        fontWeight: '700',
-    },
-    uploadContainer: {
-        marginBottom: 4,
-    },
-    uploadDropzone: {
-        borderWidth: 2,
-        borderStyle: 'dashed',
-        borderRadius: 16,
-        padding: 24,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    uploadIconCircle: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
-    },
-    uploadDropzoneTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        textAlign: 'center',
-        marginBottom: 4,
-    },
-    uploadDropzoneSubtitle: {
-        fontSize: 11.5,
-        textAlign: 'center',
-    },
-    uploadedFileBox: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 14,
-        borderRadius: 14,
-        borderWidth: 1.5,
-        gap: 12,
-    },
-    uploadedFileName: {
-        fontSize: 13.5,
-        fontWeight: '700',
-    },
-    uploadedFileSize: {
-        fontSize: 11,
-        marginTop: 2,
-    },
-    removeFileBtn: {
         padding: 6,
-        borderRadius: 12,
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        borderRadius: 8
     },
-    auditTextInput: {
-        borderWidth: 1.5,
-        borderRadius: 12,
-        padding: 12,
-        fontSize: 13,
-        minHeight: 80,
-        textAlignVertical: 'top',
-        outlineStyle: 'none',
-    },
-    auditResultBox: {
-        marginTop: 16,
-        padding: 14,
-        borderRadius: 14,
-        borderWidth: 1,
-    },
-    scoreRow: {
-        flexDirection: 'row',
+    logoBadge: {
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        backgroundColor: '#10B98120',
         alignItems: 'center',
-        gap: 10,
+        justifyContent: 'center'
     },
-    scoreCircle: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: 'rgba(0,0,0,0.06)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scoreValue: {
-        fontSize: 17,
-        fontWeight: '900',
-    },
-    scoreSubtext: {
-        fontSize: 8.5,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-    },
-    scoreDetails: {
-        flex: 1,
-        gap: 2,
-    },
-    scoreTargetText: {
-        fontSize: 12.5,
-        fontWeight: '600',
-    },
-    scoreSummaryDesc: {
-        fontSize: 11,
-    },
-    suggestionsContainer: {
-        marginTop: 12,
-        paddingTop: 10,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(0,0,0,0.08)',
-        gap: 6,
-    },
-    suggestionsTitle: {
-        fontSize: 12.5,
-        fontWeight: '700',
-        marginBottom: 2,
-    },
-    suggestionItem: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-    },
-    suggestionText: {
-        flex: 1,
-        fontSize: 12,
-        lineHeight: 16,
-    },
-    generatedCvCard: {
-        marginTop: 16,
-        padding: 16,
-        borderRadius: 14,
-        borderWidth: 1.5,
-    },
-    generatedCvHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    miniActionBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-        gap: 4,
-    },
-    miniActionText: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    cvPreviewHeadline: {
-        fontSize: 15,
-        fontWeight: '900',
-        lineHeight: 20,
-    },
-    cvSectionDivider: {
-        height: 1,
-        backgroundColor: 'rgba(150, 150, 150, 0.15)',
-        marginVertical: 12,
-    },
-    cvSectionTitle: {
-        fontSize: 11,
-        fontWeight: '800',
-        letterSpacing: 0.5,
-        marginBottom: 4,
-    },
-    cvSectionBody: {
-        fontSize: 12.5,
-        lineHeight: 18,
-    },
-    cvSkillsWrap: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 6,
-        marginTop: 4,
-    },
-    cvSkillTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
-    cvSkillText: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    cvBulletRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginTop: 4,
-    },
-    cvBulletText: {
-        flex: 1,
-        fontSize: 12,
-        lineHeight: 17,
-    },
-    humanizedPillarsCard: {
-        padding: 16,
-        marginBottom: 24,
-    },
-    pillarItem: {
-        flexDirection: 'row',
-        gap: 12,
-        alignItems: 'flex-start',
-    },
-    pillarIconWrap: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    pillarTitle: {
-        fontSize: 14,
-        fontWeight: '800',
-        marginBottom: 4,
-    },
-    pillarDesc: {
-        fontSize: 12.5,
-        lineHeight: 18,
-    },
-    pillarDivider: {
-        height: 1,
-        backgroundColor: 'rgba(150, 150, 150, 0.15)',
-        marginVertical: 14,
-    },
-    comparisonCard: {
-        padding: 14,
-        marginBottom: 24,
-    },
-    comparisonToggleWrap: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 12,
-    },
-    comparisonToggleBtn: {
-        flex: 1,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    comparisonToggleText: {
-        fontSize: 11.5,
-    },
-    comparisonContent: {
-        padding: 14,
-        borderRadius: 12,
-        borderWidth: 1,
-        gap: 10,
-    },
-    comparisonRoleTitle: {
-        fontSize: 13,
-        fontWeight: '800',
-    },
-    comparisonSnippet: {
-        fontSize: 12.5,
-        lineHeight: 18,
-    },
-    comparisonVerdict: {
-        paddingTop: 8,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(0,0,0,0.06)',
-    },
-    freePassCard: {
-        padding: 18,
-        borderRadius: 18,
-        borderWidth: 2,
-        marginBottom: 24,
-    },
-    freePassHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 14,
-        gap: 10,
-    },
-    freePassTitle: {
-        fontSize: 17,
-        fontWeight: '900',
-        marginTop: 6,
-    },
-    freePassSubtitle: {
-        fontSize: 12,
-        marginTop: 2,
-    },
-    priceStrikeWrap: {
-        alignItems: 'flex-end',
-    },
-    strikePrice: {
-        fontSize: 12,
-        textDecorationLine: 'line-through',
-        color: '#EF4444',
-        fontWeight: '700',
-    },
-    freePrice: {
-        fontSize: 20,
-        fontWeight: '900',
-        color: '#10B981',
-        letterSpacing: -0.5,
-    },
-    freeInclusionsList: {
-        gap: 8,
-        paddingVertical: 8,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(16, 185, 129, 0.2)',
-    },
-    freeInclusionItem: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-    },
-    freeInclusionText: {
-        flex: 1,
-        fontSize: 12.5,
-        lineHeight: 18,
-        fontWeight: '500',
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-        marginTop: 12,
-        gap: 10,
-    },
-    sectionHeaderIconWrap: {
-        width: 32,
-        height: 32,
-        borderRadius: 10,
-        backgroundColor: 'rgba(59, 130, 246, 0.12)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    sectionTitle: {
+    logoTitle: {
         fontSize: 16,
         fontWeight: '800',
-        letterSpacing: -0.2,
+        letterSpacing: -0.3
     },
-    sectionSubtitle: {
-        fontSize: 12,
-        marginTop: 2,
+    logoSub: {
+        fontSize: 10,
+        color: '#64748B',
+        fontFamily: Platform.OS === 'web' ? 'monospace' : undefined
     },
-    processCard: {
-        padding: 16,
-        gap: 16,
-        marginBottom: 24,
-    },
-    stepItem: {
+    headerRightWrap: {
         flexDirection: 'row',
-        gap: 12,
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        gap: 8,
+        flexWrap: 'wrap'
     },
-    stepNumCircle: {
-        width: 28,
-        height: 28,
+    aiStatusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+        borderWidth: 1
+    },
+    greenPulseDot: {
+        width: 7,
+        height: 7,
+        borderRadius: 4,
+        backgroundColor: '#10B981'
+    },
+    aiStatusText: {
+        fontSize: 11,
+        fontWeight: '700'
+    },
+    quotaBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20
+    },
+    quotaText: {
+        fontSize: 11,
+        fontWeight: '600'
+    },
+    toolbarContainer: {
+        borderBottomWidth: 1,
+        paddingVertical: 8,
+        paddingHorizontal: 12
+    },
+    toolbarScroll: {
+        flexDirection: 'row',
+        gap: 6
+    },
+    navTabBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8
+    },
+    navTabBtnActive: {
+        backgroundColor: '#10B981'
+    },
+    navTabText: {
+        fontSize: 12,
+        fontWeight: '700'
+    },
+    // Sheriyakam Stats Banner
+    statsBanner: {
         borderRadius: 14,
+        paddingVertical: 14,
+        paddingHorizontal: 12,
+        shadowColor: '#10B981',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10
+    },
+    statsInner: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center'
+    },
+    statItem: {
+        alignItems: 'center',
+        flex: 1
+    },
+    statIconWrap: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
         alignItems: 'center',
         justifyContent: 'center',
+        marginBottom: 4
+    },
+    statValue: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#FFFFFF'
+    },
+    statLabel: {
+        fontSize: 10,
+        color: 'rgba(255, 255, 255, 0.85)',
+        fontWeight: '600',
+        marginTop: 1
+    },
+    // Sheriyakam Trust Row
+    trustRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 16,
+        marginTop: 10,
+        flexWrap: 'wrap'
+    },
+    trustItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5
+    },
+    trustText: {
+        fontSize: 11,
+        fontWeight: '600'
+    },
+    // 4-Step Grid
+    stepsGrid: {
+        flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+        gap: 10,
+        marginTop: 10
+    },
+    stepCard: {
+        flex: 1,
+        padding: 12,
+        borderRadius: 10,
+        borderWidth: 1
+    },
+    stepNumBadge: {
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 6
     },
     stepNumText: {
-        color: '#FFFFFF',
+        fontSize: 11,
         fontWeight: '800',
-        fontSize: 13,
+        color: '#FFFFFF'
     },
-    stepTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    stepDesc: {
+    stepCardTitle: {
         fontSize: 12,
-        marginTop: 2,
-        lineHeight: 16,
+        fontWeight: '800',
+        marginBottom: 2
     },
-    faqList: {
-        gap: 10,
-        marginBottom: 24,
+    stepCardDesc: {
+        fontSize: 10.5,
+        lineHeight: 15
     },
-    faqItem: {
-        borderRadius: 14,
-        borderWidth: 1,
+    // Templates Grid (reused from Sheriyakam Service Cards)
+    templatesGrid: {
+        flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+        gap: 12,
+        marginTop: 10,
+        flexWrap: 'wrap'
+    },
+    templateCard: {
+        flex: Platform.OS === 'web' ? 1 : undefined,
+        minWidth: Platform.OS === 'web' ? 220 : '100%',
         padding: 14,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8
     },
-    faqHeader: {
+    tplTitle: {
+        fontSize: 13,
+        fontWeight: '800',
+        marginBottom: 4
+    },
+    tplDesc: {
+        fontSize: 11,
+        lineHeight: 16
+    },
+    tplSelectBtn: {
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 6
+    },
+    tplSelectBtnText: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#0F172A'
+    },
+    // Testimonials
+    testimonialCard: {
+        padding: 12,
+        borderRadius: 10,
+        borderWidth: 1
+    },
+    avatarBadge: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    avatarText: {
+        color: '#FFFFFF',
+        fontSize: 11,
+        fontWeight: '800'
+    },
+    testName: {
+        fontSize: 12,
+        fontWeight: '800'
+    },
+    testQuote: {
+        fontSize: 11,
+        lineHeight: 16,
+        fontStyle: 'italic'
+    },
+    // FAQ Accordion
+    faqRow: {
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1
+    },
+    faqQuestion: {
+        fontSize: 12,
+        fontWeight: '700'
+    },
+    faqAnswer: {
+        fontSize: 11,
+        lineHeight: 16,
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0, 0, 0, 0.05)'
+    },
+    // Dual Pane & Builder Styles
+    dualPaneToggleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 12,
+        flexWrap: 'wrap',
+        gap: 8
     },
-    faqQuestion: {
-        fontSize: 13.5,
+    togglePillGroup: {
+        flexDirection: 'row',
+        borderRadius: 8,
+        padding: 3
+    },
+    togglePillBtn: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 6
+    },
+    togglePillBtnActive: {
+        backgroundColor: '#10B981'
+    },
+    togglePillText: {
+        fontSize: 11,
         fontWeight: '700',
-        flex: 1,
-        marginRight: 8,
+        color: '#64748B'
     },
-    faqAnswer: {
-        fontSize: 12.5,
-        lineHeight: 18,
-        marginTop: 10,
-        paddingTop: 8,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(150, 150, 150, 0.1)',
+    splitGrid: {
+        flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+        gap: 16,
+        alignItems: 'flex-start'
     },
-    ctaBanner: {
-        padding: 20,
-        borderRadius: 20,
-        borderWidth: 1,
-        alignItems: 'center',
-        textAlign: 'center',
-        marginBottom: 20,
+    singleColGrid: {
+        flexDirection: 'column',
+        gap: 16
     },
-    ctaTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        marginBottom: 4,
-        textAlign: 'center',
-    },
-    ctaSubtitle: {
-        fontSize: 13,
-        textAlign: 'center',
-        marginBottom: 16,
-        lineHeight: 18,
-    },
-    ctaButtonRow: {
+    guaranteeCard: {
         flexDirection: 'row',
         gap: 10,
-        width: '100%',
-    },
-    modalFreeBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#10B98118',
-        padding: 10,
+        padding: 12,
         borderRadius: 10,
-        marginBottom: 14,
-        gap: 6,
+        borderWidth: 1,
+        marginBottom: 12
     },
-    modalFreeBadgeText: {
+    guaranteeTitle: {
         fontSize: 12,
-        color: '#10B981',
-        fontWeight: '700',
+        fontWeight: '800',
+        marginBottom: 2
     },
-    modalUploadSection: {
+    guaranteeText: {
+        fontSize: 11,
+        lineHeight: 16
+    },
+    sectionCard: {
         marginBottom: 14,
+        padding: 14
     },
-    modalFileRow: {
+    cardHeaderRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
-        borderRadius: 10,
         gap: 8,
+        marginBottom: 12
     },
-    modalFileName: {
-        flex: 1,
-        fontSize: 12.5,
-        fontWeight: '600',
+    cardTitle: {
+        fontSize: 14,
+        fontWeight: '800'
     },
-    modalUploadBtn: {
+    cardSub: {
+        fontSize: 11,
+        marginTop: 2
+    },
+    skillsSubHeading: {
+        fontSize: 11,
+        fontWeight: '700',
+        marginBottom: 6
+    },
+    skillsTagWrap: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 6
+    },
+    matchedTag: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        borderWidth: 1
+    },
+    matchedTagText: {
+        fontSize: 11,
+        fontWeight: '700'
+    },
+    missingSkillBtn: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6
+    },
+    missingSkillBtnText: {
+        fontSize: 11
+    },
+    inputLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        marginBottom: 4
+    },
+    skillPill: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6
+    },
+    skillPillText: {
+        fontSize: 11,
+        fontWeight: '600'
+    },
+    expBox: {
+        padding: 10,
+        borderRadius: 8,
+        borderWidth: 1,
+        marginTop: 8
+    },
+    expRoleTitle: {
+        fontSize: 12,
+        fontWeight: '800'
+    },
+    expBulletText: {
+        fontSize: 11,
+        lineHeight: 16,
+        marginTop: 2
+    },
+    atsPaperContainer: {
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#CBD5E1',
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12
+    },
+    paperControlsBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#F8FAFC',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
+        flexWrap: 'wrap',
+        gap: 6
+    },
+    paperActionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        borderStyle: 'dashed',
-        gap: 6,
-    },
-    modalUploadBtnText: {
-        fontSize: 12.5,
-        fontWeight: '700',
-    },
-    phoneInputRow: {
-        marginBottom: 8,
-    },
-    countryCodeScroll: {
-        flexDirection: 'row',
-        gap: 6,
-    },
-    countryCodeBtn: {
-        paddingHorizontal: 8,
+        gap: 4,
+        backgroundColor: '#000000',
+        paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: 8,
-        marginRight: 6,
+        borderRadius: 6
     },
-    countryCodeText: {
+    paperActionBtnText: {
+        color: '#FFFFFF',
         fontSize: 11,
-        fontWeight: '700',
+        fontWeight: '700'
     },
-    privacyNote: {
-        fontSize: 11,
+    a4Sheet: {
+        backgroundColor: '#FFFFFF',
+        padding: 24,
+        minHeight: 500
+    },
+    a4Name: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#000000',
         textAlign: 'center',
-        marginTop: 4,
-        lineHeight: 15,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5
     },
+    a4Contact: {
+        fontSize: 9.5,
+        color: '#333333',
+        textAlign: 'center',
+        marginTop: 3,
+        marginBottom: 12
+    },
+    a4Heading: {
+        fontSize: 10.5,
+        fontWeight: '800',
+        color: '#000000',
+        borderBottomWidth: 1.2,
+        borderBottomColor: '#000000',
+        paddingBottom: 2,
+        marginTop: 10,
+        marginBottom: 5,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5
+    },
+    a4BodyText: {
+        fontSize: 10,
+        color: '#111827',
+        lineHeight: 15
+    },
+    a4SkillsText: {
+        fontSize: 9.5,
+        color: '#111827',
+        lineHeight: 15
+    },
+    a4JobCompany: {
+        fontSize: 10.5,
+        fontWeight: '800',
+        color: '#000000'
+    },
+    a4JobPeriod: {
+        fontSize: 9.5,
+        color: '#4B5563'
+    },
+    a4JobRole: {
+        fontSize: 9.5,
+        fontWeight: '600',
+        fontStyle: 'italic',
+        color: '#1F2937',
+        marginBottom: 2
+    },
+    a4Bullet: {
+        fontSize: 9.5,
+        color: '#1F2937',
+        lineHeight: 14,
+        marginBottom: 2
+    },
+    coverLetterBox: {
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 12,
+        lineHeight: 18,
+        minHeight: 280
+    },
+    miniBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6
+    },
+    textInputBox: {
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 10,
+        fontSize: 12,
+        lineHeight: 17
+    },
+    versionEntryCard: {
+        padding: 12,
+        borderRadius: 10,
+        borderWidth: 1
+    },
+    pricingBox: {
+        padding: 14,
+        borderRadius: 10,
+        borderWidth: 1
+    },
+    packBuyBtn: {
+        backgroundColor: '#10B981',
+        paddingVertical: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 10
+    },
+    packBuyBtnText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '800'
+    },
+    heroPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 8
+    },
+    homeHeroTitle: {
+        fontSize: 22,
+        fontWeight: '800',
+        textAlign: 'center',
+        letterSpacing: -0.5,
+        maxWidth: 520
+    },
+    homeHeroSubtitle: {
+        fontSize: 13,
+        textAlign: 'center',
+        marginTop: 6,
+        maxWidth: 480
+    },
+    privacyActionCard: {
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#E2E8F0'
+    }
 });

@@ -10,6 +10,9 @@ node_modules/
 .expo-shared/
 dist/
 web-build/
+.next/
+web/.next/
+web/node_modules/
 
 # Native
 *.orig.*
