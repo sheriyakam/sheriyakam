@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { Users, Share2, MessageSquare, CheckCircle, ShieldCheck, Copy } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 export default function CounselorReviewDrawer({ colors, isDark, userToast }) {
     const [reviewMode, setReviewMode] = useState('counselor'); // 'candidate' | 'counselor'

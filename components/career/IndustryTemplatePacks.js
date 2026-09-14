@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Layers, Check, Plus, Sparkles, Building, Stethoscope, Briefcase, Landmark } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 export default function IndustryTemplatePacks({ colors, isDark, userToast, onAddKeyword }) {
     const [selectedPack, setSelectedPack] = useState('tech'); // 'tech' | 'healthcare' | 'sales' | 'govt_kerala'

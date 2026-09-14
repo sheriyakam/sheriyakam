@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Columns, Check, Sparkles, ArrowRight, Download, Award } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 export default function ResumeABComparison({ colors, isDark, userToast, onSelectVariant }) {
     const [activeVariant, setActiveVariant] = useState('B'); // 'A' | 'B'

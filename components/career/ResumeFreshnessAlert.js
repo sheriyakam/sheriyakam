@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Clock, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 export default function ResumeFreshnessAlert({ colors, isDark, userToast, onRefreshBase }) {
     const baseResumeDaysOld = 94; // Stale threshold: 90 days

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, ActivityIndicator } from 'react-native';
 import { Mic, MicOff, Send, Sparkles, Award } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 import { evaluateMockInterview } from '../../services/dynamicLlmGateway';
 
 export default function MockInterviewSimulator({ colors, isDark, userToast, targetRole = 'Director of Operations' }) {

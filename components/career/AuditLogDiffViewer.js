@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { History, Undo2, CheckCircle, AlertCircle, Sparkles } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 export default function AuditLogDiffViewer({ colors, isDark, userToast }) {
     const [auditItems, setAuditItems] = useState([

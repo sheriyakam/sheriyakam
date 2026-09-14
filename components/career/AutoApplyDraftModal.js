@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Copy, Check, FileText, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
-import Button from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 export default function AutoApplyDraftModal({ colors, isDark, userToast }) {
     const [copiedField, setCopiedField] = useState(null);

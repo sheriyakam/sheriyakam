@@ -67,6 +67,16 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Input, TextArea } from '../components/ui/Input';
+import MockInterviewSimulator from '../components/career/MockInterviewSimulator';
+import ResumeABComparison from '../components/career/ResumeABComparison';
+import RecruiterViewSimulator from '../components/career/RecruiterViewSimulator';
+import DeepJobFitBreakdown from '../components/career/DeepJobFitBreakdown';
+import AutoApplyDraftModal from '../components/career/AutoApplyDraftModal';
+import ResumeFreshnessAlert from '../components/career/ResumeFreshnessAlert';
+import IndustryTemplatePacks from '../components/career/IndustryTemplatePacks';
+import CounselorReviewDrawer from '../components/career/CounselorReviewDrawer';
+import GoogleDocsExportModal from '../components/career/GoogleDocsExportModal';
+import AuditLogDiffViewer from '../components/career/AuditLogDiffViewer';
 
 // =========================================================================
 // SHERIYAKAM AI: NEXT.JS-CLASS RESUME BUILDER & LINKEDIN OPTIMIZER
@@ -259,16 +269,7 @@ const SHERIYAKAM_FAQS = [
 ];
 
 
-import MockInterviewSimulator from '../components/career/MockInterviewSimulator';
-import ResumeABComparison from '../components/career/ResumeABComparison';
-import RecruiterViewSimulator from '../components/career/RecruiterViewSimulator';
-import DeepJobFitBreakdown from '../components/career/DeepJobFitBreakdown';
-import AutoApplyDraftModal from '../components/career/AutoApplyDraftModal';
-import ResumeFreshnessAlert from '../components/career/ResumeFreshnessAlert';
-import IndustryTemplatePacks from '../components/career/IndustryTemplatePacks';
-import CounselorReviewDrawer from '../components/career/CounselorReviewDrawer';
-import GoogleDocsExportModal from '../components/career/GoogleDocsExportModal';
-import AuditLogDiffViewer from '../components/career/AuditLogDiffViewer';
+
 
 export default function CvLinkedinOptimizeScreen() {
     const router = useRouter();

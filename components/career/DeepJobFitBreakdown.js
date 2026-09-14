@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Target, CheckCircle2, ChevronRight, ShieldCheck, MapPin, Building, Award, Wrench } from 'lucide-react-native';
-import Card from '../ui/Card';
-import Badge from '../ui/Badge';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
 
 export default function DeepJobFitBreakdown({ colors, isDark, userToast }) {
     const [expandedDim, setExpandedDim] = useState(null);

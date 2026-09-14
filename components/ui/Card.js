@@ -166,3 +166,5 @@ const styles = StyleSheet.create({
         fontSize: 11,
     },
 });
+
+export default Card;
