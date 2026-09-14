@@ -95,7 +95,7 @@ const ServiceCard = ({
                             <Text style={[styles.badgeText, { color: isEmergency ? '#fff' : (isDark ? '#fff' : '#1a1a1a') }]}>{rating}</Text>
                         </View>
 
-                        {rating >= 4.8 && (
+                        {rating >= 4.9 && (
                             <View style={styles.topRatedBadge}>
                                 <Text style={styles.topRatedText}>TOP RATED</Text>
                             </View>

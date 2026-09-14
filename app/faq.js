@@ -52,7 +52,7 @@ export default function FAQScreen() {
                         👤 Reviewed & Verified by KSELB Grade-A Electrical Supervisors
                     </Text>
                     <Text style={{ fontSize: 12, color: colors.textSecondary, lineHeight: 18 }}>
-                        Authored by the technical team at Empire Electricals (Est. 1998, Kerala Contractor Licence #KL/EC/2024). All safety instructions follow Central Electricity Authority (CEA) Safety Regulations and Kerala State Electricity Board (KSEB) standards.
+                        Authored by the technical team at Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL). All safety instructions follow Central Electricity Authority (CEA) Safety Regulations and Kerala State Electricity Board (KSEB) standards.
                     </Text>
                 </View>
 

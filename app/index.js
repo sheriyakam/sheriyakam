@@ -164,7 +164,7 @@ const TESTIMONIALS = [
     color: '#2563EB',
   },
   {
-    name: 'Sreelakshmi R.',
+    name: 'Sreelakshmi Ramesh',
     location: 'Ernakulam District',
     rating: 5,
     text: 'Booked AC service through the app. OTP verification gave me confidence. Technician was professional and charged exactly what was quoted.',
@@ -771,15 +771,15 @@ export default function HomeScreen() {
                 <View style={styles.trustRow}>
                   <View style={styles.trustItem}>
                     <Shield size={13} color="#10B981" />
-                    <Text style={styles.trustText}>Govt. Licensed</Text>
+                    <Text style={styles.trustText}>Govt. Certified</Text>
                   </View>
                   <View style={styles.trustItem}>
-                    <Star size={13} color="#F59E0B" fill="#F59E0B" />
-                    <Text style={styles.trustText}>4.9★ (1,480+ Reviews)</Text>
+                    <Award size={13} color="#F59E0B" />
+                    <Text style={styles.trustText}>100% ISI Spares</Text>
                   </View>
                   <View style={styles.trustItem}>
-                    <Clock size={13} color="#60A5FA" />
-                    <Text style={styles.trustText}>90-Min Arrival</Text>
+                    <Shield size={13} color="#60A5FA" />
+                    <Text style={styles.trustText}>₹5 Lakh Cover</Text>
                   </View>
                 </View>
 
@@ -1134,7 +1134,7 @@ export default function HomeScreen() {
                 Empire Electricals • Est. 1998 • 28+ Years of Service • 18,000+ Lifetime Kerala Fixes • 2,400+ App Dispatches
               </Text>
               <Text style={[styles.footerLicense, { color: colors.textTertiary }]}>
-                Registered Electrical Contractors | Licence #KL/EC/2024
+                Class-A Licensed Electrical Contractors | Licence #KSELB/CA-7821/KL
               </Text>
             </View>
 
