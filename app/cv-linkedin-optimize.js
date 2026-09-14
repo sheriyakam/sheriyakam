@@ -255,16 +255,16 @@ const SHERIYAKAM_FAQS = [
         a: 'Standard ATS screeners (Workday, Taleo, Greenhouse, Lever) struggle with multi-column tables, graphics, and background fills. We export text-selectable, unflattened vector PDFs that guarantee 100% parseable field extraction.'
     },
     {
-        q: 'How does the free tier refill work?',
-        a: 'You get 5 ATS checks, 3 tailored rewrites, and 5 cover letters every 5 hours. Your quota automatically resets on a rolling 5-hour token bucket timer without any subscription fees.'
+        q: 'How does the ATS score optimization work?',
+        a: 'Our dual-engine analysis checks both recruiter search keyword frequency and structural parsing compatibility against Workday, Taleo, Greenhouse, and Lever.'
     },
     {
-        q: 'How does the Pay-Per-Pack pricing work?',
-        a: 'There are no auto-renewing subscriptions. You purchase one-time credit packs: Lite ($2 for 30 days) or Active Search ($5 for 30 days). Packs stack cleanly, and the oldest-expiring credits are always consumed first.'
+        q: 'What tools are included in the 10 AI Career Copilot?',
+        a: 'The suite includes voice & text mock interviews, recruiter eye-tracking heatmaps, A/B strategy comparison, 4-D job fit breakdown, auto-apply drafts, freshness alerts, localized template packs, counselor review, Google Docs sync, and line-by-line AI audit logging.'
     },
     {
-        q: 'Is my personal career data used to train AI models?',
-        a: 'No. All inferences are processed in ephemeral volatile memory. We never sell, index, or use your resumes to train public LLM models. You also have a one-click GDPR "Purge All Data" button in your privacy settings.'
+        q: 'Is my personal career data safe and private?',
+        a: 'Yes, 100%. All inferences are processed in ephemeral volatile memory. We never sell, index, or use your resumes to train public LLM models.'
     }
 ];
 
@@ -1060,45 +1060,7 @@ export default function CvLinkedinOptimizeScreen() {
                         </Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.navTabBtn, activeTab === 'dashboard' && styles.navTabBtnActive]}
-                        onPress={() => setActiveTab('dashboard')}
-                    >
-                        <Briefcase size={14} color={activeTab === 'dashboard' ? '#FFFFFF' : colors.textPrimary} />
-                        <Text style={[styles.navTabText, activeTab === 'dashboard' && { color: '#FFFFFF' }]}>
-                            Versions ({savedVersions.length})
-                        </Text>
-                    </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.navTabBtn, activeTab === 'pricing' && styles.navTabBtnActive]}
-                        onPress={() => setActiveTab('pricing')}
-                    >
-                        <Zap size={14} color={activeTab === 'pricing' ? '#FFFFFF' : '#10B981'} />
-                        <Text style={[styles.navTabText, activeTab === 'pricing' && { color: '#FFFFFF' }]}>
-                            Packs (No Sub)
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.navTabBtn, activeTab === 'onboarding' && styles.navTabBtnActive]}
-                        onPress={() => setActiveTab('onboarding')}
-                    >
-                        <Target size={14} color={activeTab === 'onboarding' ? '#FFFFFF' : '#F59E0B'} />
-                        <Text style={[styles.navTabText, activeTab === 'onboarding' && { color: '#FFFFFF' }]}>
-                            60s Trial
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.navTabBtn, activeTab === 'privacy' && styles.navTabBtnActive]}
-                        onPress={() => setActiveTab('privacy')}
-                    >
-                        <ShieldCheck size={14} color={activeTab === 'privacy' ? '#FFFFFF' : '#10B981'} />
-                        <Text style={[styles.navTabText, activeTab === 'privacy' && { color: '#FFFFFF' }]}>
-                            Your Data, Your Control
-                        </Text>
-                    </TouchableOpacity>
                 </ScrollView>
             </View>
 
@@ -1118,6 +1080,182 @@ export default function CvLinkedinOptimizeScreen() {
                             </Text>
                         </View>
                         {renderAdvancedModules()}
+                        {/* Career Advantage & Localization Suite */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            <View style={styles.cardHeaderRow}>
+                                <Sparkles size={20} color="#10B981" />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                        Career Advancement Suite
+                                    </Text>
+                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
+                                        Interview prep, application tracker, salary benchmark & Kerala multi-language toggle.
+                                    </Text>
+                                </View>
+                                <Badge variant="success" size="sm">CAREER SUITE</Badge>
+                            </View>
+
+                            {/* Differentiator 1: Multi-Language Toggle (Malayalam / Hindi / English) */}
+                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View>
+                                        <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
+                                            🌐 Multi-Language Resume Mode (Kerala Market)
+                                        </Text>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                                            Select preferred output phrasing for domestic or GCC opportunities
+                                        </Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', gap: 6 }}>
+                                        {[
+                                            { code: 'en', label: 'English' },
+                                            { code: 'ml', label: 'മലയാളം' },
+                                            { code: 'hi', label: 'हिन्दी' }
+                                        ].map(lang => (
+                                            <TouchableOpacity
+                                                key={lang.code}
+                                                style={{
+                                                    paddingHorizontal: 10,
+                                                    paddingVertical: 5,
+                                                    borderRadius: 6,
+                                                    backgroundColor: selectedLanguage === lang.code ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
+                                                }}
+                                                onPress={() => {
+                                                    setSelectedLanguage(lang.code);
+                                                    success('Language mode updated to ' + lang.label);
+                                                }}
+                                            >
+                                                <Text style={{ fontSize: 11, fontWeight: '700', color: selectedLanguage === lang.code ? '#FFFFFF' : colors.textPrimary }}>
+                                                    {lang.label}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+                            </View>
+
+                            {/* Differentiator 2: Salary Benchmark Insight */}
+                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
+                                        💰 Role Salary Benchmark: {salaryBenchmark.role}
+                                    </Text>
+                                    <Badge variant="neutral" size="sm">LIVE MARKET</Badge>
+                                </View>
+                                <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+                                    <View style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: isDark ? '#101726' : '#FFFFFF' }}>
+                                        <Text style={{ fontSize: 10, color: colors.textSecondary }}>25th Percentile</Text>
+                                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{salaryBenchmark.min}</Text>
+                                    </View>
+                                    <View style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: isDark ? '#101726' : '#FFFFFF' }}>
+                                        <Text style={{ fontSize: 10, color: '#10B981' }}>Market Median</Text>
+                                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>{salaryBenchmark.median}</Text>
+                                    </View>
+                                    <View style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: isDark ? '#101726' : '#FFFFFF' }}>
+                                        <Text style={{ fontSize: 10, color: colors.textSecondary }}>75th Percentile</Text>
+                                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{salaryBenchmark.max}</Text>
+                                    </View>
+                                </View>
+                            </View>
+
+                            {/* Differentiator 3: Interview Prep Cheat Sheet Generator */}
+                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
+                                        🎯 Targeted Interview Prep Q&A (Derived from Your Experience)
+                                    </Text>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        iconLeft={Sparkles}
+                                        onPress={() => success('Generated role-specific Q&A based on your real resume!')}
+                                    >
+                                        Refresh Q&A
+                                    </Button>
+                                </View>
+                                <View style={{ gap: 8 }}>
+                                    {interviewPrep.map((item, qIdx) => (
+                                        <View key={qIdx} style={{ padding: 10, borderRadius: 8, backgroundColor: isDark ? '#0D1525' : '#FFFFFF' }}>
+                                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 }}>
+                                                Q: {item.q}
+                                            </Text>
+                                            <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 16 }}>
+                                                Suggested Answer (Using your verified experience): {item.a}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+
+                            {/* Differentiator 4: Application Kanban Tracker with Outcome Signaling */}
+                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
+                                        📊 Application Tracker (Outcome Feedback Loop)
+                                    </Text>
+                                    <Badge variant="info" size="sm">Outcome Feedback</Badge>
+                                </View>
+                                <View style={{ gap: 6 }}>
+                                    {kanbanApps.map(app => (
+                                        <View key={app.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8, borderRadius: 6, backgroundColor: isDark ? '#0D1525' : '#FFFFFF' }}>
+                                            <View>
+                                                <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary }}>{app.role} · {app.company}</Text>
+                                                <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>{app.date} • Stage: {app.stage.toUpperCase()}</Text>
+                                            </View>
+                                            <TouchableOpacity
+                                                style={{
+                                                    paddingHorizontal: 10,
+                                                    paddingVertical: 5,
+                                                    borderRadius: 6,
+                                                    backgroundColor: app.outcome === 'got_call' ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
+                                                }}
+                                                onPress={() => {
+                                                    setKanbanApps(prev => prev.map(a => a.id === app.id ? { ...a, outcome: a.outcome === 'got_call' ? 'pending' : 'got_call' } : a));
+                                                    success(app.outcome === 'got_call' ? 'Status reset' : '🎉 Call marked! AI will prioritize this resume style for future passes.');
+                                                }}
+                                            >
+                                                <Text style={{ fontSize: 11, fontWeight: '700', color: app.outcome === 'got_call' ? '#FFFFFF' : colors.textPrimary }}>
+                                                    {app.outcome === 'got_call' ? '✓ Got a Call!' : 'Mark Call'}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+
+                            {/* Differentiator 5: WhatsApp Notification Toggle & Referral Bonus */}
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                                <View style={{ flex: 1, minWidth: 260, padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <View>
+                                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary }}>📱 WhatsApp Status Alerts</Text>
+                                            <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>Get notified when your quota refills or tailoring completes</Text>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={{
+                                                paddingHorizontal: 10,
+                                                paddingVertical: 5,
+                                                borderRadius: 6,
+                                                backgroundColor: whatsAppAlerts ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
+                                            }}
+                                            onPress={() => {
+                                                setWhatsAppAlerts(!whatsAppAlerts);
+                                                success(whatsAppAlerts ? 'WhatsApp alerts paused' : 'WhatsApp alerts enabled');
+                                            }}
+                                        >
+                                            <Text style={{ fontSize: 11, fontWeight: '700', color: whatsAppAlerts ? '#FFFFFF' : colors.textPrimary }}>
+                                                {whatsAppAlerts ? 'Enabled' : 'Disabled'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                <View style={{ flex: 1, minWidth: 260, padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary }}>🎁 Referral Credits Loop</Text>
+                                    <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>Share your code: <Text style={{ fontWeight: '800', color: '#10B981' }}>SHERIYA-CV-2026</Text> for +5 bonus ATS checks</Text>
+                                </View>
+                            </View>
+                        </Card>
                     </View>
                 )}
 
@@ -1163,10 +1301,10 @@ export default function CvLinkedinOptimizeScreen() {
                                 <Button
                                     variant="secondary"
                                     size="md"
-                                    iconLeft={Target}
-                                    onPress={() => setActiveTab('onboarding')}
+                                    iconLeft={Sparkles}
+                                    onPress={() => setActiveTab('advanced')}
                                 >
-                                    Try 60s Free Gap Audit
+                                    Explore 10 AI Tools
                                 </Button>
                             </View>
                         </View>
@@ -1332,190 +1470,6 @@ export default function CvLinkedinOptimizeScreen() {
                                 })}
                             </View>
                         </Card>
-                    </View>
-                )}
-
-                
-                        {/* Beyond Ruvalo: Differentiation & Innovation Suite Card */}
-                        <Card variant="elevated" style={styles.sectionCard}>
-                            <View style={styles.cardHeaderRow}>
-                                <Sparkles size={20} color="#10B981" />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                        Beyond Ruvalo — Advantage Suite
-                                    </Text>
-                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                        Interview prep, application tracker, salary benchmark & Kerala multi-language toggle.
-                                    </Text>
-                                </View>
-                                <Badge variant="success" size="sm">EXCLUSIVE 10-TOOL SUITE</Badge>
-                            </View>
-
-                            <View style={{ marginBottom: 16 }}>
-                                {renderAdvancedModules()}
-                            </View>
-
-                            {/* Differentiator 1: Multi-Language Toggle (Malayalam / Hindi / English) */}
-                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <View>
-                                        <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
-                                            🌐 Multi-Language Resume Mode (Kerala Market)
-                                        </Text>
-                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>
-                                            Select preferred output phrasing for domestic or GCC opportunities
-                                        </Text>
-                                    </View>
-                                    <View style={{ flexDirection: 'row', gap: 6 }}>
-                                        {[
-                                            { code: 'en', label: 'English' },
-                                            { code: 'ml', label: 'മലയാളം' },
-                                            { code: 'hi', label: 'हिन्दी' }
-                                        ].map(lang => (
-                                            <TouchableOpacity
-                                                key={lang.code}
-                                                style={{
-                                                    paddingHorizontal: 10,
-                                                    paddingVertical: 5,
-                                                    borderRadius: 6,
-                                                    backgroundColor: selectedLanguage === lang.code ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
-                                                }}
-                                                onPress={() => {
-                                                    setSelectedLanguage(lang.code);
-                                                    success('Language mode updated to ' + lang.label);
-                                                }}
-                                            >
-                                                <Text style={{ fontSize: 11, fontWeight: '700', color: selectedLanguage === lang.code ? '#FFFFFF' : colors.textPrimary }}>
-                                                    {lang.label}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Differentiator 2: Salary Benchmark Insight */}
-                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
-                                        💰 Role Salary Benchmark: {salaryBenchmark.role}
-                                    </Text>
-                                    <Badge variant="neutral" size="sm">LIVE MARKET</Badge>
-                                </View>
-                                <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-                                    <View style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: isDark ? '#101726' : '#FFFFFF' }}>
-                                        <Text style={{ fontSize: 10, color: colors.textSecondary }}>25th Percentile</Text>
-                                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{salaryBenchmark.min}</Text>
-                                    </View>
-                                    <View style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: isDark ? '#101726' : '#FFFFFF' }}>
-                                        <Text style={{ fontSize: 10, color: '#10B981' }}>Market Median</Text>
-                                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>{salaryBenchmark.median}</Text>
-                                    </View>
-                                    <View style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: isDark ? '#101726' : '#FFFFFF' }}>
-                                        <Text style={{ fontSize: 10, color: colors.textSecondary }}>75th Percentile</Text>
-                                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{salaryBenchmark.max}</Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Differentiator 3: Interview Prep Cheat Sheet Generator */}
-                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
-                                        🎯 Targeted Interview Prep Q&A (Derived from Your Experience)
-                                    </Text>
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        iconLeft={Sparkles}
-                                        onPress={() => success('Generated role-specific Q&A based on your real resume!')}
-                                    >
-                                        Refresh Q&A
-                                    </Button>
-                                </View>
-                                <View style={{ gap: 8 }}>
-                                    {interviewPrep.map((item, qIdx) => (
-                                        <View key={qIdx} style={{ padding: 10, borderRadius: 8, backgroundColor: isDark ? '#0D1525' : '#FFFFFF' }}>
-                                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 }}>
-                                                Q: {item.q}
-                                            </Text>
-                                            <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 16 }}>
-                                                Suggested Answer (Using your verified experience): {item.a}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-
-                            {/* Differentiator 4: Application Kanban Tracker with Outcome Signaling */}
-                            <View style={{ padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.textPrimary }}>
-                                        📊 Application Tracker (Outcome Feedback Loop)
-                                    </Text>
-                                    <Badge variant="info" size="sm">Outcome Feedback</Badge>
-                                </View>
-                                <View style={{ gap: 6 }}>
-                                    {kanbanApps.map(app => (
-                                        <View key={app.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8, borderRadius: 6, backgroundColor: isDark ? '#0D1525' : '#FFFFFF' }}>
-                                            <View>
-                                                <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary }}>{app.role} · {app.company}</Text>
-                                                <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>{app.date} • Stage: {app.stage.toUpperCase()}</Text>
-                                            </View>
-                                            <TouchableOpacity
-                                                style={{
-                                                    paddingHorizontal: 10,
-                                                    paddingVertical: 5,
-                                                    borderRadius: 6,
-                                                    backgroundColor: app.outcome === 'got_call' ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
-                                                }}
-                                                onPress={() => {
-                                                    setKanbanApps(prev => prev.map(a => a.id === app.id ? { ...a, outcome: a.outcome === 'got_call' ? 'pending' : 'got_call' } : a));
-                                                    success(app.outcome === 'got_call' ? 'Status reset' : '🎉 Call marked! AI will prioritize this resume style for future passes.');
-                                                }}
-                                            >
-                                                <Text style={{ fontSize: 11, fontWeight: '700', color: app.outcome === 'got_call' ? '#FFFFFF' : colors.textPrimary }}>
-                                                    {app.outcome === 'got_call' ? '✓ Got a Call!' : 'Mark Call'}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-
-                            {/* Differentiator 5: WhatsApp Notification Toggle & Referral Bonus */}
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-                                <View style={{ flex: 1, minWidth: 260, padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <View>
-                                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary }}>📱 WhatsApp Status Alerts</Text>
-                                            <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>Get notified when your quota refills or tailoring completes</Text>
-                                        </View>
-                                        <TouchableOpacity
-                                            style={{
-                                                paddingHorizontal: 10,
-                                                paddingVertical: 5,
-                                                borderRadius: 6,
-                                                backgroundColor: whatsAppAlerts ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
-                                            }}
-                                            onPress={() => {
-                                                setWhatsAppAlerts(!whatsAppAlerts);
-                                                success(whatsAppAlerts ? 'WhatsApp alerts paused' : 'WhatsApp alerts enabled');
-                                            }}
-                                        >
-                                            <Text style={{ fontSize: 11, fontWeight: '700', color: whatsAppAlerts ? '#FFFFFF' : colors.textPrimary }}>
-                                                {whatsAppAlerts ? 'Enabled' : 'Disabled'}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-
-                                <View style={{ flex: 1, minWidth: 260, padding: 12, borderRadius: 10, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                    <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textPrimary }}>🎁 Referral Credits Loop</Text>
-                                    <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>Share your code: <Text style={{ fontWeight: '800', color: '#10B981' }}>SHERIYA-CV-2026</Text> for +5 bonus ATS checks</Text>
-                                </View>
-                            </View>
-                        </Card>
 
                         {/* Supported Industries Grid (Footer Mapping — Replacing Kerala Districts Grid) */}
                         <Card variant="elevated" style={styles.sectionCard}>
@@ -1540,8 +1494,10 @@ export default function CvLinkedinOptimizeScreen() {
                                 ))}
                             </View>
                         </Card>
+                    </View>
+                )}
 
-                    {/* ----------------- TAB 2: AI RESUME BUILDER (DUAL-PANE WORKSPACE) ----------------- */}
+                {/* ----------------- TAB 2: AI RESUME BUILDER (DUAL-PANE WORKSPACE) ----------------- */}
                 {activeTab === 'builder' && (
                     <View>
                         {/* Dual-Pane View Switcher */}
@@ -1954,270 +1910,6 @@ export default function CvLinkedinOptimizeScreen() {
                         >
                             Regenerate Recruiter Angles with Dual AI
                         </Button>
-                    </Card>
-                )}
-
-                {/* ----------------- TAB 4: VERSIONS DASHBOARD ----------------- */}
-                {activeTab === 'dashboard' && (
-                    <Card variant="elevated" style={styles.sectionCard}>
-                        <View style={styles.cardHeaderRow}>
-                            <Briefcase size={20} color="#10B981" />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                    Career Version Control Dashboard
-                                </Text>
-                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                    One canonical master resume permanently preserved. Unlimited tailored versions per job application.
-                                </Text>
-                            </View>
-                        </View>
-
-                        {/* Master Profile Card */}
-                        <View style={[styles.versionEntryCard, { backgroundColor: isDark ? '#101B2B' : '#ECFDF5', borderColor: '#10B981', borderWidth: 1.5 }]}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                    <Badge variant="success" size="sm">CANONICAL BASE RESUME</Badge>
-                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{baseResume.jobTitle}</Text>
-                                </View>
-                                <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700' }}>Master Profile</Text>
-                            </View>
-                            <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 4 }}>
-                                Holds your authentic historical experience. Never overwritten by tailoring passes.
-                            </Text>
-                        </View>
-
-                        {/* Child Tailored Versions */}
-                        <Text style={[styles.inputLabel, { color: colors.textPrimary, marginTop: 16, marginBottom: 8 }]}>
-                            Tailored Child Versions ({savedVersions.length}):
-                        </Text>
-                        <View style={{ gap: 10 }}>
-                            {savedVersions.map((v) => (
-                                <View key={v.id} style={[styles.versionEntryCard, { backgroundColor: isDark ? '#141E2E' : '#FFFFFF', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <View>
-                                            <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>{v.targetJobTitle}</Text>
-                                            <Text style={{ fontSize: 11, color: colors.textSecondary }}>{v.company} • Created {v.createdAt}</Text>
-                                        </View>
-                                        <View style={{ alignItems: 'flex-end' }}>
-                                            <Badge variant="success" size="sm">ATS: {v.finalScore}/100</Badge>
-                                        </View>
-                                    </View>
-                                    <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
-                                        <TouchableOpacity
-                                            style={[styles.miniBtn, { backgroundColor: '#10B981' }]}
-                                            onPress={() => {
-                                                setTargetJob(prev => ({ ...prev, title: v.targetJobTitle, company: v.company }));
-                                                setActiveTab('builder');
-                                                success(`Loaded tailored version for ${v.targetJobTitle}`);
-                                            }}
-                                        >
-                                            <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>Open in Builder</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[styles.miniBtn, { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
-                                            onPress={() => {
-                                                setSavedVersions(prev => prev.filter(item => item.id !== v.id));
-                                                success('Version deleted');
-                                            }}
-                                        >
-                                            <Trash2 size={12} color="#EF4444" />
-                                            <Text style={{ fontSize: 11, fontWeight: '700', color: '#EF4444' }}>Delete</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
-                    </Card>
-                )}
-
-                {/* ----------------- TAB 5: PAY-PER-PACK PRICING ----------------- */}
-                {activeTab === 'pricing' && (
-                    <Card variant="elevated" style={styles.sectionCard}>
-                        <View style={styles.cardHeaderRow}>
-                            <Zap size={20} color="#10B981" />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                    Pay-Per-Pack Pricing (Zero Subscriptions)
-                                </Text>
-                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                    No recurring credit card charges. Packs stack cleanly; oldest-expiring credits used first.
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={{ gap: 14, marginTop: 10 }}>
-                            {/* Free Tier */}
-                            <View style={[styles.pricingBox, { backgroundColor: isDark ? '#141E2E' : '#FAFAFA', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Free Tier</Text>
-                                    <Text style={{ fontSize: 16, fontWeight: '800', color: '#10B981' }}>$0 Forever</Text>
-                                </View>
-                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, marginTop: 6, lineHeight: 18 }}>
-                                    • 5 free ATS score checks every 5 hours\n• 3 tailored resumes every 5 hours\n• 5 tailored cover letters every 5 hours\n• 1 Canonical Base Resume\n• Vector Single-Color Black ATS PDF
-                                </Text>
-                            </View>
-
-                            {/* Lite Pack */}
-                            <View style={[styles.pricingBox, { backgroundColor: isDark ? '#101F1B' : '#F0FDF4', borderColor: '#10B981', borderWidth: 1.5 }]}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                        <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Lite Pack (Most Popular)</Text>
-                                        <Badge variant="success" size="sm">ONE-TIME</Badge>
-                                    </View>
-                                    <Text style={{ fontSize: 16, fontWeight: '800', color: '#10B981' }}>$2 / 30 Days</Text>
-                                </View>
-                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, marginTop: 6, lineHeight: 18 }}>
-                                    • 30 tailored resumes with ATS scoring\n• 50 ATS score checks\n• Unlimited AI bullet refinements\n• 30 tailored cover letters\n• 2 Canonical Base Resumes\n• Word (.doc) & Vector PDF Export
-                                </Text>
-                                <TouchableOpacity
-                                    style={styles.packBuyBtn}
-                                    onPress={() => success('Razorpay / Stripe one-time checkout verified! Pack activated for 30 days.')}
-                                >
-                                    <Text style={styles.packBuyBtnText}>Get Lite Pack ($2 USD / ₹169)</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* Active Search Pack */}
-                            <View style={[styles.pricingBox, { backgroundColor: isDark ? '#141E2E' : '#FAFAFA', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Active Search Pack</Text>
-                                    <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>$5 / 30 Days</Text>
-                                </View>
-                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, marginTop: 6, lineHeight: 18 }}>
-                                    • Unlimited tailored resumes\n• 150 ATS score checks\n• Full LinkedIn Profile Optimizer included\n• 5 Base Resumes\n• Priority fast generation pipeline
-                                </Text>
-                                <TouchableOpacity
-                                    style={[styles.packBuyBtn, { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
-                                    onPress={() => success('Active Search Pack activated for 30 days!')}
-                                >
-                                    <Text style={[styles.packBuyBtnText, { color: colors.textPrimary }]}>Get Active Search ($5 USD / ₹419)</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Card>
-                )}
-
-                {/* ----------------- TAB 6: 60s TRIAL ONBOARDING ----------------- */}
-                {activeTab === 'onboarding' && (
-                    <Card variant="elevated" style={styles.sectionCard}>
-                        <View style={styles.cardHeaderRow}>
-                            <Target size={20} color="#F59E0B" />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                    60-Second Interactive Trial
-                                </Text>
-                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                    See your honest ATS keyword gap score before signing up.
-                                </Text>
-                            </View>
-                            <Badge variant="warning" size="sm">No Signup Required</Badge>
-                        </View>
-
-                        <View style={{ gap: 12, marginTop: 12 }}>
-                            <TextArea
-                                label="Step 1: Paste Any Target Job Description"
-                                value={targetJob.description}
-                                onChangeText={t => setTargetJob(prev => ({ ...prev, description: t }))}
-                                numberOfLines={3}
-                            />
-                            <TextArea
-                                label="Step 2: Paste Your Authentic Experience"
-                                value={baseResume.summary}
-                                onChangeText={t => setBaseResume(prev => ({ ...prev, summary: t }))}
-                                numberOfLines={3}
-                            />
-                            <Button
-                                variant="primary"
-                                size="md"
-                                iconRight={Sparkles}
-                                onPress={() => {
-                                    setActiveTab('builder');
-                                    success('Loaded into full Dual-Pane Builder!');
-                                }}
-                                style={{ backgroundColor: '#10B981' }}
-                            >
-                                Run Full ATS Gap Audit in Builder
-                            </Button>
-                        </View>
-                    </Card>
-                )}
-
-                {/* ----------------- TAB 7: YOUR DATA, YOUR CONTROL (PRIVACY) ----------------- */}
-                {activeTab === 'privacy' && (
-                    <Card variant="elevated" style={styles.sectionCard}>
-                        <View style={styles.cardHeaderRow}>
-                            <ShieldCheck size={20} color="#10B981" />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                    Your Data, Your Control (GDPR & Privacy)
-                                </Text>
-                                <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                    Zero AI model training on your resumes, full data portability, and one-click erasure.
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={{ gap: 12, marginTop: 12 }}>
-                            {/* Zero Training Card */}
-                            <View style={[styles.privacyActionCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC' }]}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                    <EyeOff size={16} color="#10B981" />
-                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
-                                        Zero Public AI Model Training Guarantee
-                                    </Text>
-                                </View>
-                                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 4 }}>
-                                    Your resume data is processed only in volatile memory to score and tailor your application. It is never sold, indexed, or used to train public LLMs.
-                                </Text>
-                            </View>
-
-                            {/* Export JSON Data */}
-                            <View style={[styles.privacyActionCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC' }]}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <View>
-                                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
-                                            Export Complete Data Archive (.json)
-                                        </Text>
-                                        <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>
-                                            Download all work history, skills, versions, and ATS scores.
-                                        </Text>
-                                    </View>
-                                    <TouchableOpacity
-                                        style={[styles.miniBtn, { backgroundColor: '#10B981' }]}
-                                        onPress={() => {
-                                            handleCopy(JSON.stringify({ baseResume, savedVersions, linkedInData }, null, 2), 'Full Data Archive');
-                                        }}
-                                    >
-                                        <Copy size={12} color="#FFFFFF" />
-                                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>Copy JSON</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-
-                            {/* Purge All Data */}
-                            <View style={[styles.privacyActionCard, { backgroundColor: '#FEF2F2', borderColor: '#FCA5A5' }]}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <View>
-                                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#991B1B' }}>
-                                            Purge All Data (Right to Erasure)
-                                        </Text>
-                                        <Text style={{ fontSize: 11, color: '#7F1D1D', marginTop: 2 }}>
-                                            Permanently erase your resumes, history, and cached credits.
-                                        </Text>
-                                    </View>
-                                    <TouchableOpacity
-                                        style={[styles.miniBtn, { backgroundColor: '#DC2626' }]}
-                                        onPress={() => {
-                                            setSavedVersions([]);
-                                            success('All role-tailored versions and profile data purged.');
-                                        }}
-                                    >
-                                        <Trash2 size={12} color="#FFFFFF" />
-                                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>Purge</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
                     </Card>
                 )}
             </ScrollView>
