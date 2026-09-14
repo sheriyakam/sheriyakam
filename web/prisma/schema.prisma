@@ -8,96 +8,83 @@ generator client {
 }
 
 model User {
-  id               String            @id @default(cuid())
-  name             String?
-  email            String            @unique
-  emailVerified    DateTime?
-  image            String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-
-  quota            QuotaAccount?
-  baseResumes      BaseResume[]
-  tailoredResumes  TailoredResume[]
-  paymentPacks     PaymentPack[]
-  linkedInProfiles LinkedInProfile[]
-}
-
-model QuotaAccount {
-  id                   String    @id @default(cuid())
-  userId               String    @unique
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  freeChecksRemaining  Int       @default(5)
-  freeTailorsRemaining Int       @default(3)
-  lastRefillTimestamp  DateTime  @default(now())
-  paidCredits          Int       @default(0)
-  activePlan           String    @default("free")
-  planExpiresAt        DateTime?
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  createdAt       DateTime         @default(now())
+  baseResume      BaseResume?
+  linkedinProfile LinkedinProfile?
+  credits         CreditBalance[]
+  payments        Payment[]
 }
 
 model BaseResume {
-  id             String           @id @default(cuid())
-  userId         String
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  fullName       String
-  jobTitle       String
-  email          String
-  phone          String
-  location       String
-  summary        String
+  id             String            @id @default(cuid())
+  userId         String            @unique
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact        Json
+  summary        String?
+  experience     Json
+  education      Json
   skills         String[]
-  certifications String[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-
-  tailoredVersions TailoredResume[]
+  projects       Json?
+  certifications Json?
+  updatedAt      DateTime          @updatedAt
+  versions       TailoredVersion[]
 }
 
-model TailoredResume {
-  id                   String      @id @default(cuid())
-  userId               String
-  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  baseResumeId         String
-  baseResume           BaseResume  @relation(fields: [baseResumeId], references: [id], onDelete: Cascade)
-  targetJobTitle       String
-  targetCompany        String
-  targetJobDescription String      @db.Text
-  initialScore         Int
-  finalScore           Int
-  matchedKeywords      String[]
-  missingKeywords      String[]
-  confirmedSkills      String[]
-  rewrittenSummary     String      @db.Text
-  rewrittenExperiences Json
-  coverLetter          String      @db.Text
-  createdAt            DateTime    @default(now())
-}
-
-model LinkedInProfile {
-  id                String   @id @default(cuid())
+model JobDescription {
+  id                String            @id @default(cuid())
   userId            String
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  targetRole        String
-  currentHeadline   String
-  optimizedHeadline String
-  currentAbout      String   @db.Text
-  optimizedAbout    String   @db.Text
-  missingSkills     String[]
-  createdAt         DateTime @default(now())
+  rawText           String            @db.Text
+  title             String?
+  company           String?
+  extractedKeywords String[]
+  createdAt         DateTime          @default(now())
+  versions          TailoredVersion[]
 }
 
-model PaymentPack {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider     String
-  packType     String
-  amount       Float
-  currency     String   @default("USD")
-  status       String
-  paymentId    String?  @unique
-  orderId      String?  @unique
-  creditsAdded Int
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
+model TailoredVersion {
+  id               String         @id @default(cuid())
+  baseResumeId     String
+  baseResume       BaseResume     @relation(fields: [baseResumeId], references: [id], onDelete: Cascade)
+  jobDescriptionId String
+  jobDescription   JobDescription @relation(fields: [jobDescriptionId], references: [id], onDelete: Cascade)
+  content          Json
+  atsScore         Int
+  keywordMatches   String[]
+  keywordGaps      String[]
+  templateId       String
+  createdAt        DateTime       @default(now())
+}
+
+model LinkedinProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline          String?
+  about             String?  @db.Text
+  experience        Json?
+  skills            String[]
+  completenessScore Int?
+  updatedAt         DateTime @updatedAt
+}
+
+model CreditBalance {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packType    String
+  creditsLeft Int
+  expiresAt   DateTime
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  provider  String
+  status    String
+  createdAt DateTime @default(now())
 }
