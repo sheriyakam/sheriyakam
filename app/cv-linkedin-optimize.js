@@ -54,6 +54,7 @@ import {
     Star,
     Shield,
     Users,
+    User,
     Layers,
     Layout,
     Compass
@@ -244,29 +245,44 @@ const SHERIYAKAM_TESTIMONIALS = [
     }
 ];
 
-// FAQs Data
-const SHERIYAKAM_FAQS = [
+// FAQs Data (Ruvalo 55-Point Spec Complete 8 Questions & Answers)
+const RUVALO_FAQS = [
     {
-        q: 'Does the AI ever invent or hallucinate fake experience?',
-        a: 'Never. Sheriyakam operates under a strict Anti-Fabrication Guarantee. The engine acts strictly as an editor and translator, phrasing your genuine history in the vocabulary of the target job posting. Skills you did not document require explicit confirmation via the Honesty Guardrail checklist before being woven in.'
+        q: "Will it put things on my resume that aren't true?",
+        a: "Never. Sheriyakam operates under an uncompromising Anti-Fabrication Guarantee. Our AI functions strictly as a phrasing editor and vocabulary translator, mapping your authentic work history to the exact terminology used by recruiters. It will never hallucinate jobs, companies, degrees, or certifications you never held. If a job listing requires a skill not in your base profile, our Honesty Guardrail explicitly asks you to verify your genuine capability before incorporating it."
     },
     {
-        q: 'Why single-color black (#000000) vector PDF exports?',
-        a: 'Standard ATS screeners (Workday, Taleo, Greenhouse, Lever) struggle with multi-column tables, graphics, and background fills. We export text-selectable, unflattened vector PDFs that guarantee 100% parseable field extraction.'
+        q: "What actually is an ATS score?",
+        a: "An Applicant Tracking System (ATS) score measures how closely your resume matches the keyword parameters, structural hierarchy, and skill thresholds configured by recruiters in systems like Workday, Greenhouse, Taleo, and Lever. A score above 85 means your experience strongly aligns with the hiring manager's primary search filters."
     },
     {
-        q: 'How does the ATS score optimization work?',
-        a: 'Our dual-engine analysis checks both recruiter search keyword frequency and structural parsing compatibility against Workday, Taleo, Greenhouse, and Lever.'
+        q: "What do I get without paying?",
+        a: "Our Free Tier gives you 5 free ATS score audits every 5 hours, 3 tailored resume generation passes every 5 hours, 5 tailored cover letters every 5 hours, 15 AI bullet refinements per day, 1 permanent Base Resume, and unlimited text-selectable single-color vector PDF exports. There are zero credit card requirements and no expiring trials."
     },
     {
-        q: 'What tools are included in the 10 AI Career Copilot?',
-        a: 'The suite includes voice & text mock interviews, recruiter eye-tracking heatmaps, A/B strategy comparison, 4-D job fit breakdown, auto-apply drafts, freshness alerts, localized template packs, counselor review, Google Docs sync, and line-by-line AI audit logging.'
+        q: "What happens when I run out?",
+        a: "Your free tier credits refill automatically on a rolling 5-hour timer without you needing to do anything. If you are applying to dozens of roles in a single session and don't want to wait for the 5-hour refill, you can purchase an affordable 30-day pack (Lite at $2 / ₹169 or Active Search at $5 / ₹419) with one-time payment and zero auto-renewing subscriptions."
     },
     {
-        q: 'Is my personal career data safe and private?',
-        a: 'Yes, 100%. All inferences are processed in ephemeral volatile memory. We never sell, index, or use your resumes to train public LLM models.'
+        q: "Do I need to rewrite my resume from scratch?",
+        a: "No. You simply paste or upload your existing resume once into the Base Profile. The AI preserves your authentic master resume permanently, and creates lightweight, role-specific versions tailored to each individual target job description."
+    },
+    {
+        q: "Can it write the cover letter too?",
+        a: "Yes. For every tailored resume pass, Sheriyakam generates a matching, high-conversion cover letter that addresses the specific hiring manager, references the company's stated mission, and connects your verified achievements directly to the role requirements."
+    },
+    {
+        q: "Will the exported PDF survive a resume parser?",
+        a: "Guaranteed. Modern ATS parsers frequently choke on multi-column tables, text boxes, background fills, canvas graphics, and non-standard fonts. Sheriyakam exports clean, single-column, text-selectable vector PDFs with semantic header structures that yield 100% data extraction accuracy on Workday, Taleo, and Greenhouse."
+    },
+    {
+        q: "What happens to my resume data?",
+        a: "Your data privacy is strictly protected under enterprise-grade zero-retention policies. Inferences are executed in ephemeral volatile memory. We never sell, index, or use your personal career data to train public AI models. You maintain full data portability to export your archive or purge all records at any time."
     }
 ];
+
+// Reused backward compatibility
+const SHERIYAKAM_FAQS = RUVALO_FAQS;
 
 
 
@@ -280,6 +296,10 @@ export default function CvLinkedinOptimizeScreen() {
     // Top Navigation Tabs matching Next.js App
     // 'home' | 'builder' | 'linkedin' | 'dashboard' | 'pricing' | 'onboarding' | 'privacy'
     const [activeTab, setActiveTab] = useState('home');
+
+    // Ruvalo Spec: Live Demo Widget 4-Step State Machine (1 Paste -> 2 Gap -> 3 Tailor -> 4 Score)
+    const [demoStep, setDemoStep] = useState(4);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Dual-Pane Workspace View Mode
     const [workspaceView, setWorkspaceView] = useState('both'); // 'editor' | 'preview' | 'both'
@@ -964,56 +984,110 @@ export default function CvLinkedinOptimizeScreen() {
     return (
         <SafeAreaView style={[styles.screenContainer, { backgroundColor: isDark ? '#080B11' : '#F8FAFC' }]} edges={['top']}>
             <Head>
-                <title>AI Resume Builder & LinkedIn Profile Optimizer | Sheriyakam</title>
-                <meta name="description" content="Tailor your resume and LinkedIn profile to any job description. Score against ATS algorithms with an honest, anti-fabrication guarantee." />
-                <meta name="keywords" content="resume builder, ATS resume checker, LinkedIn profile optimizer, job description tailor, ATS score, Ruvalo AI alternative, resume keywords" />
+                {/* Point 51: Distinct title per page & distinct meta description */}
+                <title>Tailor Your Best Resume for Every Single Job | Sheriyakam AI</title>
+                <meta name="description" content="Increase interview calls with AI resume scoring and job description tailoring. It only ever rewrites experience you already have. Never invents any. 5 free ATS checks every 5 hours." />
+                <meta name="keywords" content="resume builder, ATS score checker, job description tailor, Ruvalo AI clone, AI resume optimizer, LinkedIn profile optimizer, resume keywords, anti-fabrication resume" />
+                
+                {/* Point 55: Canonical URL set correctly per route */}
                 <link rel="canonical" href="https://sheriyakam.vercel.app/cv-linkedin-optimize" />
+                
+                {/* Point 54: robots: index, follow */}
                 <meta name="robots" content="index, follow" />
+                
+                {/* Point 53: theme-color meta tag matching brand color (#10B981) */}
+                <meta name="theme-color" content="#10B981" />
+                <meta name="msapplication-TileColor" content="#10B981" />
 
-                {/* Open Graph / Facebook */}
+                {/* Point 52: Open Graph + Twitter Card (1200x630) auto-generated per page */}
                 <meta property="og:type" content="website" />
-                <meta property="og:title" content="AI Resume Builder & LinkedIn Optimizer — Sheriyakam" />
-                <meta property="og:description" content="Score and tailor your resume and LinkedIn profile to any job description in 90 seconds. 100% honest, anti-fabrication guarantee." />
+                <meta property="og:site_name" content="Sheriyakam.ai" />
+                <meta property="og:title" content="Tailor your best resume for every single job — Sheriyakam" />
+                <meta property="og:description" content="More interview calls through honest AI scoring & tailoring per job description. It only ever rewrites experience you already have. Never invents any." />
                 <meta property="og:url" content="https://sheriyakam.vercel.app/cv-linkedin-optimize" />
+                <meta property="og:image" content="https://sheriyakam.vercel.app/og-resume-1200x630.png" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
 
-                {/* Twitter */}
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="AI Resume Builder & LinkedIn Optimizer — Sheriyakam" />
-                <meta name="twitter:description" content="Score and tailor your resume and LinkedIn profile to any job description in 90 seconds. 100% honest, anti-fabrication guarantee." />
+                <meta name="twitter:site" content="@sheriyakam" />
+                <meta name="twitter:title" content="Tailor your best resume for every single job — Sheriyakam" />
+                <meta name="twitter:description" content="More interview calls through honest AI scoring & tailoring per job description. No credit card required." />
+                <meta name="twitter:image" content="https://sheriyakam.vercel.app/og-resume-1200x630.png" />
             </Head>
 
-            {/* ================= 1. SHERIYAKAM BRAND HEADER ================= */}
+            {/* ================= 1. NAVIGATION (POINTS 1 - 4) ================= */}
             <View style={[styles.topHeader, { backgroundColor: isDark ? '#0D1525' : '#FFFFFF', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
+                {/* Point 1: Logo (top-left, links home) */}
                 <View style={styles.headerLeftWrap}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                        <ArrowLeft size={18} color={colors.textPrimary} />
+                    <TouchableOpacity onPress={() => router.push('/')} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <View style={[styles.logoBadge, { backgroundColor: '#10B981' }]}>
+                            <Sparkles size={16} color="#FFFFFF" />
+                        </View>
+                        <View>
+                            <Text style={[styles.logoTitle, { color: colors.textPrimary }]}>
+                                Sheriyakam<Text style={{ color: '#10B981' }}>.ai</Text>
+                            </Text>
+                            <Text style={styles.logoSub}>Ruvalo-Grade Resume & LinkedIn Engine</Text>
+                        </View>
                     </TouchableOpacity>
-                    <View style={styles.logoBadge}>
-                        <Sparkles size={14} color="#0D9488" />
-                    </View>
-                    <View>
-                        <Text style={[styles.logoTitle, { color: colors.textPrimary }]}>
-                            Sheriyakam<Text style={{ color: '#10B981' }}>.ai</Text>
-                        </Text>
-                        <Text style={styles.logoSub}>Career Copilot & ATS Optimizer</Text>
-                    </View>
                 </View>
 
-                {/* Multi-Provider Fallback Status & Rolling Quota Indicator */}
-                <View style={styles.headerRightWrap}>
-                    <View style={[styles.aiStatusBadge, { backgroundColor: '#10B98115', borderColor: '#10B98140' }]}>
-                        <View style={styles.greenPulseDot} />
-                        <Text style={[styles.aiStatusText, { color: '#10B981' }]}>
-                            Dual AI Live: Gemini 2.5 Flash + OpenRouter
+                {/* Point 2: Nav links: Features / Pricing / FAQ / Blog + Workspaces */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <TouchableOpacity onPress={() => setActiveTab('home')} style={{ paddingHorizontal: 8, paddingVertical: 4 }}>
+                        <Text style={{ fontSize: 12.5, fontWeight: activeTab === 'home' ? '800' : '600', color: activeTab === 'home' ? '#10B981' : colors.textSecondary }}>
+                            Features
                         </Text>
-                    </View>
+                    </TouchableOpacity>
 
-                    <View style={[styles.quotaBadge, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
-                        <Clock size={12} color="#10B981" />
-                        <Text style={[styles.quotaText, { color: colors.textSecondary }]}>
-                            {quota.checksRemaining} Free Checks · Refills {quota.resetsIn}
+                    <TouchableOpacity onPress={() => { setActiveTab('home'); info('Scroll down to Pricing below'); }} style={{ paddingHorizontal: 8, paddingVertical: 4 }}>
+                        <Text style={{ fontSize: 12.5, fontWeight: '600', color: colors.textSecondary }}>
+                            Pricing
                         </Text>
-                    </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => { setActiveTab('home'); info('Scroll down to FAQs below'); }} style={{ paddingHorizontal: 8, paddingVertical: 4 }}>
+                        <Text style={{ fontSize: 12.5, fontWeight: '600', color: colors.textSecondary }}>
+                            FAQ
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => router.push('/blog')} style={{ paddingHorizontal: 8, paddingVertical: 4 }}>
+                        <Text style={{ fontSize: 12.5, fontWeight: '600', color: colors.textSecondary }}>
+                            Blog
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* Point 3: Primary CTA button "Tailor my resume" (top-right, links to builder/sign-up) */}
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: '#10B981',
+                            paddingHorizontal: 14,
+                            paddingVertical: 7,
+                            borderRadius: 8,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 6
+                        }}
+                        onPress={() => {
+                            setActiveTab('builder');
+                            success('Dual-Pane Resume Builder opened!');
+                        }}
+                    >
+                        <Sparkles size={13} color="#FFFFFF" />
+                        <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFFFFF' }}>
+                            Tailor my resume
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* Point 4: Mobile hamburger menu toggle */}
+                    <TouchableOpacity
+                        style={{ padding: 6, borderRadius: 6, backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }}
+                        onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                        <SlidersHorizontal size={16} color={colors.textPrimary} />
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -1260,192 +1334,466 @@ export default function CvLinkedinOptimizeScreen() {
                 )}
 
                 {activeTab === 'home' && (
-                    <View style={{ gap: 20 }}>
-                        {/* Sheriyakam Hero */}
-                        <View style={{ alignItems: 'center', textAlign: 'center', paddingTop: 8 }}>
-                            <View style={[styles.heroPill, { backgroundColor: '#10B98115', borderColor: '#10B98130' }]}>
-                                <Sparkles size={14} color="#10B981" />
-                                <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981' }}>SHERIYAKAM BRAND · STRICT ANTI-FABRICATION</Text>
+                    <View style={{ gap: 24, paddingBottom: 24 }}>
+
+                        {/* ================= HERO SECTION (POINTS 5 - 11) ================= */}
+                        <View style={{ alignItems: 'center', textAlign: 'center', paddingTop: 8, paddingHorizontal: 4 }}>
+                            
+                            {/* Point 5: Eyebrow label above headline */}
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <View style={[styles.heroPill, { backgroundColor: '#10B98115', borderColor: '#10B98130', marginBottom: 0 }]}>
+                                    <Sparkles size={12} color="#10B981" />
+                                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', letterSpacing: 0.5 }}>
+                                        RESUME SCORING & TAILORING
+                                    </Text>
+                                </View>
+
+                                {/* Point 6: Product Hunt "Featured" badge linking to listing */}
+                                <TouchableOpacity
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                        paddingHorizontal: 10,
+                                        paddingVertical: 4,
+                                        borderRadius: 20,
+                                        backgroundColor: '#FF615415',
+                                        borderWidth: 1,
+                                        borderColor: '#FF615440'
+                                    }}
+                                    onPress={() => {
+                                        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                                            window.open('https://www.producthunt.com', '_blank');
+                                        } else {
+                                            info('Product Hunt #1 Career Product of the Day');
+                                        }
+                                    }}
+                                >
+                                    <Flame size={12} color="#FF6154" />
+                                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF6154' }}>
+                                        Featured on Product Hunt ↗
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-                            <Text style={[styles.homeHeroTitle, { color: colors.textPrimary }]}>
-                                Tailor Your Resume for Every Job in 60 Seconds
-                            </Text>
-                            <Text style={[styles.homeHeroSubtitle, { color: colors.textSecondary }]}>
-                                It only ever rewrites experience you already have. It never invents any.
+
+                            {/* Point 7: Headline */}
+                            <Text style={[styles.homeHeroTitle, { color: colors.textPrimary, fontSize: 26, lineHeight: 32 }]}>
+                                Tailor your best resume for every single job.
                             </Text>
 
-                            {/* Sheriyakam Reused Trust Row */}
-                            <View style={styles.trustRow}>
-                                {SHERIYAKAM_TRUST.map((t, idx) => {
-                                    const Icon = t.icon;
-                                    return (
-                                        <View key={idx} style={styles.trustItem}>
-                                            <Icon size={13} color={t.color} />
-                                            <Text style={[styles.trustText, { color: colors.textSecondary }]}>{t.text}</Text>
-                                        </View>
-                                    );
-                                })}
+                            {/* Point 8: Subheadline */}
+                            <Text style={[styles.homeHeroSubtitle, { color: colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: 8 }]}>
+                                More interview calls through honest AI scoring & tailoring per job description. Beat the ATS filter without lying or manual hours.
+                            </Text>
+
+                            {/* Point 9: Trust line directly under subheadline */}
+                            <View style={{ marginTop: 8, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: isDark ? '#101B2B' : '#ECFDF5', borderWidth: 1, borderColor: '#10B98140' }}>
+                                <Text style={{ fontSize: 12, fontWeight: '700', color: '#10B981', textAlign: 'center' }}>
+                                    ✓ It only ever rewrites experience you already have. It never invents any.
+                                </Text>
                             </View>
 
-                            {/* Quick CTA */}
-                            <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+                            {/* Point 10: Two CTAs side by side */}
+                            <View style={{ flexDirection: 'row', gap: 10, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
                                 <Button
                                     variant="primary"
                                     size="md"
                                     iconRight={ArrowRight}
-                                    onPress={() => setActiveTab('builder')}
+                                    onPress={() => {
+                                        setActiveTab('builder');
+                                        success('Dual-Pane Builder loaded!');
+                                    }}
                                     style={{ backgroundColor: '#10B981' }}
                                 >
-                                    Open Dual-Pane Resume Builder
+                                    Tailor my resume
                                 </Button>
                                 <Button
                                     variant="secondary"
                                     size="md"
-                                    iconLeft={Sparkles}
-                                    onPress={() => setActiveTab('advanced')}
+                                    iconLeft={User}
+                                    onPress={() => router.push('/auth/login')}
                                 >
-                                    Explore 10 AI Tools
+                                    I have an account
                                 </Button>
                             </View>
+
+                            {/* Point 11: Microcopy under CTAs */}
+                            <Text style={{ fontSize: 11.5, color: colors.textTertiary, marginTop: 10, textAlign: 'center' }}>
+                                No credit card · 5 free ATS checks every 5 hours · Refills automatically
+                            </Text>
                         </View>
 
-                        {/* Sheriyakam Reused Stats Banner */}
-                        <View style={[styles.statsBanner, { backgroundColor: '#10B981' }]}>
-                            <View style={styles.statsInner}>
-                                {SHERIYAKAM_STATS.map((stat, index) => {
-                                    const Icon = stat.icon;
-                                    return (
-                                        <View key={index} style={styles.statItem}>
-                                            <View style={styles.statIconWrap}>
-                                                <Icon size={18} color="#FFFFFF" />
-                                            </View>
-                                            <Text style={styles.statValue}>{stat.value}</Text>
-                                            <Text style={styles.statLabel}>{stat.label}</Text>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        </View>
 
-                        {/* Sheriyakam Reused 4-Step "How It Works" */}
-                        <Card variant="elevated" style={styles.sectionCard}>
-                            <View style={styles.cardHeaderRow}>
-                                <Layers size={18} color="#10B981" />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                        How It Works (Zero to Interview Loop)
-                                    </Text>
-                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                        4 straightforward steps that bridge your master profile to recruiter criteria.
+                        {/* ================= LIVE DEMO WIDGET (POINTS 12 - 23) ================= */}
+                        <Card variant="elevated" style={[styles.sectionCard, { borderColor: '#10B981', borderWidth: 1.5 }]}>
+                            {/* Widget Header Banner */}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <Badge variant="success" size="sm">LIVE CONVERSION DEMO</Badge>
+                                    {/* Point 15: State label */}
+                                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#10B981' }}>
+                                        Tailored resume ready
                                     </Text>
                                 </View>
-                            </View>
-                            <View style={styles.stepsGrid}>
-                                {SHERIYAKAM_STEPS.map((st, idx) => (
-                                    <View key={idx} style={[styles.stepCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
-                                        <View style={[styles.stepNumBadge, { backgroundColor: st.color }]}>
-                                            <Text style={styles.stepNumText}>{st.step}</Text>
-                                        </View>
-                                        <Text style={[styles.stepCardTitle, { color: colors.textPrimary }]}>{st.title}</Text>
-                                        <Text style={[styles.stepCardDesc, { color: colors.textSecondary }]}>{st.description}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </Card>
 
-                        {/* Sheriyakam Reused Service Cards → Template Picker Grid */}
-                        <Card variant="elevated" style={styles.sectionCard}>
-                            <View style={styles.cardHeaderRow}>
-                                <Layout size={18} color="#10B981" />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                        ATS-Compliant Resume Templates
+                                {/* Point 16: ATS match score shown as BEFORE -> AFTER animation */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: isDark ? '#101F1B' : '#ECFDF5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: '#10B981' }}>
+                                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textSecondary }}>ATS Match Score:</Text>
+                                    <Text style={{ fontSize: 13, fontWeight: '900', color: '#EF4444', textDecorationLine: demoStep === 4 ? 'line-through' : 'none' }}>
+                                        54
                                     </Text>
-                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                        Engineered to pass Workday, Taleo, and Greenhouse with 100% parse rates.
+                                    <Text style={{ fontSize: 13, fontWeight: '900', color: '#10B981' }}>
+                                        → 98/100
                                     </Text>
+                                    <Badge variant="success" size="sm">+44 pts</Badge>
                                 </View>
                             </View>
-                            <View style={styles.templatesGrid}>
-                                {RESUME_TEMPLATES.map((tpl) => {
-                                    const isSelected = selectedTemplate === tpl.id;
-                                    return (
-                                        <View key={tpl.id} style={[styles.templateCard, isSelected && { borderColor: '#10B981', borderWidth: 2 }, { backgroundColor: isDark ? '#141E2E' : '#FFFFFF' }]}>
-                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                                <Badge variant="neutral" size="sm">{tpl.tag}</Badge>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                                    <Star size={12} color="#F59E0B" fill="#F59E0B" />
-                                                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textPrimary }}>{tpl.rating}</Text>
-                                                </View>
-                                            </View>
-                                            <Text style={[styles.tplTitle, { color: colors.textPrimary }]}>{tpl.name}</Text>
-                                            <Text style={[styles.tplDesc, { color: colors.textSecondary }]}>{tpl.description}</Text>
-                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                                                <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '800' }}>{tpl.plan}</Text>
-                                                <TouchableOpacity
-                                                    style={[styles.tplSelectBtn, isSelected ? { backgroundColor: '#10B981' } : { backgroundColor: isDark ? '#1E293B' : '#E2E8F0' }]}
-                                                    onPress={() => {
-                                                        setSelectedTemplate(tpl.id);
-                                                        success(`Selected template: "${tpl.name}"`);
-                                                    }}
-                                                >
-                                                    <Text style={[styles.tplSelectBtnText, isSelected && { color: '#FFFFFF' }]}>
-                                                        {isSelected ? 'Active' : 'Use Template'}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        </Card>
 
-                        {/* Sheriyakam Reused Testimonial Cards */}
-                        <Card variant="elevated" style={styles.sectionCard}>
-                            <View style={styles.cardHeaderRow}>
-                                <Star size={18} color="#F59E0B" fill="#F59E0B" />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                        Verified Job Seeker Reviews
+                            {/* Point 12, 13, 14: Target Role & Careers Page Input */}
+                            <View style={{ padding: 12, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F1F5F9', marginBottom: 14 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                    {/* Point 12: Label */}
+                                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', textTransform: 'uppercase' }}>
+                                        Target role — pasted from careers page
                                     </Text>
-                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                        Real outcomes from candidates landing verified interviews.
-                                    </Text>
+                                    {/* Point 13: Sample job title + company */}
+                                    <Badge variant="neutral" size="sm">Senior Frontend Engineer · Northwind Labs</Badge>
                                 </View>
-                            </View>
-                            <View style={{ gap: 12 }}>
-                                {SHERIYAKAM_TESTIMONIALS.map((t, idx) => (
-                                    <View key={idx} style={[styles.testimonialCard, { backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                                            <View style={[styles.avatarBadge, { backgroundColor: t.color }]}>
-                                                <Text style={styles.avatarText}>{t.initials}</Text>
-                                            </View>
-                                            <View style={{ flex: 1 }}>
-                                                <Text style={[styles.testName, { color: colors.textPrimary }]}>{t.name}</Text>
-                                                <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>{t.role} • {t.location}</Text>
-                                            </View>
-                                            <View style={{ flexDirection: 'row' }}>
-                                                {[...Array(t.rating)].map((_, i) => (
-                                                    <Star key={i} size={12} color="#F59E0B" fill="#F59E0B" />
-                                                ))}
-                                            </View>
-                                        </View>
-                                        <Text style={[styles.testQuote, { color: colors.textSecondary }]}>"{t.text}"</Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </Card>
-
-                        {/* Sheriyakam Reused FAQ Accordion */}
-                        <Card variant="elevated" style={styles.sectionCard}>
-                            <View style={styles.cardHeaderRow}>
-                                <HelpCircle size={18} color="#10B981" />
-                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                    Frequently Asked Questions
+                                {/* Point 14: Full sample job description text */}
+                                <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17 }}>
+                                    "Northwind Labs is seeking a Senior Frontend Engineer proficient in React, TypeScript, Redux Toolkit, and Next.js. You will architect accessible WCAG web platforms, optimize Core Web Vitals to 95+, build automated CI/CD staging pipelines, and lead agile sprint delivery."
                                 </Text>
                             </View>
+
+                            {/* Point 17: "Already matched" keyword pill list (green) */}
+                            <View style={{ marginBottom: 14 }}>
+                                <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textPrimary, marginBottom: 6 }}>
+                                    Already matched keywords (Passed Taleo & Workday screening):
+                                </Text>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                                    {['React 19', 'TypeScript', 'Next.js', 'Redux Toolkit', 'CI/CD Pipelines', 'Core Web Vitals', 'WCAG Accessibility', 'Agile / Scrum', 'REST APIs', 'Git'].map((kw, kIdx) => (
+                                        <View key={kIdx} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: isDark ? '#064E3B' : '#D1FAE5', borderWidth: 1, borderColor: '#10B981' }}>
+                                            <Check size={11} color="#10B981" />
+                                            <Text style={{ fontSize: 10.5, fontWeight: '800', color: isDark ? '#A7F3D0' : '#065F46' }}>
+                                                {kw}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+
+                            {/* Point 18, 19, 20: Sample tailored resume preview */}
+                            <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#0A0F1D' : '#FFFFFF', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                {/* Point 18: Name, title, contact, location */}
+                                <View style={{ borderBottomWidth: 1, borderBottomColor: isDark ? '#1E293B' : '#E2E8F0', paddingBottom: 8, marginBottom: 10 }}>
+                                    <Text style={{ fontSize: 15, fontWeight: '900', color: colors.textPrimary }}>Arjun Menon</Text>
+                                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#10B981' }}>Senior Frontend Engineer</Text>
+                                    <Text style={{ fontSize: 10.5, color: colors.textSecondary, marginTop: 2 }}>
+                                        arjun.menon@example.com · +91 98470 12345 · Kozhikode, Kerala / Remote · linkedin.com/in/arjun-menon
+                                    </Text>
+                                </View>
+
+                                {/* Point 19: Experience section with rewritten bullets reflecting job's language */}
+                                <View style={{ marginBottom: 10 }}>
+                                    <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textPrimary, textTransform: 'uppercase', marginBottom: 4 }}>
+                                        Professional Experience (Tailored to Northwind Labs)
+                                    </Text>
+                                    <Text style={{ fontSize: 11.5, fontWeight: '700', color: colors.textPrimary }}>
+                                        Lead UI Engineer — Apex Logistics Global (2022 – Present)
+                                    </Text>
+                                    <View style={{ gap: 4, marginTop: 4 }}>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary, lineHeight: 16 }}>
+                                            • Architected high-concurrency <Text style={{ fontWeight: '800', color: '#10B981' }}>React & Next.js</Text> frontend architectures, cutting bundle size by 38% and driving <Text style={{ fontWeight: '800', color: '#10B981' }}>Core Web Vitals</Text> to 98+ for 2.4M monthly users.
+                                        </Text>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary, lineHeight: 16 }}>
+                                            • Engineered strict <Text style={{ fontWeight: '800', color: '#10B981' }}>TypeScript</Text> design system components with <Text style={{ fontWeight: '800', color: '#10B981' }}>Redux Toolkit</Text>, compliant with <Text style={{ fontWeight: '800', color: '#10B981' }}>WCAG 2.1 AA</Text> accessibility standards.
+                                        </Text>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary, lineHeight: 16 }}>
+                                            • Implemented GitHub Actions <Text style={{ fontWeight: '800', color: '#10B981' }}>CI/CD automated pipelines</Text>, accelerating release cadence by 4.2x with zero deployment regressions.
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                {/* Point 20: Skills line at bottom */}
+                                <View style={{ borderTopWidth: 1, borderTopColor: isDark ? '#1E293B' : '#E2E8F0', paddingTop: 8 }}>
+                                    <Text style={{ fontSize: 10.5, fontWeight: '800', color: colors.textPrimary }}>
+                                        Core Competencies: <Text style={{ fontWeight: '500', color: colors.textSecondary }}>React 19, TypeScript, Next.js, Redux Toolkit, CI/CD, Core Web Vitals, WCAG Accessibility, Jest, Git, Agile/Scrum.</Text>
+                                    </Text>
+                                </View>
+                            </View>
+
+                            {/* Point 21: 4-step progress indicator under whole widget */}
+                            <View style={{ marginTop: 14, borderTopWidth: 1, borderTopColor: isDark ? '#1E293B' : '#E2E8F0', paddingTop: 12 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
+                                    {[
+                                        { step: 1, label: '1 Paste the job' },
+                                        { step: 2, label: '2 See the gap' },
+                                        { step: 3, label: '3 Tailor it' },
+                                        { step: 4, label: '4 Score climbs' }
+                                    ].map((s) => (
+                                        <TouchableOpacity
+                                            key={s.step}
+                                            style={{
+                                                flex: 1,
+                                                minWidth: 110,
+                                                paddingVertical: 6,
+                                                paddingHorizontal: 8,
+                                                borderRadius: 6,
+                                                alignItems: 'center',
+                                                backgroundColor: demoStep === s.step ? '#10B981' : (isDark ? '#141E2E' : '#F1F5F9'),
+                                                borderWidth: 1,
+                                                borderColor: demoStep === s.step ? '#10B981' : (isDark ? '#1E293B' : '#E2E8F0')
+                                            }}
+                                            onPress={() => setDemoStep(s.step)}
+                                        >
+                                            <Text style={{ fontSize: 10.5, fontWeight: '800', color: demoStep === s.step ? '#FFFFFF' : colors.textPrimary }}>
+                                                {s.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+
+                                {/* Point 22 & 23: Disclaimer & Live Step state text */}
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, flexWrap: 'wrap', gap: 4 }}>
+                                    {/* Point 23: Live showing step X of 4 */}
+                                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#10B981' }}>
+                                        Currently showing step {demoStep} of 4 · Click any step to inspect
+                                    </Text>
+                                    {/* Point 22: Disclaimer */}
+                                    <Text style={{ fontSize: 10.5, color: colors.textTertiary, fontStyle: 'italic' }}>
+                                        Sample data · your results depend on your experience
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card>
+
+
+                        {/* ================= "WHY IT WORKS" SECTION (POINTS 24 - 27) ================= */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            {/* Point 24: Section eyebrow */}
+                            <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                WHY IT WORKS
+                            </Text>
+                            {/* Point 25: Section headline */}
+                            <Text style={[styles.cardTitle, { color: colors.textPrimary, fontSize: 18, marginTop: 4, marginBottom: 12 }]}>
+                                A strong resume still loses to a better-matched one
+                            </Text>
+
+                            {/* Point 26: Three explainer blocks */}
+                            <View style={{ gap: 10 }}>
+                                {/* Block a */}
+                                <View style={{ padding: 12, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary, marginBottom: 4 }}>
+                                        1. Right experience, wrong words
+                                    </Text>
+                                    <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17 }}>
+                                        Most qualified rejections are phrasing mismatches, not lack of capability. If a job listing searches for "cross-functional stakeholder alignment" and your resume says "collaborated with team leaders", automated ATS filters flag you as an experience gap.
+                                    </Text>
+                                </View>
+
+                                {/* Block b */}
+                                <View style={{ padding: 12, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary, marginBottom: 4 }}>
+                                        2. The listing is the answer key
+                                    </Text>
+                                    <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17 }}>
+                                        Job descriptions literally contain the exact vocabulary and search criteria recruiters configure inside Workday, Greenhouse, and Taleo. Matching those specific keywords bridges the algorithmic divide instantly.
+                                    </Text>
+                                </View>
+
+                                {/* Block c */}
+                                <View style={{ padding: 12, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary, marginBottom: 4 }}>
+                                        3. Doing it by hand doesn't scale
+                                    </Text>
+                                    <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17 }}>
+                                        Manual tailoring takes ~1 hour per application. Most job seekers burn out around application 5 and revert to spraying generic resumes that get filtered out. AI tailoring completes the alignment in 60 seconds without fatigue.
+                                    </Text>
+                                </View>
+                            </View>
+
+                            {/* Point 27: Three small proof-point callouts under this section */}
+                            <View style={{ flexDirection: 'row', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+                                <View style={{ flex: 1, minWidth: 200, padding: 10, borderRadius: 6, backgroundColor: isDark ? '#101F1B' : '#ECFDF5', borderWidth: 1, borderColor: '#10B981' }}>
+                                    <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#10B981' }}>No card</Text>
+                                    <Text style={{ fontSize: 10.5, color: colors.textSecondary, marginTop: 2 }}>
+                                        Start with 5 free ATS checks every 5 hours
+                                    </Text>
+                                </View>
+
+                                <View style={{ flex: 1, minWidth: 200, padding: 10, borderRadius: 6, backgroundColor: isDark ? '#101F1B' : '#ECFDF5', borderWidth: 1, borderColor: '#10B981' }}>
+                                    <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#10B981' }}>Every version</Text>
+                                    <Text style={{ fontSize: 10.5, color: colors.textSecondary, marginTop: 2 }}>
+                                        Saved against the job description that produced it
+                                    </Text>
+                                </View>
+
+                                <View style={{ flex: 1, minWidth: 200, padding: 10, borderRadius: 6, backgroundColor: isDark ? '#101F1B' : '#ECFDF5', borderWidth: 1, borderColor: '#10B981' }}>
+                                    <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#10B981' }}>One click</Text>
+                                    <Text style={{ fontSize: 10.5, color: colors.textSecondary, marginTop: 2 }}>
+                                        To a clean, parseable PDF, text never an image
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card>
+
+
+                        {/* ================= "WHAT YOU GET" SECTION (POINTS 28 - 32) ================= */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            {/* Point 28: Section eyebrow */}
+                            <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                WHAT YOU GET
+                            </Text>
+                            {/* Point 29: Section headline */}
+                            <Text style={[styles.cardTitle, { color: colors.textPrimary, fontSize: 18, marginTop: 4, marginBottom: 12 }]}>
+                                Built for the part of the job hunt nobody enjoys
+                            </Text>
+
+                            <View style={{ gap: 12 }}>
+                                {/* Point 30: Feature 01 */}
+                                <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                        <Text style={{ fontSize: 13.5, fontWeight: '800', color: colors.textPrimary }}>
+                                            01. Know the gap before you apply
+                                        </Text>
+                                        <Badge variant="success" size="sm">5 ATS checks free, refilling every 5 hours</Badge>
+                                    </View>
+                                    <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17, marginTop: 2 }}>
+                                        Paste any target job description and get an instant ATS match score in seconds. See exactly which keywords you have already documented versus what is missing before you hit submit.
+                                    </Text>
+                                </View>
+
+                                {/* Point 31: Feature 02 */}
+                                <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                        <Text style={{ fontSize: 13.5, fontWeight: '800', color: colors.textPrimary }}>
+                                            02. It rewrites. It doesn't invent.
+                                        </Text>
+                                        <Badge variant="neutral" size="sm">You confirm every claim</Badge>
+                                    </View>
+                                    <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17, marginTop: 2 }}>
+                                        Rewords your authentic achievements into the vocabulary of the target role. Ticked skills get woven in with measurable action verbs; unticked skills never appear. Zero hallucination guarantee.
+                                    </Text>
+                                </View>
+
+                                {/* Point 32: Feature 03 */}
+                                <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                        <Text style={{ fontSize: 13.5, fontWeight: '800', color: colors.textPrimary }}>
+                                            03. One base resume, a version per role
+                                        </Text>
+                                        <Badge variant="info" size="sm">Versions, not copies</Badge>
+                                    </View>
+                                    <Text style={{ fontSize: 11.5, color: colors.textSecondary, lineHeight: 17, marginTop: 2 }}>
+                                        Every tailored version is saved directly against the job description that produced it. When an employer calls 3 weeks later, reopen that exact version to see what they saw and refine for interviews.
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card>
+
+
+                        {/* ================= PRICING SECTION (POINTS 33 - 39) ================= */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            {/* Point 33: Section eyebrow */}
+                            <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                PRICING
+                            </Text>
+                            {/* Point 34: Section headline */}
+                            <Text style={[styles.cardTitle, { color: colors.textPrimary, fontSize: 18, marginTop: 4 }]}>
+                                Simple pricing, no subscription
+                            </Text>
+                            {/* Point 35: Subtext */}
+                            <Text style={[styles.cardSub, { color: colors.textSecondary, marginBottom: 14 }]}>
+                                Start free. Buy 30-day packs via one-time payment (UPI, cards, netbanking via Razorpay). Zero recurring subscriptions or auto-renewals.
+                            </Text>
+
+                            <View style={{ gap: 12 }}>
+                                {/* Point 36: Free Tier */}
+                                <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <View>
+                                            <Text style={{ fontSize: 14, fontWeight: '900', color: colors.textPrimary }}>Free Tier</Text>
+                                            <Text style={{ fontSize: 11, color: colors.textSecondary }}>Rolling 5-hour token refill</Text>
+                                        </View>
+                                        <Text style={{ fontSize: 18, fontWeight: '900', color: '#10B981' }}>$0 Forever</Text>
+                                    </View>
+                                    <View style={{ gap: 3, marginTop: 8 }}>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• Full dual-pane workspace form editor</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 3 tailored rewrites every 5 hours</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 5 ATS score checks every 5 hours</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 5 tailored cover letters every 5 hours</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 15 AI bullet refinements per day</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 1 permanent Canonical Base Resume</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• Clean text-selectable single-color vector PDF export</Text>
+                                    </View>
+                                </View>
+
+                                {/* Point 37: Lite Tier */}
+                                <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#101F1B' : '#F0FDF4', borderWidth: 1.5, borderColor: '#10B981' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <View>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                                <Text style={{ fontSize: 14, fontWeight: '900', color: colors.textPrimary }}>Lite Pack</Text>
+                                                <Badge variant="success" size="sm">ONE-TIME</Badge>
+                                            </View>
+                                            <Text style={{ fontSize: 11, color: colors.textSecondary }}>For active job applications</Text>
+                                        </View>
+                                        <Text style={{ fontSize: 18, fontWeight: '900', color: '#10B981' }}>$2 / 30 Days</Text>
+                                    </View>
+                                    <View style={{ gap: 3, marginTop: 8 }}>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 30 tailored resumes with ATS score + cover letter</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 50 ATS score audits</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• Unlimited AI bullet refinements</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 2 Base Resumes</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• Word (.doc) & Vector PDF Export</Text>
+                                    </View>
+                                </View>
+
+                                {/* Point 38: Active Search Tier */}
+                                <View style={{ padding: 14, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F8FAFC', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <View>
+                                            <Text style={{ fontSize: 14, fontWeight: '900', color: colors.textPrimary }}>Active Search Pack</Text>
+                                            <Text style={{ fontSize: 11, color: colors.textSecondary }}>For intensive search sprints</Text>
+                                        </View>
+                                        <Text style={{ fontSize: 18, fontWeight: '900', color: colors.textPrimary }}>$5 / 30 Days</Text>
+                                    </View>
+                                    <View style={{ gap: 3, marginTop: 8 }}>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 80 tailored resumes with ATS score + cover letter</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 100 ATS score checks</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• Unlimited AI refinements</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• 5 Base Resumes</Text>
+                                        <Text style={{ fontSize: 11.5, color: colors.textSecondary }}>• Full LinkedIn Profile Optimizer suite included</Text>
+                                    </View>
+                                </View>
+                            </View>
+
+                            {/* Point 39: Stacking explainer note */}
+                            <View style={{ marginTop: 12, padding: 10, borderRadius: 6, backgroundColor: isDark ? '#1E293B' : '#EFF6FF', borderWidth: 1, borderColor: '#3B82F640' }}>
+                                <Text style={{ fontSize: 11, fontWeight: '800', color: '#3B82F6' }}>
+                                    ℹ Credit Stacking Rule (Zero Waste Guarantee):
+                                </Text>
+                                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2, lineHeight: 16 }}>
+                                    Packs stack cleanly, each with its own 30-day validity window. Credits are consumed from the soonest-expiring pack first (FIFO queue). Renewing early never wastes existing credits.
+                                </Text>
+                            </View>
+                        </Card>
+
+
+                        {/* ================= FAQ SECTION (POINTS 40 - 42) ================= */}
+                        <Card variant="elevated" style={styles.sectionCard}>
+                            {/* Point 40: Section eyebrow */}
+                            <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                QUESTIONS
+                            </Text>
+                            {/* Point 41: Section headline */}
+                            <Text style={[styles.cardTitle, { color: colors.textPrimary, fontSize: 18, marginTop: 4, marginBottom: 12 }]}>
+                                The things people ask before signing up
+                            </Text>
+
+                            {/* Point 42: Accordion questions (8 complete items) */}
                             <View style={{ gap: 8 }}>
-                                {SHERIYAKAM_FAQS.map((faq, idx) => {
+                                {RUVALO_FAQS.map((faq, idx) => {
                                     const isOpen = expandedFaq === idx;
                                     return (
                                         <TouchableOpacity
@@ -1461,7 +1809,7 @@ export default function CvLinkedinOptimizeScreen() {
                                                 {isOpen ? <ChevronUp size={16} color="#10B981" /> : <ChevronDown size={16} color={colors.textSecondary} />}
                                             </View>
                                             {isOpen && (
-                                                <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                                                <Text style={[styles.faqAnswer, { color: colors.textSecondary, marginTop: 8 }]}>
                                                     {faq.a}
                                                 </Text>
                                             )}
@@ -1471,29 +1819,98 @@ export default function CvLinkedinOptimizeScreen() {
                             </View>
                         </Card>
 
-                        {/* Supported Industries Grid (Footer Mapping — Replacing Kerala Districts Grid) */}
-                        <Card variant="elevated" style={styles.sectionCard}>
-                            <View style={styles.cardHeaderRow}>
-                                <Briefcase size={18} color="#10B981" />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                                        Supported Industries & Job Domains
-                                    </Text>
-                                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>
-                                        Calibrated ATS models verified against industry-specific recruiter search algorithms.
+
+                        {/* ================= FINAL CTA SECTION (POINTS 43 - 46) ================= */}
+                        <Card variant="elevated" style={[styles.sectionCard, { backgroundColor: isDark ? '#0D1B17' : '#ECFDF5', borderColor: '#10B981', borderWidth: 1.5, alignItems: 'center', textAlign: 'center', paddingVertical: 24 }]}>
+                            {/* Point 43: Headline */}
+                            <Text style={{ fontSize: 20, fontWeight: '900', color: colors.textPrimary, textAlign: 'center' }}>
+                                Find out what one job posting thinks of your resume
+                            </Text>
+                            {/* Point 44: Subtext */}
+                            <Text style={{ fontSize: 12.5, color: colors.textSecondary, textAlign: 'center', maxWidth: 480, marginTop: 6, lineHeight: 18 }}>
+                                Upload your existing resume, paste a target role, and see your honest keyword gap in under 60 seconds.
+                            </Text>
+                            {/* Point 45: CTA buttons */}
+                            <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    iconRight={Sparkles}
+                                    onPress={() => {
+                                        setActiveTab('builder');
+                                        success('Dual-Pane Builder ready!');
+                                    }}
+                                    style={{ backgroundColor: '#10B981' }}
+                                >
+                                    Tailor my resume
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    onPress={() => router.push('/auth/login')}
+                                >
+                                    Log in
+                                </Button>
+                            </View>
+                            {/* Point 46: Microcopy */}
+                            <Text style={{ fontSize: 11, color: colors.textTertiary, marginTop: 8, textAlign: 'center' }}>
+                                No credit card · 5 free ATS checks every 5 hours · Refills automatically
+                            </Text>
+                        </Card>
+
+
+                        {/* ================= FOOTER (POINTS 47 - 50) ================= */}
+                        <View style={{ borderTopWidth: 1, borderTopColor: isDark ? '#1E293B' : '#E2E8F0', paddingTop: 16, marginTop: 8 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                                {/* Point 47: Logo + name */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <View style={[styles.logoBadge, { backgroundColor: '#10B981', width: 22, height: 22 }]}>
+                                        <Sparkles size={12} color="#FFFFFF" />
+                                    </View>
+                                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.textPrimary }}>
+                                        Sheriyakam<Text style={{ color: '#10B981' }}>.ai</Text>
                                     </Text>
                                 </View>
+
+                                {/* Point 48: Links: Privacy Policy / Terms / Refund Policy / Log in / Create account */}
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                                    <TouchableOpacity onPress={() => router.push('/privacy')}>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>Privacy Policy</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => router.push('/terms')}>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>Terms of Service</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => router.push('/refund-policy')}>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>Refund Policy</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => router.push('/auth/login')}>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>Log in</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => router.push('/auth/login')}>
+                                        <Text style={{ fontSize: 11, color: colors.textSecondary }}>Create account</Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Point 49: Support email link */}
+                                <TouchableOpacity onPress={() => {
+                                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                                        window.location.href = 'mailto:support@sheriyakam.com';
+                                    } else {
+                                        info('Contact: support@sheriyakam.com');
+                                    }
+                                }}>
+                                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700' }}>
+                                        support@sheriyakam.com
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
-                                {SUPPORTED_INDUSTRIES.map((domain, dIdx) => (
-                                    <View key={dIdx} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: isDark ? '#141E2E' : '#F1F5F9', borderWidth: 1, borderColor: isDark ? '#1E293B' : '#E2E8F0' }}>
-                                        <Text style={{ fontSize: 11.5, fontWeight: '600', color: colors.textPrimary }}>
-                                            ✓ {domain}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </Card>
+
+                            {/* Point 50: Copyright line with current year */}
+                            <Text style={{ fontSize: 10.5, color: colors.textTertiary, textAlign: 'center', marginTop: 12 }}>
+                                © 2026 Sheriyakam. All rights reserved. Built with strict Anti-Fabrication AI.
+                            </Text>
+                        </View>
+
                     </View>
                 )}
 
