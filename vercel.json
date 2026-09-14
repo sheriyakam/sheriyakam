@@ -51,16 +51,24 @@
     "trailingSlash": false,
     "rewrites": [
         {
-            "source": "/cv-linkedin-optimize",
-            "destination": "/cv-linkedin-optimize.html"
+            "source": "/booking/:id",
+            "destination": "/booking/[id].html"
         },
         {
-            "source": "/cv-linkedin-optimize/(.*)",
-            "destination": "/cv-linkedin-optimize.html"
+            "source": "/invoice/:id",
+            "destination": "/invoice/[id].html"
         },
         {
-            "source": "/((?!.*\\.).*)",
-            "destination": "/index.html"
+            "source": "/service/:id",
+            "destination": "/service/[id].html"
+        },
+        {
+            "source": "/blog/:slug",
+            "destination": "/blog/[slug].html"
+        },
+        {
+            "source": "/partner/job/:id",
+            "destination": "/partner/job/[id].html"
         }
     ]
 }

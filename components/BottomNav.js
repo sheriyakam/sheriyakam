@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { Home, Wrench, History, User } from 'lucide-react-native';
+import { Home, Wrench, History, User, Sparkles } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -34,7 +34,13 @@ export default function BottomNav() {
             action: 'scrollToServices',
         },
         {
-            name: 'History',
+            name: 'Resume AI',
+            icon: Sparkles,
+            path: '/cv-linkedin-optimize',
+            action: 'navigate',
+        },
+        {
+            name: 'My Bookings',
             icon: History,
             path: '/bookings',
             action: 'navigate',

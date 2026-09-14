@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertCircle, Home, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
@@ -15,6 +16,11 @@ export default function NotFoundScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
+            <Head>
+                <title>404 — Page Not Found | Sheriyakam</title>
+                <meta name="description" content="The requested page could not be found on Sheriyakam." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
             <View style={styles.centerBox}>
                 <View style={[styles.iconCircle, { backgroundColor: '#EF444418' }]}>
                     <AlertCircle size={48} color="#EF4444" />

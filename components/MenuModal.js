@@ -196,6 +196,14 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/cart')}
                                     />
                                     <MenuItem
+                                        icon={Sparkles}
+                                        label="AI Resume & LinkedIn Tool"
+                                        subtitle="ATS score & job description tailoring"
+                                        badge="NEW"
+                                        highlight
+                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
+                                    />
+                                    <MenuItem
                                         icon={Zap}
                                         label="Standard Rates & Pricing"
                                         subtitle="Upfront Kerala labour rates"
