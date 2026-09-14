@@ -13,6 +13,7 @@ import { Badge } from '../components/ui/Badge';
 import { Toggle } from '../components/ui/Toggle';
 import { DatePicker } from '../components/ui/DatePicker';
 import { Radio } from '../components/ui/Radio';
+import { createBooking } from '../constants/bookingStore';
 
 const PAYMENT_METHODS = [
     {
@@ -75,6 +76,27 @@ export default function CheckoutScreen() {
         setIsPlacingOrder(true);
         const generatedId = 'SHK-' + Math.floor(100000 + Math.random() * 900000);
         setBookingRef(generatedId);
+
+        try {
+            createBooking({
+                id: generatedId,
+                serviceName: items.map(i => i.title || i.name).join(', ') || 'Electrical Service',
+                price: total,
+                date: bookingSchedule.date || 'Today',
+                timeSlot: bookingSchedule.slot || 'Morning (9:00 AM - 1:00 PM)',
+                location: `${selectedAddress.line1}, ${selectedAddress.district || 'Kerala'}`,
+                paymentMethod: selectedPayment,
+                paymentStatus: selectedPayment === 'cash' ? 'pending' : 'paid',
+                isEmergency: bookingSchedule.isEmergency || false,
+                items: items,
+                subtotal,
+                gst,
+                platformFee,
+                promoDiscount,
+            });
+        } catch (err) {
+            console.warn('Booking creation error:', err);
+        }
 
         setTimeout(() => {
             setIsPlacingOrder(false);
