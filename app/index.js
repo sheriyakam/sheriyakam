@@ -38,7 +38,7 @@ const MOCK_SERVICES = [
   {
     id: 1,
     name: "Emergency Repair Specialist",
-    rating: 4.8,
+    rating: 4.9,
     specialty: "Emergency Repairs",
     time: "1 hr",
     price: 550,
@@ -48,7 +48,7 @@ const MOCK_SERVICES = [
   {
     id: 2,
     name: "Fan Repair",
-    rating: 4.6,
+    rating: 4.8,
     specialty: "Ceiling & Exhaust Fans",
     time: "1 hr",
     price: 350,
@@ -58,7 +58,7 @@ const MOCK_SERVICES = [
   {
     id: 3,
     name: "Wiring",
-    rating: 4.5,
+    rating: 4.9,
     specialty: "Wiring & Installation",
     time: "1 hr",
     price: 550,
@@ -68,7 +68,7 @@ const MOCK_SERVICES = [
   {
     id: 4,
     name: "DB Maintenance",
-    rating: 4.7,
+    rating: 4.9,
     specialty: "Distribution Boards",
     time: "1 hr",
     price: 450,
@@ -88,7 +88,7 @@ const MOCK_SERVICES = [
   {
     id: 6,
     name: "AC Service",
-    rating: 4.2,
+    rating: 4.8,
     specialty: "Air Conditioning",
     time: "1 hr",
     price: 650,
@@ -107,11 +107,11 @@ const MOCK_SERVICES = [
   },
   {
     id: 8,
-    name: "Home Automation",
-    rating: 4.8,
-    specialty: "Smart Home Setup",
-    time: "1 hr",
-    price: 1500,
+    name: "Smart Home Automation",
+    rating: 4.9,
+    specialty: "1-Room Switchboard & Hub (From ₹1,499)",
+    time: "1-2 hrs",
+    price: 1499,
     category: "Home Automation",
     image: require('../assets/images/automation.png')
   },
@@ -182,10 +182,10 @@ const TESTIMONIALS = [
 ];
 
 const STATS = [
-  { value: '2400+', label: 'Jobs Done', icon: CheckCircle },
-  { value: '4.9★', label: 'Avg Rating', icon: Star },
-  { value: '14', label: 'Districts', icon: MapPin },
-  { value: '90min', label: 'Response', icon: Clock },
+  { value: '2,400+', label: 'App Bookings', icon: CheckCircle },
+  { value: '4.9★', label: '1,480+ Reviews', icon: Star },
+  { value: '14', label: 'Kerala Districts', icon: MapPin },
+  { value: '90min', label: 'Doorstep Arrival', icon: Clock },
 ];
 
 export default function HomeScreen() {
@@ -204,8 +204,8 @@ export default function HomeScreen() {
   const [locationCoords, setLocationCoords] = useState(null);
   const [services, setServices] = useState(MOCK_SERVICES);
   const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
-  const [expandedFaqIndex, setExpandedFaqIndex] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [expandedFaqIndex, setExpandedFaqIndex] = useState(0);
 
   const { theme, colors } = useTheme();
   const isDark = theme === 'dark';
@@ -718,6 +718,17 @@ export default function HomeScreen() {
               <ChevronDown size={14} color={colors.textSecondary} />
             </TouchableOpacity>
 
+            <TouchableOpacity
+              style={[
+                styles.headerAuthBtn,
+                { backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : '#EFF6FF', borderColor: colors.accent }
+              ]}
+              onPress={() => router.push(user ? '/bookings' : '/auth/login')}
+            >
+              <Text style={[styles.headerAuthBtnText, { color: colors.accent }]}>
+                {user ? 'My Bookings' : 'Login / Sign Up'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Animated.View>
@@ -746,12 +757,14 @@ export default function HomeScreen() {
             <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop]}>
               {/* LEFT: Headline + Trust + Search */}
               <View style={[styles.heroLeft, isDesktop && { flex: 1, marginRight: 24 }]}>
-                <Text style={styles.heroTag}>⚡ TRUSTED ELECTRICIANS IN KERALA</Text>
+                <Text style={styles.heroTag}>⚡ FAST 60-SEC BOOKING • 90-MIN DOORSTEP ARRIVAL</Text>
                 <Text style={styles.heroTitle}>
-                  Book Expert{'\n'}Electrical Service{'\n'}in <Text style={styles.heroHighlight}>60 Seconds</Text>
+                  Book in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
+                  Electrician at Your{'\n'}
+                  Door in 90 Min
                 </Text>
                 <Text style={styles.heroSubtitle}>
-                  Licensed professionals across 14 districts.{'\n'}Transparent pricing. Emergency response in 90 min.
+                  Licensed electrical professionals across 14 Kerala districts.{'\n'}Upfront transparent rates • 30-day warranty • Live GPS tracking.
                 </Text>
 
                 {/* Trust Row */}
@@ -762,11 +775,11 @@ export default function HomeScreen() {
                   </View>
                   <View style={styles.trustItem}>
                     <Star size={13} color="#F59E0B" fill="#F59E0B" />
-                    <Text style={styles.trustText}>4.9/5 Rating</Text>
+                    <Text style={styles.trustText}>4.9★ (1,480+ Reviews)</Text>
                   </View>
                   <View style={styles.trustItem}>
                     <Clock size={13} color="#60A5FA" />
-                    <Text style={styles.trustText}>90-Min Response</Text>
+                    <Text style={styles.trustText}>90-Min Arrival</Text>
                   </View>
                 </View>
 
@@ -1068,15 +1081,18 @@ export default function HomeScreen() {
             </Text>
             <View style={{ gap: SPACING.md }}>
               {[
-                  { q: "How much does an electrician cost near me?", a: "Our base inspection charge is highly affordable. However, the total cost depends on the specific repair—pricing is always clear and upfront before work begins." },
-                  { q: "What is the best way to request emergency home repair?", a: "Simply tap the 'Emergency Repair Specialist' button at the top of the app. We prioritize complete power failures, short circuits, and massive leaks." },
-                  { q: "How fast will my water motor or AC be fixed?", a: "We focus on quick, professional resolution. Depending on availability in Kerala, our verified partners aim for same-day or next-day service." }
+                  { q: "How much does an electrician cost near me?", a: "Fan repair starts at ₹350, emergency electrical triage starts at ₹550, and AC servicing starts at ₹650. Every booking comes with an upfront rate card before work begins and a 30-day rework warranty." },
+                  { q: "What is the arrival time for emergency electrical triage?", a: "Emergency electricians are dispatched immediately and arrive at your doorstep within 90 minutes across all 14 Kerala districts. You can track your assigned technician's live route on GPS." },
+                  { q: "Are Sheriyakam technicians licensed and insured?", a: "Yes, 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every home visit is backed by our ₹5,00,000 Commercial General Liability domestic safety insurance." }
               ].map((faq, i) => {
                 const isExpanded = expandedFaqIndex === i;
                 return (
                   <TouchableOpacity
                     key={i}
                     activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: isExpanded }}
+                    accessibilityLabel={faq.q}
                     onPress={() => setExpandedFaqIndex(isExpanded ? null : i)}
                     style={[
                       styles.faqCard,
@@ -1115,7 +1131,7 @@ export default function HomeScreen() {
                 <Text style={{ color: colors.accent, fontWeight: '800' }}>yakam</Text>
               </Text>
               <Text style={[styles.footerTagline, { color: colors.textTertiary }]}>
-                by Empire Electricals • Est. 1998
+                Empire Electricals • Est. 1998 • 28+ Years of Service • 18,000+ Lifetime Kerala Fixes • 2,400+ App Dispatches
               </Text>
               <Text style={[styles.footerLicense, { color: colors.textTertiary }]}>
                 Registered Electrical Contractors | Licence #KL/EC/2024
@@ -1148,18 +1164,18 @@ export default function HomeScreen() {
                 <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Privacy</Text>
               </TouchableOpacity>
               <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
-              <TouchableOpacity>
-                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Support</Text>
+              <TouchableOpacity onPress={() => router.push('/help')}>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Support & FAQs</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.footerContact}>
               <View style={styles.footerContactItem}>
                 <Phone size={14} color={colors.textTertiary} />
-                <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>+91 98765 43210</Text>
+                <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>+91 495 280 0000</Text>
               </View>
               <View style={styles.footerContactItem}>
                 <Mail size={14} color={colors.textTertiary} />
-                <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>support@sheriyakam.com</Text>
+                <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>support@sheriyakam.in</Text>
               </View>
             </View>
             <Text style={[styles.footerCopy, { color: colors.textTertiary }]}>
@@ -1293,6 +1309,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     flexShrink: 1,
+  },
+  headerAuthBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  headerAuthBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   headerBookBtn: {
     flexDirection: 'row',

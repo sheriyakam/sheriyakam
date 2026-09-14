@@ -161,26 +161,26 @@ export default function AboutScreen() {
                     <TouchableOpacity style={[styles.contactRow, { 
                         backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
                         borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-                    }]} onPress={() => handleLink('tel:+919876543210')}>
+                    }]} onPress={() => handleLink('tel:+914952800000')}>
                         <View style={[styles.iconBox, { backgroundColor: colors.accent + '18' }]}>
                             <Phone size={18} color={colors.accent} />
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Customer Support</Text>
-                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>+91 98765 43210</Text>
+                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>+91 495 280 0000</Text>
                         </View>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={[styles.contactRow, { 
                         backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8f9fa',
                         borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-                    }]} onPress={() => handleLink('mailto:support@sheriyakam.com')}>
+                    }]} onPress={() => handleLink('mailto:support@sheriyakam.in')}>
                         <View style={[styles.iconBox, { backgroundColor: '#10B98118' }]}>
                             <Mail size={18} color="#10B981" />
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Email Us</Text>
-                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>support@sheriyakam.com</Text>
+                            <Text style={[styles.contactValue, { color: colors.textPrimary }]}>support@sheriyakam.in</Text>
                         </View>
                     </TouchableOpacity>
 
