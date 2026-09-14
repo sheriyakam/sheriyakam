@@ -196,14 +196,6 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/cart')}
                                     />
                                     <MenuItem
-                                        icon={Sparkles}
-                                        label="AI Resume & LinkedIn Tool"
-                                        subtitle="ATS score & job description tailoring"
-                                        badge="NEW"
-                                        highlight
-                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
-                                    />
-                                    <MenuItem
                                         icon={Zap}
                                         label="Standard Rates & Pricing"
                                         subtitle="Upfront Kerala labour rates"
@@ -257,9 +249,9 @@ export default function MenuModal({ visible, onClose }) {
                                     <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>CAREER & GROWTH</Text>
                                     <MenuItem
                                         icon={Sparkles}
-                                        label="CV & LinkedIn Optimize"
-                                        subtitle="100% Free ATS resume & profile makeover"
-                                        badge="100% FREE"
+                                        label="AI Resume & LinkedIn Tool"
+                                        subtitle="ATS score & job description tailoring"
+                                        badge="NEW"
                                         highlight
                                         onPress={() => navigateTo('/cv-linkedin-optimize')}
                                     />
