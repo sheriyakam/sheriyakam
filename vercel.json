@@ -47,9 +47,19 @@
             ]
         }
     ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/cv-linkedin-optimize",
+            "destination": "/cv-linkedin-optimize.html"
+        },
+        {
+            "source": "/cv-linkedin-optimize/(.*)",
+            "destination": "/cv-linkedin-optimize.html"
+        },
+        {
+            "source": "/((?!.*\\.).*)",
             "destination": "/index.html"
         }
     ]

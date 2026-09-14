@@ -11,6 +11,7 @@ import {
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     ArrowLeft,
@@ -640,7 +641,7 @@ export default function CvLinkedinOptimizeScreen() {
                 {/* White A4 Sheet */}
                 <View style={[styles.a4Sheet, selectedTemplate === 'technical' && { borderTopWidth: 4, borderTopColor: '#0284C7' }]}>
                     <Text style={[styles.a4Name, selectedTemplate === 'classic' && { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' }]}>
-                        ${'{'}baseResume.fullName{'}'}
+                        {baseResume.fullName}
                     </Text>
                     <Text style={styles.a4Contact}>
                         {baseResume.email} • {baseResume.phone} • {baseResume.location}
@@ -684,7 +685,25 @@ export default function CvLinkedinOptimizeScreen() {
 
     return (
         <SafeAreaView style={[styles.screenContainer, { backgroundColor: isDark ? '#080B11' : '#F8FAFC' }]} edges={['top']}>
-            
+            <Head>
+                <title>AI Resume Builder & LinkedIn Profile Optimizer | Sheriyakam</title>
+                <meta name="description" content="Tailor your resume and LinkedIn profile to any job description. Score against ATS algorithms with an honest, anti-fabrication guarantee." />
+                <meta name="keywords" content="resume builder, ATS resume checker, LinkedIn profile optimizer, job description tailor, ATS score, Ruvalo AI alternative, resume keywords" />
+                <link rel="canonical" href="https://sheriyakam.vercel.app/cv-linkedin-optimize" />
+                <meta name="robots" content="index, follow" />
+
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="AI Resume Builder & LinkedIn Optimizer — Sheriyakam" />
+                <meta property="og:description" content="Score and tailor your resume and LinkedIn profile to any job description in 90 seconds. 100% honest, anti-fabrication guarantee." />
+                <meta property="og:url" content="https://sheriyakam.vercel.app/cv-linkedin-optimize" />
+
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="AI Resume Builder & LinkedIn Optimizer — Sheriyakam" />
+                <meta name="twitter:description" content="Score and tailor your resume and LinkedIn profile to any job description in 90 seconds. 100% honest, anti-fabrication guarantee." />
+            </Head>
+
             {/* ================= 1. SHERIYAKAM BRAND HEADER ================= */}
             <View style={[styles.topHeader, { backgroundColor: isDark ? '#0D1525' : '#FFFFFF', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
                 <View style={styles.headerLeftWrap}>
