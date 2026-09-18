@@ -12,8 +12,8 @@ export default function BottomNav() {
     const { user } = useAuth();
     const { colors, theme } = useTheme();
 
-    // Hide BottomNav on admin, partner, and checkout pages
-    const hiddenPaths = ['/admin', '/partner', '/auth/login', '/checkout'];
+    // Hide BottomNav on admin, partner, checkout, and career platform pages
+    const hiddenPaths = ['/admin', '/partner', '/auth/login', '/checkout', '/cv-linkedin-optimize'];
     const isHidden = Boolean(pathname && hiddenPaths.some(path => pathname.startsWith(path)));
 
     if (isHidden) return null;
