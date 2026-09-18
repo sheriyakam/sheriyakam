@@ -69,6 +69,10 @@
         {
             "source": "/partner/job/:id",
             "destination": "/partner/job/[id].html"
+        },
+        {
+            "source": "/locations/:district",
+            "destination": "/locations/[district].html"
         }
     ]
 }
