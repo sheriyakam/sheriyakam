@@ -124,6 +124,60 @@ export const resetRateLimit = (key) => {
     delete rateLimitStore[key];
 };
 
+/**
+ * Dedicated OTP Request Rate Limiter (Max 5 attempts per 60 seconds)
+ * @param {string} phoneOrIp - Identifier
+ * @returns {{ allowed: boolean, remainingAttempts: number, retryAfterSecs: number, message?: string }}
+ */
+export const checkOTPRateLimit = (phoneOrIp) => {
+    const key = `otp_request_${phoneOrIp}`;
+    const limit = checkRateLimit(key, 5, 60000); // 5 attempts per 60s
+    if (!limit.allowed) {
+        const secs = Math.ceil(limit.retryAfterMs / 1000);
+        return {
+            allowed: false,
+            remainingAttempts: 0,
+            retryAfterSecs: secs,
+            message: `Too many OTP requests. Please wait ${secs} seconds before trying again.`
+        };
+    }
+    return {
+        allowed: true,
+        remainingAttempts: limit.remainingAttempts,
+        retryAfterSecs: 0
+    };
+};
+
+/**
+ * OTP Verification Brute Force Guard (Max 3 failed attempts before 5-minute lockout)
+ * @param {string} phoneOrBookingId - Identifier
+ * @param {boolean} isSuccess - Whether the OTP matched
+ * @returns {{ allowed: boolean, remainingAttempts: number, retryAfterSecs: number, message?: string }}
+ */
+export const verifyOTPRateLimit = (phoneOrBookingId, isSuccess = false) => {
+    const key = `otp_verify_${phoneOrBookingId}`;
+    if (isSuccess) {
+        resetRateLimit(key);
+        return { allowed: true, remainingAttempts: 3, retryAfterSecs: 0 };
+    }
+
+    const limit = checkRateLimit(key, 3, 300000); // 3 attempts per 5 minutes
+    if (!limit.allowed) {
+        const secs = Math.ceil(limit.retryAfterMs / 1000);
+        return {
+            allowed: false,
+            remainingAttempts: 0,
+            retryAfterSecs: secs,
+            message: `Too many incorrect OTP attempts. Locked for security. Try again in ${Math.ceil(secs / 60)} minutes.`
+        };
+    }
+    return {
+        allowed: true,
+        remainingAttempts: limit.remainingAttempts,
+        retryAfterSecs: 0
+    };
+};
+
 // ============================================================
 //  SECURITY HELPERS
 // ============================================================

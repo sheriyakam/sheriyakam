@@ -85,16 +85,21 @@ export const acceptBookingByPartner = (id, partnerName) => {
     return false;
 };
 
+import { sanitizePayload, validateIndianPhone } from '../utils/validation';
+import { verifyOTPRateLimit } from '../utils/security';
+
 export const checkInBookingByPartner = (id, enteredOtp) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
+        const rateCheck = verifyOTPRateLimit(`checkin_${id}`, false);
         if (booking.checkInOtp === enteredOtp || enteredOtp === '1234') { // Fallback for old data
+            verifyOTPRateLimit(`checkin_${id}`, true);
             booking.status = 'in_progress';
             bookingEvents.emit('change');
             saveData();
             return { success: true };
         } else {
-            return { success: false, message: 'Invalid Check-in OTP' };
+            return { success: false, message: rateCheck.allowed ? 'Invalid Check-in OTP' : rateCheck.message };
         }
     }
     return { success: false, message: 'Booking not found' };
@@ -103,21 +108,23 @@ export const checkInBookingByPartner = (id, enteredOtp) => {
 export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materialCost = 0) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
+        const rateCheck = verifyOTPRateLimit(`complete_${id}`, false);
         if (booking.otp === enteredOtp) {
+            verifyOTPRateLimit(`complete_${id}`, true);
             booking.status = 'completed';
 
             // Pricing Logic: Base price covers 1 hour. Extra hours = 100rs/hr + material cost
             const extraHours = Math.max(0, hoursWorked - 1);
-            booking.materialCost = materialCost;
-            booking.hoursWorked = hoursWorked;
-            booking.finalPrice = booking.price + (extraHours * 100) + materialCost;
+            booking.materialCost = Number(materialCost) || 0;
+            booking.hoursWorked = Number(hoursWorked) || 1;
+            booking.finalPrice = (booking.price || 0) + (extraHours * 100) + (Number(materialCost) || 0);
             booking.paymentStatus = 'pending'; // Customer needs to pay
 
             bookingEvents.emit('change');
             saveData(); // Persist
             return { success: true };
         } else {
-            return { success: false, message: 'Invalid OTP' };
+            return { success: false, message: rateCheck.allowed ? 'Invalid Completion OTP' : rateCheck.message };
         }
     }
     return { success: false, message: 'Booking not found' };
@@ -145,24 +152,29 @@ export const cancelBooking = (id) => {
 };
 
 export const createBooking = (newBooking) => {
-    const id = 'b' + (Date.now());
+    // Sanitize all inputs against XSS and script injection
+    const sanitized = sanitizePayload(newBooking);
+    const phoneVal = validateIndianPhone(sanitized.customerPhone || '');
+
+    const id = sanitized.id || ('b' + (Date.now()));
 
     // Try auto-assigning the nearest partner within 20km
-    const assignment = autoAssignPartner(newBooking);
+    const assignment = autoAssignPartner(sanitized);
 
     const booking = {
-        ...newBooking,
+        ...sanitized,
         id,
-        status: assignment.success ? 'assigned' : 'open',
-        paymentStatus: 'pending',
-        finalPrice: newBooking.price || 0,
-        customerPhone: newBooking.customerPhone || '+91 00000 00000',
+        status: sanitized.status || (assignment.success ? 'assigned' : 'open'),
+        paymentStatus: sanitized.paymentStatus || 'pending',
+        finalPrice: sanitized.price || 0,
+        customerPhone: phoneVal.isValid ? phoneVal.formatted : (sanitized.customerPhone || '+91 00000 00000'),
         distance: assignment.success ? `${assignment.distanceKm} km` : 'N/A',
         assignedPartnerId: assignment.success ? assignment.partner.id : null,
         assignedPartnerName: assignment.success ? assignment.partner.name : null,
         assignedPartnerPhone: assignment.success ? assignment.partner.phone : null,
         checkInOtp: Math.floor(1000 + Math.random() * 9000).toString(),
-        otp: Math.floor(1000 + Math.random() * 9000).toString()
+        otp: Math.floor(1000 + Math.random() * 9000).toString(),
+        createdAt: new Date().toISOString()
     };
 
     bookings.push(booking);
