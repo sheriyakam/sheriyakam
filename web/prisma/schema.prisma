@@ -67,15 +67,195 @@ model TailoredVersion {
 }
 
 model LinkedinProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String                   @id @default(cuid())
+  userId            String                   @unique @map("user_id")
+  user              User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName          String?                  @map("full_name")
   headline          String?
-  about             String?  @db.Text
+  about             String?                  @db.Text
+  location          String?
+  profileUrl        String?                  @map("profile_url")
+  targetRole        String?                  @map("target_role")
+  targetMarket      String?                  @map("target_market")
+  yearsExperience   Int?                     @map("years_experience")
+  achievements      String[]
+  skills            String[]
+  experience        Json?
+  education         Json?
+  certifications    Json?
+  languages         String[]
+  completenessScore Int?                     @map("completeness_score")
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  versions          LinkedinProfileVersion[]
+  analyses          LinkedinAnalysis[]
+  targetJobs        LinkedinTargetJob[]
+  analysisEvents    LinkedinAnalysisEvent[]
+
+  @@map("linkedin_profiles")
+}
+
+model LinkedinProfileVersion {
+  id                String             @id @default(cuid())
+  userId            String             @map("user_id")
+  profileId         String             @map("profile_id")
+  profile           LinkedinProfile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  versionNumber     Int                @map("version_number")
+  headline          String?
+  about             String?            @db.Text
   experience        Json?
   skills            String[]
-  completenessScore Int?
-  updatedAt         DateTime @updatedAt
+  overallScore      Int?               @map("overall_score")
+  scoreDelta        Int?               @map("score_delta")
+  changeSummary     String?            @map("change_summary") @db.Text
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  analyses          LinkedinAnalysis[]
+
+  @@unique([profileId, versionNumber])
+  @@index([userId])
+  @@map("linkedin_profile_versions")
+}
+
+model LinkedinAnalysis {
+  id               String                  @id @default(cuid())
+  userId           String                  @map("user_id")
+  profileId        String                  @map("profile_id")
+  profile          LinkedinProfile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  versionId        String?                 @map("version_id")
+  version          LinkedinProfileVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  overallScore     Int                     @map("overall_score")
+  firstImpression  String?                 @map("first_impression") @db.Text
+  strengths        String[]
+  criticalIssues   String[]                @map("critical_issues")
+  positioningGap   String?                 @map("positioning_gap") @db.Text
+  positioningStmt  String?                 @map("positioning_stmt") @db.Text
+  contentIdeas     Json?                   @map("content_ideas")
+  priorityActions  Json?                   @map("priority_actions")
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt @map("updated_at")
+  scores           LinkedinScore[]
+  keywords         LinkedinKeyword[]
+  rewrites         LinkedinRewrite[]
+  recommendations  LinkedinRecommendation[]
+
+  @@index([userId])
+  @@map("linkedin_analyses")
+}
+
+model LinkedinScore {
+  id             String              @id @default(cuid())
+  userId         String              @map("user_id")
+  analysisId     String              @map("analysis_id")
+  analysis       LinkedinAnalysis    @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  dimension      String              // 'headline', 'about', 'experience', 'skills', 'keywords', 'completeness', 'positioning'
+  score          Int
+  maxScore       Int                 @map("max_score")
+  summary        String?             @db.Text
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  items          LinkedinScoreItem[]
+
+  @@index([userId, analysisId])
+  @@map("linkedin_scores")
+}
+
+model LinkedinScoreItem {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  scoreId        String        @map("score_id")
+  score          LinkedinScore @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  checkName      String        @map("check_name")
+  status         String        // 'pass', 'warning', 'fail'
+  detail         String        @db.Text
+  scoreImpact    Int           @default(0) @map("score_impact")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("linkedin_score_items")
+}
+
+model LinkedinRecommendation {
+  id             String           @id @default(cuid())
+  userId         String           @map("user_id")
+  analysisId     String           @map("analysis_id")
+  analysis       LinkedinAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  audience       String           // 'manager', 'colleague', 'client', 'mentor'
+  templateText   String           @map("template_text") @db.Text
+  contextReason  String?          @map("context_reason")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("linkedin_recommendations")
+}
+
+model LinkedinKeyword {
+  id             String           @id @default(cuid())
+  userId         String           @map("user_id")
+  analysisId     String           @map("analysis_id")
+  analysis       LinkedinAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  keyword        String
+  status         String           // 'FOUND', 'PARTIAL', 'MISSING', 'VERIFY'
+  importance     String           @default("standard") // 'critical', 'high', 'standard'
+  whyItMatters   String?          @map("why_it_matters") @db.Text
+  suggestedPlace String?          @map("suggested_place")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@map("linkedin_keywords")
+}
+
+model LinkedinRewrite {
+  id             String           @id @default(cuid())
+  userId         String           @map("user_id")
+  analysisId     String           @map("analysis_id")
+  analysis       LinkedinAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  section        String           // 'headline', 'about', 'experience'
+  currentText    String           @map("current_text") @db.Text
+  proposedText   String           @map("proposed_text") @db.Text
+  whyExplanation String           @map("why_explanation") @db.Text
+  status         String           @default("pending") // 'pending', 'accepted', 'edited', 'rejected'
+  hasUnsupported Boolean          @default(false) @map("has_unsupported")
+  unsupportedLog Json?            @map("unsupported_log")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  @@index([userId, section])
+  @@map("linkedin_rewrites")
+}
+
+model LinkedinTargetJob {
+  id             String          @id @default(cuid())
+  userId         String          @map("user_id")
+  profileId      String          @map("profile_id")
+  profile        LinkedinProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  jobTitle       String          @map("job_title")
+  company        String?
+  jobDescription String          @map("job_description") @db.Text
+  matchScore     Int?            @map("match_score")
+  matchBreakdown Json?           @map("match_breakdown")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("linkedin_target_jobs")
+}
+
+model LinkedinAnalysisEvent {
+  id             String          @id @default(cuid())
+  userId         String          @map("user_id")
+  profileId      String          @map("profile_id")
+  profile        LinkedinProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  eventType      String          @map("event_type") // 'uploaded', 'parsed', 'analyzed', 'reanalyzed', 'accepted_rewrite', 'copied_section'
+  metadata       Json?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  @@index([userId, eventType])
+  @@map("linkedin_analysis_events")
 }
 
 model CreditBalance {
