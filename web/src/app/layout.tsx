@@ -1,11 +1,52 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Link from 'next/link';
-import { Sparkles, FileText, Linkedin, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Sheriyakam AI — AI Resume Builder & LinkedIn Profile Optimizer',
-  description: 'Tailor your resume and LinkedIn profile for every single job description without ever inventing experience. ATS score verification and honest keyword gap matching.',
+  metadataBase: new URL('https://sheriyakam.in'),
+  title: 'Sheriyakam — Licensed Electricians & Home Services in Kozhikode',
+  description: 'Book verified Kerala Electrical Inspectorate certified wiremen across Kozhikode & Malabar. Standard rate card starting at ₹149, 30-day service warranty, and IS:732 electrical safety compliance.',
+  keywords: [
+    'electrician in Kozhikode',
+    'electrician Calicut',
+    'emergency electrician Kozhikode',
+    'fan repair Kozhikode',
+    'switchboard repair Calicut',
+    'short circuit diagnosis Kozhikode',
+    'Mavoor road electrician',
+    'Nadakkavu electrician',
+    'licensed wireman Kerala',
+    'Sheriyakam'
+  ],
+  authors: [{ name: 'Sheriyakam Services Pvt. Ltd.' }],
+  creator: 'Sheriyakam',
+  publisher: 'Sheriyakam',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    url: 'https://sheriyakam.in',
+    title: 'Sheriyakam — Licensed Electricians & Home Services in Kozhikode',
+    description: 'Book verified Kerala Electrical Inspectorate certified wiremen across Kozhikode. Upfront rates from ₹149, 30-day warranty, and IS:732 compliance.',
+    siteName: 'Sheriyakam',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sheriyakam — Licensed Electricians in Kozhikode',
+    description: 'Standard pricing from ₹149, 30-day warranty, verified wiremen in Kozhikode & Malabar.',
+  },
+  alternates: {
+    canonical: 'https://sheriyakam.in',
+  },
 };
 
 export default function RootLayout({
@@ -14,84 +55,75 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen flex flex-col bg-[#080B11] text-slate-100 antialiased selection:bg-teal-500/20 selection:text-teal-200">
-        {/* Universal Top Navigation Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#080B11]/90 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform">
-                <Sparkles className="w-5 h-5 text-slate-950 stroke-[2.5]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-teal-200 bg-clip-text text-transparent">
-                  Sheriyakam<span className="text-teal-400 font-extrabold">.ai</span>
-                </span>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-teal-400/80 -mt-1">
-                  Ruvalo-Class Copilot
-                </span>
-              </div>
-            </Link>
-
-            {/* Nav links */}
-            <nav className="hidden md:flex items-center gap-1.5 text-sm font-medium text-slate-400">
-              <Link href="/builder" className="px-3.5 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-teal-400" />
-                Resume Builder
-              </Link>
-              <Link href="/linkedin" className="px-3.5 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors flex items-center gap-1.5">
-                <Linkedin className="w-4 h-4 text-sky-400" />
-                LinkedIn Optimizer
-              </Link>
-              <Link href="/dashboard" className="px-3.5 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
-                Versions
-              </Link>
-              <Link href="/pricing" className="px-3.5 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
-                Packs (No Sub)
-              </Link>
-              <Link href="/onboarding" className="px-3.5 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors text-teal-300">
-                Demo
-              </Link>
-              <Link href="/settings" className="px-3.5 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
-                Privacy
-              </Link>
-            </nav>
-
-            {/* Quota Indicator & Actions */}
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full border border-teal-500/30 bg-teal-950/40 text-xs font-mono text-teal-300">
-                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                <span>5 free checks · resets in 3h 12m</span>
-              </div>
-              <Link
-                href="/builder"
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md shadow-teal-500/25 transition-all hover:translate-y-[-1px]"
-              >
-                Tailor Resume Free
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Body */}
-        <main className="flex-1">
-          {children}
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t border-slate-800/80 bg-[#05070B] py-10 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-teal-400" />
-              <span>Strict Anti-Fabrication Guarantee · Zero Hallucinated Experience</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <span>Pay-Per-Pack (No Auto-Renewals)</span>
-              <span>100% Vector ATS PDF Export</span>
-              <span className="text-slate-400">© 2026 Sheriyakam AI</span>
-            </div>
-          </div>
-        </footer>
+    <html lang="en" className="dark scroll-smooth">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'HomeAndConstructionBusiness',
+              name: 'Sheriyakam — Licensed Electrician Services',
+              image: 'https://sheriyakam.in/og-image.png',
+              url: 'https://sheriyakam.in',
+              telephone: '+914952800000',
+              priceRange: '₹149 - ₹1999',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'Mavoor Road',
+                addressLocality: 'Kozhikode',
+                addressRegion: 'Kerala',
+                postalCode: '673004',
+                addressCountry: 'IN',
+              },
+              geo: {
+                '@type': 'GeoCoordinates',
+                latitude: 11.2588,
+                longitude: 75.7804,
+              },
+              openingHoursSpecification: [
+                {
+                  '@type': 'OpeningHoursSpecification',
+                  dayOfWeek: [
+                    'Monday',
+                    'Tuesday',
+                    'Wednesday',
+                    'Thursday',
+                    'Friday',
+                    'Saturday',
+                    'Sunday',
+                  ],
+                  opens: '08:00',
+                  closes: '20:30',
+                },
+              ],
+              areaServed: [
+                'Kozhikode',
+                'Mavoor Road',
+                'Nadakkavu',
+                'Palayam',
+                'Thondayad',
+                'West Hill',
+                'Medical College',
+                'Feroke',
+                'Pantheeramkavu',
+                'Ramanattukara',
+                'Beypore',
+                'Elathur',
+                'Kakkodi',
+                'Kunnamangalam',
+              ],
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: '4.9',
+                reviewCount: '184',
+              },
+            }),
+          }}
+        />
+      </head>
+      <body className="min-h-screen flex flex-col bg-[#070A11] text-slate-100 antialiased selection:bg-amber-500/20 selection:text-amber-200">
+        {children}
       </body>
     </html>
   );
