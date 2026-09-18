@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { Home, Wrench, History, User, Sparkles } from 'lucide-react-native';
+import { Home, Wrench, History, User, Zap } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -12,8 +12,8 @@ export default function BottomNav() {
     const { user } = useAuth();
     const { colors, theme } = useTheme();
 
-    // Hide BottomNav on admin, partner, and login pages
-    const hiddenPaths = ['/admin', '/partner', '/auth/login', '/about'];
+    // Hide BottomNav on admin, partner, and checkout pages
+    const hiddenPaths = ['/admin', '/partner', '/auth/login', '/checkout'];
     const isHidden = Boolean(pathname && hiddenPaths.some(path => pathname.startsWith(path)));
 
     if (isHidden) return null;
@@ -25,46 +25,36 @@ export default function BottomNav() {
             name: 'Home',
             icon: Home,
             path: '/',
-            action: 'navigate',
         },
         {
             name: 'Services',
             icon: Wrench,
-            path: '/',
-            action: 'scrollToServices',
+            path: '/services',
         },
         {
-            name: 'Resume AI',
-            icon: Sparkles,
-            path: '/cv-linkedin-optimize',
-            action: 'navigate',
+            name: 'Emergency',
+            icon: Zap,
+            path: '/emergency-electrician',
+            isEmergency: true,
         },
         {
-            name: 'My Bookings',
+            name: 'Bookings',
             icon: History,
-            path: '/bookings',
-            action: 'navigate',
+            path: '/dashboard',
         },
         {
-            name: user ? 'Profile' : 'Login',
+            name: user ? 'Account' : 'Login',
             icon: User,
-            path: user ? '/profile' : '/auth/login',
-            action: 'navigate',
+            path: user ? '/account' : '/auth/login',
         },
     ];
 
     const getIsActive = (item) => {
-        if (item.name === 'Services') return false; // Services never stays "active"
         if (item.path === '/') return pathname === '/';
-        return pathname === item.path;
+        return pathname === item.path || pathname.startsWith(item.path + '/');
     };
 
     const handlePress = (item) => {
-        if (item.action === 'scrollToServices' && pathname === '/') {
-            // Already on home — the scroll-to-services is handled by the parent
-            // For now, just navigate to home (the services section is right there)
-            return;
-        }
         router.push(item.path);
     };
 
@@ -81,8 +71,8 @@ export default function BottomNav() {
                     const Icon = item.icon;
                     const isActive = getIsActive(item);
 
-                    const activeColor = colors.accent;
-                    const inactiveColor = isDark ? '#52525b' : '#a1a1aa';
+                    const activeColor = item.isEmergency ? '#EF4444' : colors.accent;
+                    const inactiveColor = item.isEmergency ? '#EF4444' : (isDark ? '#71717A' : '#A1A1AA');
 
                     return (
                         <TouchableOpacity
@@ -100,16 +90,19 @@ export default function BottomNav() {
                             {isActive && (
                                 <View style={[
                                     styles.activePill,
-                                    { backgroundColor: activeColor + '12' }
+                                    { backgroundColor: activeColor + '15' }
                                 ]} />
                             )}
 
-                            <View style={styles.iconWrap}>
+                            <View style={[
+                                styles.iconWrap,
+                                item.isEmergency && { backgroundColor: '#EF444422', borderRadius: 14 }
+                            ]}>
                                 <Icon
-                                    size={21}
+                                    size={20}
                                     color={isActive ? activeColor : inactiveColor}
                                     strokeWidth={isActive ? 2.5 : 1.8}
-                                    fill={isActive && item.name === 'Home' ? activeColor : 'none'}
+                                    fill={item.isEmergency ? activeColor : (isActive && item.name === 'Home' ? activeColor : 'none')}
                                 />
                             </View>
 
@@ -158,9 +151,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 4,
-        paddingHorizontal: 16,
+        paddingHorizontal: 12,
         position: 'relative',
-        minWidth: 64,
+        minWidth: 58,
     },
     activeIndicator: {
         position: 'absolute',
@@ -173,9 +166,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         bottom: 0,
-        left: 4,
-        right: 4,
-        borderRadius: 14,
+        left: 2,
+        right: 2,
+        borderRadius: 12,
     },
     iconWrap: {
         width: 28,
@@ -186,6 +179,6 @@ const styles = StyleSheet.create({
     navText: {
         fontSize: 10,
         marginTop: 2,
-        letterSpacing: 0.3,
+        letterSpacing: 0.2,
     },
 });

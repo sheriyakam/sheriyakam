@@ -1,68 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import {
+    View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform,
+    useWindowDimensions, Linking
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Star, Clock, ShieldCheck, Check, Plus, ShoppingCart, Zap, MessageSquare } from 'lucide-react-native';
+import {
+    ArrowLeft, Star, Clock, ShieldCheck, Check, ShoppingCart,
+    Zap, HelpCircle, ChevronDown, ChevronUp, AlertCircle, Phone, MessageCircle,
+    CheckCircle2, XCircle, Shield
+} from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { COLORS } from '../../constants/theme';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
+import { getServiceBySlugOrId, getAllServices } from '../../constants/catalog';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { Checkbox } from '../../components/ui/Checkbox';
-
-const SERVICE_DETAILS_MOCK = {
-    'fan-repair': {
-        title: 'Ceiling & Exhaust Fan Repair',
-        category: 'Fan & Light',
-        price: 249,
-        originalPrice: 349,
-        rating: 4.9,
-        reviewsCount: 342,
-        duration: '30-45 mins',
-        image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
-        description: 'Comprehensive diagnostic and repair for all ceiling fans, exhaust fans, and pedestal fans. Covers noise troubleshooting, capacitor replacement, regulator wiring, and safety balancing.',
-        inclusions: [
-            'Inspection of motor winding and bearing friction',
-            'Testing of step regulator and switchboard connection',
-            'Capacitor replacement and blade angle balancing',
-            'Full post-service speed test and safety check',
-        ],
-        exclusions: [
-            'Cost of new replacement fan (if motor is burnt)',
-            'Decorative chandelier lighting rewiring',
-        ],
-        addons: [
-            { id: 'a1', title: 'Heavy Duty 3.15uF Capacitor', price: 90 },
-            { id: 'a2', title: '5-Step Rotary Fan Regulator', price: 180 },
-            { id: 'a3', title: 'Downrod Extension Pipe (1.5 ft)', price: 120 },
-        ],
-    },
-    'default': {
-        title: 'Electrical Diagnostics & Repair',
-        category: 'Wiring & MCB',
-        price: 299,
-        originalPrice: 399,
-        rating: 4.8,
-        reviewsCount: 210,
-        duration: '45 mins',
-        image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80',
-        description: 'Certified electrical troubleshooting for household wiring, tripped breakers, and power fluctuations.',
-        inclusions: [
-            'Complete phase and neutral line testing',
-            'MCB trip sensitivity check',
-            'Earthing voltage leakage measurement',
-        ],
-        exclusions: [
-            'Concealed wall conduit chipping and plastering',
-        ],
-        addons: [
-            { id: 'a1', title: '32A Double Pole MCB', price: 280 },
-            { id: 'a2', title: 'Copper Earth Rod Spike', price: 450 },
-        ],
-    }
-};
 
 export default function SingleServiceDetailScreen() {
     const { id } = useLocalSearchParams();
@@ -71,9 +28,46 @@ export default function SingleServiceDetailScreen() {
     const { addItem, itemCount } = useCart();
     const { success } = useToast();
     const isDark = theme === 'dark';
+    const { width } = useWindowDimensions();
+    const isDesktop = width >= 1024;
 
-    const service = SERVICE_DETAILS_MOCK[id] || SERVICE_DETAILS_MOCK['default'];
+    const catalogService = useMemo(() => {
+        return getServiceBySlugOrId(id);
+    }, [id]);
+
+    const service = catalogService || {
+        id: id || 'custom-service',
+        title: typeof id === 'string' ? id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Electrical Service',
+        categoryName: 'Electrical',
+        subcategoryName: 'Diagnostics & Repair',
+        startingPrice: 299,
+        duration: '45–60 mins',
+        rating: 4.8,
+        reviewsCount: 180,
+        completedJobs: '950+',
+        warrantyDays: 30,
+        description: 'Certified home electrical troubleshooting and repairs by KSELB licensed technicians.',
+        problemsCovered: [
+            'Inspection and symptom diagnosis',
+            'Safe power isolation and connection test',
+            'Replacement of damaged wiring/components'
+        ],
+        inclusions: [
+            'Thorough diagnostic testing of lines',
+            'Safe labor and connection rework',
+            'Post-service safety & load verification'
+        ],
+        exclusions: [
+            'Cost of new hardware / replacement parts',
+            'Concealed civil slab breaking or masonry repairs'
+        ],
+        materialsPolicy: 'All replacement parts are provided at genuine MRP with manufacturer GST bill.',
+        addons: [],
+        faqs: []
+    };
+
     const [selectedAddons, setSelectedAddons] = useState([]);
+    const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
     const toggleAddon = (addon) => {
         setSelectedAddons((prev) => {
@@ -83,18 +77,49 @@ export default function SingleServiceDetailScreen() {
         });
     };
 
+    const addonsTotal = selectedAddons.reduce((sum, item) => sum + (item.price || 0), 0);
+    const totalPrice = (service.startingPrice || service.price || 299) + addonsTotal;
+
     const handleAddToCart = () => {
-        addItem({ id: id || 'service-1', ...service }, 1, selectedAddons);
+        addItem({
+            id: service.id || service.slug,
+            title: service.title,
+            price: service.startingPrice || service.price || 299,
+            duration: service.duration,
+            category: service.categoryName || 'Electrical',
+        }, 1, selectedAddons);
         success(`Added "${service.title}" to cart!`, 'Cart Updated');
     };
 
     const handleBookNow = () => {
-        addItem({ id: id || 'service-1', ...service }, 1, selectedAddons);
+        addItem({
+            id: service.id || service.slug,
+            title: service.title,
+            price: service.startingPrice || service.price || 299,
+            duration: service.duration,
+            category: service.categoryName || 'Electrical',
+        }, 1, selectedAddons);
         router.push('/cart');
+    };
+
+    const handleWhatsAppInquiry = () => {
+        const text = `Hi Sheriyakam, I want to book: *${service.title}* (₹${totalPrice}). Please confirm availability.`;
+        const url = `https://wa.me/914952800000?text=${encodeURIComponent(text)}`;
+        if (Platform.OS === 'web') {
+            window.open(url, '_blank');
+        } else {
+            Linking.openURL(url);
+        }
     };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
+            <Head>
+                <title>{`${service.title} in Kerala | ₹${service.startingPrice || 299} | Sheriyakam`}</title>
+                <meta name="description" content={`Book professional ${service.title} across Kerala. KSELB licensed technicians, upfront pricing of ₹${service.startingPrice || 299}, 30-day warranty & 90-min dispatch.`} />
+                <link rel="canonical" href={`https://sheriyakam.vercel.app/service/${id}`} />
+            </Head>
+
             {/* Top Navigation */}
             <View style={[styles.header, { borderBottomColor: isDark ? '#18181B' : '#E4E4E7' }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -113,129 +138,327 @@ export default function SingleServiceDetailScreen() {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-                {/* Hero Image */}
-                <View style={[styles.heroImageContainer, { borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                    <Image source={{ uri: service.image }} style={styles.heroImage} />
-                    <View style={[styles.categoryBadgeWrap, { backgroundColor: isDark ? '#18181BE0' : '#FFFFFFE0' }]}>
-                        <Badge variant="info">{service.category}</Badge>
-                    </View>
-                </View>
-
-                {/* Title & Rating */}
-                <View style={styles.titleSection}>
-                    <Text style={[styles.title, { color: colors.textPrimary }]}>
-                        {service.title}
-                    </Text>
-
-                    <View style={styles.metaRow}>
-                        <View style={styles.ratingBadge}>
-                            <Star size={14} color="#F59E0B" fill="#F59E0B" />
-                            <Text style={[styles.ratingText, { color: colors.textPrimary }]}>
-                                {service.rating} ({service.reviewsCount} reviews)
-                            </Text>
-                        </View>
-
-                        <View style={styles.durationBadge}>
-                            <Clock size={14} color={colors.textTertiary} />
-                            <Text style={[styles.durationText, { color: colors.textTertiary }]}>
-                                {service.duration}
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.priceRow}>
-                        <Text style={[styles.priceVal, { color: colors.accent }]}>
-                            ₹{service.price}
-                        </Text>
-                        <Text style={[styles.originalPriceVal, { color: colors.textTertiary }]}>
-                            ₹{service.originalPrice}
-                        </Text>
-                        <Badge variant="success" size="sm">Save 28%</Badge>
-                    </View>
-                </View>
-
-                {/* Description */}
-                <Card variant="default" style={styles.sectionCard}>
-                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>About this Service</Text>
-                    <Text style={[styles.descText, { color: colors.textSecondary }]}>
-                        {service.description}
-                    </Text>
-                </Card>
-
-                {/* What's Included */}
-                <Card variant="default" style={styles.sectionCard}>
-                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>What's Included</Text>
-                    <View style={styles.listWrap}>
-                        {service.inclusions.map((inc, i) => (
-                            <View key={i} style={styles.listItem}>
-                                <Check size={16} color="#10B981" style={{ marginTop: 2 }} />
-                                <Text style={[styles.listText, { color: colors.textSecondary }]}>{inc}</Text>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <View style={[styles.pageLayout, isDesktop && styles.desktopLayout]}>
+                    {/* Left / Main Details Column */}
+                    <View style={{ flex: 1 }}>
+                        {/* Service Title & Primary Meta */}
+                        <Card variant="default" style={styles.heroCard}>
+                            <View style={styles.categoryBreadcrumb}>
+                                <Text style={[styles.breadcrumbCategory, { color: colors.accent }]}>
+                                    {service.categoryName || 'Home Services'}
+                                </Text>
+                                {service.subcategoryName && (
+                                    <>
+                                        <Text style={{ color: colors.textTertiary }}>›</Text>
+                                        <Text style={[styles.breadcrumbSub, { color: colors.textSecondary }]}>
+                                            {service.subcategoryName}
+                                        </Text>
+                                    </>
+                                )}
                             </View>
-                        ))}
-                    </View>
-                </Card>
 
-                {/* Optional Add-on Parts */}
-                <Card variant="default" style={styles.sectionCard}>
-                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Add Spare Parts (Optional)</Text>
-                    <View style={styles.addonsList}>
-                        {service.addons.map((addon) => {
-                            const isChecked = selectedAddons.some((a) => a.id === addon.id);
-                            return (
-                                <TouchableOpacity
-                                    key={addon.id}
-                                    onPress={() => toggleAddon(addon)}
-                                    style={[
-                                        styles.addonItem,
-                                        {
-                                            backgroundColor: isChecked ? (isDark ? '#27272A' : '#EFF6FF') : 'transparent',
-                                            borderColor: isChecked ? colors.accent : isDark ? '#27272A' : '#E4E4E7',
-                                        }
-                                    ]}
-                                >
-                                    <Checkbox
-                                        checked={isChecked}
-                                        onChange={() => toggleAddon(addon)}
-                                        label={addon.title}
-                                    />
-                                    <Text style={[styles.addonPrice, { color: colors.accent }]}>
-                                        +₹{addon.price}
+                            <Text style={[styles.title, { color: colors.textPrimary }]}>
+                                {service.title}
+                            </Text>
+
+                            <View style={styles.metaRow}>
+                                <View style={styles.ratingBadge}>
+                                    <Star size={15} color="#F59E0B" fill="#F59E0B" />
+                                    <Text style={[styles.ratingText, { color: colors.textPrimary }]}>
+                                        {service.rating || 4.8}
                                     </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
+                                    <Text style={[styles.reviewsCount, { color: colors.textTertiary }]}>
+                                        ({service.reviewsCount || 150}+ ratings)
+                                    </Text>
+                                </View>
+
+                                <View style={styles.durationBadge}>
+                                    <Clock size={15} color={colors.textTertiary} />
+                                    <Text style={[styles.durationText, { color: colors.textSecondary }]}>
+                                        {service.duration || '45 mins'}
+                                    </Text>
+                                </View>
+
+                                {service.completedJobs && (
+                                    <Badge variant="success" size="sm">
+                                        {service.completedJobs} Bookings Done
+                                    </Badge>
+                                )}
+                            </View>
+
+                            <View style={styles.priceContainer}>
+                                <View style={styles.priceRow}>
+                                    <Text style={[styles.currencySymbol, { color: colors.accent }]}>₹</Text>
+                                    <Text style={[styles.priceVal, { color: colors.accent }]}>
+                                        {service.startingPrice || service.price || 299}
+                                    </Text>
+                                    <Text style={[styles.startingAtText, { color: colors.textTertiary }]}>
+                                        (Upfront Diagnostic & Service Labour)
+                                    </Text>
+                                </View>
+                            </View>
+
+                            {/* Trust Guarantee Highlights */}
+                            <View style={[styles.guaranteeRow, { backgroundColor: isDark ? '#27272A55' : '#F4F4F5' }]}>
+                                <View style={styles.guaranteeItem}>
+                                    <ShieldCheck size={16} color="#10B981" />
+                                    <Text style={[styles.guaranteeItemText, { color: colors.textPrimary }]}>
+                                        {service.warrantyDays || 30}-Day Free Rework Warranty
+                                    </Text>
+                                </View>
+                                <View style={styles.guaranteeItem}>
+                                    <Zap size={16} color="#F59E0B" />
+                                    <Text style={[styles.guaranteeItemText, { color: colors.textPrimary }]}>
+                                        KSELB Licensed Partner
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card>
+
+                        {/* Description */}
+                        <Card variant="default" style={styles.sectionCard}>
+                            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Service Overview</Text>
+                            <Text style={[styles.descText, { color: colors.textSecondary }]}>
+                                {service.description}
+                            </Text>
+                        </Card>
+
+                        {/* Common Symptoms / Problems Covered */}
+                        {service.problemsCovered && service.problemsCovered.length > 0 && (
+                            <Card variant="default" style={styles.sectionCard}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Common Issues Covered</Text>
+                                <View style={styles.listWrap}>
+                                    {service.problemsCovered.map((prob, i) => (
+                                        <View key={i} style={styles.problemItem}>
+                                            <AlertCircle size={16} color="#F59E0B" style={{ marginTop: 2 }} />
+                                            <Text style={[styles.listText, { color: colors.textSecondary }]}>{prob}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </Card>
+                        )}
+
+                        {/* Inclusions & Exclusions */}
+                        <View style={[styles.inclusionExclusionWrap, isDesktop && { flexDirection: 'row', gap: 12 }]}>
+                            {/* Inclusions */}
+                            <Card variant="default" style={[styles.sectionCard, { flex: 1 }]}>
+                                <View style={styles.cardHeaderWithIcon}>
+                                    <CheckCircle2 size={18} color="#10B981" />
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary, marginBottom: 0 }]}>
+                                        What's Included
+                                    </Text>
+                                </View>
+                                <View style={[styles.listWrap, { marginTop: 12 }]}>
+                                    {(service.inclusions || []).map((inc, i) => (
+                                        <View key={i} style={styles.listItem}>
+                                            <Check size={15} color="#10B981" style={{ marginTop: 2 }} />
+                                            <Text style={[styles.listText, { color: colors.textSecondary }]}>{inc}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </Card>
+
+                            {/* Exclusions */}
+                            <Card variant="default" style={[styles.sectionCard, { flex: 1 }]}>
+                                <View style={styles.cardHeaderWithIcon}>
+                                    <XCircle size={18} color="#EF4444" />
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary, marginBottom: 0 }]}>
+                                        What's Not Included
+                                    </Text>
+                                </View>
+                                <View style={[styles.listWrap, { marginTop: 12 }]}>
+                                    {(service.exclusions || []).map((exc, i) => (
+                                        <View key={i} style={styles.listItem}>
+                                            <Text style={{ color: '#EF4444', fontWeight: '800', marginRight: 4 }}>✕</Text>
+                                            <Text style={[styles.listText, { color: colors.textSecondary }]}>{exc}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </Card>
+                        </View>
+
+                        {/* Transparent Materials & Spares Policy */}
+                        {service.materialsPolicy && (
+                            <Card variant="default" style={[styles.sectionCard, { borderColor: '#10B98133' }]}>
+                                <View style={styles.cardHeaderWithIcon}>
+                                    <Shield size={18} color="#10B981" />
+                                    <Text style={[styles.cardTitle, { color: colors.textPrimary, marginBottom: 0 }]}>
+                                        Spare Parts & Materials Policy
+                                    </Text>
+                                </View>
+                                <Text style={[styles.descText, { color: colors.textSecondary, marginTop: 8 }]}>
+                                    {service.materialsPolicy}
+                                </Text>
+                            </Card>
+                        )}
+
+                        {/* Optional Spare Parts Add-ons */}
+                        {service.addons && service.addons.length > 0 && (
+                            <Card variant="default" style={styles.sectionCard}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    Common Spares & Add-ons (Optional)
+                                </Text>
+                                <Text style={[styles.descSub, { color: colors.textTertiary, marginBottom: 12 }]}>
+                                    Add genuine ISI certified parts to your booking or let the technician bring them.
+                                </Text>
+                                <View style={styles.addonsList}>
+                                    {service.addons.map((addon) => {
+                                        const isChecked = selectedAddons.some((a) => a.id === addon.id);
+                                        return (
+                                            <TouchableOpacity
+                                                key={addon.id}
+                                                onPress={() => toggleAddon(addon)}
+                                                style={[
+                                                    styles.addonItem,
+                                                    {
+                                                        backgroundColor: isChecked ? (isDark ? '#27272A' : '#EFF6FF') : 'transparent',
+                                                        borderColor: isChecked ? colors.accent : isDark ? '#27272A' : '#E4E4E7',
+                                                    }
+                                                ]}
+                                            >
+                                                <Checkbox
+                                                    checked={isChecked}
+                                                    onChange={() => toggleAddon(addon)}
+                                                    label={addon.title}
+                                                />
+                                                <Text style={[styles.addonPrice, { color: colors.accent }]}>
+                                                    +₹{addon.price}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </View>
+                            </Card>
+                        )}
+
+                        {/* Frequently Asked Questions */}
+                        {service.faqs && service.faqs.length > 0 && (
+                            <Card variant="default" style={styles.sectionCard}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                                    Frequently Asked Questions
+                                </Text>
+                                <View style={styles.faqList}>
+                                    {service.faqs.map((faq, index) => {
+                                        const isOpen = openFaqIndex === index;
+                                        return (
+                                            <View key={index} style={[styles.faqItem, { borderBottomColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                                                <TouchableOpacity
+                                                    onPress={() => setOpenFaqIndex(isOpen ? null : index)}
+                                                    style={styles.faqHeader}
+                                                >
+                                                    <Text style={[styles.faqQuestion, { color: colors.textPrimary }]}>
+                                                        {faq.q}
+                                                    </Text>
+                                                    {isOpen ? (
+                                                        <ChevronUp size={18} color={colors.textSecondary} />
+                                                    ) : (
+                                                        <ChevronDown size={18} color={colors.textSecondary} />
+                                                    )}
+                                                </TouchableOpacity>
+                                                {isOpen && (
+                                                    <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                                                        {faq.a}
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        );
+                                    })}
+                                </View>
+                            </Card>
+                        )}
                     </View>
-                </Card>
+
+                    {/* Right Desktop Checkout Column */}
+                    {isDesktop && (
+                        <View style={{ width: 360 }}>
+                            <Card variant="default" style={styles.desktopBookingCard}>
+                                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Booking Summary</Text>
+
+                                <View style={styles.summaryItemRow}>
+                                    <Text style={[styles.summaryItemLabel, { color: colors.textSecondary }]}>{service.title}</Text>
+                                    <Text style={[styles.summaryItemVal, { color: colors.textPrimary }]}>₹{service.startingPrice || 299}</Text>
+                                </View>
+
+                                {selectedAddons.map(add => (
+                                    <View key={add.id} style={styles.summaryItemRow}>
+                                        <Text style={[styles.summaryItemLabel, { color: colors.textSecondary }]}>{add.title}</Text>
+                                        <Text style={[styles.summaryItemVal, { color: colors.accent }]}>+₹{add.price}</Text>
+                                    </View>
+                                ))}
+
+                                <View style={[styles.summaryDivider, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]} />
+
+                                <View style={styles.summaryTotalRow}>
+                                    <Text style={[styles.summaryTotalLabel, { color: colors.textPrimary }]}>Total Payable</Text>
+                                    <Text style={[styles.summaryTotalVal, { color: colors.accent }]}>₹{totalPrice}</Text>
+                                </View>
+
+                                <Button
+                                    variant="primary"
+                                    size="lg"
+                                    onPress={handleBookNow}
+                                    style={{ marginTop: 16 }}
+                                >
+                                    Proceed to Schedule
+                                </Button>
+
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    onPress={handleAddToCart}
+                                    iconLeft={ShoppingCart}
+                                    style={{ marginTop: 10 }}
+                                >
+                                    Add to Cart
+                                </Button>
+
+                                <TouchableOpacity onPress={handleWhatsAppInquiry} style={styles.whatsAppInquiryBtn}>
+                                    <MessageCircle size={16} color="#25D366" />
+                                    <Text style={styles.whatsAppInquiryText}>Inquire via WhatsApp</Text>
+                                </TouchableOpacity>
+
+                                <View style={styles.desktopTrustFooter}>
+                                    <ShieldCheck size={14} color="#10B981" />
+                                    <Text style={[styles.desktopTrustText, { color: colors.textTertiary }]}>
+                                        ₹5 Lakh domestic property damage cover included
+                                    </Text>
+                                </View>
+                            </Card>
+                        </View>
+                    )}
+                </View>
             </ScrollView>
 
-            {/* Bottom Actions Bar */}
-            <View style={[
-                styles.bottomBar,
-                {
-                    backgroundColor: isDark ? '#18181B' : '#FFFFFF',
-                    borderTopColor: isDark ? '#27272A' : '#E4E4E7',
-                }
-            ]}>
-                <Button
-                    variant="outline"
-                    size="lg"
-                    onPress={handleAddToCart}
-                    iconLeft={ShoppingCart}
-                    style={{ flex: 1 }}
-                >
-                    Add to Cart
-                </Button>
+            {/* Mobile Bottom Floating Bar */}
+            {!isDesktop && (
+                <View style={[
+                    styles.bottomBar,
+                    {
+                        backgroundColor: isDark ? '#18181B' : '#FFFFFF',
+                        borderTopColor: isDark ? '#27272A' : '#E4E4E7',
+                    }
+                ]}>
+                    <Button
+                        variant="outline"
+                        size="lg"
+                        onPress={handleAddToCart}
+                        iconLeft={ShoppingCart}
+                        style={{ flex: 1 }}
+                    >
+                        Add
+                    </Button>
 
-                <Button
-                    variant="primary"
-                    size="lg"
-                    onPress={handleBookNow}
-                    style={{ flex: 1.3 }}
-                >
-                    Book Now • ₹{service.price + selectedAddons.reduce((s, a) => s + a.price, 0)}
-                </Button>
-            </View>
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        onPress={handleBookNow}
+                        style={{ flex: 1.6 }}
+                    >
+                        Book • ₹{totalPrice}
+                    </Button>
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -285,41 +508,43 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingBottom: 110,
     },
-    heroImageContainer: {
-        width: '100%',
-        height: 220,
-        borderRadius: 20,
-        overflow: 'hidden',
-        borderWidth: 1,
-        position: 'relative',
-        marginBottom: 16,
+    pageLayout: {
+        gap: 16,
     },
-    heroImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
+    desktopLayout: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
     },
-    categoryBadgeWrap: {
-        position: 'absolute',
-        bottom: 12,
-        left: 12,
-        borderRadius: 12,
-        padding: 4,
+    heroCard: {
+        padding: 20,
+        borderRadius: 16,
+        marginBottom: 12,
     },
-    titleSection: {
-        marginBottom: 16,
+    categoryBreadcrumb: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 8,
+    },
+    breadcrumbCategory: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    breadcrumbSub: {
+        fontSize: 13,
     },
     title: {
         fontSize: 22,
         fontWeight: '800',
         letterSpacing: -0.3,
-        marginBottom: 8,
+        marginBottom: 12,
     },
     metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 14,
-        marginBottom: 10,
+        flexWrap: 'wrap',
+        gap: 12,
+        marginBottom: 14,
     },
     ratingBadge: {
         flexDirection: 'row',
@@ -327,8 +552,11 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     ratingText: {
-        fontSize: 13,
-        fontWeight: '700',
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    reviewsCount: {
+        fontSize: 12,
     },
     durationBadge: {
         flexDirection: 'row',
@@ -338,22 +566,52 @@ const styles = StyleSheet.create({
     durationText: {
         fontSize: 13,
     },
+    priceContainer: {
+        paddingVertical: 8,
+        marginBottom: 12,
+    },
     priceRow: {
         flexDirection: 'row',
         alignItems: 'baseline',
-        gap: 8,
+        gap: 4,
+    },
+    currencySymbol: {
+        fontSize: 18,
+        fontWeight: '700',
     },
     priceVal: {
-        fontSize: 24,
-        fontWeight: '800',
+        fontSize: 28,
+        fontWeight: '900',
     },
-    originalPriceVal: {
-        fontSize: 15,
-        textDecorationLine: 'line-through',
+    startingAtText: {
+        fontSize: 12,
+        marginLeft: 4,
+    },
+    guaranteeRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: 12,
+        borderRadius: 10,
+        gap: 14,
+    },
+    guaranteeItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    guaranteeItemText: {
+        fontSize: 12,
+        fontWeight: '700',
     },
     sectionCard: {
         padding: 16,
         marginBottom: 12,
+        borderRadius: 14,
+    },
+    cardHeaderWithIcon: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     cardTitle: {
         fontSize: 15,
@@ -364,18 +622,30 @@ const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 20,
     },
+    descSub: {
+        fontSize: 12,
+    },
     listWrap: {
         gap: 8,
+    },
+    problemItem: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 10,
     },
     listItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 10,
+        gap: 8,
     },
     listText: {
         flex: 1,
         fontSize: 13,
         lineHeight: 18,
+    },
+    inclusionExclusionWrap: {
+        gap: 12,
+        marginBottom: 12,
     },
     addonsList: {
         gap: 8,
@@ -384,14 +654,99 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 8,
-        paddingHorizontal: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
         borderRadius: 10,
         borderWidth: 1,
     },
     addonPrice: {
         fontSize: 13,
         fontWeight: '700',
+    },
+    faqList: {
+        gap: 10,
+    },
+    faqItem: {
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+    },
+    faqHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 4,
+    },
+    faqQuestion: {
+        fontSize: 13,
+        fontWeight: '700',
+        flex: 1,
+        paddingRight: 10,
+    },
+    faqAnswer: {
+        fontSize: 12,
+        lineHeight: 18,
+        marginTop: 6,
+    },
+    desktopBookingCard: {
+        padding: 20,
+        borderRadius: 16,
+        position: 'sticky',
+        top: 20,
+    },
+    summaryItemRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 4,
+    },
+    summaryItemLabel: {
+        fontSize: 13,
+        flex: 1,
+    },
+    summaryItemVal: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    summaryDivider: {
+        height: 1,
+        marginVertical: 12,
+    },
+    summaryTotalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    summaryTotalLabel: {
+        fontSize: 15,
+        fontWeight: '800',
+    },
+    summaryTotalVal: {
+        fontSize: 22,
+        fontWeight: '900',
+    },
+    whatsAppInquiryBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 10,
+        marginTop: 6,
+    },
+    whatsAppInquiryText: {
+        color: '#25D366',
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    desktopTrustFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        marginTop: 12,
+    },
+    desktopTrustText: {
+        fontSize: 11,
+        textAlign: 'center',
     },
     bottomBar: {
         position: 'absolute',

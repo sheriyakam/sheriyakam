@@ -22,6 +22,7 @@ import MenuModal from '../components/MenuModal';
 import LocationModal from '../components/LocationModal';
 import { ServicesAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
+import { Badge } from '../components/ui/Badge';
 
 const IMAGE_MAP = {
   'emergency.png': require('../assets/images/emergency.png'),
@@ -788,7 +789,7 @@ export default function HomeScreen() {
                   <Search size={18} color="#94a3b8" />
                   <TextInput
                     style={styles.searchInput}
-                    placeholder="Search services — AC, Wiring, CCTV..."
+                    placeholder="Search services — AC, Wiring, CCTV, Fan, DB..."
                     placeholderTextColor="#94a3b8"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -799,9 +800,117 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                   )}
                 </View>
+
+                {/* Quick Intent Pills */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
+                  {[
+                    { label: '🌀 Fan Repair', q: 'Fan' },
+                    { label: '⚡ MCB Tripping', q: 'DB' },
+                    { label: '❄️ AC Service', q: 'AC' },
+                    { label: '🔋 Inverter', q: 'Inverter' },
+                    { label: '🚨 24/7 Emergency', path: '/emergency-electrician' },
+                    { label: '🏢 Commercial', path: '/commercial' },
+                    { label: '🛡️ Care AMC', path: '/amc' },
+                    { label: '📁 Work Gallery', path: '/work' },
+                  ].map((pill, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      onPress={() => {
+                        if (pill.path) router.push(pill.path);
+                        else if (pill.q) setSearchQuery(pill.q);
+                      }}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                        borderRadius: 16,
+                        marginRight: 8,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.2)'
+                      }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>{pill.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                {/* Multi-Channel CTA Action Hub */}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
+                  <TouchableOpacity
+                    onPress={() => router.push('/services')}
+                    style={{
+                      backgroundColor: '#2563EB',
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                  >
+                    <Zap size={15} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>Browse Rate Cards</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => router.push('/emergency-electrician')}
+                    style={{
+                      backgroundColor: '#EF4444',
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                  >
+                    <Zap size={15} color="#FFFFFF" fill="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>🚨 24/7 Emergency</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      const url = `https://wa.me/914952800000?text=${encodeURIComponent("Hi Sheriyakam, I want to book a home service.")}`;
+                      if (Platform.OS === 'web') window.open(url, '_blank');
+                      else Linking.openURL(url);
+                    }}
+                    style={{
+                      backgroundColor: '#25D366',
+                      paddingHorizontal: 14,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                  >
+                    <MessageCircle size={15} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>WhatsApp</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      const phoneUrl = 'tel:+914952800000';
+                      if (Platform.OS === 'web') window.location.href = phoneUrl;
+                      else Linking.openURL(phoneUrl);
+                    }}
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.12)',
+                      paddingHorizontal: 14,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      borderWidth: 1,
+                      borderColor: 'rgba(255,255,255,0.2)'
+                    }}
+                  >
+                    <Phone size={14} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>Call Helpline</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-
-
             </View>
           </View>
         </Animated.View>
@@ -811,8 +920,6 @@ export default function HomeScreen() {
           opacity: contentOpacity,
           transform: [{ translateY: contentTranslateY }]
         }}>
-
-
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* TRUST & STATISTICS BANNER                              */}
@@ -831,6 +938,49 @@ export default function HomeScreen() {
                   </View>
                 );
               })}
+            </View>
+          </View>
+
+          {/* ═══════════════════════════════════════════════════════ */}
+          {/* CATEGORY EXPLORATION GRID                              */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.md, marginBottom: SPACING.md }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>Explore Services</Text>
+              <TouchableOpacity onPress={() => router.push('/services')}>
+                <Text style={{ color: colors.accent, fontSize: 13, fontWeight: '700' }}>Full Catalogue ›</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              {[
+                { title: '⚡ Electrical', sub: 'Fans, DB, Wiring, Inverters', path: '/services', badge: 'Flagship' },
+                { title: '❄️ AC Service', sub: 'Jet Wash & Gas Refill', path: '/services', badge: 'Active' },
+                { title: '🚰 Plumbing', sub: 'Pipes, Taps & Motor Starter', path: '/services', badge: 'Active' },
+                { title: '📹 CCTV Security', sub: 'IP Cameras & NVR Setup', path: '/services', badge: 'Active' },
+                { title: '🏢 Commercial B2B', sub: 'Offices, Shops & Clinics', path: '/commercial', badge: 'Corporate' },
+                { title: '🛡️ Care AMC', sub: 'Annual Maintenance Plans', path: '/amc', badge: 'Peace of Mind' },
+              ].map((item, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  onPress={() => router.push(item.path)}
+                  style={{
+                    width: isDesktop ? '31.8%' : isTablet ? '48%' : '48%',
+                    backgroundColor: isDark ? '#18181B' : '#FFFFFF',
+                    borderColor: isDark ? '#27272A' : '#E4E4E7',
+                    borderWidth: 1,
+                    borderRadius: 14,
+                    padding: 12,
+                    gap: 4
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ color: colors.textPrimary, fontSize: 13.5, fontWeight: '800' }}>{item.title}</Text>
+                    <Badge variant="info" size="sm">{item.badge}</Badge>
+                  </View>
+                  <Text style={{ color: colors.textSecondary, fontSize: 11 }}>{item.sub}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
 

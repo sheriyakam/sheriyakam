@@ -2,381 +2,430 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Zap, ShieldCheck, Clock, MapPin, Phone, 
-  Award, CheckCircle2, ArrowRight, Star, 
-  Sparkles, Wrench, FileText, AlertTriangle 
+import {
+  Sparkles,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  FileText,
+  Linkedin,
+  ShieldCheck,
+  Zap,
+  Lock,
+  Download,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle
 } from 'lucide-react';
 
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import MobileStickyCTA from '@/components/MobileStickyCTA';
-import EmergencyBanner from '@/components/EmergencyBanner';
-import WhyChooseUs from '@/components/WhyChooseUs';
-import HowItWorks from '@/components/HowItWorks';
-import FaqSection from '@/components/FaqSection';
-import LocationValidator from '@/components/LocationValidator';
-import ServiceCard from '@/components/ServiceCard';
-import ServiceModal from '@/components/ServiceModal';
-import BookingFlowModal from '@/components/BookingFlowModal';
+export default function LandingPage() {
+  const [demoStep, setDemoStep] = useState<1 | 2 | 3 | 4>(4);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-import { SERVICES, CATEGORIES } from '@/data/services';
-import { SERVICEABLE_AREAS } from '@/data/service-areas';
-import { Service, PincodeArea } from '@/types';
-import { trackEvent } from '@/lib/analytics';
-
-export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [activeServiceForModal, setActiveServiceForModal] = useState<Service | null>(null);
-  const [bookingModalOpen, setBookingModalOpen] = useState<boolean>(false);
-  const [bookingInitialServiceId, setBookingInitialServiceId] = useState<string | undefined>(undefined);
-  const [detectedArea, setDetectedArea] = useState<PincodeArea | null>(null);
-
-  // Open booking modal
-  const handleOpenBooking = (serviceId?: string) => {
-    setBookingInitialServiceId(serviceId);
-    setBookingModalOpen(true);
-    trackEvent('open_booking_flow', { serviceId });
-  };
-
-  // Open service details modal
-  const handleOpenServiceDetails = (service: Service) => {
-    setActiveServiceForModal(service);
-    trackEvent('view_service_details', { serviceId: service.id, serviceTitle: service.title });
-  };
-
-  // Handle location check success
-  const handleLocationVerified = (area: PincodeArea) => {
-    setDetectedArea(area);
-  };
-
-  // Filter services
-  const filteredServices = selectedCategory === 'all'
-    ? SERVICES
-    : SERVICES.filter(s => s.categorySlug === selectedCategory);
+  const faqs = [
+    {
+      q: "Does Sheriyakam AI invent experience, metrics, or credentials I don't have?",
+      a: "Never. Sheriyakam enforces a strict Anti-Fabrication Guarantee. It only rewrites experience you already have into the terminology of the target job description. For any skills you possess but didn't document, an explicit checkbox allows you to confirm them before they are woven in. Anything unticked is strictly omitted."
+    },
+    {
+      q: "What does the ATS match score (e.g. 54 → 98/100) actually mean?",
+      a: "The score reflects your alignment with ATS screener algorithms (Workday, Taleo, Greenhouse, iCIMS). It evaluates keyword match percentage against the job listing, experience title relevance, hard-skill density, and action-verb strength."
+    },
+    {
+      q: "How is my personal data handled and stored?",
+      a: "Your resume and job descriptions are never used to train public AI models. Data is encrypted in transit and at rest, and you have complete control with a single-click data wipe option."
+    },
+    {
+      q: "What happens when I exhaust my free tier quota?",
+      a: "Your free tier includes 3 tailored resumes, 5 ATS checks, and 5 cover letters every 5 hours, plus 15 AI bullet refinements per day. When depleted, you can wait for the 5-hour timer to refill or purchase a 30-day one-time pack (Lite $2, Active Search $5). Packs stack, and oldest-expiring credits are always pulled first with zero auto-renewals."
+    }
+  ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070A11]">
-      {/* Top Navbar */}
-      <Navbar onOpenBooking={handleOpenBooking} />
-
-      {/* Emergency Alert Banner */}
-      <EmergencyBanner onOpenBooking={handleOpenBooking} />
-
+    <div className="flex flex-col">
       {/* HERO SECTION */}
-      <section className="relative pt-10 pb-16 md:pt-16 md:pb-24 overflow-hidden border-b border-slate-800/80">
-        {/* Glow Accents */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_-10%,rgba(245,158,11,0.12),rgba(0,0,0,0))]" />
+      <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden border-b border-slate-800/60">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(13,148,136,0.18),rgba(255,255,255,0))]" />
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Column: Value Prop & CTA */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-teal-500/30 bg-teal-950/40 text-xs font-mono text-teal-300 mb-6 backdrop-blur-sm">
+            <span className="w-2 h-2 rounded-full bg-teal-400" />
+            <span>Honest ATS Scoring & Role-Tailoring · Zero Hallucinations</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.1]">
+            Tailor your best resume{' '}
+            <span className="bg-gradient-to-r from-teal-400 via-emerald-300 to-teal-200 bg-clip-text text-transparent">
+              for every single job.
+            </span>
+          </h1>
+
+          <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Increase your interview calls with an AI-powered resume builder that scores and tailors your resume to each job description in 90 seconds.
+          </p>
+
+          <p className="mt-2 text-base font-semibold text-teal-300">
+            It only ever rewrites experience you already have. It never invents any.
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/builder"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-base shadow-xl shadow-teal-500/25 transition-all flex items-center justify-center gap-2 group"
+            >
+              <span>Tailor my resume free</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <Link
+              href="/linkedin"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 font-semibold text-base transition-colors flex items-center justify-center gap-2"
+            >
+              <Linkedin className="w-4 h-4 text-sky-400" />
+              <span>Optimize LinkedIn Profile</span>
+            </Link>
+          </div>
+
+          <p className="mt-4 text-xs font-mono text-slate-500">
+            No credit card required · 5 free ATS checks refilling every 5 hours
+          </p>
+        </div>
+      </section>
+
+      {/* LIVE 4-STEP INTERACTIVE DEMO (RUVALO AI PARADIGM) */}
+      <section className="py-16 md:py-24 bg-[#0B0F19] border-b border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-mono tracking-widest text-teal-400 uppercase">Live Interactive Demo</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">
+              See the 4-step tailoring loop in action
+            </h2>
+          </div>
+
+          {/* Interactive Workspace Mockup */}
+          <div className="rounded-2xl border border-slate-800 bg-[#0F1626] p-4 sm:p-6 shadow-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
-              {/* Trust Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-xs font-semibold text-amber-400">
-                <Award className="w-3.5 h-3.5" />
-                <span>Kerala Electrical Inspectorate Certified Wiremen</span>
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
-                Kozhikode&apos;s Verified{' '}
-                <span className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-200 bg-clip-text text-transparent">
-                  Electrician & Home Services
-                </span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Upfront rate card starting at <strong className="text-amber-400 font-bold">₹149</strong>. 
-                No bargaining, no surprise surge fees. 1000V VDE-insulated safety tools, 
-                IS:732 compliance, and a guaranteed <strong className="text-white">30-day service warranty</strong>.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => handleOpenBooking()}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-sm shadow-xl shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Zap className="w-4 h-4 fill-slate-950" />
-                  <span>Book an Electrician Now</span>
-                </button>
-
-                <a
-                  href="tel:+914952800000"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Phone className="w-4 h-4 text-amber-400" />
-                  <span>Call 0495 280 0000</span>
-                </a>
-              </div>
-
-              {/* Trust Indicators Bar */}
-              <div className="pt-4 grid grid-cols-3 gap-3 max-w-lg mx-auto lg:mx-0 border-t border-slate-800/80">
-                <div className="text-left">
-                  <div className="text-sm sm:text-base font-extrabold text-white">13+ Zones</div>
-                  <div className="text-[11px] text-slate-400">Kozhikode City & Malabar</div>
-                </div>
-                <div className="text-left">
-                  <div className="text-sm sm:text-base font-extrabold text-white">30 Days</div>
-                  <div className="text-[11px] text-slate-400">Free Revisit Warranty</div>
-                </div>
-                <div className="text-left">
-                  <div className="text-sm sm:text-base font-extrabold text-white">100%</div>
-                  <div className="text-[11px] text-slate-400">Govt. Licensed Wiremen</div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Right Column: Live Pincode Checker Card */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl space-y-4 backdrop-blur-sm">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-amber-400" />
-                    Check Service in Your Area
-                  </h3>
-                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                    Live Status
-                  </span>
+              {/* Left Column: Job Intake & Gap Analysis */}
+              <div className="lg:col-span-5 flex flex-col gap-4">
+                {/* Target Role Box */}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-4">
+                  <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                    <span className="font-mono uppercase">Target Role</span>
+                    <span className="font-mono text-slate-500">pasted from careers board</span>
+                  </div>
+                  <p className="font-bold text-slate-100 text-sm">
+                    Senior Frontend Engineer <span className="font-normal text-slate-400">· Northwind Labs</span>
+                  </p>
+                  <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                    "Looking for a Senior Frontend Engineer to lead our Next.js migration and extend a shared React + TypeScript design system. Must have experience with Playwright test automation, CI/CD, and WCAG accessibility standards."
+                  </p>
                 </div>
 
-                <p className="text-xs text-slate-400">
-                  Enter your 6-digit Kozhikode PIN code to check serviceability and typical arrival time.
-                </p>
-
-                <LocationValidator onLocationVerified={handleLocationVerified} />
-
-                {detectedArea && (
-                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold block text-white">{detectedArea.areaName} ({detectedArea.pincode})</span>
-                      <span className="text-[11px] text-amber-400">Wiremen active in this zone</span>
+                {/* ATS Match Gauge */}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono uppercase text-slate-400">ATS Match Score</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm font-mono text-slate-500 line-through">54</span>
+                      <span className="text-slate-500">→</span>
+                      <span className="text-3xl font-extrabold text-teal-400 font-display">91</span>
+                      <span className="text-xs font-mono text-slate-400">/ 100</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenBooking()}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400"
-                    >
-                      Book Here
-                    </button>
                   </div>
-                )}
 
-                {/* Popular Quick Categories */}
-                <div className="pt-2 border-t border-slate-800">
-                  <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 block mb-2">
-                    Popular Services
-                  </span>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenBooking('srv-fan-repair')}
-                      className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-amber-400 hover:border-slate-700 text-left truncate transition-colors"
-                    >
-                      • Fan Repair (₹199)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenBooking('srv-switch-replace')}
-                      className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-amber-400 hover:border-slate-700 text-left truncate transition-colors"
-                    >
-                      • Switch Replacement (₹149)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenBooking('srv-mcb-replace')}
-                      className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-amber-400 hover:border-slate-700 text-left truncate transition-colors"
-                    >
-                      • MCB Replacement (₹299)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenBooking('srv-inverter-wiring')}
-                      className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-amber-400 hover:border-slate-700 text-left truncate transition-colors"
-                    >
-                      • Inverter Wiring (₹499)
-                    </button>
+                  <div className="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+                    <div className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-700 w-[91%]" />
+                  </div>
+
+                  {/* Matched Keywords */}
+                  <div className="mt-4">
+                    <p className="text-xs font-mono text-emerald-400 flex items-center gap-1 mb-2">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Matched Competencies (8):
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['React', 'TypeScript', 'Next.js', 'CI/CD', 'Playwright', 'Design Systems', 'Accessibility', 'REST APIs'].map((tag) => (
+                        <span key={tag} className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                          ✓ {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-
               </div>
+
+              {/* Right Column: Tailored Resume Paper Preview */}
+              <div className="lg:col-span-7">
+                <div className="rounded-xl border border-slate-200 bg-white text-slate-950 p-6 shadow-xl font-sans text-xs">
+                  <div className="border-b border-slate-950 pb-2 mb-3">
+                    <h3 className="text-lg font-extrabold tracking-tight text-slate-950">ALEX MERCADO</h3>
+                    <p className="text-[11px] text-slate-700 font-semibold">
+                      Senior Frontend Engineer <span className="text-slate-400">·</span> alex.mercado@email.com <span className="text-slate-400">·</span> San Francisco, CA
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-extrabold tracking-wider text-[11px] uppercase border-b border-slate-300 pb-1 mb-2 text-slate-900">
+                      Professional Experience
+                    </h4>
+                    <div className="mb-2">
+                      <div className="flex justify-between font-bold text-slate-900 text-[11.5px]">
+                        <span>Senior Frontend Developer — Meridian Cloud Systems</span>
+                        <span className="font-normal text-slate-600">2021 — Present</span>
+                      </div>
+                      <ul className="mt-1.5 space-y-1 text-slate-800 leading-relaxed list-disc list-inside">
+                        <li>
+                          <span className="bg-teal-100 font-medium text-slate-900 px-1 py-0.5 rounded">
+                            Engineered 40+ features into a shared React and TypeScript component system
+                          </span>{' '}
+                          used by 6 product squads.
+                        </li>
+                        <li>
+                          <span className="bg-teal-100 font-medium text-slate-900 px-1 py-0.5 rounded">
+                            Led Next.js migration across customer portal
+                          </span>, cutting Largest Contentful Paint (LCP) from 4.1s to 1.3s across 12 routes.
+                        </li>
+                        <li>
+                          <span className="bg-teal-100 font-medium text-slate-900 px-1 py-0.5 rounded">
+                            Architected CI/CD test automation in Playwright
+                          </span>, expanding coverage to 88% and eliminating deployment regressions.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <h4 className="font-extrabold tracking-wider text-[11px] uppercase border-b border-slate-300 pb-1 mb-1.5 text-slate-900">
+                      Technical Skills
+                    </h4>
+                    <p className="text-slate-800">
+                      React • TypeScript • Next.js • Tailwind CSS • CI/CD • Playwright • GraphQL • Accessibility (WCAG 2.2) • Jest • Git
+                    </p>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
+            {/* 4-Step Nav Toggle */}
+            <div className="mt-6 pt-4 border-t border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-2 text-left">
+              {[
+                { step: 1, title: '1. Paste the job', sub: 'Any listing, any company board.' },
+                { step: 2, title: '2. See the gap', sub: 'Which keywords you are missing.' },
+                { step: 3, title: '3. Tailor it', sub: 'One pass, elevated phrasing.' },
+                { step: 4, title: '4. Score climbs', sub: '54 → 91 against this role.' },
+              ].map((item) => (
+                <button
+                  key={item.step}
+                  onClick={() => setDemoStep(item.step as any)}
+                  className={`p-2.5 rounded-lg border text-left transition-all ${
+                    demoStep === item.step
+                      ? 'border-teal-500/50 bg-teal-950/30'
+                      : 'border-slate-800 bg-slate-900/40 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <p className={`text-xs font-bold ${demoStep === item.step ? 'text-teal-300' : 'text-slate-300'}`}>
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{item.sub}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* SERVICES CATALOG SECTION */}
-      <section id="services-section" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-2">
-              <Wrench className="w-3.5 h-3.5" />
-              <span>Standardized Labor Catalog</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Electrical Services & Standard Rates
+      {/* WHY IT WORKS SECTION */}
+      <section className="py-16 md:py-24 border-b border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <span className="text-xs font-mono tracking-widest text-teal-400 uppercase">Why it works</span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-2 leading-tight">
+              A strong resume still loses to a better-matched one.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Transparent starting rates. Spares billed strictly at retail MRP after your consent.
-            </p>
           </div>
 
-          <div className="text-xs text-slate-400 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Includes 18% GST Invoice & 30-Day Guarantee</span>
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/40">
+              <h3 className="text-lg font-bold text-white mb-2">Right experience, wrong words</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Most rejections at the initial screening stage aren't a verdict on capability. They're a resume phrased for the job you had rather than the one you're applying to, filtered out by automated screening software.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/40">
+              <h3 className="text-lg font-bold text-white mb-2">The listing is the answer key</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Job descriptions are written with the exact vocabulary a screener searches for. Matching it isn't gaming the system—it's answering the question that was asked, in the precise terminology requested.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/40">
+              <h3 className="text-lg font-bold text-white mb-2">Doing it by hand doesn't scale</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Rewriting a resume properly for one role takes over an hour. Which is why almost everyone stops doing it after application number five, right when volume and targeted precision matter most.
+              </p>
+            </div>
+          </div>
+
+          {/* 3 Value Pillars */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-800 rounded-xl overflow-hidden border border-slate-800">
+            <div className="bg-[#0B0F19] p-6">
+              <p className="text-2xl font-extrabold text-white">No card needed</p>
+              <p className="text-xs text-slate-400 mt-1">Start with 5 free ATS checks refilling every 5 hours</p>
+            </div>
+            <div className="bg-[#0B0F19] p-6">
+              <p className="text-2xl font-extrabold text-white">Every version saved</p>
+              <p className="text-xs text-slate-400 mt-1">Pinned permanently to the job description that produced it</p>
+            </div>
+            <div className="bg-[#0B0F19] p-6">
+              <p className="text-2xl font-extrabold text-white">One click to PDF</p>
+              <p className="text-xs text-slate-400 mt-1">Clean, parseable vector text—never an image or table</p>
+            </div>
           </div>
         </div>
-
-        {/* Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-thin">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-              selectedCategory === 'all'
-                ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
-                : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-            }`}
-          >
-            All Services ({SERVICES.length})
-          </button>
-          {CATEGORIES.map(cat => {
-            const count = SERVICES.filter(s => s.categorySlug === cat.slug).length;
-            const isSelected = selectedCategory === cat.slug;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.slug)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  isSelected
-                    ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
-                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                }`}
-              >
-                {cat.name} ({count})
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredServices.map(service => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              onBook={(svc) => handleOpenBooking(svc.id)}
-              onViewDetails={handleOpenServiceDetails}
-            />
-          ))}
-        </div>
-
       </section>
 
-      {/* WHY CHOOSE SHERIYAKAM */}
-      <WhyChooseUs />
+      {/* PRICING SECTION (RUVALO AI PAY-PER-PACK MODEL) */}
+      <section className="py-16 md:py-24 bg-[#0B0F19] border-b border-slate-800/60" id="pricing">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="text-xs font-mono tracking-widest text-teal-400 uppercase">Pricing</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-2">
+            Simple pricing, no subscriptions.
+          </h2>
+          <p className="mt-3 text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+            Start free. When you need high volume, buy a 30-day pack with a one-time payment: UPI, cards, and netbanking. No auto-renewal, ever. Packs stack.
+          </p>
 
-      {/* HOW IT WORKS */}
-      <HowItWorks onOpenBooking={handleOpenBooking} />
-
-      {/* LOCAL SERVICE AREAS MAP & PINCODE DIRECTORY */}
-      <section className="py-16 sm:py-24 bg-slate-950 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>Kozhikode & Malabar Operations</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Service Areas in Kozhikode
-            </h2>
-            <p className="text-sm text-slate-400">
-              Our licensed wiremen operate across 13 central and suburban Kozhikode zones with standard arrival windows.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {SERVICEABLE_AREAS.map(area => (
-              <div
-                key={area.pincode}
-                className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-amber-500/30 transition-all space-y-1"
-              >
-                <div className="text-amber-400 font-mono font-bold text-xs">PIN {area.pincode}</div>
-                <div className="text-white text-sm font-semibold truncate">{area.areaName}</div>
-                <div className="text-[11px] text-slate-500 flex items-center gap-1 pt-1">
-                  <Clock className="w-3 h-3 text-slate-400" />
-                  <span>~{area.estimatedLeadTimeHours || 2}h window</span>
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto">
+            {/* Free Tier */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white">Free Forever</h3>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold text-white">$0</span>
+                  <span className="text-xs font-mono text-slate-500 uppercase">forever</span>
                 </div>
+                <p className="text-xs text-slate-400 mt-2">Everything you need to land interviews—you just wait between rewrites.</p>
+                
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Full resume editor</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 3 tailored rewrites every 5 hours</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 5 ATS score checks every 5 hours</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 5 tailored cover letters every 5 hours</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 1 canonical base resume</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Text-based ATS PDF download</li>
+                </ul>
               </div>
-            ))}
+
+              <Link
+                href="/builder"
+                className="mt-8 w-full py-2.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-center font-semibold text-sm text-slate-200 transition-colors"
+              >
+                Start Free
+              </Link>
+            </div>
+
+            {/* Lite Pack */}
+            <div className="rounded-2xl border border-teal-500/40 bg-slate-900/90 p-6 flex flex-col justify-between relative shadow-xl shadow-teal-950/30">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-teal-500 text-slate-950 text-[10px] font-bold uppercase tracking-wider">
+                Most Popular
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Lite Pack</h3>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold text-teal-400">$2</span>
+                  <span className="text-xs font-mono text-slate-400 uppercase">/ 30 days one-time</span>
+                </div>
+                <p className="text-xs text-slate-400 mt-2">One-time payment. No subscription, packs stack seamlessly.</p>
+                
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400 font-bold" /> 30 tailored resumes with ATS scoring</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400 font-bold" /> 50 ATS score checks</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400 font-bold" /> Unlimited AI bullet refinements</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400 font-bold" /> 30 tailored cover letters</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400 font-bold" /> 2 Base Resumes</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400 font-bold" /> Editable Word (.docx) & Vector PDF</li>
+                </ul>
+              </div>
+
+              <Link
+                href="/pricing"
+                className="mt-8 w-full py-2.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-center font-bold text-sm text-slate-950 transition-colors shadow-md shadow-teal-500/20"
+              >
+                Get Lite Pack ($2)
+              </Link>
+            </div>
+
+            {/* Active Search Pack */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white">Active Search</h3>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold text-white">$5</span>
+                  <span className="text-xs font-mono text-slate-500 uppercase">/ 30 days one-time</span>
+                </div>
+                <p className="text-xs text-slate-400 mt-2">For aggressive job hunts across multiple industries.</p>
+                
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Unlimited tailored resumes</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 150 ATS score checks</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Full LinkedIn profile optimizer included</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> 5 Base Resumes</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-teal-400" /> Priority fast generation pipeline</li>
+                </ul>
+              </div>
+
+              <Link
+                href="/pricing"
+                className="mt-8 w-full py-2.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-center font-semibold text-sm text-slate-200 transition-colors"
+              >
+                Get Active Search ($5)
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* FAQ SECTION */}
-      <FaqSection />
+      <section className="py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="text-xs font-mono tracking-widest text-teal-400 uppercase">Frequently Asked Questions</span>
+            <h2 className="text-3xl font-extrabold text-white mt-2">
+              Everything you need to know
+            </h2>
+          </div>
 
-      {/* FINAL CALL TO ACTION */}
-      <section className="py-16 bg-gradient-to-br from-slate-900 via-amber-950/20 to-slate-900 border-t border-slate-800 text-center relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Need an Electrician in Kozhikode Today?
-          </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto">
-            Book online in 60 seconds with mobile OTP verification, or speak directly with our Calicut helpdesk for emergency bookings.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => handleOpenBooking()}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-xl shadow-amber-500/20 transition-all hover:scale-105 cursor-pointer"
-            >
-              Book Service Online (From ₹149)
-            </button>
-            <a
-              href="tel:+914952800000"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <Phone className="w-4 h-4 text-amber-400" />
-              <span>Helpline: 0495 280 0000</span>
-            </a>
+          <div className="space-y-4">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full px-6 py-4 flex items-center justify-between text-left font-semibold text-sm sm:text-base text-slate-200 hover:text-white transition-colors"
+                >
+                  <span>{faq.q}</span>
+                  {openFaq === idx ? (
+                    <ChevronUp className="w-4 h-4 text-teal-400 shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />
+                  )}
+                </button>
+                {openFaq === idx && (
+                  <div className="px-6 pb-4 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/60 pt-3">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <Footer />
-
-      {/* STICKY BOTTOM BAR FOR MOBILE */}
-      <MobileStickyCTA onOpenBooking={() => handleOpenBooking()} />
-
-      {/* SERVICE DETAILS MODAL */}
-      <ServiceModal
-        service={activeServiceForModal}
-        isOpen={!!activeServiceForModal}
-        onClose={() => setActiveServiceForModal(null)}
-        onBookNow={(svc) => {
-          setActiveServiceForModal(null);
-          handleOpenBooking(svc.id);
-        }}
-      />
-
-      {/* BOOKING FLOW MODAL */}
-      <BookingFlowModal
-        isOpen={bookingModalOpen}
-        onClose={() => setBookingModalOpen(false)}
-        initialServiceId={bookingInitialServiceId}
-      />
     </div>
   );
 }

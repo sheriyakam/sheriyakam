@@ -14,10 +14,9 @@ import {
 } from 'react-native';
 import {
     X, User, LogIn, FileText, ChevronRight, Moon, Sun, LogOut,
-    Settings, Bell, HelpCircle, Zap, Shield, Crown, Search,
-    ShoppingCart, Phone, Scale, ShieldAlert, Sparkles, Briefcase,
-    RefreshCw, LayoutDashboard, Layers, Calendar, Users,
-    TrendingUp, Split, Webhook, Award, HardHat, Clock, MessageSquare
+    Settings, HelpCircle, Zap, Shield, Search,
+    ShoppingCart, Phone, Scale, HardHat, Award, Building2,
+    Sparkles, AlertTriangle, Briefcase, CheckCircle2
 } from 'lucide-react-native';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -28,8 +27,8 @@ const { width } = Dimensions.get('window');
 const MENU_WIDTH = Math.min(width * 0.90, 390);
 
 const PERSONA_TABS = [
-    { id: 'customer', label: 'Customer', icon: User },
-    { id: 'partner', label: 'Partner', icon: HardHat },
+    { id: 'customer', label: 'Services', icon: User },
+    { id: 'business', label: 'B2B & Care', icon: Building2 },
     { id: 'legal', label: 'Legal', icon: Scale },
 ];
 
@@ -138,7 +137,7 @@ export default function MenuModal({ visible, onClose }) {
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.title, { color: colors.textPrimary }]}>Sheriyakam</Text>
                             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                                {user ? `Namaskaram, ${user.name ? user.name.split(' ')[0] : 'User'}` : 'Certified Electrical Services'}
+                                {user ? `Namaskaram, ${user.name ? user.name.split(' ')[0] : 'User'}` : 'Kerala Home-Services Platform'}
                             </Text>
                         </View>
                         <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityRole="button" accessibilityLabel="Close Menu">
@@ -177,34 +176,48 @@ export default function MenuModal({ visible, onClose }) {
 
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 36 }}>
 
-                        {/* ─────────────────── 1. CUSTOMER PERSONA (PHASE 1 MVP) ─────────────────── */}
+                        {/* ─────────────────── 1. CUSTOMER PERSONA ─────────────────── */}
                         {activePersona === 'customer' && (
                             <>
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>DISCOVER & BOOK</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>MARKETPLACE SERVICES</Text>
                                     <MenuItem
-                                        icon={Search}
-                                        label="Search & Book Services"
-                                        subtitle="Instant rate card & bookings"
-                                        onPress={() => navigateTo('/search')}
+                                        icon={Zap}
+                                        label="All Services & Rate Cards"
+                                        subtitle="Browse full multi-category directory"
+                                        highlight
+                                        onPress={() => navigateTo('/services')}
+                                    />
+                                    <MenuItem
+                                        icon={AlertTriangle}
+                                        label="24/7 Emergency Triage"
+                                        subtitle="90-min urgent dispatch across Kerala"
+                                        badge="24/7"
+                                        onPress={() => navigateTo('/emergency-electrician')}
                                     />
                                     <MenuItem
                                         icon={ShoppingCart}
-                                        label="Service Cart"
-                                        subtitle="Review parts & checkout"
+                                        label="Cart & Checkout"
+                                        subtitle="Review selected services & spares"
                                         badge={itemCount > 0 ? `${itemCount}` : null}
                                         onPress={() => navigateTo('/cart')}
                                     />
                                     <MenuItem
-                                        icon={Zap}
-                                        label="Standard Rates & Pricing"
-                                        subtitle="Upfront Kerala labour rates"
-                                        onPress={() => navigateTo('/pricing')}
+                                        icon={Search}
+                                        label="Search Directory"
+                                        subtitle="Find fan, MCB, AC & wiring repairs"
+                                        onPress={() => navigateTo('/search')}
                                     />
                                 </View>
 
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ACCOUNT & BOOKINGS</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>ACCOUNT & TRACKING</Text>
+                                    <MenuItem
+                                        icon={FileText}
+                                        label="Customer Dashboard"
+                                        subtitle="Live GPS tracking, OTP & GST Invoices"
+                                        onPress={() => navigateTo('/dashboard')}
+                                    />
                                     {user ? (
                                         <>
                                             <MenuItem
@@ -214,125 +227,98 @@ export default function MenuModal({ visible, onClose }) {
                                                 onPress={() => navigateTo('/profile')}
                                             />
                                             <MenuItem
-                                                icon={FileText}
-                                                label="My Bookings"
-                                                subtitle="Live tracking & OTP verification"
-                                                onPress={() => navigateTo('/bookings')}
-                                            />
-                                            <MenuItem
                                                 icon={Settings}
-                                                label="Settings & Preferences"
-                                                subtitle="Security and app options"
+                                                label="Settings"
+                                                subtitle="Account & app preferences"
                                                 onPress={() => navigateTo('/settings')}
                                             />
                                         </>
                                     ) : (
-                                        <>
-                                            <MenuItem
-                                                icon={LogIn}
-                                                label="Login / Sign Up"
-                                                subtitle="Track bookings and warranties"
-                                                highlight
-                                                onPress={() => navigateTo('/auth/login')}
-                                            />
-                                            <MenuItem
-                                                icon={Zap}
-                                                label="How It Works"
-                                                subtitle="4-step simple booking guide"
-                                                onPress={() => navigateTo('/onboarding')}
-                                            />
-                                        </>
+                                        <MenuItem
+                                            icon={LogIn}
+                                            label="Login / Sign Up"
+                                            subtitle="Save bookings & warranty cards"
+                                            highlight
+                                            onPress={() => navigateTo('/auth/login')}
+                                        />
                                     )}
                                 </View>
 
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>CAREER & GROWTH</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>PORTFOLIO & TRUST</Text>
                                     <MenuItem
-                                        icon={Sparkles}
-                                        label="AI Resume & LinkedIn Tool"
-                                        subtitle="ATS score & job description tailoring"
-                                        badge="NEW"
-                                        highlight
-                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
-                                    />
-                                </View>
-
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SUPPORT & SAFETY</Text>
-                                    <MenuItem
-                                        icon={HelpCircle}
-                                        label="Help Center & FAQs"
-                                        subtitle="Instant guides & common questions"
-                                        onPress={() => navigateTo('/help')}
-                                    />
-                                    <MenuItem
-                                        icon={Phone}
-                                        label="24/7 Helpline & Contact"
-                                        subtitle="Kozhikode support desk"
-                                        onPress={() => navigateTo('/contact')}
+                                        icon={Award}
+                                        label="Work Portfolio & Gallery"
+                                        subtitle="Before & after installations in Kerala"
+                                        onPress={() => navigateTo('/work')}
                                     />
                                     <MenuItem
                                         icon={Shield}
-                                        label="30-Day Rework Warranty"
-                                        subtitle="Zero-cost follow-up guarantee"
-                                        badge="Warranty"
+                                        label="30-Day Workmanship Warranty"
+                                        subtitle="Zero-cost rework policy"
                                         onPress={() => navigateTo('/refund-policy')}
+                                    />
+                                    <MenuItem
+                                        icon={Phone}
+                                        label="24/7 Helpline Support"
+                                        subtitle="+91 495 280 0000"
+                                        onPress={() => navigateTo('/contact')}
                                     />
                                 </View>
                             </>
                         )}
 
-                        {/* ─────────────────── 2. PARTNER PERSONA (PHASE 1 MVP) ─────────────────── */}
-                        {activePersona === 'partner' && (
+                        {/* ─────────────────── 2. BUSINESS & CARE PERSONA ─────────────────── */}
+                        {activePersona === 'business' && (
                             <>
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>TECHNICIAN ACCESS & EARNINGS</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>ANNUAL CONTRACTS & B2B</Text>
                                     <MenuItem
-                                        icon={LogIn}
-                                        label="Partner Login / Register"
-                                        subtitle="Electrician onboarding & access"
+                                        icon={Shield}
+                                        label="Sheriyakam Care AMC"
+                                        subtitle="Preventive care plans for homes & shops"
                                         highlight
-                                        onPress={() => navigateTo('/partner/auth')}
+                                        onPress={() => navigateTo('/amc')}
                                     />
                                     <MenuItem
-                                        icon={Briefcase}
-                                        label="Partner Job Dashboard"
-                                        subtitle="Live leads & map routing"
+                                        icon={Building2}
+                                        label="Commercial Contracting"
+                                        subtitle="Offices, clinics & apartment switchgear"
+                                        highlight
+                                        onPress={() => navigateTo('/commercial')}
+                                    />
+                                </View>
+
+                                <View style={styles.section}>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>TECHNICIAN NETWORK</Text>
+                                    <MenuItem
+                                        icon={HardHat}
+                                        label="Partner Technician Portal"
+                                        subtitle="KSELB wireman jobs & dispatch dashboard"
                                         onPress={() => navigateTo('/partner')}
                                     />
-                                </View>
-
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>STANDARDS & AGREEMENT</Text>
                                     <MenuItem
                                         icon={FileText}
-                                        label="Partner Service Agreement"
-                                        subtitle="Transparent payout & terms"
+                                        label="Partner Agreement & Payouts"
+                                        subtitle="Fair transparent revenue sharing"
                                         onPress={() => navigateTo('/partner/agreement')}
-                                    />
-                                    <MenuItem
-                                        icon={Award}
-                                        label="Safety & Material Standards"
-                                        subtitle="ISI certified cabling & safety"
-                                        onPress={() => navigateTo('/materials-safety')}
                                     />
                                 </View>
 
                                 <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>GROWTH & GULF OPPORTUNITIES</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>FREE ELECTRICIAN CAREER TOOL</Text>
                                     <MenuItem
                                         icon={Sparkles}
-                                        label="CV & LinkedIn Optimize"
-                                        subtitle="100% Free GCC & electrical CV upgrade"
-                                        badge="100% FREE"
-                                        highlight
+                                        label="CV & LinkedIn Optimizer"
+                                        subtitle="Gulf & industrial electrical CV tailoring"
+                                        badge="FREE"
                                         onPress={() => navigateTo('/cv-linkedin-optimize')}
                                     />
                                 </View>
                             </>
                         )}
 
-                        {/* ─────────────────── 3. LEGAL PERSONA (PHASE 1 MVP) ─────────────────── */}
+                        {/* ─────────────────── 3. LEGAL PERSONA ─────────────────── */}
                         {activePersona === 'legal' && (
                             <>
                                 <View style={styles.section}>
@@ -350,16 +336,16 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/privacy')}
                                     />
                                     <MenuItem
-                                        icon={RefreshCw}
-                                        label="Cancellation & Refund Policy"
-                                        subtitle="Clear cancellation & refund rules"
-                                        onPress={() => navigateTo('/cancellation-policy')}
-                                    />
-                                    <MenuItem
                                         icon={Scale}
                                         label="Grievance Redressal Desk"
                                         subtitle="Statutory escalation & support"
                                         onPress={() => navigateTo('/grievance')}
+                                    />
+                                    <MenuItem
+                                        icon={Award}
+                                        label="Materials & Safety Policy"
+                                        subtitle="BIS/ISI standard compliance"
+                                        onPress={() => navigateTo('/materials-safety')}
                                     />
                                 </View>
                             </>
