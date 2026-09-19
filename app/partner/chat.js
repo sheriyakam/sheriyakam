@@ -1,29 +1,56 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity, Linking, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, SPACING } from '../../constants/theme';
-import { Send, ArrowLeft, Phone, User as UserIcon, Users } from 'lucide-react-native';
+import { Send, ArrowLeft, Phone, User as UserIcon, Users, MapPin, Zap } from 'lucide-react-native';
 import { getCurrentPartner, getSupervisorForPartner } from '../../constants/partnerStore';
 
 export default function PartnerChat() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const { type, name, subtitle } = params;
+    const { type, name, subtitle, bookingId, phone } = params;
 
     const currentPartner = getCurrentPartner();
     const supervisor = getSupervisorForPartner(currentPartner);
 
-    const chatTitle = name || supervisor.name;
-    const chatSubtitle = subtitle || `Supervisor - ${supervisor.taluk}`;
     const chatType = type || 'supervisor';
+    const chatTitle = name || (chatType === 'customer' ? 'Customer' : supervisor.name);
+    const chatSubtitle = subtitle || (
+        chatType === 'customer'
+            ? `Job #${bookingId || 'Active'} • Pre-Arrival Logistics`
+            : `Supervisor - ${supervisor.taluk}`
+    );
 
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const flatListRef = useRef(null);
 
+    const customerPresets = [
+        "I have reached outside the gate",
+        "Please share flat / floor number",
+        "Two-wheeler parking available?",
+        "Where is the main MCB / DB box?"
+    ];
+
     useEffect(() => {
-        if (chatType === 'community') {
+        if (chatType === 'customer') {
+            setMessages([
+                {
+                    id: '1',
+                    text: `Hello! I am on my way to your address for ${params.service || 'your electrical service'}. Please let me know any gate codes or landmark.`,
+                    sender: 'me',
+                    time: '10:02 AM'
+                },
+                {
+                    id: '2',
+                    text: 'Hello, landmark is opposite Malabar Gold showroom. Gate code is #4821, 2nd floor.',
+                    sender: 'other',
+                    senderName: name || 'Customer',
+                    time: '10:04 AM'
+                }
+            ]);
+        } else if (chatType === 'community') {
             setMessages([
                 { id: '1', text: 'Has anyone seen the new pricing update?', sender: 'other', senderName: 'Rahul (Electrician)', time: '09:00 AM' },
                 { id: '2', text: 'Yes, it looks good. Better rates for AC work.', sender: 'other', senderName: 'Arun (AC)', time: '09:15 AM' },
@@ -36,35 +63,53 @@ export default function PartnerChat() {
         }
     }, [chatType]);
 
-    const handleSend = () => {
-        if (message.trim()) {
+    const handleSendText = (textToSend) => {
+        const text = textToSend || message;
+        if (text && text.trim()) {
             const newMessage = {
                 id: Date.now().toString(),
-                text: message,
+                text: text.trim(),
                 sender: 'me',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
             setMessages(prev => [...prev, newMessage]);
-            setMessage('');
+            if (!textToSend) setMessage('');
 
             setTimeout(() => {
-                const reply = chatType === 'community'
-                    ? {
+                let reply;
+                if (chatType === 'customer') {
+                    reply = {
+                        id: Date.now().toString(),
+                        text: 'Understood! I will be waiting at the door.',
+                        sender: 'other',
+                        senderName: name || 'Customer',
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+                } else if (chatType === 'community') {
+                    reply = {
                         id: Date.now().toString(),
                         text: 'Thanks for the info!',
                         sender: 'other',
                         senderName: 'Vishnu (Tech)',
                         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    }
-                    : {
+                    };
+                } else {
+                    reply = {
                         id: Date.now().toString(),
                         text: 'I have received your message. I will check the details and get back to you shortly.',
                         sender: 'supervisor',
                         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     };
-
+                }
                 setMessages(prev => [...prev, reply]);
             }, 1000);
+        }
+    };
+
+    const handleCall = () => {
+        const targetPhone = phone || (chatType === 'supervisor' ? supervisor.phone : null);
+        if (targetPhone) {
+            Linking.openURL(`tel:${targetPhone}`);
         }
     };
 
@@ -72,23 +117,55 @@ export default function PartnerChat() {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <ArrowLeft size={24} color={COLORS.textPrimary} />
+                    <ArrowLeft size={22} color={COLORS.textPrimary} />
                 </TouchableOpacity>
                 <View style={styles.avatarContainer}>
-                    <View style={[styles.avatar, { backgroundColor: chatType === 'community' ? COLORS.accent : COLORS.primary }]}>
-                        {chatType === 'community' ? <Users size={24} color="#fff" /> : <UserIcon size={24} color="#fff" />}
+                    <View style={[
+                        styles.avatar,
+                        {
+                            backgroundColor: chatType === 'community'
+                                ? COLORS.accent
+                                : chatType === 'customer'
+                                    ? '#10B981'
+                                    : COLORS.primary
+                        }
+                    ]}>
+                        {chatType === 'community' ? (
+                            <Users size={22} color="#fff" />
+                        ) : chatType === 'customer' ? (
+                            <UserIcon size={22} color="#fff" />
+                        ) : (
+                            <Zap size={22} color="#fff" />
+                        )}
                     </View>
                 </View>
                 <View style={styles.headerInfo}>
                     <Text style={styles.headerTitle}>{chatTitle}</Text>
                     <Text style={styles.headerSubtitle}>{chatSubtitle}</Text>
                 </View>
-                {chatType === 'supervisor' && (
-                    <TouchableOpacity style={styles.phoneBtn}>
-                        <Phone size={24} color={COLORS.primary} />
+                {(chatType === 'supervisor' || phone) && (
+                    <TouchableOpacity style={styles.phoneBtn} onPress={handleCall}>
+                        <Phone size={20} color={COLORS.accent} />
                     </TouchableOpacity>
                 )}
             </View>
+
+            {/* Quick Logistics Presets for Customer Chat */}
+            {chatType === 'customer' && (
+                <View style={styles.presetsContainer}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.presetsScroll}>
+                        {customerPresets.map((preset, idx) => (
+                            <TouchableOpacity
+                                key={idx}
+                                style={styles.presetPill}
+                                onPress={() => handleSendText(preset)}
+                            >
+                                <Text style={styles.presetPillText}>{preset}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                </View>
+            )}
 
             <FlatList
                 ref={flatListRef}
@@ -99,7 +176,7 @@ export default function PartnerChat() {
                         styles.messageWrapper,
                         item.sender === 'me' ? styles.myMessageWrapper : styles.theirMessageWrapper
                     ]}>
-                        {chatType === 'community' && item.sender !== 'me' && (
+                        {(chatType === 'community' || chatType === 'customer') && item.sender !== 'me' && (
                             <Text style={styles.senderName}>{item.senderName}</Text>
                         )}
                         <View style={[
@@ -127,12 +204,22 @@ export default function PartnerChat() {
                         style={styles.input}
                         value={message}
                         onChangeText={setMessage}
-                        placeholder={chatType === 'community' ? "Message community..." : "Message supervisor..."}
+                        placeholder={
+                            chatType === 'customer'
+                                ? "Ask gate code, landmark..."
+                                : chatType === 'community'
+                                    ? "Message community..."
+                                    : "Message supervisor..."
+                        }
                         placeholderTextColor={COLORS.textTertiary}
                         multiline
                     />
-                    <TouchableOpacity onPress={handleSend} style={styles.sendBtn} disabled={!message.trim()}>
-                        <Send size={20} color="#fff" />
+                    <TouchableOpacity
+                        onPress={() => handleSendText()}
+                        style={[styles.sendBtn, !message.trim() && { opacity: 0.5 }]}
+                        disabled={!message.trim()}
+                    >
+                        <Send size={18} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -146,23 +233,24 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.bgPrimary,
     },
     header: {
-        padding: SPACING.md,
+        paddingHorizontal: SPACING.md,
+        paddingVertical: 12,
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderColor: COLORS.border,
+        borderColor: 'rgba(255,255,255,0.06)',
         backgroundColor: COLORS.bgSecondary,
+        gap: 8,
     },
     backBtn: {
-        padding: 8,
-        marginRight: 8,
+        padding: 6,
     },
     avatarContainer: {
-        marginRight: 12,
+        marginRight: 4,
     },
     avatar: {
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
@@ -171,26 +259,54 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     headerTitle: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: 'bold',
         color: COLORS.textPrimary,
     },
     headerSubtitle: {
-        fontSize: 12,
+        fontSize: 11,
         color: COLORS.textSecondary,
     },
     phoneBtn: {
         padding: 8,
         backgroundColor: 'rgba(37, 99, 235, 0.1)',
-        borderRadius: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(37, 99, 235, 0.3)',
     },
+
+    /* Presets */
+    presetsContainer: {
+        backgroundColor: COLORS.bgSecondary,
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
+    },
+    presetsScroll: {
+        paddingHorizontal: SPACING.md,
+        gap: 8,
+    },
+    presetPill: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    presetPillText: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        fontWeight: '600',
+    },
+
     chatContent: {
         padding: SPACING.md,
         paddingBottom: 20,
     },
     messageWrapper: {
         marginBottom: 12,
-        maxWidth: '80%',
+        maxWidth: '82%',
     },
     myMessageWrapper: {
         alignSelf: 'flex-end',
@@ -199,17 +315,17 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     senderName: {
-        fontSize: 11,
-        color: COLORS.textSecondary,
-        marginBottom: 2,
+        fontSize: 10,
+        color: COLORS.textTertiary,
+        marginBottom: 3,
         marginLeft: 4,
     },
     messageContainer: {
         padding: 12,
-        borderRadius: 16,
+        borderRadius: 14,
     },
     myMessage: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: '#2563EB',
         borderBottomRightRadius: 2,
     },
     theirMessage: {
@@ -219,7 +335,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
     },
     messageText: {
-        fontSize: 15,
+        fontSize: 14,
         lineHeight: 20,
     },
     myMessageText: {
@@ -229,7 +345,7 @@ const styles = StyleSheet.create({
         color: COLORS.textPrimary,
     },
     timeText: {
-        fontSize: 10,
+        fontSize: 9,
         marginTop: 4,
         alignSelf: 'flex-end',
     },
@@ -241,7 +357,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         flexDirection: 'row',
-        padding: SPACING.md,
+        padding: 12,
         backgroundColor: COLORS.bgSecondary,
         borderTopWidth: 1,
         borderColor: COLORS.border,
@@ -251,18 +367,19 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         backgroundColor: COLORS.bgPrimary,
-        borderRadius: 24,
+        borderRadius: 20,
         paddingHorizontal: 16,
         paddingVertical: 10,
         maxHeight: 100,
         color: COLORS.textPrimary,
         borderWidth: 1,
         borderColor: COLORS.border,
+        fontSize: 13,
     },
     sendBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: COLORS.accent,
         justifyContent: 'center',
         alignItems: 'center',

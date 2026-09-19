@@ -8,10 +8,13 @@ import { useRouter } from 'expo-router';
 import {
     ArrowLeft, Calendar, Clock, MapPin, Phone, Navigation,
     CheckCircle, Shield, AlertTriangle, ChevronRight, X,
-    CalendarCheck, UserCheck, CalendarOff, Plus
+    CalendarCheck, UserCheck, CalendarOff, Plus, Route, Compass, Trash2, Check
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
-import { getCurrentPartner, DEFAULT_PARTNER_MOCK } from '../../constants/partnerStore';
+import {
+    getCurrentPartner, DEFAULT_PARTNER_MOCK,
+    getBlockedSlots, addBlockedSlot, removeBlockedSlot
+} from '../../constants/partnerStore';
 
 export default function PartnerSchedule() {
     const router = useRouter();
@@ -33,6 +36,8 @@ export default function PartnerSchedule() {
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveReason, setLeaveReason] = useState('');
     const [leaveDay, setLeaveDay] = useState('Tomorrow');
+    const [blockedSlotsList, setBlockedSlotsList] = useState(getBlockedSlots());
+    const [routeOptimized, setRouteOptimized] = useState(false);
 
     const [scheduledJobs, setScheduledJobs] = useState([
         {
@@ -129,12 +134,30 @@ export default function PartnerSchedule() {
             return;
         }
 
+        const added = addBlockedSlot({
+            date: leaveDay,
+            timeSlot: '02:00 PM - 06:00 PM',
+            reason: leaveReason.trim()
+        });
+
+        setBlockedSlotsList(getBlockedSlots());
         setIsLeaveModalOpen(false);
         Alert.alert(
             '✅ Slot Blocked',
             `Your unavailability for ${leaveDay} has been registered. No scheduled or pre-booked jobs will be assigned during this slot.`
         );
         setLeaveReason('');
+    };
+
+    const handleRemoveBlockedSlot = (id) => {
+        removeBlockedSlot(id);
+        setBlockedSlotsList(getBlockedSlots());
+        Alert.alert('Slot Restored', 'You are now open to receive scheduled bookings during this time window.');
+    };
+
+    const handleOptimizeRoute = () => {
+        setRouteOptimized(true);
+        Alert.alert('⚡ Route Optimized', 'Waypoints re-sequenced by proximity (Logan\'s Road → Sea View → Temple Gate). Estimated fuel savings: 4.2 km.');
     };
 
     return (
@@ -243,6 +266,71 @@ export default function PartnerSchedule() {
                         </Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Multi-Job Route Optimizer */}
+                <View style={styles.routeOptimizerCard}>
+                    <View style={styles.routeHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Route size={18} color={COLORS.accent} />
+                            <Text style={styles.routeTitle}>OPTIMIZED WAYPOINT ROUTE</Text>
+                        </View>
+                        <TouchableOpacity style={styles.reorderBtn} onPress={handleOptimizeRoute}>
+                            <Compass size={14} color="#60A5FA" />
+                            <Text style={styles.reorderBtnText}>{routeOptimized ? 'Route Optimized ✓' : 'Optimize Sequence'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.routeSub}>
+                        {routeOptimized
+                            ? 'Sequence reordered by GPS proximity. Saves ~4.2 km two-wheeler fuel across Thalassery.'
+                            : '3 scheduled stops in Thalassery hub. Tap optimize to calculate shortest driving order.'}
+                    </Text>
+                    <View style={styles.waypointRow}>
+                        <View style={styles.waypointPill}>
+                            <Text style={styles.waypointNum}>1</Text>
+                            <Text style={styles.waypointLabel}>Logan's Rd (1.8 km)</Text>
+                        </View>
+                        <View style={styles.waypointArrow}>
+                            <ChevronRight size={14} color={COLORS.textTertiary} />
+                        </View>
+                        <View style={styles.waypointPill}>
+                            <Text style={styles.waypointNum}>2</Text>
+                            <Text style={styles.waypointLabel}>Sea View (2.4 km)</Text>
+                        </View>
+                        <View style={styles.waypointArrow}>
+                            <ChevronRight size={14} color={COLORS.textTertiary} />
+                        </View>
+                        <View style={styles.waypointPill}>
+                            <Text style={styles.waypointNum}>3</Text>
+                            <Text style={styles.waypointLabel}>Temple Gate (3.1 km)</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Blocked Slots Section */}
+                {blockedSlotsList.length > 0 && (
+                    <View style={styles.blockedSection}>
+                        <View style={styles.blockedHeader}>
+                            <CalendarOff size={16} color={COLORS.gold} />
+                            <Text style={styles.blockedTitle}>ADVANCE TIME-OFF BLOCKS ({blockedSlotsList.length})</Text>
+                        </View>
+                        <View style={styles.blockedGrid}>
+                            {blockedSlotsList.map(block => (
+                                <View key={block.id} style={styles.blockedItem}>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.blockedDate}>{block.date} • {block.timeSlot}</Text>
+                                        <Text style={styles.blockedReason}>{block.reason}</Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={styles.unblockBtn}
+                                        onPress={() => handleRemoveBlockedSlot(block.id)}
+                                    >
+                                        <Trash2 size={14} color="#EF4444" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                )}
 
                 {/* Scheduled Jobs List */}
                 <View style={styles.jobsList}>
@@ -813,5 +901,131 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
         color: '#fff',
-    }
+    },
+
+    /* Route Optimizer */
+    routeOptimizerCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 16,
+        padding: 14,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        marginBottom: 16,
+        gap: 8,
+    },
+    routeHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    routeTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 12,
+        letterSpacing: 0.8,
+    },
+    reorderBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(59, 130, 246, 0.15)',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
+    },
+    reorderBtnText: {
+        color: '#60A5FA',
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    routeSub: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        lineHeight: 16,
+    },
+    waypointRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingTop: 4,
+    },
+    waypointPill: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+        paddingHorizontal: 8,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    waypointNum: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: COLORS.accent,
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '900',
+        textAlign: 'center',
+        lineHeight: 18,
+    },
+    waypointLabel: {
+        color: COLORS.textPrimary,
+        fontSize: 10,
+        fontWeight: '600',
+        flex: 1,
+    },
+    waypointArrow: {
+        paddingHorizontal: 2,
+    },
+
+    /* Blocked Slots */
+    blockedSection: {
+        backgroundColor: 'rgba(234, 179, 8, 0.05)',
+        borderRadius: 14,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(234, 179, 8, 0.2)',
+        marginBottom: 16,
+        gap: 8,
+    },
+    blockedHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    blockedTitle: {
+        color: COLORS.gold,
+        fontWeight: '800',
+        fontSize: 11,
+        letterSpacing: 0.8,
+    },
+    blockedGrid: {
+        gap: 6,
+    },
+    blockedItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+    },
+    blockedDate: {
+        color: COLORS.textPrimary,
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    blockedReason: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        marginTop: 2,
+    },
+    unblockBtn: {
+        padding: 6,
+    },
 });

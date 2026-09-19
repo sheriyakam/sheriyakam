@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity, ScrollView,
-    Linking, Platform, Dimensions, TextInput, Alert, Image
+    Linking, Platform, Dimensions, TextInput, Alert, Image, Modal, Share
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,13 +9,17 @@ import * as ImagePicker from 'expo-image-picker';
 import {
     MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar,
     CheckCircle, Shield, User, IndianRupee, Zap, Camera,
-    FileText, AlertTriangle, CheckSquare, Square, X, ChevronRight
+    FileText, AlertTriangle, CheckSquare, Square, X, ChevronRight,
+    MessageSquare, AlertOctagon, Plus, Minus, Trash2, QrCode,
+    Share2, Sparkles, ExternalLink, Banknote
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../../constants/theme';
 import {
     completeBookingByPartner, checkInBookingByPartner,
-    markArrivedByPartner, getPartnerJobs
+    markArrivedByPartner, getPartnerJobs, recordCashPayment,
+    getBookingById, bookingEvents
 } from '../../../constants/bookingStore';
+import { PARTS_CATALOG, PARTS_CATEGORIES } from '../../../constants/partsCatalog';
 import JobMap from '../../../components/JobMap';
 import { snitch } from '../../../utils/snitch';
 
@@ -24,11 +28,11 @@ export default function JobDetails() {
     const router = useRouter();
 
     const [liveJob, setLiveJob] = useState({
-        id: params.id,
-        customerName: params.customerName || params.customer || 'Customer',
+        id: params.id || 'b-active-1',
+        customerName: params.customerName || params.customer || 'K.V. Raghu',
         phone: params.customerPhone || params.phone || '+91 94471 28901',
-        service: params.service || 'Electrical Service',
-        address: params.address || 'Goods Shed Road, Thalassery',
+        service: params.service || 'Emergency Repair Specialist',
+        address: params.address || 'Near Old Bus Stand, Goods Shed Road, Thalassery',
         price: parseInt(params.price) || 550,
         date: params.date || 'Today',
         time: params.time || 'Immediate (90-Min Emergency)',
@@ -39,17 +43,29 @@ export default function JobDetails() {
         notes: params.notes || 'Emergency repair required',
         checkInOtp: params.checkInOtp || '1234',
         otp: params.otp || '4321',
+        paymentStatus: 'pending'
     });
 
     // Active Job Flow States
     const [startOtp, setStartOtp] = useState('');
     const [completionOtp, setCompletionOtp] = useState('');
     const [hours, setHours] = useState('1');
-    const [materialCost, setMaterialCost] = useState('0');
     const [workNotes, setWorkNotes] = useState('');
     const [beforePhoto, setBeforePhoto] = useState(null);
     const [afterPhoto, setAfterPhoto] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Spare Parts Management
+    const [selectedParts, setSelectedParts] = useState([]);
+    const [partsModalVisible, setPartsModalVisible] = useState(false);
+    const [partsCategory, setPartsCategory] = useState('all');
+    const [partsSearch, setPartsSearch] = useState('');
+
+    // Safety SOS & Dual Settlement states
+    const [sosModalVisible, setSosModalVisible] = useState(false);
+    const [sosActive, setSosActive] = useState(false);
+    const [qrModalVisible, setQrModalVisible] = useState(false);
+    const [cashPaid, setCashPaid] = useState(false);
 
     // Interactive Checklist
     const [checklist, setChecklist] = useState([
@@ -60,16 +76,27 @@ export default function JobDetails() {
     ]);
 
     useEffect(() => {
-        const allJobs = getPartnerJobs();
-        const updated = allJobs.find(j => j.id === params.id);
-        if (updated) {
-            setLiveJob(prev => ({
-                ...prev,
-                status: updated.status,
-                finalPrice: updated.finalPrice,
-                netPartnerPayout: updated.netPartnerPayout
-            }));
-        }
+        const syncJob = () => {
+            const allJobs = getPartnerJobs();
+            const updated = allJobs.find(j => j.id === (params.id || 'b-active-1')) || getBookingById(params.id || 'b-active-1');
+            if (updated) {
+                setLiveJob(prev => ({
+                    ...prev,
+                    ...updated,
+                    status: updated.status,
+                    finalPrice: updated.finalPrice,
+                    netPartnerPayout: updated.netPartnerPayout,
+                    paymentStatus: updated.paymentStatus || prev.paymentStatus
+                }));
+                if (updated.paymentStatus === 'paid' || updated.paymentStatus === 'paid_cash') {
+                    setCashPaid(true);
+                }
+            }
+        };
+
+        syncJob();
+        bookingEvents.on('change', syncJob);
+        return () => bookingEvents.off('change', syncJob);
     }, [params.id]);
 
     const job = liveJob;
@@ -145,12 +172,40 @@ export default function JobDetails() {
                 else setAfterPhoto(result.assets[0].uri);
             }
         } catch (e) {
-            // Mock fallback photo for web testing
             const mockUri = 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500';
             if (type === 'before') setBeforePhoto(mockUri);
             else setAfterPhoto(mockUri);
         }
     };
+
+    // Spare Parts Helpers
+    const handleAddPart = (part) => {
+        setSelectedParts(prev => {
+            const existing = prev.find(p => p.id === part.id);
+            if (existing) {
+                return prev.map(p => p.id === part.id ? { ...p, quantity: p.quantity + 1 } : p);
+            }
+            return [...prev, { ...part, quantity: 1 }];
+        });
+    };
+
+    const handleUpdatePartQty = (partId, delta) => {
+        setSelectedParts(prev => {
+            return prev.map(p => {
+                if (p.id === partId) {
+                    const newQty = Math.max(1, p.quantity + delta);
+                    return { ...p, quantity: newQty };
+                }
+                return p;
+            });
+        });
+    };
+
+    const handleRemovePart = (partId) => {
+        setSelectedParts(prev => prev.filter(p => p.id !== partId));
+    };
+
+    const partsTotalCost = selectedParts.reduce((sum, p) => sum + (p.rate * p.quantity), 0);
 
     // Stage 4 Action: Complete Job with Second OTP
     const handleCompleteJob = () => {
@@ -163,13 +218,18 @@ export default function JobDetails() {
         setTimeout(() => {
             setIsSubmitting(false);
             const extraH = Math.max(0, (parseInt(hours) || 1) - 1);
-            const mats = parseInt(materialCost) || 0;
             const res = completeBookingByPartner(
                 job.id,
                 completionOtp,
                 parseInt(hours) || 1,
-                mats,
-                { checklist, beforePhoto, afterPhoto, workNotes }
+                partsTotalCost,
+                {
+                    checklist,
+                    beforePhoto,
+                    afterPhoto,
+                    workNotes,
+                    sparePartsUsed: selectedParts
+                }
             );
 
             if (res.success) {
@@ -179,19 +239,60 @@ export default function JobDetails() {
                     finalPrice: res.booking.finalPrice,
                     netPartnerPayout: res.booking.netPartnerPayout
                 }));
-                Alert.alert("🎉 Job Completed & Verified!", "Invoice summary has been generated for customer payment.");
+                Alert.alert("🎉 Job Completed & Verified!", "Itemized bill generated for customer post-completion settlement.");
             } else {
                 Alert.alert("Error", res.message || "Invalid Completion OTP. Customer code: 1234");
             }
         }, 700);
     };
 
+    // Cash Reconciliation
+    const handleMarkCashReceived = () => {
+        recordCashPayment(job.id);
+        setCashPaid(true);
+        Alert.alert(
+            '💵 Cash Settlement Confirmed',
+            `Received ₹${job.finalPrice || currentTotalBill} in cash. Job is closed without gateway fees!`
+        );
+    };
+
+    // Trigger SOS Emergency
+    const handleTriggerSOS = () => {
+        setSosActive(true);
+        setSosModalVisible(false);
+        Alert.alert(
+            '🚨 SOS DISTRESS BROADCASTED',
+            `Alert dispatched to Thalassery HQ Ops Room & Supervisor Suresh Kumar.\nGPS Coordinates: ${job.latitude.toFixed(4)}, ${job.longitude.toFixed(4)}\nJob Reference: #${job.id}`,
+            [{ text: 'Acknowledged', style: 'default' }]
+        );
+    };
+
+    // Share payment link
+    const handleSharePaymentLink = async () => {
+        const payUrl = `https://sheriyakam.vercel.app/pay/${job.id}`;
+        try {
+            await Share.share({
+                title: `Sheriyakam Post-Service Bill #${job.id}`,
+                message: `Hello ${job.customerName}, your electrical service has been completed by KSELB wireman Shyam Prasad. Please pay ₹${job.finalPrice || currentTotalBill} safely online or cash at: ${payUrl}`,
+            });
+        } catch (e) {
+            Alert.alert('Payment Link', payUrl);
+        }
+    };
+
     // Calculations
     const extraHoursCount = Math.max(0, (parseInt(hours) || 1) - 1);
-    const materialCostNum = parseInt(materialCost) || 0;
-    const currentTotalBill = (job.price || 0) + (extraHoursCount * 100) + materialCostNum;
+    const currentTotalBill = (job.price || 0) + (extraHoursCount * 100) + partsTotalCost;
     const platformDeduction = Math.round(currentTotalBill * 0.10);
     const partnerNetEarning = currentTotalBill - platformDeduction;
+
+    // Filter parts for modal
+    const filteredParts = PARTS_CATALOG.filter(part => {
+        const matchesCat = partsCategory === 'all' || part.category === partsCategory;
+        const matchesQuery = part.name.toLowerCase().includes(partsSearch.toLowerCase()) ||
+            part.manufacturer.toLowerCase().includes(partsSearch.toLowerCase());
+        return matchesCat && matchesQuery;
+    });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -204,6 +305,16 @@ export default function JobDetails() {
                     <Text style={styles.headerTitle}>Job Execution Flow</Text>
                     <Text style={styles.headerSub}>ID #{job.id} • KSELB Protocol</Text>
                 </View>
+
+                {/* Persistent SOS Emergency Button */}
+                <TouchableOpacity
+                    style={[styles.sosHeaderBtn, sosActive && { backgroundColor: '#DC2626' }]}
+                    onPress={() => setSosModalVisible(true)}
+                >
+                    <AlertOctagon size={16} color="#fff" />
+                    <Text style={styles.sosHeaderBtnText}>{sosActive ? 'SOS ACTIVE' : 'SOS'}</Text>
+                </TouchableOpacity>
+
                 <View style={[
                     styles.statusBadge,
                     {
@@ -228,6 +339,16 @@ export default function JobDetails() {
                     </Text>
                 </View>
             </View>
+
+            {/* Active SOS Warning Banner */}
+            {sosActive && (
+                <View style={styles.sosWarningBanner}>
+                    <AlertOctagon size={18} color="#fff" />
+                    <Text style={styles.sosWarningText}>
+                        EMERGENCY PROTOCOL ACTIVE: Thalassery Control Room is tracking your coordinates.
+                    </Text>
+                </View>
+            )}
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* 4-Stage Progressive Workflow Indicator */}
@@ -259,7 +380,7 @@ export default function JobDetails() {
                             ]}>
                                 <Text style={styles.stepNum}>3</Text>
                             </View>
-                            <Text style={styles.stepLabel}>Evidence</Text>
+                            <Text style={styles.stepLabel}>Evidence & Parts</Text>
                         </View>
                         <View style={[styles.stepLine, (job.status === 'completed') && { backgroundColor: COLORS.success }]} />
 
@@ -270,7 +391,7 @@ export default function JobDetails() {
                             ]}>
                                 <Text style={styles.stepNum}>4</Text>
                             </View>
-                            <Text style={styles.stepLabel}>Invoice</Text>
+                            <Text style={styles.stepLabel}>Settlement</Text>
                         </View>
                     </View>
                 </View>
@@ -301,9 +422,17 @@ export default function JobDetails() {
                             <Text style={styles.callBtnText}>Call Customer</Text>
                         </TouchableOpacity>
 
+                        <TouchableOpacity
+                            style={styles.chatBtn}
+                            onPress={() => router.push(`/partner/chat?type=customer&bookingId=${job.id}&name=${encodeURIComponent(job.customerName)}&phone=${encodeURIComponent(job.phone)}`)}
+                        >
+                            <MessageSquare size={16} color="#60A5FA" />
+                            <Text style={styles.chatBtnText}>Chat Logistics</Text>
+                        </TouchableOpacity>
+
                         <TouchableOpacity style={styles.navBtn} onPress={handleDirections}>
                             <Navigation size={16} color="#fff" />
-                            <Text style={styles.navBtnText}>Navigate (Maps)</Text>
+                            <Text style={styles.navBtnText}>Navigate</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -316,7 +445,7 @@ export default function JobDetails() {
                             <Text style={styles.stageTitle}>Step 1: Heading to Customer Location</Text>
                         </View>
                         <Text style={styles.stageDescription}>
-                            Once you arrive at the gate/door, tap below to notify the customer and prepare for safety verification.
+                            Need gate codes or floor number? Tap <Text style={{ color: '#60A5FA', fontWeight: '700' }}>Chat Logistics</Text> above. Once outside, tap below to notify customer.
                         </Text>
                         <TouchableOpacity style={styles.primaryActionBtn} onPress={handleMarkArrived}>
                             <MapPin size={18} color="#fff" />
@@ -357,12 +486,12 @@ export default function JobDetails() {
                     </View>
                 )}
 
-                {/* STAGE 3: WORK EXECUTION & EVIDENCE (CHECKLIST, PHOTOS, EXTRA CHARGES) */}
+                {/* STAGE 3: WORK EXECUTION & EVIDENCE (CHECKLIST, PHOTOS, SPARE PARTS) */}
                 {job.status === 'in_progress' && (
                     <View style={styles.stageCard}>
                         <View style={styles.stageCardHeader}>
                             <FileText size={20} color={COLORS.accent} />
-                            <Text style={styles.stageTitle}>Step 3: Work Execution & Evidence</Text>
+                            <Text style={styles.stageTitle}>Step 3: Work Execution & Parts Evidence</Text>
                         </View>
 
                         {/* Checklist */}
@@ -422,24 +551,76 @@ export default function JobDetails() {
                             </View>
                         </View>
 
-                        {/* Extra Time & Materials Adjuster */}
-                        <Text style={[styles.subSectionTitle, { marginTop: 16 }]}>ADDITIONAL CHARGES & MATERIALS</Text>
+                        {/* Genuine Spare Parts Catalog Integration */}
+                        <View style={styles.partsSectionBox}>
+                            <View style={styles.partsHeaderRow}>
+                                <View>
+                                    <Text style={styles.subSectionTitle}>GENUINE SPARE PARTS USED</Text>
+                                    <Text style={styles.partsHeaderSub}>Havells, Anchor, Finolex, Schneider with ISI Mark</Text>
+                                </View>
+                                <TouchableOpacity
+                                    style={styles.addPartsBtn}
+                                    onPress={() => setPartsModalVisible(true)}
+                                >
+                                    <Plus size={16} color="#fff" />
+                                    <Text style={styles.addPartsBtnText}>Add Parts</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {selectedParts.length > 0 ? (
+                                <View style={styles.selectedPartsList}>
+                                    {selectedParts.map(part => (
+                                        <View key={part.id} style={styles.selectedPartItem}>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={styles.selectedPartName}>{part.name}</Text>
+                                                <Text style={styles.selectedPartMeta}>
+                                                    ₹{part.rate} each • {part.isiMark}
+                                                </Text>
+                                            </View>
+                                            <View style={styles.partQtyControls}>
+                                                <TouchableOpacity
+                                                    style={styles.qtyBtn}
+                                                    onPress={() => handleUpdatePartQty(part.id, -1)}
+                                                >
+                                                    <Minus size={14} color={COLORS.textPrimary} />
+                                                </TouchableOpacity>
+                                                <Text style={styles.qtyText}>{part.quantity}</Text>
+                                                <TouchableOpacity
+                                                    style={styles.qtyBtn}
+                                                    onPress={() => handleUpdatePartQty(part.id, 1)}
+                                                >
+                                                    <Plus size={14} color={COLORS.textPrimary} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    style={styles.deletePartBtn}
+                                                    onPress={() => handleRemovePart(part.id)}
+                                                >
+                                                    <Trash2 size={16} color="#EF4444" />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    ))}
+                                    <View style={styles.partsTotalRow}>
+                                        <Text style={styles.partsTotalLabel}>Total Genuine Spares:</Text>
+                                        <Text style={styles.partsTotalVal}>₹{partsTotalCost}</Text>
+                                    </View>
+                                </View>
+                            ) : (
+                                <View style={styles.noPartsBox}>
+                                    <Text style={styles.noPartsText}>No extra spare parts logged yet.</Text>
+                                </View>
+                            )}
+                        </View>
+
+                        {/* Extra Time Adjuster */}
+                        <Text style={[styles.subSectionTitle, { marginTop: 16 }]}>LABOR TIME DURATION</Text>
                         <View style={styles.inputFieldRow}>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.inputFieldLabel}>Total Hours (Base covers 1 hr)</Text>
+                                <Text style={styles.inputFieldLabel}>Total Hours Worked (First hour included)</Text>
                                 <TextInput
                                     style={styles.numericInput}
                                     value={hours}
                                     onChangeText={setHours}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.inputFieldLabel}>Material Cost (₹)</Text>
-                                <TextInput
-                                    style={styles.numericInput}
-                                    value={materialCost}
-                                    onChangeText={t => setMaterialCost(t.replace(/[^0-9]/g, ''))}
                                     keyboardType="numeric"
                                 />
                             </View>
@@ -457,14 +638,14 @@ export default function JobDetails() {
                                     <Text style={styles.invoiceValue}>+₹{extraHoursCount * 100}</Text>
                                 </View>
                             )}
-                            {materialCostNum > 0 && (
+                            {partsTotalCost > 0 && (
                                 <View style={styles.invoiceRow}>
-                                    <Text style={styles.invoiceLabel}>Materials Cost</Text>
-                                    <Text style={styles.invoiceValue}>+₹{materialCostNum}</Text>
+                                    <Text style={styles.invoiceLabel}>Spare Parts (ISI Certified)</Text>
+                                    <Text style={styles.invoiceValue}>+₹{partsTotalCost}</Text>
                                 </View>
                             )}
                             <View style={[styles.invoiceRow, styles.invoiceTotalRow]}>
-                                <Text style={styles.invoiceTotalLabel}>Customer Total Bill</Text>
+                                <Text style={styles.invoiceTotalLabel}>Customer Final Bill</Text>
                                 <Text style={styles.invoiceTotalValue}>₹{currentTotalBill}</Text>
                             </View>
                             <View style={styles.invoiceRow}>
@@ -478,7 +659,7 @@ export default function JobDetails() {
                         </View>
 
                         {/* Completion OTP */}
-                        <Text style={[styles.subSectionTitle, { marginTop: 16 }]}>CLOSEOUT VERIFICATION</Text>
+                        <Text style={[styles.subSectionTitle, { marginTop: 16 }]}>CLOSEOUT OTP VERIFICATION</Text>
                         <TextInput
                             style={styles.otpInputBox}
                             placeholder="Enter 4-Digit Completion OTP"
@@ -502,18 +683,66 @@ export default function JobDetails() {
                     </View>
                 )}
 
-                {/* STAGE 4: COMPLETED INVOICE RECEIPT */}
+                {/* STAGE 4: COMPLETED INVOICE & DUAL SETTLEMENT */}
                 {job.status === 'completed' && (
                     <View style={[styles.stageCard, { borderColor: COLORS.success }]}>
                         <View style={{ alignItems: 'center', paddingVertical: 12 }}>
                             <CheckCircle size={48} color={COLORS.success} />
-                            <Text style={styles.completedHeaderTitle}>Job Successfully Completed</Text>
-                            <Text style={styles.completedHeaderSub}>Customer has been billed. Payment status: PENDING SETTLEMENT</Text>
+                            <Text style={styles.completedHeaderTitle}>Job Completed & Verified</Text>
+                            <Text style={styles.completedHeaderSub}>
+                                Bill of ₹{job.finalPrice || currentTotalBill} generated for customer settlement.
+                            </Text>
                         </View>
+
+                        {/* Settlement Status Banner */}
+                        {cashPaid || job.paymentStatus === 'paid' ? (
+                            <View style={styles.paidSettledBanner}>
+                                <CheckCircle size={20} color={COLORS.success} />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.paidSettledTitle}>
+                                        {job.paymentMethod?.includes('Cash') || cashPaid ? 'Settled in Cash' : 'Paid Online via Razorpay'}
+                                    </Text>
+                                    <Text style={styles.paidSettledSub}>
+                                        Amount: ₹{job.finalPrice || currentTotalBill} • Zero pending dues
+                                    </Text>
+                                </View>
+                            </View>
+                        ) : (
+                            <View style={styles.settlementActionBox}>
+                                <Text style={styles.settlementActionTitle}>CHOOSE SETTLEMENT METHOD</Text>
+
+                                {/* Cash on Doorstep Action */}
+                                <TouchableOpacity
+                                    style={styles.cashPayBtn}
+                                    onPress={handleMarkCashReceived}
+                                >
+                                    <Banknote size={18} color="#000" />
+                                    <Text style={styles.cashPayBtnText}>Mark "Paid in Cash" (₹{job.finalPrice || currentTotalBill})</Text>
+                                </TouchableOpacity>
+
+                                {/* Customer QR Code / Online Link */}
+                                <TouchableOpacity
+                                    style={styles.qrPayBtn}
+                                    onPress={() => setQrModalVisible(true)}
+                                >
+                                    <QrCode size={18} color="#fff" />
+                                    <Text style={styles.qrPayBtnText}>Show Customer UPI QR / Payment Link</Text>
+                                </TouchableOpacity>
+
+                                {/* WhatsApp Share */}
+                                <TouchableOpacity
+                                    style={styles.sharePayBtn}
+                                    onPress={handleSharePaymentLink}
+                                >
+                                    <Share2 size={16} color={COLORS.textPrimary} />
+                                    <Text style={styles.sharePayBtnText}>Share Payment Link to Customer</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
 
                         <View style={styles.invoicePreviewCard}>
                             <View style={styles.invoiceRow}>
-                                <Text style={styles.invoiceLabel}>Total Billed to Customer</Text>
+                                <Text style={styles.invoiceLabel}>Total Billed</Text>
                                 <Text style={[styles.invoiceValue, { fontWeight: '900' }]}>₹{job.finalPrice || currentTotalBill}</Text>
                             </View>
                             <View style={styles.invoiceRow}>
@@ -532,11 +761,155 @@ export default function JobDetails() {
                             style={[styles.primaryActionBtn, { backgroundColor: COLORS.bgTertiary }]}
                             onPress={() => router.push('/partner')}
                         >
-                            <Text style={styles.primaryActionBtnText}>Return to Dashboard</Text>
+                            <Text style={styles.primaryActionBtnText}>Return to Partner Dashboard</Text>
                         </TouchableOpacity>
                     </View>
                 )}
             </ScrollView>
+
+            {/* SPARE PARTS PICKER MODAL */}
+            <Modal
+                visible={partsModalVisible}
+                animationType="slide"
+                transparent
+                onRequestClose={() => setPartsModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.partsModalContent}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.modalTitle}>Select Genuine Spare Parts</Text>
+                                <Text style={styles.modalSub}>IS/IEC certified Kerala electrical & AC spares</Text>
+                            </View>
+                            <TouchableOpacity
+                                style={styles.modalCloseBtn}
+                                onPress={() => setPartsModalVisible(false)}
+                            >
+                                <X size={20} color={COLORS.textPrimary} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Search Input */}
+                        <TextInput
+                            style={styles.modalSearchInput}
+                            placeholder="Search MCB, wire, capacitor, switch..."
+                            placeholderTextColor={COLORS.textTertiary}
+                            value={partsSearch}
+                            onChangeText={setPartsSearch}
+                        />
+
+                        {/* Category Tabs */}
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
+                            {PARTS_CATEGORIES.map(cat => (
+                                <TouchableOpacity
+                                    key={cat.id}
+                                    style={[styles.catTab, partsCategory === cat.id && styles.catTabActive]}
+                                    onPress={() => setPartsCategory(cat.id)}
+                                >
+                                    <Text style={[styles.catTabText, partsCategory === cat.id && styles.catTabTextActive]}>
+                                        {cat.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+
+                        {/* Parts List */}
+                        <ScrollView style={styles.partsCatalogList} showsVerticalScrollIndicator={false}>
+                            {filteredParts.map(part => {
+                                const selected = selectedParts.find(p => p.id === part.id);
+                                return (
+                                    <View key={part.id} style={styles.catalogItemRow}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.catalogItemName}>{part.name}</Text>
+                                            <Text style={styles.catalogItemMeta}>
+                                                {part.manufacturer} • {part.isiMark} • HSN: {part.hsn}
+                                            </Text>
+                                            <Text style={styles.catalogItemPrice}>₹{part.rate} / {part.unit}</Text>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={[styles.catalogAddBtn, selected && { backgroundColor: COLORS.success }]}
+                                            onPress={() => handleAddPart(part)}
+                                        >
+                                            <Plus size={16} color="#fff" />
+                                            <Text style={styles.catalogAddBtnText}>
+                                                {selected ? `Added (${selected.quantity})` : 'Add'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
+
+                        <TouchableOpacity
+                            style={styles.modalDoneBtn}
+                            onPress={() => setPartsModalVisible(false)}
+                        >
+                            <Text style={styles.modalDoneBtnText}>Done Adding Parts</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* CUSTOMER QR PAYMENT MODAL */}
+            <Modal
+                visible={qrModalVisible}
+                animationType="fade"
+                transparent
+                onRequestClose={() => setQrModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.qrModalContent}>
+                        <View style={styles.qrIconWrapper}>
+                            <QrCode size={120} color={COLORS.accent} />
+                        </View>
+                        <Text style={styles.qrModalTitle}>Scan to Pay ₹{job.finalPrice || currentTotalBill}</Text>
+                        <Text style={styles.qrModalSub}>
+                            Customer can point their phone camera or Google Pay / PhonePe to pay instantly.
+                        </Text>
+                        <View style={styles.qrUrlBox}>
+                            <Text style={styles.qrUrlText}>sheriyakam.vercel.app/pay/{job.id}</Text>
+                        </View>
+                        <TouchableOpacity
+                            style={styles.modalDoneBtn}
+                            onPress={() => setQrModalVisible(false)}
+                        >
+                            <Text style={styles.modalDoneBtnText}>Close QR Code</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* SOS EMERGENCY CONFIRMATION MODAL */}
+            <Modal
+                visible={sosModalVisible}
+                animationType="fade"
+                transparent
+                onRequestClose={() => setSosModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.qrModalContent, { borderColor: '#EF4444' }]}>
+                        <AlertOctagon size={54} color="#EF4444" />
+                        <Text style={[styles.qrModalTitle, { color: '#EF4444' }]}>EMERGENCY SOS ALERT</Text>
+                        <Text style={styles.qrModalSub}>
+                            Are you facing an electric hazard, violent dispute, or medical emergency? This immediately sends your live GPS coordinates to Thalassery Ops Room and supervisor.
+                        </Text>
+                        <View style={styles.sosActionRow}>
+                            <TouchableOpacity
+                                style={styles.sosCancelBtn}
+                                onPress={() => setSosModalVisible(false)}
+                            >
+                                <Text style={styles.sosCancelBtnText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.sosTriggerBtn}
+                                onPress={handleTriggerSOS}
+                            >
+                                <Text style={styles.sosTriggerBtnText}>SEND DISTRESS ALERT</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -553,7 +926,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.06)',
-        gap: 12,
+        gap: 10,
     },
     backBtn: {
         width: 38,
@@ -572,6 +945,22 @@ const styles = StyleSheet.create({
         color: COLORS.textTertiary,
         fontSize: 11,
     },
+    sosHeaderBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+        borderWidth: 1,
+        borderColor: '#EF4444',
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+        borderRadius: 8,
+    },
+    sosHeaderBtnText: {
+        color: '#EF4444',
+        fontWeight: '900',
+        fontSize: 11,
+    },
     statusBadge: {
         paddingHorizontal: 8,
         paddingVertical: 4,
@@ -582,9 +971,26 @@ const styles = StyleSheet.create({
         fontSize: 10,
         letterSpacing: 0.5,
     },
+    sosWarningBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: '#DC2626',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+    },
+    sosWarningText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '800',
+        flex: 1,
+    },
     content: {
         padding: SPACING.md,
         paddingBottom: 40,
+        maxWidth: 600,
+        width: '100%',
+        alignSelf: 'center',
     },
 
     /* Stepper */
@@ -689,7 +1095,7 @@ const styles = StyleSheet.create({
     },
     actionRow: {
         flexDirection: 'row',
-        gap: 10,
+        gap: 8,
     },
     callBtn: {
         flex: 1,
@@ -705,7 +1111,24 @@ const styles = StyleSheet.create({
     callBtnText: {
         color: COLORS.accent,
         fontWeight: '700',
-        fontSize: 13,
+        fontSize: 12,
+    },
+    chatBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#3B82F6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    },
+    chatBtnText: {
+        color: '#60A5FA',
+        fontWeight: '700',
+        fontSize: 12,
     },
     navBtn: {
         flex: 1,
@@ -720,7 +1143,7 @@ const styles = StyleSheet.create({
     navBtnText: {
         color: '#fff',
         fontWeight: '700',
-        fontSize: 13,
+        fontSize: 12,
     },
 
     /* Stage Cards */
@@ -785,7 +1208,7 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: '800',
         letterSpacing: 1,
-        marginBottom: 10,
+        marginBottom: 6,
     },
     checkItemRow: {
         flexDirection: 'row',
@@ -849,6 +1272,114 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+
+    /* Parts Section */
+    partsSectionBox: {
+        backgroundColor: 'rgba(255,255,255,0.02)',
+        borderRadius: 14,
+        padding: 14,
+        marginTop: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+    },
+    partsHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    partsHeaderSub: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+    },
+    addPartsBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#2563EB',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    addPartsBtnText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    selectedPartsList: {
+        gap: 8,
+        marginTop: 4,
+    },
+    selectedPartItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: 10,
+        borderRadius: 10,
+    },
+    selectedPartName: {
+        color: COLORS.textPrimary,
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    selectedPartMeta: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        marginTop: 2,
+    },
+    partQtyControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    qtyBtn: {
+        width: 26,
+        height: 26,
+        borderRadius: 6,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    qtyText: {
+        color: COLORS.textPrimary,
+        fontWeight: '800',
+        fontSize: 13,
+        minWidth: 16,
+        textAlign: 'center',
+    },
+    deletePartBtn: {
+        padding: 4,
+        marginLeft: 4,
+    },
+    partsTotalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingTop: 8,
+        marginTop: 4,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.08)',
+    },
+    partsTotalLabel: {
+        color: COLORS.textSecondary,
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    partsTotalVal: {
+        color: COLORS.accent,
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    noPartsBox: {
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    noPartsText: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+    },
+
+    /* Input Field */
     inputFieldRow: {
         flexDirection: 'row',
         gap: 12,
@@ -920,5 +1451,276 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 4,
         lineHeight: 18,
+    },
+
+    /* Settlement Stage */
+    paidSettledBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: 'rgba(34,197,94,0.15)',
+        borderWidth: 1,
+        borderColor: COLORS.success,
+        borderRadius: 12,
+        padding: 14,
+        marginVertical: 12,
+    },
+    paidSettledTitle: {
+        color: COLORS.success,
+        fontWeight: '800',
+        fontSize: 14,
+    },
+    paidSettledSub: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        marginTop: 2,
+    },
+    settlementActionBox: {
+        gap: 10,
+        marginVertical: 14,
+    },
+    settlementActionTitle: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 0.8,
+        marginBottom: 2,
+    },
+    cashPayBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        backgroundColor: COLORS.gold,
+        paddingVertical: 13,
+        borderRadius: 10,
+    },
+    cashPayBtnText: {
+        color: '#000',
+        fontWeight: '900',
+        fontSize: 13,
+    },
+    qrPayBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        backgroundColor: '#2563EB',
+        paddingVertical: 13,
+        borderRadius: 10,
+    },
+    qrPayBtnText: {
+        color: '#fff',
+        fontWeight: '800',
+        fontSize: 13,
+    },
+    sharePayBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        paddingVertical: 12,
+        borderRadius: 10,
+    },
+    sharePayBtnText: {
+        color: COLORS.textPrimary,
+        fontWeight: '700',
+        fontSize: 12,
+    },
+
+    /* Modals */
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        justifyContent: 'flex-end',
+    },
+    partsModalContent: {
+        backgroundColor: COLORS.bgSecondary,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 20,
+        maxHeight: '85%',
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 14,
+    },
+    modalTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 17,
+    },
+    modalSub: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        marginTop: 2,
+    },
+    modalCloseBtn: {
+        padding: 4,
+    },
+    modalSearchInput: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        color: COLORS.textPrimary,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        fontSize: 13,
+        marginBottom: 10,
+    },
+    categoryScroll: {
+        flexGrow: 0,
+        marginBottom: 12,
+    },
+    catTab: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    catTabActive: {
+        backgroundColor: '#2563EB',
+        borderColor: '#2563EB',
+    },
+    catTabText: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    catTabTextActive: {
+        color: '#fff',
+        fontWeight: '800',
+    },
+    partsCatalogList: {
+        maxHeight: 320,
+    },
+    catalogItemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
+        gap: 12,
+    },
+    catalogItemName: {
+        color: COLORS.textPrimary,
+        fontSize: 12.5,
+        fontWeight: '700',
+    },
+    catalogItemMeta: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        marginTop: 2,
+    },
+    catalogItemPrice: {
+        color: COLORS.accent,
+        fontSize: 12,
+        fontWeight: '800',
+        marginTop: 3,
+    },
+    catalogAddBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    catalogAddBtnText: {
+        color: '#fff',
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    modalDoneBtn: {
+        backgroundColor: COLORS.accent,
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginTop: 14,
+    },
+    modalDoneBtnText: {
+        color: '#fff',
+        fontWeight: '800',
+        fontSize: 14,
+    },
+
+    /* QR Modal */
+    qrModalContent: {
+        backgroundColor: COLORS.bgSecondary,
+        margin: 20,
+        borderRadius: 20,
+        padding: 24,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        gap: 12,
+    },
+    qrIconWrapper: {
+        padding: 16,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 16,
+    },
+    qrModalTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 18,
+    },
+    qrModalSub: {
+        color: COLORS.textSecondary,
+        fontSize: 12,
+        textAlign: 'center',
+        lineHeight: 18,
+    },
+    qrUrlBox: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 8,
+    },
+    qrUrlText: {
+        color: COLORS.accent,
+        fontSize: 12,
+        fontWeight: '700',
+    },
+
+    /* SOS Alert Modal */
+    sosActionRow: {
+        flexDirection: 'row',
+        gap: 10,
+        width: '100%',
+        marginTop: 10,
+    },
+    sosCancelBtn: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        alignItems: 'center',
+    },
+    sosCancelBtnText: {
+        color: COLORS.textSecondary,
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    sosTriggerBtn: {
+        flex: 2,
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: '#DC2626',
+        alignItems: 'center',
+    },
+    sosTriggerBtnText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '900',
     },
 });

@@ -8,8 +8,10 @@ import { useRouter } from 'expo-router';
 import {
     ArrowLeft, Award, CheckCircle, Lock, PlayCircle, BookOpen,
     Shield, Zap, Snowflake, Video, Home, Factory,
-    ChevronRight, X, Download, AlertCircle, FileCheck, ExternalLink
+    ChevronRight, X, Download, AlertCircle, FileCheck, ExternalLink,
+    Clock, AlertTriangle
 } from 'lucide-react-native';
+import { Linking } from 'react-native';
 import { COLORS, SPACING } from '../../constants/theme';
 import { getCurrentPartner, DEFAULT_PARTNER_MOCK } from '../../constants/partnerStore';
 
@@ -167,6 +169,30 @@ export default function PartnerTraining() {
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                {/* KSELB Document Expiry Countdown Banner */}
+                <View style={styles.expiryAlertCard}>
+                    <View style={styles.expiryAlertHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <AlertTriangle size={16} color="#F59E0B" />
+                            <Text style={styles.expiryAlertTitle}>KSELB LICENSE RENEWAL NOTICE</Text>
+                        </View>
+                        <View style={styles.countdownBadge}>
+                            <Clock size={12} color="#F59E0B" />
+                            <Text style={styles.countdownBadgeText}>25 DAYS LEFT</Text>
+                        </View>
+                    </View>
+                    <Text style={styles.expiryAlertText}>
+                        Wireman permit <Text style={{ color: COLORS.textPrimary, fontWeight: '700' }}>#{partner.kselbLicense || 'KSELB/CA-7821/KL'}</Text> expires on <Text style={{ fontWeight: '800', color: COLORS.textPrimary }}>15 October 2026</Text>. Automatic dispatch will pause if renewal is not completed before deadline.
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.renewBtn}
+                        onPress={() => Linking.openURL('https://kselb.kerala.gov.in')}
+                    >
+                        <ExternalLink size={14} color="#000" />
+                        <Text style={styles.renewBtnText}>Renew Online at kselb.kerala.gov.in</Text>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Certified Electrician Hero Card */}
                 <View style={styles.licenseCard}>
                     <View style={styles.licenseTopRow}>
@@ -495,6 +521,60 @@ const styles = StyleSheet.create({
     content: {
         padding: SPACING.md,
         paddingBottom: 40,
+    },
+    expiryAlertCard: {
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(245, 158, 11, 0.35)',
+        borderRadius: 14,
+        padding: 14,
+        marginBottom: 16,
+        gap: 8,
+    },
+    expiryAlertHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    expiryAlertTitle: {
+        color: '#F59E0B',
+        fontSize: 11,
+        fontWeight: '900',
+        letterSpacing: 0.5,
+    },
+    countdownBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+    },
+    countdownBadgeText: {
+        color: '#F59E0B',
+        fontSize: 10,
+        fontWeight: '900',
+    },
+    expiryAlertText: {
+        color: COLORS.textSecondary,
+        fontSize: 12,
+        lineHeight: 17,
+    },
+    renewBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        backgroundColor: COLORS.gold,
+        paddingVertical: 10,
+        borderRadius: 8,
+        marginTop: 4,
+    },
+    renewBtnText: {
+        color: '#000',
+        fontWeight: '800',
+        fontSize: 12,
     },
     licenseCard: {
         backgroundColor: COLORS.bgSecondary,

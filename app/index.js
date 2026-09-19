@@ -31,6 +31,7 @@ import { Badge } from '../components/ui/Badge';
 import { KERALA_DISTRICTS } from '../constants/locations';
 import { openWhatsApp } from '../utils/whatsapp';
 import { getFaqs } from '../constants/cmsStore';
+import QuickLeadModal from '../components/QuickLeadModal';
 
 const IMAGE_MAP = {
   'emergency.png': require('../assets/images/emergency.png'),
@@ -46,116 +47,93 @@ const IMAGE_MAP = {
 const MOCK_SERVICES = [
   {
     id: 1,
-    name: "Emergency Repair Specialist",
+    name: "Diagnostic & Fault Inspection Visit",
     rating: 4.9,
-    specialty: "Emergency Repairs",
-    time: "1 hr",
-    price: 550,
+    specialty: "Multimeter Fault Finding & Upfront Quote (Adjustable)",
+    time: "45 min",
+    price: 49,
     category: "Electrical",
     image: require('../assets/images/emergency.png')
   },
   {
     id: 2,
-    name: "Fan Repair",
+    name: "Fan Repair & Installation",
     rating: 4.8,
-    specialty: "Ceiling & Exhaust Fans",
-    time: "1 hr",
-    price: 350,
+    specialty: "Ceiling & Exhaust Fans, Capacitor & Bearing Fix",
+    time: "30 min",
+    price: 249,
     category: "Electrical",
     image: require('../assets/images/light_fan.png')
   },
   {
     id: 3,
-    name: "Wiring",
+    name: "Switch & Socket Replacement",
     rating: 4.9,
-    specialty: "Wiring & Installation",
-    time: "1 hr",
+    specialty: "Sparking Switches, Burnt Plugs & 6A/16A Points",
+    time: "30 min",
+    price: 149,
+    category: "Electrical",
+    image: require('../assets/images/switch.png')
+  },
+  {
+    id: 4,
+    name: "MCB & Fuse Box Tripping (DB Repair)",
+    rating: 4.9,
+    specialty: "Blackout Triage, Tripping Breakers & Safety Switch",
+    time: "45 min",
+    price: 349,
+    category: "Electrical",
+    image: require('../assets/images/emergency.png')
+  },
+  {
+    id: 5,
+    name: "Complete Home Wiring & Safety Earthing",
+    rating: 4.9,
+    specialty: "Full House Rewiring, Shock Check & Ground Rod",
+    time: "1-2 hrs",
     price: 550,
     category: "Electrical",
     image: require('../assets/images/wiring.png')
   },
   {
-    id: 4,
-    name: "DB Maintenance",
-    rating: 4.9,
-    specialty: "Distribution Boards",
-    time: "1 hr",
-    price: 450,
-    category: "DB & Switchgear",
-    image: require('../assets/images/switch.png')
-  },
-  {
-    id: 5,
-    name: "Inverter Service",
+    id: 6,
+    name: "Inverter & Battery Wiring",
     rating: 5.0,
-    specialty: "Inverter & UPS",
+    specialty: "Battery Wiring, Changeover Switch & Backup Test",
     time: "1 hr",
     price: 500,
     category: "Electrical",
     image: require('../assets/images/inverter.png')
   },
-  {
-    id: 6,
-    name: "AC Service",
-    rating: 4.8,
-    specialty: "Air Conditioning",
-    time: "1 hr",
-    price: 650,
-    category: "Air Conditioning",
-    image: require('../assets/images/ac.png')
-  },
-  {
-    id: 7,
-    name: "CCTV Setup",
-    rating: 4.9,
-    specialty: "Security Systems",
-    time: "1 hr",
-    price: 700,
-    category: "CCTV & Security",
-    image: require('../assets/images/cctv.png')
-  },
-  {
-    id: 8,
-    name: "Smart Home Automation",
-    rating: 4.9,
-    specialty: "1-Room Switchboard & Hub (From ₹1,499)",
-    time: "1-2 hrs",
-    price: 1499,
-    category: "Home Automation",
-    image: require('../assets/images/automation.png')
-  },
 ];
-
-const CATEGORIES = ['All', 'Electrical', 'Air Conditioning', 'Home Automation', 'CCTV & Security', 'DB & Switchgear'];
-
-
 
 const HOW_IT_WORKS = [
   {
     step: '01',
-    title: 'Select Service',
-    description: 'Browse services with transparent pricing. No hidden costs, no surprises.',
+    title: 'Select Problem / Service',
+    description: 'Choose from 6 clear services or select ₹49 on-site diagnostic inspection.',
     color: '#2563EB',
   },
   {
     step: '02',
-    title: 'Book Your Slot',
-    description: 'Pick a time, confirm your address, and receive a secure OTP for verification.',
+    title: 'Confirmation Call',
+    description: 'You will get a direct confirmation call from our master electrician before arrival.',
     color: '#10B981',
   },
   {
     step: '03',
-    title: 'Partner Arrives',
-    description: 'A licensed, verified electrician arrives on time. Share OTP to start the job.',
+    title: 'Master Wireman Arrives',
+    description: 'Licensed KSELB wireman arrives on time with professional tools and ISI spares.',
     color: '#F59E0B',
   },
   {
     step: '04',
-    title: 'Pay Safely',
-    description: 'Pay only after work is done. Cash or online — transparent final billing.',
+    title: 'Pay Safely After Testing',
+    description: 'Test the completed fix and pay safely via UPI QR or cash. 30-day warranty included.',
     color: '#8B5CF6',
   },
 ];
+
 
 const TESTIMONIALS = [
   {
@@ -201,24 +179,29 @@ export default function HomeScreen() {
   const cardWidth = isDesktop ? '23.8%' : isTablet ? '31.6%' : '48.5%';
 
   const [selectedService, setSelectedService] = useState(null);
+  const [quickLeadModalVisible, setQuickLeadModalVisible] = useState(false);
+  const [quickLeadInitialService, setQuickLeadInitialService] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
   const [locationName, setLocationName] = useState('Thalassery, Kerala');
   const [locationCoords, setLocationCoords] = useState(null);
   const [services, setServices] = useState(MOCK_SERVICES);
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaqIndexes, setOpenFaqIndexes] = useState([0, 1, 2]);
   const mainScrollRef = useRef(null);
 
-  const scrollToCatalog = (category = 'All', query = '') => {
-    setSelectedCategory(category);
+  const openQuickLead = useCallback((serviceObj = null) => {
+    setQuickLeadInitialService(serviceObj);
+    setQuickLeadModalVisible(true);
+  }, []);
+
+  const scrollToCatalog = (query = '') => {
     setSearchQuery(query);
     if (mainScrollRef.current) {
       if (typeof mainScrollRef.current.scrollTo === 'function') {
-        mainScrollRef.current.scrollTo({ y: isDesktop ? 620 : 720, animated: true });
+        mainScrollRef.current.scrollTo({ y: isDesktop ? 500 : 580, animated: true });
       } else if (mainScrollRef.current.getNode && typeof mainScrollRef.current.getNode().scrollTo === 'function') {
-        mainScrollRef.current.getNode().scrollTo({ y: isDesktop ? 620 : 720, animated: true });
+        mainScrollRef.current.getNode().scrollTo({ y: isDesktop ? 500 : 580, animated: true });
       }
     }
   };
@@ -312,28 +295,15 @@ export default function HomeScreen() {
     requestLocationPermission();
   }, []);
 
-  // Handle service click with authentication check
+  // Handle service click -> opens zero-friction 3-step quick lead booking modal
   const handleServiceClick = useCallback((service) => {
-    if (!user) {
-      if (Platform.OS === 'web') {
-        const shouldLogin = window.confirm('Login Required\n\nPlease login or sign up to book a service.');
-        if (shouldLogin) {
-          router.push('/auth/login');
-        }
-      } else {
-        Alert.alert(
-          'Login Required',
-          'Please login or sign up to book a service.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Login / Sign Up', onPress: () => router.push('/auth/login') }
-          ]
-        );
-      }
-      return;
-    }
-    setSelectedService(service);
-  }, [user, router]);
+    openQuickLead({
+      id: service.id || (service.name || '').toLowerCase().replace(/\s+/g, '-'),
+      label: service.name,
+      price: typeof service.price === 'number' ? `From ₹${service.price}` : (service.price || 'From ₹249'),
+      desc: service.specialty || service.description || 'Verified master electrician service'
+    });
+  }, [openQuickLead]);
 
 
   // Animation Refs
@@ -388,24 +358,19 @@ export default function HomeScreen() {
     ).start();
   }, []);
 
-  // Filtered services based on search & category
-  const emergencyService = useMemo(() => services.find(s => s.name.includes('Emergency') || s.is_emergency), [services]);
-
+  // Filtered services based on search
   const filteredServices = useMemo(() => {
-    let result = services.filter(s => !s.name.includes('Emergency') && !s.is_emergency);
-    if (selectedCategory !== 'All') {
-      result = result.filter(s => (s.category || '').toLowerCase() === selectedCategory.toLowerCase());
-    }
+    let result = services;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(s =>
-        s.name.toLowerCase().includes(q) ||
+        (s.name || '').toLowerCase().includes(q) ||
         (s.specialty || '').toLowerCase().includes(q) ||
         (s.category || '').toLowerCase().includes(q)
       );
     }
     return result;
-  }, [services, selectedCategory, searchQuery]);
+  }, [services, searchQuery]);
 
   // Stagger Animations for Cards
   const cardsAnim = useRef(new Animated.Value(0)).current;
@@ -537,10 +502,10 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "Emergency Electrical Repair",
-                    "description": "Urgent on-site electrical triage for blackouts, short circuits, and sparking within 90 minutes."
+                    "name": "Diagnostic & Fault Inspection Visit",
+                    "description": "Multimeter fault finding & upfront quote, adjustable against final bill."
                   },
-                  "price": "550",
+                  "price": "49",
                   "priceCurrency": "INR"
                 },
                 {
@@ -548,17 +513,37 @@ export default function HomeScreen() {
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Ceiling & Exhaust Fan Repair",
-                    "description": "Capacitor fix, noise troubleshooting, and regulator replacement."
+                    "description": "Capacitor fix, bearing noise troubleshooting, and regulator replacement."
                   },
-                  "price": "350",
+                  "price": "249",
                   "priceCurrency": "INR"
                 },
                 {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "Complete Home Wiring",
-                    "description": "Full house rewiring, conduit cable pulling, and safety earthing setup."
+                    "name": "Switch & Socket Replacement",
+                    "description": "Replace sparking switches, loose plug sockets, and burned 6A/16A points."
+                  },
+                  "price": "149",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "MCB & Fuse Box Tripping (DB Repair)",
+                    "description": "Distribution board short circuit isolation and tripping MCB troubleshooting."
+                  },
+                  "price": "349",
+                  "priceCurrency": "INR"
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Complete Home Wiring & Safety Earthing",
+                    "description": "Full house rewiring, electric shock prevention, and earth pit installation."
                   },
                   "price": "550",
                   "priceCurrency": "INR"
@@ -567,40 +552,10 @@ export default function HomeScreen() {
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "DB & Switchgear Maintenance",
-                    "description": "MCB tripping resolution, ELCB leakage testing, and distribution board repair."
-                  },
-                  "price": "450",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Inverter & UPS Installation",
-                    "description": "Battery wiring, bypass switch setup, and load balancing."
+                    "name": "Inverter & Battery Wiring",
+                    "description": "Battery wiring, changeover switch connection, and power backup testing."
                   },
                   "price": "500",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "AC Jet Service & Repair",
-                    "description": "Deep indoor coil jet pump wash, outdoor unit fin cleaning, and gas top-up."
-                  },
-                  "price": "650",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "CCTV Security Camera Setup",
-                    "description": "IP/HD camera installation, NVR configuration, and mobile remote live view."
-                  },
-                  "price": "550",
                   "priceCurrency": "INR"
                 }
               ]
@@ -672,7 +627,7 @@ export default function HomeScreen() {
                 "name": "How much does an electrician cost in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Electrician services in Kerala start at ₹350 for fan repair and ₹550 for emergency electrical triage through Sheriyakam. All bookings include upfront pricing before work begins, verified wireman licensing from the Kerala Electrical Inspectorate, and a 30-day rework warranty across all 14 districts."
+                  "text": "Doorstep diagnostic visits start at ₹49, and standard electrical repairs start at ₹149 for switch replacements and ₹249 for fan repairs through Sheriyakam. All bookings include upfront transparent pricing, verified wireman licensing under Empire Electricals (Est. 1998, KSELB Licence #KSELB/CA-7821/KL), and a 30-day rework warranty."
                 }
               },
               {
@@ -680,7 +635,7 @@ export default function HomeScreen() {
                 "name": "How fast does an emergency electrician arrive in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Sheriyakam emergency electricians arrive on-site within 90 minutes across Kerala for urgent blackouts, short circuits, and sparking hazards. Users can track technician arrival via live GPS mapping with 24/7 priority emergency dispatch."
+                  "text": "Sheriyakam electricians arrive on-site within 45 to 90 minutes across Thalassery, Kannur, Kozhikode, and Wayanad for urgent power outages, short circuits, and sparking hazards. Customers receive a direct confirmation call prior to technician arrival."
                 }
               },
               {
@@ -688,7 +643,7 @@ export default function HomeScreen() {
                 "name": "Are Sheriyakam electricians certified and insured?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every home visit is backed by a ₹5,00,000 domestic safety protection cover against accidental equipment damage."
+                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate under Empire Electricals (Licence #KSELB/CA-7821/KL). Every visit is backed by a ₹5,00,000 domestic safety protection cover against accidental equipment damage."
                 }
               }
             ]
@@ -792,7 +747,7 @@ export default function HomeScreen() {
       >
 
         {/* ═══════════════════════════════════════════════════════ */}
-        {/* HERO SECTION — Two-Column + Inline Booking Card        */}
+        {/* HERO SECTION — Streamlined, Zero-Scroll Mobile Ready   */}
         {/* ═══════════════════════════════════════════════════════ */}
         <Animated.View style={[
           styles.heroBanner,
@@ -803,35 +758,129 @@ export default function HomeScreen() {
         ]}>
           <View style={[styles.heroGradient, { backgroundColor: colors.primary }]}>
             <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop]}>
-              {/* LEFT: Headline + Trust + Search */}
-              <View style={[styles.heroLeft, isDesktop && { flex: 1, marginRight: 24 }]}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                  <Zap size={13} color="#F59E0B" fill="#F59E0B" />
-                  <Text style={[styles.heroTag, { marginBottom: 0 }]}>FAST 60-SEC BOOKING • 90-MIN DOORSTEP ARRIVAL</Text>
+              <View style={[styles.heroLeft, isDesktop && { flex: 1 }]}>
+                
+                {/* Heritage & Tag */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  <Zap size={14} color="#F59E0B" fill="#F59E0B" />
+                  <Text style={[styles.heroTag, { marginBottom: 0 }]}>
+                    THALASSERY HQ • KSELB LICENCE #KSELB/CA-7821/KL
+                  </Text>
                 </View>
+
+                {/* Hero Title */}
                 <Text style={styles.heroTitle}>
-                  Book in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
-                  Electrician at Your{'\n'}
-                  Door in 90 Min
-                </Text>
-                <Text style={styles.heroSubtitle}>
-                  Licensed electrical professionals across 14 Kerala districts.{'\n'}Upfront transparent rates • 30-day warranty • Live GPS tracking.
+                  Book an Electrician in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
+                  At Your Door in 90 Min
                 </Text>
 
-                {/* Trust Row */}
+                {/* Hero Subtitle */}
+                <Text style={styles.heroSubtitle}>
+                  Master wiremen across Thalassery, Kannur, Kozhikode & Wayanad.{'\n'}
+                  Clear transparent rates • 30-day warranty • Direct confirmation call before arrival.
+                </Text>
+
+                {/* Trust Badges */}
                 <View style={styles.trustRow}>
                   <View style={styles.trustItem}>
                     <Shield size={13} color="#10B981" />
-                    <Text style={styles.trustText}>Govt. Certified</Text>
+                    <Text style={styles.trustText}>KSELB Certified</Text>
                   </View>
                   <View style={styles.trustItem}>
                     <Award size={13} color="#F59E0B" />
-                    <Text style={styles.trustText}>100% ISI Spares</Text>
+                    <Text style={styles.trustText}>Est. 1998 (Empire)</Text>
                   </View>
                   <View style={styles.trustItem}>
                     <Shield size={13} color="#60A5FA" />
                     <Text style={styles.trustText}>₹5 Lakh Cover</Text>
                   </View>
+                  <View style={styles.trustItem}>
+                    <CheckCircle size={13} color="#10B981" />
+                    <Text style={styles.trustText}>Pay After Testing</Text>
+                  </View>
+                </View>
+
+                {/* PRIMARY ACTION: What's the problem? */}
+                <View style={{ marginTop: 4, marginBottom: 14 }}>
+                  <TouchableOpacity
+                    onPress={() => openQuickLead()}
+                    activeOpacity={0.88}
+                    style={{
+                      minHeight: 52,
+                      backgroundColor: '#2563EB',
+                      paddingHorizontal: 20,
+                      paddingVertical: 14,
+                      borderRadius: 14,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 10,
+                      shadowColor: '#2563EB',
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.35,
+                      shadowRadius: 10,
+                      elevation: 6,
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="What's the problem? Book an Electrician"
+                  >
+                    <Zap size={20} color="#FFFFFF" fill="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>
+                      What's the problem? — Book Now
+                    </Text>
+                    <ArrowRight size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Secondary Fast Action Buttons: Phone & WhatsApp */}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      const phoneUrl = 'tel:+914952800000';
+                      if (Platform.OS === 'web') window.location.href = phoneUrl;
+                      else Linking.openURL(phoneUrl);
+                    }}
+                    style={{
+                      flex: 1,
+                      minHeight: 44,
+                      backgroundColor: 'rgba(255,255,255,0.14)',
+                      paddingHorizontal: 14,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      borderWidth: 1,
+                      borderColor: 'rgba(255,255,255,0.22)',
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Call Helpline"
+                  >
+                    <Phone size={15} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>Call Helpline</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => openWhatsApp("Hi Sheriyakam, I need an electrician at my doorstep.")}
+                    style={{
+                      flex: 1,
+                      minHeight: 44,
+                      backgroundColor: '#25D366',
+                      paddingHorizontal: 14,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Chat on WhatsApp"
+                  >
+                    <MessageCircle size={15} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>WhatsApp</Text>
+                  </TouchableOpacity>
                 </View>
 
                 {/* Search Bar */}
@@ -839,7 +888,7 @@ export default function HomeScreen() {
                   <Search size={18} color="#94a3b8" />
                   <TextInput
                     style={styles.searchInput}
-                    placeholder="Search services — AC, Wiring, CCTV, Fan, DB..."
+                    placeholder="Search services — Fan, Switch, MCB, Inverter, Wiring..."
                     placeholderTextColor="#94a3b8"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -856,137 +905,6 @@ export default function HomeScreen() {
                   )}
                 </View>
 
-                {/* Quick Intent Pills */}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-                  {[
-                    { label: 'Fan Repair', category: 'Electrical', q: 'Fan', icon: Zap },
-                    { label: 'MCB Tripping', category: 'DB & Switchgear', q: 'DB', icon: Zap },
-                    { label: 'AC Service', category: 'Air Conditioning', q: '', icon: Snowflake },
-                    { label: 'Inverter', category: 'Electrical', q: 'Inverter', icon: BatteryCharging },
-                    { label: '24/7 Emergency', path: '/emergency-electrician', icon: AlertTriangle },
-                    { label: 'Commercial', path: '/commercial', icon: Building2 },
-                    { label: 'Care AMC', path: '/amc', icon: ShieldCheck },
-                    { label: 'Work Gallery', path: '/work', icon: Briefcase },
-                  ].map((pill, idx) => {
-                    const Icon = pill.icon;
-                    return (
-                      <TouchableOpacity
-                        key={idx}
-                        onPress={() => {
-                          if (pill.path) router.push(pill.path);
-                          else scrollToCatalog(pill.category || 'All', pill.q || '');
-                        }}
-                        style={{
-                          minHeight: 44,
-                          backgroundColor: 'rgba(255,255,255,0.15)',
-                          paddingHorizontal: 14,
-                          paddingVertical: 10,
-                          borderRadius: 16,
-                          marginRight: 8,
-                          borderWidth: 1,
-                          borderColor: 'rgba(255,255,255,0.2)',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: 6
-                        }}
-                        accessibilityRole="button"
-                        accessibilityLabel={pill.label}
-                      >
-                        <Icon size={14} color="#FFFFFF" />
-                        <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '700' }}>{pill.label}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-
-                {/* Multi-Channel CTA Action Hub */}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
-                  <TouchableOpacity
-                    onPress={() => router.push('/services')}
-                    style={{
-                      minHeight: 44,
-                      backgroundColor: '#2563EB',
-                      paddingHorizontal: 16,
-                      paddingVertical: 11,
-                      borderRadius: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      justifyContent: 'center'
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Browse Rate Cards"
-                  >
-                    <Zap size={15} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>Browse Rate Cards</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => router.push('/emergency-electrician')}
-                    style={{
-                      minHeight: 44,
-                      backgroundColor: '#EF4444',
-                      paddingHorizontal: 16,
-                      paddingVertical: 11,
-                      borderRadius: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      justifyContent: 'center'
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="24/7 Emergency Dispatch"
-                  >
-                    <AlertTriangle size={15} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>24/7 Emergency</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => openWhatsApp("Hi Sheriyakam, I want to book a home service.")}
-                    style={{
-                      minHeight: 44,
-                      backgroundColor: '#25D366',
-                      paddingHorizontal: 14,
-                      paddingVertical: 11,
-                      borderRadius: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      justifyContent: 'center'
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Chat on WhatsApp"
-                  >
-                    <MessageCircle size={15} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>WhatsApp</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => {
-                      const phoneUrl = 'tel:+914952800000';
-                      if (Platform.OS === 'web') window.location.href = phoneUrl;
-                      else Linking.openURL(phoneUrl);
-                    }}
-                    style={{
-                      minHeight: 44,
-                      backgroundColor: 'rgba(255,255,255,0.12)',
-                      paddingHorizontal: 14,
-                      paddingVertical: 11,
-                      borderRadius: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      borderWidth: 1,
-                      borderColor: 'rgba(255,255,255,0.2)',
-                      justifyContent: 'center'
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Call Helpline"
-                  >
-                    <Phone size={14} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>Call Helpline</Text>
-                  </TouchableOpacity>
-                </View>
               </View>
             </View>
           </View>
@@ -1019,172 +937,19 @@ export default function HomeScreen() {
           </View>
 
           {/* ═══════════════════════════════════════════════════════ */}
-          {/* DIAGNOSTIC & FAULT INSPECTION CALLOUT (₹49)             */}
+          {/* SERVICES SECTION — 6 Core Streamlined Options           */}
           {/* ═══════════════════════════════════════════════════════ */}
-          <TouchableOpacity
-            onPress={() => router.push('/service/doorstep-diagnostic-visit')}
-            activeOpacity={0.88}
-            style={{
-              marginHorizontal: SPACING.md,
-              marginTop: SPACING.md,
-              marginBottom: SPACING.sm,
-              borderRadius: 16,
-              padding: 16,
-              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.12)' : '#EFF6FF',
-              borderWidth: 1.5,
-              borderColor: '#3B82F6',
-              flexDirection: isDesktop ? 'row' : 'column',
-              alignItems: isDesktop ? 'center' : 'flex-start',
-              justifyContent: 'space-between',
-              gap: 14,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
-                <HelpCircle size={22} color="#FFFFFF" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>
-                    Not sure what the exact electrical issue is?
-                  </Text>
-                  <Badge variant="success" size="sm">₹49 Doorstep Visit</Badge>
-                </View>
-                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 18 }}>
-                  Book a Doorstep Diagnostic Visit. Technician arrives in 90 mins, performs complete fault isolation & provides an upfront quote. Inspection fee is 100% adjusted against your final bill if work proceeds.
-                </Text>
-              </View>
-            </View>
-            <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, alignSelf: isDesktop ? 'center' : 'flex-start' }}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* CATEGORY EXPLORATION GRID                              */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.md, marginBottom: SPACING.md }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>Explore Services</Text>
+          <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.lg, marginBottom: SPACING.sm }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>
+                Core Electrical Services
+              </Text>
               <TouchableOpacity onPress={() => router.push('/services')}>
                 <Text style={{ color: colors.accent, fontSize: 13, fontWeight: '700' }}>Full Catalogue ›</Text>
               </TouchableOpacity>
             </View>
-
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-              {[
-                { title: 'Electrical', sub: 'Fans, DB, Wiring, Inverters', category: 'Electrical', badge: 'Flagship', icon: Zap, iconColor: '#3B82F6' },
-                { title: 'AC Service', sub: 'Jet Wash & Gas Refill', category: 'Air Conditioning', badge: 'Active', icon: Snowflake, iconColor: '#38BDF8' },
-                { title: 'Plumbing', sub: 'Pipes, Taps & Motor Starter', path: '/services', badge: 'Active', icon: Droplets, iconColor: '#0EA5E9' },
-                { title: 'CCTV Security', sub: 'IP Cameras & NVR Setup', category: 'CCTV & Security', badge: 'Active', icon: Camera, iconColor: '#A855F7' },
-                { title: 'Commercial B2B', sub: 'Offices, Shops & Clinics', path: '/commercial', badge: 'Corporate', icon: Building2, iconColor: '#F59E0B' },
-                { title: 'Care AMC', sub: 'Annual Maintenance Plans', path: '/amc', badge: 'Peace of Mind', icon: ShieldCheck, iconColor: '#10B981' },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => {
-                      if (item.path) router.push(item.path);
-                      else if (item.category) scrollToCatalog(item.category, '');
-                    }}
-                    style={{
-                      minHeight: 68,
-                      width: isDesktop ? '31.8%' : isTablet ? '48%' : '48%',
-                      backgroundColor: isDark ? '#18181B' : '#FFFFFF',
-                      borderColor: isDark ? '#27272A' : '#E4E4E7',
-                      borderWidth: 1,
-                      borderRadius: 14,
-                      padding: 12,
-                      gap: 6,
-                      justifyContent: 'center'
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={item.title}
-                  >
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Icon size={16} color={item.iconColor} />
-                        <Text style={{ color: colors.textPrimary, fontSize: 13.5, fontWeight: '800' }}>{item.title}</Text>
-                      </View>
-                      <Badge variant="info" size="sm">{item.badge}</Badge>
-                    </View>
-                    <Text style={{ color: colors.textSecondary, fontSize: 11 }}>{item.sub}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* CATEGORY FILTER BADGES                                 */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryScroll}
-            style={{ marginBottom: SPACING.lg }}
-          >
-            {CATEGORIES.map((cat) => {
-              const isActive = selectedCategory === cat;
-              return (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.categoryBadge,
-                    {
-                      backgroundColor: isActive
-                        ? colors.accent
-                        : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
-                      borderColor: isActive ? colors.accent : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'),
-                    }
-                  ]}
-                  onPress={() => setSelectedCategory(cat)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[
-                    styles.categoryText,
-                    { color: isActive ? '#fff' : colors.textSecondary }
-                  ]}>
-                    {cat}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* EMERGENCY SECTION                                      */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          {emergencyService && (selectedCategory === 'All' || selectedCategory === 'Electrical') && !searchQuery && (
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Animated.View style={[
-                  styles.iconBox,
-                  { transform: [{ scale: pulseAnim }] }
-                ]}>
-                  <Zap size={16} color={colors.danger} fill={colors.danger} />
-                </Animated.View>
-                <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>Emergency Booking</Text>
-              </View>
-              <ServiceCard
-                {...emergencyService}
-                fullWidth
-                isEmergency
-                onPress={() => handleServiceClick(emergencyService)}
-              />
-            </View>
-          )}
-
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* SERVICES GRID                                          */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          <View style={styles.servicesHeader}>
-            <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>
-              {selectedCategory === 'All' ? 'All Services' : selectedCategory}
-            </Text>
-            <Text style={[styles.serviceCount, { color: colors.textTertiary }]}>
-              {filteredServices.length} available
+            <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 14 }}>
+              All Services — {filteredServices.length} Core Options Available. Upfront pricing & 30-day warranty:
             </Text>
           </View>
 
@@ -1192,11 +957,11 @@ export default function HomeScreen() {
             <View style={styles.emptyServices}>
               <Search size={40} color={colors.textTertiary} />
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
-                No services found for "{searchQuery || selectedCategory}"
+                No services found for "{searchQuery}"
               </Text>
               <TouchableOpacity
                 style={[styles.resetBtn, { borderColor: colors.accent }]}
-                onPress={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                onPress={() => setSearchQuery('')}
               >
                 <Text style={{ color: colors.accent, fontWeight: '600' }}>Show All Services</Text>
               </TouchableOpacity>
@@ -1228,6 +993,53 @@ export default function HomeScreen() {
               })}
             </View>
           )}
+
+          {/* ═══════════════════════════════════════════════════════ */}
+          {/* DIAGNOSTIC & FAULT INSPECTION CALLOUT (₹49)             */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <TouchableOpacity
+            onPress={() => openQuickLead({
+              id: 'diagnostic',
+              label: 'Not sure / Need on-site fault check',
+              price: '₹49',
+              desc: 'Master electrician tests with multimeter before any work'
+            })}
+            activeOpacity={0.88}
+            style={{
+              marginHorizontal: SPACING.md,
+              marginTop: SPACING.md,
+              marginBottom: SPACING.lg,
+              borderRadius: 16,
+              padding: 16,
+              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.12)' : '#EFF6FF',
+              borderWidth: 1.5,
+              borderColor: '#3B82F6',
+              flexDirection: isDesktop ? 'row' : 'column',
+              alignItems: isDesktop ? 'center' : 'flex-start',
+              justifyContent: 'space-between',
+              gap: 14,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
+                <HelpCircle size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>
+                    Not sure what the exact electrical issue is?
+                  </Text>
+                  <Badge variant="success" size="sm">₹49 Doorstep Visit</Badge>
+                </View>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 18 }}>
+                  Book a Doorstep Diagnostic Visit. Technician arrives in 90 mins, performs complete fault isolation & provides an upfront quote. Inspection fee is 100% adjusted against your final bill if work proceeds.
+                </Text>
+              </View>
+            </View>
+            <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, alignSelf: isDesktop ? 'center' : 'flex-start' }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
+            </View>
+          </TouchableOpacity>
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* HOW IT WORKS — 4 Steps                                 */}
@@ -1538,11 +1350,18 @@ export default function HomeScreen() {
         onClose={() => setMenuVisible(false)}
       />
 
+      {/* Quick Lead Modal (3-Step Fast Booking -> WhatsApp Direct) */}
+      <QuickLeadModal
+        visible={quickLeadModalVisible}
+        onClose={() => setQuickLeadModalVisible(false)}
+        initialService={quickLeadInitialService}
+      />
+
       {/* Persistent Multi-Item Floating Cart Bar */}
       <FloatingCartBar />
 
       {/* Sticky Mobile Quick Conversion & Helpline Bar */}
-      <StickyMobileCTA onBookPress={() => scrollToCatalog('All', '')} />
+      <StickyMobileCTA onBookPress={() => openQuickLead()} />
 
     </SafeAreaView>
   );

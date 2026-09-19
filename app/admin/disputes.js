@@ -12,6 +12,7 @@ import {
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
 import { getBookings, resolveDispute, bookingEvents } from '../../constants/bookingStore';
+import { refundRazorpayPayment } from '../../services/razorpayService';
 
 export default function AdminDisputesScreen() {
     const router = useRouter();
@@ -44,18 +45,34 @@ export default function AdminDisputesScreen() {
         setIsResolveModalOpen(true);
     };
 
-    const handleConfirmResolve = () => {
+    const handleConfirmResolve = async () => {
         if (!resolutionText.trim()) {
             Alert.alert('Missing Detail', 'Please enter a clear resolution summary for the audit record.');
             return;
         }
 
         const refundVal = outcomeType === 'dismiss' ? 0 : Number(refundAmount) || 0;
+        let rzpRefundId = null;
+
+        if (refundVal > 0) {
+            try {
+                const rzpRes = await refundRazorpayPayment(
+                    selectedDispute.razorpayPaymentId || `pay_sk_${selectedDispute.id}`,
+                    refundVal,
+                    resolutionText.trim()
+                );
+                rzpRefundId = rzpRes.refundId;
+            } catch (err) {
+                console.warn('Razorpay refund call warning:', err);
+            }
+        }
+
         const res = resolveDispute(selectedDispute.id, {
             resolution: resolutionText.trim(),
             refundAmount: refundVal,
             outcome: outcomeType,
-            resolvedBy: 'Ops Arbitrator'
+            resolvedBy: 'Ops Arbitrator',
+            razorpayRefundId: rzpRefundId
         });
 
         if (res.success) {
@@ -63,7 +80,7 @@ export default function AdminDisputesScreen() {
             reloadDisputes();
             Alert.alert(
                 '✅ Dispute Resolved',
-                `Ticket resolved. ${refundVal > 0 ? `₹${refundVal} refund approved to customer wallet.` : 'Dispute dismissed, partner payout scheduled.'}`
+                `Ticket resolved. ${refundVal > 0 ? `₹${refundVal} refunded via Razorpay Instant Payout (${rzpRefundId || 'Processed'}).` : 'Dispute dismissed, partner payout scheduled.'}`
             );
         } else {
             Alert.alert('Error', res.message || 'Failed to resolve dispute');

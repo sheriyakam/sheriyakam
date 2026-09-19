@@ -249,6 +249,10 @@ loadData();
 
 export const getBookings = () => bookings;
 
+export const getBookingById = (id) => {
+    return bookings.find(b => b.id === id) || null;
+};
+
 // SLA Calculation Helper
 export const calculateSLA = (booking) => {
     const created = new Date(booking.createdAt).getTime();
@@ -341,11 +345,12 @@ export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materi
             booking.paymentStatus = 'pending';
             booking.payoutStatus = 'pending';
 
-            // Evidence
+            // Evidence & Parts
             booking.checklist = evidence.checklist || [];
             booking.beforePhoto = evidence.beforePhoto || null;
             booking.afterPhoto = evidence.afterPhoto || null;
             booking.workNotes = evidence.workNotes || '';
+            booking.sparePartsUsed = evidence.sparePartsUsed || evidence.selectedParts || [];
 
             bookingEvents.emit('change');
             saveData();
@@ -539,6 +544,57 @@ export const payBooking = (id, method) => {
         return true;
     }
     return false;
+};
+
+// Record Razorpay Online Payment
+export const recordOnlinePayment = (id, paymentDetails = {}) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+        booking.paymentStatus = 'paid';
+        booking.paymentMethod = paymentDetails.method || 'Razorpay UPI / Card';
+        booking.paymentGateway = 'Razorpay';
+        booking.razorpayPaymentId = paymentDetails.razorpayPaymentId || `pay_${Date.now()}`;
+        booking.razorpayOrderId = paymentDetails.razorpayOrderId || null;
+        booking.razorpaySignature = paymentDetails.razorpaySignature || null;
+        booking.paidAt = paymentDetails.paidAt || new Date().toISOString();
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, booking };
+    }
+    return { success: false, message: 'Booking not found' };
+};
+
+// Record Cash on Completion Payment
+export const recordCashPayment = (id) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+        booking.paymentStatus = 'paid';
+        booking.paymentMethod = 'Cash on Doorstep';
+        booking.paymentGateway = 'Cash';
+        booking.paidAt = new Date().toISOString();
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, booking };
+    }
+    return { success: false, message: 'Booking not found' };
+};
+
+// Add / Update Spare Parts on a Booking
+export const addSparePartsToBooking = (id, parts = []) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+        booking.sparePartsUsed = parts;
+        const partsTotal = parts.reduce((sum, p) => sum + ((p.rate || 0) * (p.quantity || 1)), 0);
+        booking.materialCost = partsTotal;
+        const extraHours = Math.max(0, (booking.hoursWorked || 1) - 1);
+        booking.finalPrice = (booking.price || 0) + (extraHours * 100) + partsTotal;
+        booking.platformFee = Math.round(booking.finalPrice * 0.10);
+        booking.netPartnerPayout = booking.finalPrice - booking.platformFee;
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, booking };
+    }
+    return { success: false, message: 'Booking not found' };
 };
 
 export const cancelBooking = (id) => {

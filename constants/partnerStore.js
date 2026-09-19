@@ -67,6 +67,38 @@ export const DEFAULT_PARTNER_MOCK = {
     schedule: [
         { id: 'sch-1', date: 'Tomorrow', time: '10:00 AM - 12:00 PM', service: 'AC Annual Maintenance (AMC)', customer: 'Dr. Vivek Menon', address: 'Sea View Ward, Thalassery', payout: 750, status: 'confirmed' },
         { id: 'sch-2', date: 'Thursday', time: '02:00 PM - 04:00 PM', service: 'Full House Earth Resistance Audit', customer: 'Kottayam House', address: 'Temple Gate, Thalassery', payout: 1200, status: 'confirmed' }
+    ],
+    weeklyIncentive: {
+        targetJobs: 10,
+        completedJobs: 7,
+        rewardAmount: 500,
+        expiresDays: 3,
+        progressPercent: 70
+    },
+    surgeMultiplier: 1.25,
+    loyaltyTier: {
+        tier: 'Gold',
+        score: 4.92,
+        badge: '🏆 Gold Partner',
+        perk: '1.5x Dispatch Priority • 0% Fee on Night Emergencies',
+        nextTier: 'Platinum (At 200 jobs)'
+    },
+    referral: {
+        code: 'SHYAM7821',
+        invitedCount: 4,
+        activeCount: 3,
+        bonusEarned: 1500,
+        bonusPerReferral: 500
+    },
+    documentExpiry: {
+        kselbLicense: '15 Oct 2026',
+        daysLeft: 25,
+        alertStatus: 'warning',
+        renewalUrl: 'https://kselb.kerala.gov.in'
+    },
+    blockedSlots: [
+        { id: 'blk-1', date: 'Sunday, 27 Sep', timeSlot: '02:00 PM - 06:00 PM', reason: 'Family Function' },
+        { id: 'blk-2', date: 'Friday, 02 Oct', timeSlot: '12:00 PM - 03:00 PM', reason: 'Friday Prayer & Rest' }
     ]
 };
 
@@ -336,3 +368,44 @@ export const getPartnerSuspensionLogs = (id) => {
     const partner = partners.find(p => p.id === id);
     return partner?.suspensionLogs || [];
 };
+
+// Slot Blocking Helpers
+export const getBlockedSlots = () => {
+    return currentPartner?.blockedSlots || DEFAULT_PARTNER_MOCK.blockedSlots || [];
+};
+
+export const addBlockedSlot = (slot) => {
+    const newSlot = {
+        id: `blk-${Date.now()}`,
+        date: slot.date || 'Tomorrow',
+        timeSlot: slot.timeSlot || '02:00 PM - 06:00 PM',
+        reason: slot.reason || 'Personal Time-Off'
+    };
+    if (!currentPartner.blockedSlots) currentPartner.blockedSlots = [];
+    currentPartner.blockedSlots.push(newSlot);
+    return newSlot;
+};
+
+export const removeBlockedSlot = (id) => {
+    if (currentPartner?.blockedSlots) {
+        currentPartner.blockedSlots = currentPartner.blockedSlots.filter(s => s.id !== id);
+        return true;
+    }
+    return false;
+};
+
+// Kerala Weekly Leaderboard Dataset
+export const KERALA_WEEKLY_LEADERBOARD = [
+    { rank: 1, name: 'Shyam Prasad', taluk: 'Thalassery', district: 'Kannur', jobsCompleted: 28, rating: 4.98, bonusEarned: 1800, badge: '🥇 Top Performer' },
+    { rank: 2, name: 'Abdul Kader', taluk: 'Vadakara', district: 'Kozhikode', jobsCompleted: 26, rating: 4.94, bonusEarned: 1500, badge: '🥈 Silver Ace' },
+    { rank: 3, name: 'Sanoop K.', taluk: 'Kannur', district: 'Kannur', jobsCompleted: 24, rating: 4.92, bonusEarned: 1200, badge: '🥉 Bronze Pro' },
+    { rank: 4, name: 'Rajesh Kumar', taluk: 'Kozhikode', district: 'Kozhikode', jobsCompleted: 22, rating: 4.89, bonusEarned: 1000 },
+    { rank: 5, name: 'Kiran Varma', taluk: 'Aluva', district: 'Ernakulam', jobsCompleted: 21, rating: 4.88, bonusEarned: 900 },
+    { rank: 6, name: 'Praveen T.', taluk: 'Kochi', district: 'Ernakulam', jobsCompleted: 19, rating: 4.87, bonusEarned: 800 },
+    { rank: 7, name: 'Arun Balan', taluk: 'Thrissur', district: 'Thrissur', jobsCompleted: 18, rating: 4.85, bonusEarned: 700 },
+    { rank: 8, name: 'Manoj Pillai', taluk: 'Kottayam', district: 'Kottayam', jobsCompleted: 17, rating: 4.84, bonusEarned: 600 },
+    { rank: 9, name: 'Deepak Nair', taluk: 'Palakkad', district: 'Palakkad', jobsCompleted: 16, rating: 4.82, bonusEarned: 500 },
+    { rank: 10, name: 'Faisal K.', taluk: 'Trivandrum', district: 'Thiruvananthapuram', jobsCompleted: 15, rating: 4.81, bonusEarned: 500 }
+];
+
+export const getKeralaLeaderboard = () => KERALA_WEEKLY_LEADERBOARD;

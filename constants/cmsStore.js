@@ -33,7 +33,7 @@ const DEFAULT_FAQS = [
         id: 'faq-2',
         category: 'Emergency',
         q: 'What is the arrival time for emergency electrical triage?',
-        a: 'Emergency electricians are dispatched immediately from the nearest district hub and arrive at your doorstep within 45 to 90 minutes across all 14 Kerala districts. You can track your assigned KSELB wireman\'s live route on GPS mapping.'
+        a: 'Emergency electricians are dispatched promptly from the nearest district hub and arrive at your doorstep within 45 to 90 minutes (active in Thalassery HQ, Kannur, Kozhikode, Wayanad, and expanding across Kerala). You will receive a direct confirmation call from your assigned KSELB electrician before arrival.'
     },
     {
         id: 'faq-3',

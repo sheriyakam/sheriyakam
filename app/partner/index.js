@@ -10,7 +10,7 @@ import {
     MapPin, Clock, Calendar, ChevronRight, CheckCircle, Phone,
     Navigation, User, Power, Briefcase, TrendingUp, Star, Zap,
     IndianRupee, Shield, Award, AlertTriangle, BookOpen, Headphones,
-    X, Bell, Radio, ArrowUpRight, Flame
+    X, Bell, Radio, ArrowUpRight, Flame, Trophy, Gift, Target, Sparkles
 } from 'lucide-react-native';
 
 import {
@@ -264,6 +264,41 @@ export default function PartnerDashboard() {
                     </Text>
                 </View>
 
+                {/* Surge & Loyalty Badges Row */}
+                <View style={styles.perksRow}>
+                    <View style={styles.surgeBadge}>
+                        <Zap size={14} color="#F59E0B" />
+                        <Text style={styles.surgeBadgeText}>1.25x Night Surge Active</Text>
+                    </View>
+                    <View style={styles.loyaltyBadge}>
+                        <Award size={14} color="#10B981" />
+                        <Text style={styles.loyaltyBadgeText}>Gold Partner (1.5x Priority)</Text>
+                    </View>
+                </View>
+
+                {/* Weekly Incentive Milestone Progress Card */}
+                <View style={styles.incentiveCard}>
+                    <View style={styles.incentiveHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Target size={18} color={COLORS.accent} />
+                            <Text style={styles.incentiveTitle}>WEEKLY EARNING INCENTIVE</Text>
+                        </View>
+                        <View style={styles.incentiveRewardBadge}>
+                            <Text style={styles.incentiveRewardText}>+₹500 Bonus</Text>
+                        </View>
+                    </View>
+                    <Text style={styles.incentiveSub}>
+                        Complete 10 jobs this week to unlock ₹500 extra payout. <Text style={{ fontWeight: '800', color: COLORS.textPrimary }}>3 jobs remaining!</Text>
+                    </Text>
+                    <View style={styles.progressBarTrack}>
+                        <View style={[styles.progressBarFill, { width: '70%' }]} />
+                    </View>
+                    <View style={styles.incentiveFooter}>
+                        <Text style={styles.incentiveStats}>7 / 10 Jobs Completed (70%)</Text>
+                        <Text style={styles.incentiveExpiry}>Expires in 3 days</Text>
+                    </View>
+                </View>
+
                 {/* Today's Earnings & Performance Summary */}
                 <View style={styles.metricsGrid}>
                     <View style={styles.metricCard}>
@@ -384,6 +419,30 @@ export default function PartnerDashboard() {
                         </View>
                         <Text style={styles.menuCardTitle}>Partner SOS</Text>
                         <Text style={styles.menuCardSub}>Supervisor line & disputes</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.menuCard}
+                        onPress={() => router.push('/partner/leaderboard')}
+                        activeOpacity={0.75}
+                    >
+                        <View style={[styles.menuIconBox, { backgroundColor: 'rgba(234, 179, 8, 0.15)' }]}>
+                            <Trophy size={20} color={COLORS.gold} />
+                        </View>
+                        <Text style={styles.menuCardTitle}>Leaderboard</Text>
+                        <Text style={styles.menuCardSub}>Kerala weekly rankings</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.menuCard}
+                        onPress={() => router.push('/partner/referrals')}
+                        activeOpacity={0.75}
+                    >
+                        <View style={[styles.menuIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
+                            <Gift size={20} color={COLORS.success} />
+                        </View>
+                        <Text style={styles.menuCardTitle}>Refer & Earn</Text>
+                        <Text style={styles.menuCardSub}>₹500 per electrician</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -778,13 +837,120 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(234, 179, 8, 0.2)',
         paddingHorizontal: 12,
         paddingVertical: 8,
-        marginBottom: 16,
+        marginBottom: 10,
         gap: 8,
     },
     insuranceText: {
         color: COLORS.textSecondary,
         fontSize: 12,
         flex: 1,
+    },
+
+    /* Perks & Surge Badges */
+    perksRow: {
+        flexDirection: 'row',
+        gap: 8,
+        marginBottom: 12,
+    },
+    surgeBadge: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(245, 158, 11, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(245, 158, 11, 0.3)',
+        paddingHorizontal: 10,
+        paddingVertical: 7,
+        borderRadius: 10,
+    },
+    surgeBadgeText: {
+        color: '#F59E0B',
+        fontSize: 11,
+        fontWeight: '800',
+    },
+    loyaltyBadge: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(16, 185, 129, 0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.3)',
+        paddingHorizontal: 10,
+        paddingVertical: 7,
+        borderRadius: 10,
+    },
+    loyaltyBadgeText: {
+        color: '#10B981',
+        fontSize: 11,
+        fontWeight: '800',
+    },
+
+    /* Weekly Incentive Card */
+    incentiveCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 16,
+        padding: 14,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        marginBottom: 16,
+        gap: 8,
+    },
+    incentiveHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    incentiveTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 12,
+        letterSpacing: 0.8,
+    },
+    incentiveRewardBadge: {
+        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(37, 99, 235, 0.4)',
+    },
+    incentiveRewardText: {
+        color: '#60A5FA',
+        fontWeight: '900',
+        fontSize: 11,
+    },
+    incentiveSub: {
+        color: COLORS.textSecondary,
+        fontSize: 12,
+        lineHeight: 16,
+    },
+    progressBarTrack: {
+        height: 8,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginVertical: 4,
+    },
+    progressBarFill: {
+        height: '100%',
+        backgroundColor: '#2563EB',
+        borderRadius: 4,
+    },
+    incentiveFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    incentiveStats: {
+        color: COLORS.textPrimary,
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    incentiveExpiry: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
     },
 
     /* Metrics Grid */
