@@ -30,6 +30,7 @@ import { mapplsService } from '../services/mapplsService';
 import { Badge } from '../components/ui/Badge';
 import { KERALA_DISTRICTS } from '../constants/locations';
 import { openWhatsApp } from '../utils/whatsapp';
+import { getFaqs } from '../constants/cmsStore';
 
 const IMAGE_MAP = {
   'emergency.png': require('../assets/images/emergency.png'),
@@ -1336,24 +1337,7 @@ export default function HomeScreen() {
             </View>
 
             <View style={{ gap: SPACING.md }}>
-              {[
-                  {
-                    q: "How much does an electrician cost near me?",
-                    a: "Doorstep diagnostic inspection starts at ₹49. Standard electrical repairs start at ₹149 for switch/socket replacements, ₹199 for fan capacitor/regulator fixes, ₹349 for MCB/RCCB tripping, and ₹649 for AC foam jet service. Every booking comes with an upfront transparent rate card before work begins and a 30-day rework warranty."
-                  },
-                  {
-                    q: "What is the arrival time for emergency electrical triage?",
-                    a: "Emergency electricians are dispatched immediately from the nearest district hub and arrive at your doorstep within 45 to 90 minutes across all 14 Kerala districts. You can track your assigned KSELB wireman's live route on GPS mapping."
-                  },
-                  {
-                    q: "Are Sheriyakam technicians licensed and insured?",
-                    a: "Yes, 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. All work is supervised under Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) and backed by our ₹5,00,000 domestic safety insurance cover."
-                  },
-                  {
-                    q: "How does the ₹49 diagnostic visit fee work?",
-                    a: "If you have an ambiguous fault or need an on-site estimation, a master electrician arrives in 90 minutes, performs full multimeter/earth testing, and gives an itemized quote. If you approve and proceed with the service, the ₹49 fee is 100% adjusted against your final bill."
-                  }
-              ].map((faq, i) => {
+              {(getFaqs ? getFaqs() : []).map((faq, i) => {
                 const isExpanded = openFaqIndexes.includes(i);
                 return (
                   <TouchableOpacity
@@ -1487,11 +1471,27 @@ export default function HomeScreen() {
               </TouchableOpacity>
               <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
               <TouchableOpacity onPress={() => router.push('/terms')}>
-                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Terms</Text>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Terms of Service</Text>
               </TouchableOpacity>
               <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
               <TouchableOpacity onPress={() => router.push('/privacy')}>
-                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Privacy</Text>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Privacy Policy</Text>
+              </TouchableOpacity>
+              <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+              <TouchableOpacity onPress={() => router.push('/refund-policy')}>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Refund & Warranty</Text>
+              </TouchableOpacity>
+              <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+              <TouchableOpacity onPress={() => router.push('/cancellation-policy')}>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Cancellation</Text>
+              </TouchableOpacity>
+              <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+              <TouchableOpacity onPress={() => router.push('/grievance')}>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Grievance Officer</Text>
+              </TouchableOpacity>
+              <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+              <TouchableOpacity onPress={() => router.push('/cookie-policy')}>
+                <Text style={[styles.footerLink, { color: colors.textSecondary }]}>Cookie Policy</Text>
               </TouchableOpacity>
               <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
               <TouchableOpacity onPress={() => router.push('/help')}>

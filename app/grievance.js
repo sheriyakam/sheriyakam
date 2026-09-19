@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Scale, ShieldAlert, Mail, Phone, MapPin, Clock, Send, CheckCircle2, FileText, AlertTriangle, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, Scale, ShieldAlert, Mail, Phone, MapPin, Clock, Send, CheckCircle2, FileText, AlertTriangle, ChevronRight, Check } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
 import { useToast } from '../context/ToastContext';
@@ -13,24 +14,25 @@ import { Input, TextArea } from '../components/ui/Input';
 import { Dropdown } from '../components/ui/Dropdown';
 
 const GRIEVANCE_CATEGORIES = [
-    { label: 'Data Privacy & DPDP Rights (Erasure / Access)', value: 'privacy_dpdp' },
-    { label: 'Content Takedown / Misinformation (36-hr SLA)', value: 'content_takedown' },
-    { label: 'Billing, Pricing or Dark Pattern Violation', value: 'billing_dark_patterns' },
-    { label: 'Technician Conduct / Quality Dispute', value: 'technician_conduct' },
-    { label: 'Cybersecurity Incident / Breach Report', value: 'cybersecurity' },
-    { label: 'Other Statutory Legal Grievance', value: 'other' },
+    { label: 'Work Quality / 30-Day Warranty Dispute', value: 'work_quality' },
+    { label: 'Billing / Unresolved Payment Dispute', value: 'billing_dispute' },
+    { label: 'Technician Punctuality / Conduct', value: 'technician_conduct' },
+    { label: 'Data Privacy & DPDP Erasure Request', value: 'privacy_dpdp' },
+    { label: '₹5 Lakh Property Damage Claim Escalation', value: 'property_damage' },
+    { label: 'Other Statutory Legal Notice', value: 'other' },
 ];
 
 export default function GrievanceRedressalScreen() {
     const router = useRouter();
     const { colors, theme } = useTheme() || { colors: COLORS, theme: 'dark' };
-    const { success, error: showError } = useToast();
+    const { success, error: showError } = useToast() || { success: () => {}, error: () => {} };
     const isDark = theme === 'dark';
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [category, setCategory] = useState('privacy_dpdp');
+    const [bookingId, setBookingId] = useState('');
+    const [category, setCategory] = useState('work_quality');
     const [description, setDescription] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [filedTicket, setFiledTicket] = useState(null);
@@ -48,48 +50,60 @@ export default function GrievanceRedressalScreen() {
             setIsSubmitting(false);
             setFiledTicket({
                 ticketId,
-                category: GRIEVANCE_CATEGORIES.find((c) => c.value === category)?.label,
+                category: GRIEVANCE_CATEGORIES.find((c) => c.value === category)?.label || 'General Dispute',
                 timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
                 ackDeadline: 'Within 24 Hours',
-                resDeadline: 'Within 15 Days',
+                resDeadline: 'Within 15 Calendar Days',
             });
             success(`Grievance submitted! Ticket Reference: ${ticketId}`, 'Grievance Registered');
-        }, 1200);
+        }, 1000);
     };
 
     const handleCallOfficer = () => {
-        Linking.openURL('tel:+914952800001').catch(() => {
-            success('Calling Grievance Officer desk (+91 495 280 0001)');
-        });
+        const url = 'tel:+914952800000';
+        if (Platform.OS === 'web') window.location.href = url;
+        else Linking.openURL(url);
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F8FAFC' }]}>
+            <Head>
+                <title>Resident Grievance Redressal Officer | Sheriyakam</title>
+                <meta name="description" content="Official Grievance Redressal mechanism for Sheriyakam under India Consumer Protection (E-Commerce) Rules 2020 and DPDP Act 2023. Named officer, Thalassery HQ contact & 24-hr acknowledgment." />
+                <link rel="canonical" href="https://sheriyakam.vercel.app/grievance" />
+            </Head>
+
             {/* Header */}
-            <View style={[styles.header, { borderBottomColor: isDark ? '#18181B' : '#E4E4E7' }]}>
+            <View style={[styles.header, { 
+                backgroundColor: isDark ? '#09090B' : '#FFFFFF',
+                borderBottomColor: isDark ? '#27272A' : '#E2E8F0' 
+            }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessibilityRole="button" accessibilityLabel="Go back">
                     <ArrowLeft size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-                    Grievance Redressal Mechanism
-                </Text>
-                <View style={{ width: 32 }} />
+                <View style={{ flex: 1, paddingHorizontal: 8 }}>
+                    <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Grievance Redressal</Text>
+                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Consumer Protection (E-Commerce) Rules, 2020</Text>
+                </View>
+                <TouchableOpacity onPress={() => router.push('/terms')} style={styles.hubBtn}>
+                    <Badge variant="info" size="sm">Terms</Badge>
+                </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Statutory Hero Notice */}
-                <View style={styles.hero}>
-                    <Badge variant="purple" size="md">Rule 3(2) of IT Rules, 2021</Badge>
-                    <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
-                        Consumer Grievance & Compliance Portal
+                {/* Hero */}
+                <Card variant="elevated" style={[styles.heroCard, { backgroundColor: isDark ? '#18181B' : '#0F172A' }]}>
+                    <Badge variant="purple" size="md">Statutory Consumer Redressal Portal</Badge>
+                    <Text style={styles.heroTitle}>
+                        Grievance Redressal & Legal Escalation Desk
                     </Text>
-                    <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-                        In accordance with the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, and the DPDP Act, 2023.
+                    <Text style={styles.heroSub}>
+                        In compliance with the Consumer Protection (E-Commerce) Rules, 2020, Information Technology Rules, 2021, and DPDP Act, 2023. Every customer inquiry receives guaranteed acknowledgment within 24 hours.
                     </Text>
-                </View>
+                </Card>
 
-                {/* Designated Officers Card */}
-                <Card variant="elevated" style={styles.officerCard}>
+                {/* Designated Grievance Officer Card */}
+                <Card variant="default" style={[styles.officerCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
                     <View style={styles.officerHeader}>
                         <View style={[styles.scaleIconCircle, { backgroundColor: colors.accent + '20' }]}>
                             <Scale size={24} color={colors.accent} />
@@ -99,10 +113,10 @@ export default function GrievanceRedressalScreen() {
                                 DESIGNATED RESIDENT GRIEVANCE OFFICER
                             </Text>
                             <Text style={[styles.officerName, { color: colors.textPrimary }]}>
-                                Adv. Arun V. Nair, LL.B.
+                                K. Suresh Kumar
                             </Text>
                             <Text style={[styles.officerLoc, { color: colors.textSecondary }]}>
-                                Resident Compliance Officer (Kerala, India)
+                                Chief Grievance Redressal & Legal Officer (Kerala, India)
                             </Text>
                         </View>
                     </View>
@@ -113,19 +127,19 @@ export default function GrievanceRedressalScreen() {
                         <View style={styles.contactRow}>
                             <MapPin size={16} color={colors.accent} />
                             <Text style={[styles.contactText, { color: colors.textSecondary }]}>
-                                3rd Floor, Malabar Trade Centre, Civil Station Road, Kozhikode - 673020
+                                Empire Electricals / Sheriyakam, Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala - 670101
                             </Text>
                         </View>
                         <View style={styles.contactRow}>
                             <Mail size={16} color={colors.accent} />
                             <Text style={[styles.contactText, { color: colors.textSecondary }]}>
-                                grievance@sheriyakam.com • dpo@sheriyakam.com
+                                grievance@sheriyakam.in • support@sheriyakam.in
                             </Text>
                         </View>
                         <View style={styles.contactRow}>
                             <Phone size={16} color={colors.accent} />
                             <Text style={[styles.contactText, { color: colors.textSecondary }]}>
-                                +91 495 280 0001 (Mon–Sat, 9:30 AM – 6:00 PM IST)
+                                +91 495 280 0000 (Mon–Sat, 9:00 AM – 6:00 PM IST)
                             </Text>
                         </View>
                     </View>
@@ -135,126 +149,123 @@ export default function GrievanceRedressalScreen() {
                         <View style={styles.slaItem}>
                             <Clock size={14} color="#10B981" />
                             <Text style={[styles.slaLabel, { color: colors.textPrimary }]}>
-                                Acknowledgement: <Text style={{ fontWeight: '800', color: '#10B981' }}>24 Hours</Text>
+                                Acknowledgment: <Text style={{ fontWeight: '800', color: '#10B981' }}>Within 24 Hours</Text>
                             </Text>
                         </View>
                         <View style={styles.slaItem}>
                             <CheckCircle2 size={14} color="#3B82F6" />
                             <Text style={[styles.slaLabel, { color: colors.textPrimary }]}>
-                                Final Resolution: <Text style={{ fontWeight: '800', color: '#3B82F6' }}>15 Days</Text>
+                                Resolution SLA: <Text style={{ fontWeight: '800', color: '#3B82F6' }}>15 Calendar Days</Text>
                             </Text>
                         </View>
                     </View>
                 </Card>
 
                 {/* Grievance Submission Form */}
-                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 20 }]}>
-                    FILE A STATUTORY GRIEVANCE OR DISPUTE
-                </Text>
-
-                {filedTicket ? (
-                    <Card variant="elevated" style={styles.ticketCard}>
-                        <View style={[styles.ticketCircle, { backgroundColor: '#10B98120' }]}>
-                            <CheckCircle2 size={44} color="#10B981" />
-                        </View>
-                        <Text style={[styles.ticketTitle, { color: colors.textPrimary }]}>
-                            Grievance Registered Successfully
-                        </Text>
-                        <Text style={[styles.ticketRef, { color: colors.accent }]}>
-                            Docket ID: {filedTicket.ticketId}
-                        </Text>
-                        <Text style={[styles.ticketDesc, { color: colors.textSecondary }]}>
-                            An official acknowledgment has been dispatched to your email. Our Resident Grievance Officer will review your submission and initiate resolution within statutory time limits.
-                        </Text>
-
-                        <View style={[styles.receiptBox, { backgroundColor: isDark ? '#27272A' : '#F4F4F5' }]}>
-                            <View style={styles.receiptRow}>
-                                <Text style={[styles.receiptLabel, { color: colors.textTertiary }]}>Category:</Text>
-                                <Text style={[styles.receiptVal, { color: colors.textPrimary }]}>{filedTicket.category}</Text>
-                            </View>
-                            <View style={styles.receiptRow}>
-                                <Text style={[styles.receiptLabel, { color: colors.textTertiary }]}>Logged IST:</Text>
-                                <Text style={[styles.receiptVal, { color: colors.textPrimary }]}>{filedTicket.timestamp}</Text>
-                            </View>
-                            <View style={styles.receiptRow}>
-                                <Text style={[styles.receiptLabel, { color: colors.textTertiary }]}>Statutory SLA:</Text>
-                                <Text style={[styles.receiptVal, { color: '#10B981' }]}>15 Calendar Days</Text>
-                            </View>
-                        </View>
-
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            fullWidth
-                            onPress={() => setFiledTicket(null)}
-                            style={{ marginTop: 12 }}
-                        >
-                            File Another Inquiry
-                        </Button>
-                    </Card>
-                ) : (
-                    <Card variant="default" style={styles.formCard}>
-                        <Input
-                            label="Complainant Full Name *"
-                            value={name}
-                            onChangeText={setName}
-                            placeholder="e.g. Adv. K. Mohandas"
-                        />
-                        <Input
-                            label="Official Email Address *"
-                            value={email}
-                            onChangeText={setEmail}
-                            placeholder="mohandas@example.com"
-                            keyboardType="email-address"
-                        />
-                        <Input
-                            label="Mobile Number (WhatsApp) *"
-                            value={phone}
-                            onChangeText={setPhone}
-                            placeholder="+91 98765 43210"
-                            keyboardType="phone-pad"
-                        />
-
-                        <Dropdown
-                            label="Grievance / Dispute Category *"
-                            options={GRIEVANCE_CATEGORIES}
-                            value={category}
-                            onSelect={setCategory}
-                        />
-
-                        <TextArea
-                            label="Detailed Statement of Grievance *"
-                            value={description}
-                            onChangeText={setDescription}
-                            placeholder="Specify order IDs, exact grievance details, dates, or relevant statutory clauses..."
-                        />
-
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            fullWidth
-                            loading={isSubmitting}
-                            onPress={handleSubmitGrievance}
-                            iconLeft={Send}
-                            style={{ marginTop: 6 }}
-                        >
-                            Submit Official Grievance
-                        </Button>
-                    </Card>
-                )}
-
-                {/* 36-Hour Content Takedown & CERT-In Notice */}
-                <Card variant="default" style={styles.legalNoticeCard}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <ShieldAlert size={18} color="#EF4444" />
-                        <Text style={[styles.noticeTitle, { color: colors.textPrimary }]}>
-                            Law Enforcement & CERT-In Emergency Protocol
-                        </Text>
-                    </View>
-                    <Text style={[styles.noticeText, { color: colors.textSecondary }]}>
-                        For court orders or government agency requests under Section 79(3)(b) of the IT Act (including 36-hour takedowns and CERT-In 6-hour cybersecurity breach reporting), reach our 24x7 Nodal Contact: <Text style={{ color: colors.accent, fontWeight: '700' }}>nodal@sheriyakam.com</Text>.
+                <View style={styles.sectionWrap}>
+                    <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+                        Submit a Formal Dispute or Grievance
                     </Text>
-                </Card>
+
+                    {filedTicket ? (
+                        <Card variant="elevated" style={[styles.ticketCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
+                            <View style={[styles.ticketCircle, { backgroundColor: '#10B98120' }]}>
+                                <CheckCircle2 size={44} color="#10B981" />
+                            </View>
+                            <Text style={[styles.ticketTitle, { color: colors.textPrimary }]}>
+                                Grievance Registered Successfully
+                            </Text>
+                            <Text style={[styles.ticketRef, { color: colors.accent }]}>
+                                Docket ID: {filedTicket.ticketId}
+                            </Text>
+                            <Text style={[styles.ticketDesc, { color: colors.textSecondary }]}>
+                                An official acknowledgment has been dispatched to your email. Our Resident Grievance Officer will review your submission and initiate resolution within statutory time limits.
+                            </Text>
+
+                            <View style={[styles.receiptBox, { backgroundColor: isDark ? '#27272A' : '#F4F4F5' }]}>
+                                <View style={styles.receiptRow}>
+                                    <Text style={[styles.receiptLabel, { color: colors.textTertiary }]}>Category:</Text>
+                                    <Text style={[styles.receiptVal, { color: colors.textPrimary }]}>{filedTicket.category}</Text>
+                                </View>
+                                <View style={styles.receiptRow}>
+                                    <Text style={[styles.receiptLabel, { color: colors.textTertiary }]}>Logged IST:</Text>
+                                    <Text style={[styles.receiptVal, { color: colors.textPrimary }]}>{filedTicket.timestamp}</Text>
+                                </View>
+                                <View style={styles.receiptRow}>
+                                    <Text style={[styles.receiptLabel, { color: colors.textTertiary }]}>Statutory SLA:</Text>
+                                    <Text style={[styles.receiptVal, { color: '#10B981' }]}>15 Calendar Days</Text>
+                                </View>
+                            </View>
+
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                fullWidth
+                                onPress={() => setFiledTicket(null)}
+                                style={{ marginTop: 12 }}
+                            >
+                                File Another Inquiry
+                            </Button>
+                        </Card>
+                    ) : (
+                        <Card variant="default" style={[styles.formCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
+                            <Input
+                                label="Your Full Name *"
+                                value={name}
+                                onChangeText={setName}
+                                placeholder="e.g. K. V. Mohandas"
+                            />
+                            <Input
+                                label="Email Address *"
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder="mohandas@example.com"
+                                keyboardType="email-address"
+                            />
+                            <Input
+                                label="Mobile Phone Number (WhatsApp) *"
+                                value={phone}
+                                onChangeText={setPhone}
+                                placeholder="+91 98765 43210"
+                                keyboardType="phone-pad"
+                            />
+                            <Input
+                                label="Booking ID (If Applicable)"
+                                value={bookingId}
+                                onChangeText={setBookingId}
+                                placeholder="e.g. BK-2026-8942"
+                            />
+
+                            <Dropdown
+                                label="Grievance / Dispute Category *"
+                                options={GRIEVANCE_CATEGORIES}
+                                value={category}
+                                onSelect={setCategory}
+                            />
+
+                            <TextArea
+                                label="Detailed Statement of Grievance *"
+                                value={description}
+                                onChangeText={setDescription}
+                                placeholder="Provide exact dates, booking details, technician notes, or specific clauses..."
+                            />
+
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                fullWidth
+                                loading={isSubmitting}
+                                onPress={handleSubmitGrievance}
+                                iconLeft={Send}
+                                style={{ marginTop: 6 }}
+                            >
+                                Submit Official Grievance
+                            </Button>
+                        </Card>
+                    )}
+                </View>
+
+                <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -267,7 +278,6 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
@@ -277,33 +287,44 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '800',
+    },
+    headerSub: {
+        fontSize: 11,
+    },
+    hubBtn: {
+        padding: 2,
     },
     scrollContent: {
         padding: 16,
-        paddingBottom: 40,
+        paddingBottom: 60,
+        gap: 14,
+        maxWidth: 960,
+        width: '100%',
+        alignSelf: 'center',
     },
-    hero: {
-        alignItems: 'center',
-        marginVertical: 12,
-        gap: 6,
+    heroCard: {
+        padding: 20,
+        borderRadius: 18,
+        gap: 12,
     },
     heroTitle: {
+        color: '#FFFFFF',
         fontSize: 22,
-        fontWeight: '800',
-        textAlign: 'center',
-        letterSpacing: -0.4,
+        fontWeight: '900',
+        lineHeight: 28,
+        letterSpacing: -0.3,
     },
-    heroSubtitle: {
-        fontSize: 13,
-        textAlign: 'center',
-        lineHeight: 18,
-        maxWidth: 340,
+    heroSub: {
+        color: '#CBD5E1',
+        fontSize: 13.5,
+        lineHeight: 20,
     },
     officerCard: {
         padding: 18,
-        marginVertical: 10,
+        borderRadius: 16,
         gap: 12,
+        borderWidth: 1,
     },
     officerHeader: {
         flexDirection: 'row',
@@ -311,9 +332,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     scaleIconCircle: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -344,8 +365,8 @@ const styles = StyleSheet.create({
     },
     contactText: {
         flex: 1,
-        fontSize: 12,
-        lineHeight: 17,
+        fontSize: 12.5,
+        lineHeight: 18,
     },
     slaBar: {
         flexDirection: 'row',
@@ -362,26 +383,29 @@ const styles = StyleSheet.create({
     slaLabel: {
         fontSize: 12,
     },
+    sectionWrap: {
+        gap: 10,
+    },
     sectionTitle: {
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-        marginBottom: 8,
-        paddingLeft: 2,
+        fontSize: 15.5,
+        fontWeight: '800',
     },
     formCard: {
-        padding: 16,
-        gap: 10,
+        padding: 18,
+        borderRadius: 16,
+        gap: 12,
+        borderWidth: 1,
     },
     ticketCard: {
         padding: 22,
+        borderRadius: 16,
         alignItems: 'center',
         gap: 10,
     },
     ticketCircle: {
-        width: 72,
-        height: 72,
-        borderRadius: 36,
+        width: 68,
+        height: 68,
+        borderRadius: 34,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 4,
@@ -392,9 +416,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     ticketRef: {
-        fontSize: 15,
-        fontWeight: '800',
-        fontFamily: 'monospace',
+        fontSize: 16,
+        fontWeight: '900',
+        letterSpacing: 0.5,
     },
     ticketDesc: {
         fontSize: 13,
@@ -418,18 +442,5 @@ const styles = StyleSheet.create({
     receiptVal: {
         fontSize: 12,
         fontWeight: '700',
-    },
-    legalNoticeCard: {
-        padding: 16,
-        marginTop: 16,
-        gap: 6,
-    },
-    noticeTitle: {
-        fontSize: 13,
-        fontWeight: '700',
-    },
-    noticeText: {
-        fontSize: 12,
-        lineHeight: 17,
     },
 });

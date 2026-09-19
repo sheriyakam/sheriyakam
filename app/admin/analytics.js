@@ -1,150 +1,193 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, TrendingUp, DollarSign, Zap, Users, Star, Clock, Download } from 'lucide-react-native';
-import { useTheme } from '../../context/ThemeContext';
-import { COLORS } from '../../constants/theme';
-import { useToast } from '../../context/ToastContext';
-import { StatCard, Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-
-const TALUK_METRICS = [
-    { name: 'Kozhikode Taluk', bookings: 642, revenue: '₹1,58,400', sla: '19 mins', satisfaction: 4.9 },
-    { name: 'Vadakara Taluk', bookings: 218, revenue: '₹54,200', sla: '24 mins', satisfaction: 4.8 },
-    { name: 'Thamarassery Taluk', bookings: 145, revenue: '₹38,900', sla: '26 mins', satisfaction: 4.9 },
-    { name: 'Koyilandy Taluk', bookings: 98, revenue: '₹24,500', sla: '28 mins', satisfaction: 4.7 },
-];
-
-const SERVICE_BREAKDOWN = [
-    { title: 'Ceiling & Exhaust Fan Fixes', percent: 38, count: '420 jobs', color: '#6366F1' },
-    { title: 'Short Circuit & MCB Overhaul', percent: 28, count: '310 jobs', color: '#10B981' },
-    { title: 'Inverter & Battery Wiring', percent: 18, count: '198 jobs', color: '#F59E0B' },
-    { title: 'AC Isolator Mounting', percent: 16, count: '175 jobs', color: '#EC4899' },
-];
+import {
+    ArrowLeft, TrendingUp, DollarSign, Zap, Users, Star,
+    Clock, Download, Award, ShieldCheck, CheckCircle, RotateCw
+} from 'lucide-react-native';
+import { COLORS, SPACING } from '../../constants/theme';
+import { getBookings } from '../../constants/bookingStore';
+import { getPartners } from '../../constants/partnerStore';
 
 export default function AdminAnalyticsScreen() {
     const router = useRouter();
-    const { colors, theme } = useTheme() || { colors: COLORS, theme: 'dark' };
-    const { success } = useToast();
-    const isDark = theme === 'dark';
+    const [bookings, setBookings] = useState([]);
+    const [partners, setPartners] = useState([]);
+
+    useEffect(() => {
+        setBookings(getBookings());
+        setPartners(getPartners());
+    }, []);
+
+    const totalJobs = bookings.length + 1100; // Combine active session with historical baseline
+    const totalGross = bookings.reduce((s, b) => s + (b.finalPrice || b.price || 0), 0) + 276000;
+    const completedJobsCount = bookings.filter(b => b.status === 'completed').length + 1050;
+
+    const DISTRICT_METRICS = [
+        { name: 'Kannur (Thalassery HQ)', jobs: 480, revenue: '₹1,24,500', avgArrival: '22 mins', slaCompliance: '98.5%', color: COLORS.accent },
+        { name: 'Kozhikode District', jobs: 340, revenue: '₹88,200', avgArrival: '26 mins', slaCompliance: '96.2%', color: '#10b981' },
+        { name: 'Ernakulam (Kochi)', jobs: 210, revenue: '₹56,400', avgArrival: '28 mins', slaCompliance: '95.0%', color: '#f59e0b' },
+        { name: 'Thrissur & Malabar', jobs: 180, revenue: '₹44,900', avgArrival: '31 mins', slaCompliance: '94.2%', color: '#8b5cf6' }
+    ];
+
+    const SERVICE_SHARES = [
+        { title: 'Emergency Repair Specialist', percent: 34, revenue: '₹1,02,000', color: COLORS.danger },
+        { title: 'Inverter AC Foam Jet & Gas', percent: 28, revenue: '₹84,000', color: COLORS.accent },
+        { title: 'Ceiling Fan & Switchboards', percent: 22, revenue: '₹66,000', color: COLORS.gold },
+        { title: 'IP CCTV & NVR Setup', percent: 16, revenue: '₹48,000', color: '#10b981' }
+    ];
 
     const handleExport = () => {
-        success('Monthly Business & Tax Report CSV exported successfully!', 'Report Generated');
+        Alert.alert(
+            '📄 Operations Analytics CSV Exported',
+            `Sheriyakam Performance Report (District SLAs, Partner Utilization, Repeat Rates) generated and sent to management.`
+        );
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
+        <SafeAreaView style={styles.container}>
             {/* Header */}
-            <View style={[styles.header, { borderBottomColor: isDark ? '#18181B' : '#E4E4E7' }]}>
+            <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <ArrowLeft size={22} color={colors.textPrimary} />
+                    <ArrowLeft size={20} color={COLORS.textPrimary} />
                 </TouchableOpacity>
-                <View>
-                    <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-                        Analytics & Performance
-                    </Text>
-                    <Text style={[styles.headerSubtitle, { color: colors.textTertiary }]}>
-                        Real-time revenue, SLAs, and growth metrics
-                    </Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.headerTitle}>Marketplace Analytics & SLAs</Text>
+                    <Text style={styles.headerSub}>Arrival performance, district revenue & partner utilization</Text>
                 </View>
-                <Button variant="secondary" size="sm" iconLeft={Download} onPress={handleExport}>
-                    Export CSV
-                </Button>
+                <TouchableOpacity style={styles.exportBtn} onPress={handleExport}>
+                    <Download size={16} color={COLORS.accent} />
+                    <Text style={styles.exportBtnText}>CSV</Text>
+                </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-                {/* Core Top Metrics */}
-                <View style={styles.statsGrid}>
-                    <StatCard
-                        title="Gross Bookings"
-                        value="₹2,76,000"
-                        change="24%"
-                        isPositive={true}
-                        icon={DollarSign}
-                        iconColor="#10B981"
-                    />
-                    <StatCard
-                        title="Total Jobs"
-                        value="1,103"
-                        change="18%"
-                        isPositive={true}
-                        icon={Zap}
-                        iconColor={colors.accent}
-                    />
+            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                {/* 4 Core High-Level KPIs */}
+                <View style={styles.kpiGrid}>
+                    <View style={[styles.kpiCard, { borderTopColor: COLORS.success }]}>
+                        <View style={styles.kpiTop}>
+                            <Text style={styles.kpiLabel}>Gross Volume</Text>
+                            <DollarSign size={16} color={COLORS.success} />
+                        </View>
+                        <Text style={styles.kpiValue}>₹{totalGross.toLocaleString()}</Text>
+                        <Text style={[styles.kpiChange, { color: COLORS.success }]}>+24% month over month</Text>
+                    </View>
+
+                    <View style={[styles.kpiCard, { borderTopColor: COLORS.accent }]}>
+                        <View style={styles.kpiTop}>
+                            <Text style={styles.kpiLabel}>Total Bookings</Text>
+                            <Zap size={16} color={COLORS.accent} />
+                        </View>
+                        <Text style={styles.kpiValue}>{totalJobs.toLocaleString()}</Text>
+                        <Text style={[styles.kpiChange, { color: COLORS.accent }]}>98.2% completion rate</Text>
+                    </View>
+
+                    <View style={[styles.kpiCard, { borderTopColor: '#3b82f6' }]}>
+                        <View style={styles.kpiTop}>
+                            <Text style={styles.kpiLabel}>Avg Arrival Time</Text>
+                            <Clock size={16} color="#3b82f6" />
+                        </View>
+                        <Text style={styles.kpiValue}>24 Mins</Text>
+                        <Text style={[styles.kpiChange, { color: COLORS.success }]}>vs 90m SLA (96.8% on-time)</Text>
+                    </View>
+
+                    <View style={[styles.kpiCard, { borderTopColor: COLORS.gold }]}>
+                        <View style={styles.kpiTop}>
+                            <Text style={styles.kpiLabel}>Customer Rating</Text>
+                            <Star size={16} color={COLORS.gold} fill={COLORS.gold} />
+                        </View>
+                        <Text style={styles.kpiValue}>4.92 ★</Text>
+                        <Text style={[styles.kpiChange, { color: COLORS.gold }]}>Based on 1,050+ reviews</Text>
+                    </View>
                 </View>
 
-                <View style={[styles.statsGrid, { marginTop: 10 }]}>
-                    <StatCard
-                        title="Average Arrival ETA"
-                        value="21 Mins"
-                        change="3 mins faster"
-                        isPositive={true}
-                        icon={Clock}
-                        iconColor="#3B82F6"
-                    />
-                    <StatCard
-                        title="Customer Rating"
-                        value="4.9 ★"
-                        change="98.6% positive"
-                        isPositive={true}
-                        icon={Star}
-                        iconColor="#F59E0B"
-                    />
+                {/* 90-Minute Arrival SLA Benchmark Section */}
+                <View style={styles.slaSectionCard}>
+                    <View style={styles.slaHeaderRow}>
+                        <ShieldCheck size={20} color={COLORS.success} />
+                        <View style={{ flex: 1, marginLeft: 10 }}>
+                            <Text style={styles.slaCardTitle}>90-Minute Emergency Arrival SLA</Text>
+                            <Text style={styles.slaCardSub}>Tracking actual wireman GPS arrival vs marketed 90-minute ceiling</Text>
+                        </View>
+                        <View style={styles.slaScoreBadge}>
+                            <Text style={styles.slaScoreVal}>96.8%</Text>
+                            <Text style={styles.slaScoreLabel}>On-Time SLA</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.slaProgressTrack}>
+                        <View style={[styles.slaProgressBar, { width: '96.8%' }]} />
+                    </View>
+
+                    <View style={styles.slaBenchmarksRow}>
+                        <View style={styles.benchmarkItem}>
+                            <Text style={styles.benchmarkLabel}>Fastest Arrival (Thalassery):</Text>
+                            <Text style={styles.benchmarkVal}>14 Mins</Text>
+                        </View>
+                        <View style={styles.benchmarkItem}>
+                            <Text style={styles.benchmarkLabel}>Average Across Kerala:</Text>
+                            <Text style={styles.benchmarkVal}>24.5 Mins</Text>
+                        </View>
+                        <View style={styles.benchmarkItem}>
+                            <Text style={styles.benchmarkLabel}>SLA Breaches This Week:</Text>
+                            <Text style={[styles.benchmarkVal, { color: COLORS.danger }]}>2 Jobs (0.4%)</Text>
+                        </View>
+                    </View>
                 </View>
 
-                {/* Service Category Share */}
-                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 20 }]}>
-                    BOOKINGS BY SERVICE TYPE
-                </Text>
-                <Card variant="default" style={styles.categoryCard}>
-                    {SERVICE_BREAKDOWN.map((item, idx) => (
-                        <View key={idx} style={styles.categoryRow}>
-                            <View style={styles.categoryInfo}>
-                                <Text style={[styles.categoryTitle, { color: colors.textPrimary }]}>
-                                    {item.title}
-                                </Text>
-                                <Text style={[styles.categoryCount, { color: colors.textTertiary }]}>
-                                    {item.count} ({item.percent}%)
-                                </Text>
+                {/* Partner Utilization & Repeat Customer Rate */}
+                <View style={styles.twoColRow}>
+                    <View style={styles.subMetricCard}>
+                        <View style={styles.subMetricHeader}>
+                            <Users size={16} color={COLORS.accent} />
+                            <Text style={styles.subMetricTitle}>Partner Utilization</Text>
+                        </View>
+                        <Text style={styles.subMetricVal}>4.2 Jobs / Day</Text>
+                        <Text style={styles.subMetricSub}>82% active shift occupancy across 80+ licensed wiremen</Text>
+                    </View>
+
+                    <View style={styles.subMetricCard}>
+                        <View style={styles.subMetricHeader}>
+                            <RotateCw size={16} color={COLORS.gold} />
+                            <Text style={styles.subMetricTitle}>Repeat Customers</Text>
+                        </View>
+                        <Text style={styles.subMetricVal}>41.8%</Text>
+                        <Text style={styles.subMetricSub}>Households rebooking for AC AMC or periodic safety audits</Text>
+                    </View>
+                </View>
+
+                {/* District Performance Breakdown */}
+                <Text style={styles.sectionHeading}>REGIONAL DISTRICT DISPATCH PERFORMANCE</Text>
+                <View style={styles.districtList}>
+                    {DISTRICT_METRICS.map(d => (
+                        <View key={d.name} style={styles.districtCard}>
+                            <View style={styles.districtCardTop}>
+                                <Text style={styles.districtName}>{d.name}</Text>
+                                <Text style={styles.districtRev}>{d.revenue}</Text>
                             </View>
-                            <View style={[styles.progressTrack, { backgroundColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                                <View style={[styles.progressBar, { width: `${item.percent}%`, backgroundColor: item.color }]} />
+                            <View style={styles.districtMetaRow}>
+                                <Text style={styles.districtMetaItem}>Bookings: {d.jobs}</Text>
+                                <Text style={styles.districtMetaItem}>Avg Arrival: {d.avgArrival}</Text>
+                                <Text style={[styles.districtMetaItem, { color: COLORS.success }]}>SLA: {d.slaCompliance}</Text>
                             </View>
                         </View>
                     ))}
-                </Card>
+                </View>
 
-                {/* Taluk Regional Breakdown */}
-                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 20 }]}>
-                    REGIONAL TALUK PERFORMANCE
-                </Text>
-                <View style={styles.talukGrid}>
-                    {TALUK_METRICS.map((taluk, idx) => (
-                        <Card key={idx} variant="default" style={styles.talukCard}>
-                            <View style={styles.talukTop}>
-                                <Text style={[styles.talukName, { color: colors.textPrimary }]}>
-                                    {taluk.name}
-                                </Text>
-                                <Badge variant="success" size="sm">{taluk.satisfaction} ★</Badge>
+                {/* Service Category Shares */}
+                <Text style={styles.sectionHeading}>REVENUE BY SERVICE SPECIALIZATION</Text>
+                <View style={styles.serviceSharesCard}>
+                    {SERVICE_SHARES.map(s => (
+                        <View key={s.title} style={styles.shareRow}>
+                            <View style={styles.shareHeader}>
+                                <Text style={styles.shareTitle}>{s.title}</Text>
+                                <Text style={styles.shareAmount}>{s.revenue} ({s.percent}%)</Text>
                             </View>
-
-                            <View style={styles.talukStats}>
-                                <View>
-                                    <Text style={[styles.talukStatLabel, { color: colors.textTertiary }]}>Revenue</Text>
-                                    <Text style={[styles.talukStatVal, { color: colors.accent }]}>{taluk.revenue}</Text>
-                                </View>
-                                <View>
-                                    <Text style={[styles.talukStatLabel, { color: colors.textTertiary }]}>Bookings</Text>
-                                    <Text style={[styles.talukStatVal, { color: colors.textPrimary }]}>{taluk.bookings}</Text>
-                                </View>
-                                <View>
-                                    <Text style={[styles.talukStatLabel, { color: colors.textTertiary }]}>Avg ETA</Text>
-                                    <Text style={[styles.talukStatVal, { color: colors.textPrimary }]}>{taluk.sla}</Text>
-                                </View>
+                            <View style={styles.shareTrack}>
+                                <View style={[styles.shareBar, { width: `${s.percent}%`, backgroundColor: s.color }]} />
                             </View>
-                        </Card>
+                        </View>
                     ))}
                 </View>
             </ScrollView>
@@ -155,93 +198,255 @@ export default function AdminAnalyticsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: COLORS.bgPrimary,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: SPACING.md,
+        paddingVertical: 14,
         borderBottomWidth: 1,
+        borderBottomColor: COLORS.border,
+        backgroundColor: COLORS.bgSecondary,
+        gap: 12,
     },
     backBtn: {
-        padding: 4,
+        padding: 6,
+        borderRadius: 8,
+        backgroundColor: COLORS.bgTertiary,
     },
     headerTitle: {
-        fontSize: 17,
-        fontWeight: '700',
+        fontSize: 16,
+        fontWeight: '800',
+        color: COLORS.textPrimary,
     },
-    headerSubtitle: {
-        fontSize: 12,
+    headerSub: {
+        fontSize: 11,
+        color: COLORS.textSecondary,
     },
-    scrollContent: {
-        padding: 16,
-        paddingBottom: 40,
-    },
-    statsGrid: {
+    exportBtn: {
         flexDirection: 'row',
-        gap: 10,
-    },
-    sectionTitle: {
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-        marginBottom: 8,
-        paddingLeft: 2,
-    },
-    categoryCard: {
-        padding: 16,
-        gap: 14,
-    },
-    categoryRow: {
+        alignItems: 'center',
         gap: 6,
+        backgroundColor: 'rgba(79, 70, 229, 0.15)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
     },
-    categoryInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    categoryTitle: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    categoryCount: {
+    exportBtnText: {
+        color: COLORS.accent,
         fontSize: 12,
+        fontWeight: '700',
     },
-    progressTrack: {
-        height: 6,
-        borderRadius: 3,
-        overflow: 'hidden',
+    content: {
+        padding: SPACING.md,
+        paddingBottom: 40,
+        gap: 16,
     },
-    progressBar: {
-        height: '100%',
-        borderRadius: 3,
-    },
-    talukGrid: {
+    kpiGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: 10,
     },
-    talukCard: {
-        padding: 14,
+    kpiCard: {
+        width: '48%',
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        borderTopWidth: 3,
     },
-    talukTop: {
+    kpiTop: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
     },
-    talukName: {
-        fontSize: 14,
+    kpiLabel: {
+        fontSize: 10,
         fontWeight: '700',
+        color: COLORS.textSecondary,
+        textTransform: 'uppercase',
     },
-    talukStats: {
+    kpiValue: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: COLORS.textPrimary,
+        marginTop: 6,
+    },
+    kpiChange: {
+        fontSize: 10,
+        marginTop: 4,
+        fontWeight: '600',
+    },
+    slaSectionCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 14,
+        padding: SPACING.md,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.3)',
+    },
+    slaHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    slaCardTitle: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: COLORS.textPrimary,
+    },
+    slaCardSub: {
+        fontSize: 11,
+        color: COLORS.textSecondary,
+        marginTop: 2,
+    },
+    slaScoreBadge: {
+        alignItems: 'flex-end',
+    },
+    slaScoreVal: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: COLORS.success,
+    },
+    slaScoreLabel: {
+        fontSize: 9,
+        color: COLORS.textSecondary,
+    },
+    slaProgressTrack: {
+        height: 8,
+        backgroundColor: COLORS.bgTertiary,
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginVertical: 14,
+    },
+    slaProgressBar: {
+        height: '100%',
+        backgroundColor: COLORS.success,
+        borderRadius: 4,
+    },
+    slaBenchmarksRow: {
+        gap: 6,
+    },
+    benchmarkItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    talukStatLabel: {
+    benchmarkLabel: {
         fontSize: 11,
-        marginBottom: 2,
+        color: COLORS.textSecondary,
     },
-    talukStatVal: {
-        fontSize: 14,
+    benchmarkVal: {
+        fontSize: 11,
         fontWeight: '700',
+        color: COLORS.textPrimary,
     },
+    twoColRow: {
+        flexDirection: 'row',
+        gap: 10,
+    },
+    subMetricCard: {
+        flex: 1,
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    subMetricHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    subMetricTitle: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: COLORS.textPrimary,
+    },
+    subMetricVal: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: COLORS.textPrimary,
+        marginVertical: 4,
+    },
+    subMetricSub: {
+        fontSize: 10,
+        color: COLORS.textSecondary,
+        lineHeight: 14,
+    },
+    sectionHeading: {
+        fontSize: 11,
+        fontWeight: '800',
+        color: COLORS.textTertiary,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+    },
+    districtList: {
+        gap: 10,
+    },
+    districtCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    districtCardTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    districtName: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: COLORS.textPrimary,
+    },
+    districtRev: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: COLORS.accent,
+    },
+    districtMetaRow: {
+        flexDirection: 'row',
+        gap: 14,
+    },
+    districtMetaItem: {
+        fontSize: 11,
+        color: COLORS.textSecondary,
+    },
+    serviceSharesCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 14,
+        padding: SPACING.md,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        gap: 12,
+    },
+    shareRow: {
+        gap: 6,
+    },
+    shareHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    shareTitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: COLORS.textPrimary,
+    },
+    shareAmount: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: COLORS.textSecondary,
+    },
+    shareTrack: {
+        height: 6,
+        backgroundColor: COLORS.bgTertiary,
+        borderRadius: 3,
+        overflow: 'hidden',
+    },
+    shareBar: {
+        height: '100%',
+        borderRadius: 3,
+    }
 });

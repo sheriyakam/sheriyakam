@@ -390,6 +390,46 @@ export default function ServiceLandingView({
                         </View>
                     </View>
                 )}
+
+                {/* Legal & Compliance Footer */}
+                <View style={[styles.legalFooter, { borderTopColor: isDark ? '#27272A' : '#E2E8F0' }]}>
+                    <View style={styles.footerLinksRow}>
+                        <TouchableOpacity onPress={() => router.push('/about')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>About Us</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/terms')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Terms of Service</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/privacy')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Privacy Policy</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/refund-policy')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Refund & Warranty</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/cancellation-policy')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Cancellation</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/grievance')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Grievance Officer</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/cookie-policy')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Cookie Policy</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.footerDot, { color: colors.textTertiary }]}>•</Text>
+                        <TouchableOpacity onPress={() => router.push('/help')}>
+                            <Text style={[styles.footerLinkText, { color: colors.textSecondary }]}>Support & FAQs</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={[styles.legalCopyText, { color: colors.textTertiary }]}>
+                        © 2026 Sheriyakam • Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) • Thalassery, Kerala
+                    </Text>
+                </View>
             </ScrollView>
 
             <BookingModal
@@ -665,5 +705,32 @@ const styles = StyleSheet.create({
     faqA: {
         fontSize: 13,
         lineHeight: 20,
+    },
+    legalFooter: {
+        paddingTop: 20,
+        paddingBottom: 24,
+        borderTopWidth: 1,
+        alignItems: 'center',
+        gap: 12,
+        marginTop: 10,
+    },
+    footerLinksRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 8,
+    },
+    footerLinkText: {
+        fontSize: 12.5,
+        fontWeight: '600',
+        paddingVertical: 4,
+    },
+    footerDot: {
+        fontSize: 10,
+    },
+    legalCopyText: {
+        fontSize: 11,
+        textAlign: 'center',
     },
 });

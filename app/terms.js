@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Shield, CheckCircle, AlertTriangle, Scale, Lock, ShieldCheck, FileCheck, Phone, ChevronRight } from 'lucide-react-native';
-import { COLORS } from '../constants/theme';
+import Head from 'expo-router/head';
+import { ArrowLeft, Shield, CheckCircle, AlertTriangle, Scale, Lock, ShieldCheck, FileCheck, Phone, ChevronRight, MapPin, Zap } from 'lucide-react-native';
+import { COLORS, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { Card } from '../components/ui/Card';
@@ -11,13 +12,22 @@ import { Button } from '../components/ui/Button';
 
 export default function TermsScreen() {
     const router = useRouter();
-    const { theme, colors } = useTheme();
+    const { theme, colors } = useTheme() || { theme: 'dark', colors: COLORS };
     const isDark = theme === 'dark';
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F8FAFC' }]}>
+            <Head>
+                <title>Terms of Service & Customer Guarantee | Sheriyakam</title>
+                <meta name="description" content="Sheriyakam Terms of Service: Transparent pricing, OTP verification, Pay Safely terms, 30-day rework warranty, and ₹5 Lakh property damage protection across 14 Kerala districts." />
+                <link rel="canonical" href="https://sheriyakam.vercel.app/terms" />
+            </Head>
+
             {/* Header */}
-            <View style={[styles.header, { borderBottomColor: isDark ? '#18181B' : '#E4E4E7' }]}>
+            <View style={[styles.header, { 
+                backgroundColor: isDark ? '#09090B' : '#FFFFFF',
+                borderBottomColor: isDark ? '#27272A' : '#E2E8F0' 
+            }]}>
                 <TouchableOpacity 
                     onPress={() => router.back()} 
                     style={styles.backBtn}
@@ -26,152 +36,158 @@ export default function TermsScreen() {
                 >
                     <ArrowLeft size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Terms of Service</Text>
-                <TouchableOpacity onPress={() => router.push('/compliance')} style={styles.hubBtn}>
-                    <Badge variant="gold" size="sm">Compliance Hub</Badge>
+                <View style={{ flex: 1, paddingHorizontal: 8 }}>
+                    <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Terms of Service</Text>
+                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Empire Electricals Est. 1998 • KSELB Licence #KSELB/CA-7821/KL</Text>
+                </View>
+                <TouchableOpacity onPress={() => router.push('/grievance')} style={styles.hubBtn}>
+                    <Badge variant="gold" size="sm">Grievance Desk</Badge>
                 </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Intro Card */}
-                <Card variant="elevated" style={styles.heroCard}>
-                    <Scale size={36} color={colors.accent} style={styles.cardIcon} />
-                    <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                        Terms of Service & Statutory Agreement
+                {/* Hero Card */}
+                <Card variant="elevated" style={[styles.heroCard, { backgroundColor: isDark ? '#18181B' : '#0F172A' }]}>
+                    <Badge variant="info" size="md">Transparent • Plain Language • Fair Terms</Badge>
+                    <Text style={styles.heroTitle}>
+                        Terms of Service & Customer Protection Agreement
                     </Text>
-                    <Text style={[styles.cardText, { color: colors.textSecondary }]}>
-                        Welcome to Sheriyakam (operated by Sheriyakam Technologies Pvt Ltd). These Terms govern your access to our mobile applications, website, and on-demand electrical services in Kerala under Indian Federal and State statutory frameworks.
+                    <Text style={styles.heroSub}>
+                        Welcome to Sheriyakam, operated under Empire Electricals (Est. 1998, Class-A KSELB Licence #KSELB/CA-7821/KL, Thalassery, Kerala). We believe in simple, transparent terms without fine-print traps.
                     </Text>
-                    <View style={styles.statutoryBadges}>
-                        <Badge variant="info">IT Act, 2000 & IT Rules 2021</Badge>
-                        <Badge variant="success">Consumer Protection Rules 2020</Badge>
-                        <Badge variant="purple">KSELB & CEA 2010</Badge>
+                    <View style={styles.badgeRow}>
+                        <Badge variant="success">Pay After Work</Badge>
+                        <Badge variant="info">30-Day Free Rework</Badge>
+                        <Badge variant="gold">₹5 Lakh Safety Cover</Badge>
+                        <Badge variant="purple">All 14 Kerala Districts</Badge>
                     </View>
-                    <Text style={[styles.lastUpdated, { color: colors.textTertiary }]}>
-                        Last Updated: August 2026 • Governing Law: Kozhikode, Kerala, India
+                    <Text style={styles.lastUpdatedText}>
+                        Last Updated: September 2026 • Governed by the Laws of Kerala, India
                     </Text>
                 </Card>
 
-                {/* Section 1: Permitted Use & IT Rules 2021 */}
-                <View style={styles.section}>
+                {/* Section 1: Service Area Limitation */}
+                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
                     <View style={styles.sectionHeader}>
-                        <CheckCircle size={20} color="#10B981" />
+                        <MapPin size={20} color={colors.accent} />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            1. Permitted Use & Platform Rules (IT Rules, 2021)
+                            1. Service Area & Kerala District Coverage
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Sheriyakam connects homeowners with verified, government-licensed wiremen and contractors in Kerala. Under Rule 3(1)(b) of the Information Technology Rules, you agree NOT to host, upload, or transmit any content that:
+                        Sheriyakam operates exclusively across all 14 revenue districts of Kerala:
                     </Text>
-                    <View style={styles.bulletList}>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Belongs to another person without authorization or infringes trade rights.</Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Is defamatory, obscene, pornographic, pedophilic, or invasive of bodily privacy.</Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Contains deepfakes, AI impersonation, or knowingly false misinformation.</Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>• Threatens the unity, integrity, defense, or public order of India.</Text>
-                    </View>
-                </View>
+                    <Text style={[styles.highlightText, { color: colors.accent }]}>
+                        Kasaragod, Kannur (HQ Thalassery), Wayanad, Kozhikode, Malappuram, Palakkad, Thrissur, Ernakulam (Kochi), Idukki, Kottayam, Alappuzha, Pathanamthitta, Kollam, and Thiruvananthapuram.
+                    </Text>
+                    <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
+                        Bookings are accepted for residential homes, apartments, commercial offices, and retail establishments located within our active service pin codes.
+                    </Text>
+                </Card>
 
-                {/* Section 2: Kerala Electrical Licensing & Standards */}
-                <View style={styles.section}>
+                {/* Section 2: Booking, OTP Verification & 30-Day Warranty */}
+                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
                     <View style={styles.sectionHeader}>
-                        <ShieldCheck size={20} color="#3B82F6" />
+                        <ShieldCheck size={20} color="#10B981" />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            2. Electrician Qualifications & Kerala Trade Regulations
+                            2. Booking, OTP Job Verification & 30-Day Warranty
                         </Text>
                     </View>
-                    <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        All electrical repairs, MCB diagnostics, and wiring installations are performed exclusively by technicians holding valid competency licenses issued by the **Kerala State Electricity Licensing Board (KSELB)** under the *Central Electricity Authority (Safety) Regulations, 2010*.
-                    </Text>
-                </View>
-
-                {/* Section 3: Pricing, Dark Patterns & 30-Day Warranty */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <FileCheck size={20} color="#F59E0B" />
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            3. Transparent Tariff, Dark Patterns Ban & 30-Day Warranty
-                        </Text>
-                    </View>
-                    <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Under the Consumer Protection (E-Commerce) Rules 2020 and Guidelines for Prevention of Dark Patterns 2023:
-                    </Text>
                     <View style={styles.bulletList}>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Upfront Tariffs</Text>: Exact base labor charges and 18% GST (9% CGST + 9% Kerala SGST SAC 9987) are disclosed before checkout.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>KSELB Certified Wiremen</Text>: All dispatches are assigned to technicians holding active wireman/supervisor permits issued by the Kerala Electrical Inspectorate.
                         </Text>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Zero Dark Patterns</Text>: All spare parts and surge protection addons are strictly opt-in with zero basket sneaking or forced subscriptions.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Two-Way OTP Verification</Text>: For your security, the electrician will request a Start-OTP upon arrival to begin work, and an End-OTP after you test and confirm the completed fix.
                         </Text>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>30-Day Free Rework Warranty</Text>: If any fault recurs within 30 days of completion, a senior master wireman will revisit and resolve it with ₹0 visit fees.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>30-Day Rework Warranty</Text>: If any repaired switch, MCB, wiring connection, or fan installation exhibits the same fault within 30 days, we send a senior technician to re-inspect and fix it at ₹0 charge.
                         </Text>
                     </View>
-                </View>
+                </Card>
 
-                {/* Section 4: Limitation of Liability & Damage Cap */}
-                <View style={styles.section}>
+                {/* Section 3: "Pay Safely" — Payment Terms & Dispute Process */}
+                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
                     <View style={styles.sectionHeader}>
-                        <Shield size={20} color="#8B5CF6" />
+                        <FileCheck size={20} color="#3B82F6" />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            4. Limitation of Liability & Statutory Damage Cap
+                            3. "Pay Safely" Terms & Payment Dispute Resolution
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        To the maximum extent permitted by Indian Law, the following statutory limitation terms govern platform liability:
+                        To ensure complete trust, Sheriyakam operates on a <Text style={{ fontWeight: '700', color: colors.textPrimary }}>"Pay After Work Done"</Text> model:
                     </Text>
                     <View style={styles.bulletList}>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.1 Independent Contractor Status</Text>: The Platform operates purely as an on-demand digital intermediary connecting independent, certified electrical service professionals ("Technicians") with consumers. The Platform does not directly employ the Technicians.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Zero Advance Required</Text>: You only pay after the electrical work has been finished, demonstrated, and verified by you.
                         </Text>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.2 Exclusion of Indirect Damages</Text>: To the maximum extent permitted by applicable Indian law, the Platform shall not be held liable for any indirect, incidental, special, exemplary, or consequential damages. This includes, but is not limited to, loss of profits, loss of data, property damage, structural electrical fires, appliance burnouts, or personal injury arising from services rendered by the Technician.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Accepted Payment Modes</Text>: UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, Net Banking, or Direct Cash to the wireman against an instant digital SMS/WhatsApp receipt.
                         </Text>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.3 Maximum Liability Cap</Text>: In any event where the Platform is found liable by a competent legal court or consumer forum within India, the total aggregate liability of the Platform for any and all claims shall be strictly capped at: (a) The total service fee paid by the User for that specific booking, or (b) A maximum sum of ₹5,000 (Rupees Five Thousand Only), whichever is lower.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Payment Refusal & Dispute Process</Text>: If you are genuinely dissatisfied with the workmanship or dispute an itemized material bill:
                         </Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>4.4 Exceptions & Intentional Negligence</Text>: This cap does not apply to instances where damage is proven to be a direct result of gross negligence or fraudulent misrepresentation intentionally committed by the corporate platform entity itself.
-                        </Text>
+                        <View style={{ paddingLeft: 16, gap: 4 }}>
+                            <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
+                                1. Inform the technician and raise a dispute in the app or call support (+91 495 280 0000).
+                            </Text>
+                            <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
+                                2. An Empire Electricals senior supervisor will review the job photos and multitester readings within 24 hours.
+                            </Text>
+                            <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
+                                3. If the work was unsatisfactory, charges are adjusted or a free rework is dispatched. Customers may not arbitrarily withhold legitimate labor/material fees for completed code-compliant work.
+                            </Text>
+                        </View>
                     </View>
-                </View>
+                </Card>
 
-                {/* Section 5: ₹5,00,000 Property Damage Guarantee */}
-                <View style={styles.section}>
+                {/* Section 4: ₹5,00,000 Property Damage Protection Cover */}
+                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: '#10B98144' }]}>
                     <View style={styles.sectionHeader}>
-                        <CheckCircle size={20} color="#10B981" />
+                        <Shield size={20} color="#10B981" />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            5. ₹5,00,000 Domestic Property Damage Safety Cover
+                            4. ₹5 Lakh Property Damage Protection Cover
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        In addition to statutory caps, every verified domestic booking completed through the Sheriyakam platform is backed by our commercial third-party property damage policy up to ₹5,00,000 for accidental fires or structural electrical damage proven to have been caused during an authorized on-platform repair.
+                        Every verified booking completed through the Sheriyakam platform is backed by our commercial third-party domestic protection policy up to <Text style={{ fontWeight: '700', color: '#10B981' }}>₹5,00,000</Text>:
                     </Text>
-                </View>
+                    <View style={styles.bulletList}>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>What is Covered</Text>: Accidental short-circuit fires, appliance burnouts, or structural electrical damage proven to have occurred directly during authorized on-platform work due to technician oversight.
+                        </Text>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>What is NOT Covered</Text>: Pre-existing degraded wiring beyond the repair scope, acts of nature (direct lightning strikes, flood waterlogging), appliances with pre-existing internal board failures, or unapproved side-deals arranged outside the Sheriyakam platform.
+                        </Text>
+                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Claim Process</Text>: Submit claim within 72 hours via the app or <Text style={{ color: colors.accent, fontWeight: '700' }}>claims@sheriyakam.in</Text> with photos and description. An Empire Electricals engineer will inspect on-site within 24 hours.
+                        </Text>
+                    </View>
+                </Card>
 
-                {/* Section 6: Grievance Redressal & Jurisdiction */}
-                <View style={styles.section}>
+                {/* Section 5: Limitation of Liability */}
+                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
                     <View style={styles.sectionHeader}>
-                        <Scale size={20} color="#EC4899" />
+                        <Scale size={20} color="#8B5CF6" />
                         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            6. Grievance Redressal & Exclusive Jurisdiction
+                            5. Platform Liability & Governing Jurisdiction
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Any dispute, consumer complaint, or statutory notice shall be submitted to our Resident Grievance Officer (<Text style={{ color: colors.accent, fontWeight: '700' }}>grievance@sheriyakam.com</Text>) with guaranteed acknowledgment within 24 hours and resolution within 15 calendar days. These Terms shall be governed exclusively by the laws of India, and courts in Kozhikode, Kerala shall have exclusive jurisdiction.
+                        Sheriyakam operates as a technology intermediary connecting consumers with licensed electrical wiremen under the supervision of Empire Electricals. In all non-insured claims, platform liability is capped at the total fee charged for that specific service visit. These terms are governed exclusively by the laws of India, and courts in Kannur / Kozhikode, Kerala hold jurisdiction.
                     </Text>
+                </Card>
 
-                    <Button
-                        variant="outline"
-                        size="md"
-                        fullWidth
-                        onPress={() => router.push('/grievance')}
-                        style={{ marginTop: 10 }}
-                    >
-                        File a Statutory Dispute / Grievance
+                {/* Statutory Contact */}
+                <View style={styles.contactRow}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={[styles.contactTitle, { color: colors.textPrimary }]}>Have questions about these terms?</Text>
+                        <Text style={[styles.contactSub, { color: colors.textSecondary }]}>Our Resident Grievance Officer is available Mon–Sat, 9:00 AM – 6:00 PM IST.</Text>
+                    </View>
+                    <Button variant="primary" size="sm" onPress={() => router.push('/grievance')}>
+                        Grievance Desk
                     </Button>
                 </View>
-
-                <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -184,7 +200,6 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
@@ -192,47 +207,56 @@ const styles = StyleSheet.create({
     backBtn: {
         padding: 4,
     },
-    hubBtn: {
-        padding: 4,
-    },
     headerTitle: {
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '800',
+    },
+    headerSub: {
+        fontSize: 11,
+    },
+    hubBtn: {
+        padding: 2,
     },
     scrollContent: {
         padding: 16,
-        paddingBottom: 40,
+        paddingBottom: 60,
         gap: 14,
+        maxWidth: 960,
+        width: '100%',
+        alignSelf: 'center',
     },
     heroCard: {
-        padding: 18,
-        gap: 8,
+        padding: 20,
+        borderRadius: 18,
+        gap: 12,
     },
-    cardIcon: {
-        marginBottom: 4,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: '800',
+    heroTitle: {
+        color: '#FFFFFF',
+        fontSize: 22,
+        fontWeight: '900',
+        lineHeight: 28,
         letterSpacing: -0.3,
     },
-    cardText: {
-        fontSize: 13,
-        lineHeight: 19,
+    heroSub: {
+        color: '#CBD5E1',
+        fontSize: 13.5,
+        lineHeight: 20,
     },
-    statutoryBadges: {
+    badgeRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 6,
-        marginTop: 4,
     },
-    lastUpdated: {
+    lastUpdatedText: {
+        color: '#94A3B8',
         fontSize: 11,
-        marginTop: 4,
+        marginTop: 2,
     },
-    section: {
-        gap: 8,
-        marginTop: 4,
+    sectionCard: {
+        padding: 18,
+        borderRadius: 16,
+        gap: 10,
+        borderWidth: 1,
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -240,20 +264,49 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     sectionTitle: {
-        fontSize: 15,
-        fontWeight: '700',
+        fontSize: 15.5,
+        fontWeight: '800',
         flex: 1,
     },
     sectionText: {
         fontSize: 13,
-        lineHeight: 19,
+        lineHeight: 20,
+    },
+    highlightText: {
+        fontSize: 13,
+        fontWeight: '700',
+        lineHeight: 20,
+        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+        padding: 10,
+        borderRadius: 10,
     },
     bulletList: {
-        gap: 6,
-        paddingLeft: 4,
+        gap: 8,
     },
     bulletPoint: {
+        fontSize: 13,
+        lineHeight: 20,
+    },
+    subBullet: {
         fontSize: 12.5,
         lineHeight: 18,
+    },
+    contactRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 16,
+        borderRadius: 14,
+        backgroundColor: 'rgba(37, 99, 235, 0.06)',
+        marginTop: 6,
+        gap: 12,
+    },
+    contactTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    contactSub: {
+        fontSize: 12,
+        marginTop: 2,
     },
 });

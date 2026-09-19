@@ -51,43 +51,59 @@ const HELP_CATEGORIES = [
 
 const LEGAL_POLICIES = [
     {
+        title: 'About Empire Electricals & Sheriyakam',
+        desc: 'Est. 1998 in Thalassery, 28+ years of heritage, Class-A KSELB Licence #KSELB/CA-7821/KL.',
+        route: '/about',
+        icon: Award,
+        badge: 'Est. 1998',
+        badgeColor: 'amber'
+    },
+    {
         title: 'Terms of Service',
-        desc: 'Platform intermediary model, user obligations, and ₹5,000 limitation of liability cap.',
+        desc: 'Plain-language terms: Pay Safely, 30-day warranty, and ₹5 Lakh property protection.',
         route: '/terms',
         icon: FileText,
-        badge: '₹5k Cap',
+        badge: '₹5L Cover',
         badgeColor: 'blue'
     },
     {
         title: 'Privacy Policy & DPDP Notice',
-        desc: 'Section 5 statutory notice, data collection boundaries, purpose limitation, and user rights.',
+        desc: 'DPDP Act 2023 compliance, partner sharing boundaries, and 1-tap data deletion.',
         route: '/privacy',
         icon: Shield,
         badge: 'DPDP 2023',
         badgeColor: 'purple'
     },
     {
-        title: 'Cancellation & Refund Rules',
-        desc: 'Doorstep travel allowance matrix, zero cancellation fees before dispatch, and refund SLAs.',
-        route: '/cancellation-policy',
+        title: 'Refund & 30-Day Warranty Policy',
+        desc: 'Free supervisor rework, 2-hour refund processing, and zero charges on technician delays.',
+        route: '/refund-policy',
         icon: RefreshCw,
-        badge: '48h SLA',
-        badgeColor: 'amber'
-    },
-    {
-        title: 'Compliance & Statutory Hub',
-        desc: 'Overview of Digital Personal Data Protection, IT Rules 2021, and KSELB standards.',
-        route: '/compliance',
-        icon: Scale,
-        badge: 'Statutory',
+        badge: '30-Day Rework',
         badgeColor: 'green'
     },
     {
-        title: 'Data Retention & Log Schedule',
-        desc: 'CERT-In 1-year cybersecurity logs, 180-day GPS purge, and 8-year GST tax invoice records.',
-        route: '/data-retention',
+        title: 'Cancellation & Rescheduling Rules',
+        desc: 'Free cancellation before dispatch, 100% free reschedule, and fair gig worker travel allowances.',
+        route: '/cancellation-policy',
         icon: Clock,
-        badge: 'CERT-In',
+        badge: 'Free Cancel',
+        badgeColor: 'amber'
+    },
+    {
+        title: 'Resident Grievance Officer',
+        desc: 'Official grievance desk under Consumer Protection Rules 2020 with 24-hr acknowledgment.',
+        route: '/grievance',
+        icon: Scale,
+        badge: '24h SLA',
+        badgeColor: 'purple'
+    },
+    {
+        title: 'Cookie & Tracking Preferences',
+        desc: 'Manage session tokens, location storage, and performance telemetry.',
+        route: '/cookie-policy',
+        icon: Shield,
+        badge: 'Consent',
         badgeColor: 'gray'
     },
 ];
