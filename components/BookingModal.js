@@ -73,9 +73,11 @@ const BookingModal = ({ service, visible, onClose }) => {
         if (visible) {
             setStep(1);
 
+            const isEmergencyService = service?.name?.toLowerCase().includes('emergency') || service?.is_emergency;
             const currentHour = new Date().getHours();
-            // If after 6 PM (18), default to Tomorrow
-            const initialDate = currentHour >= 18 ? 'Tomorrow' : 'Today';
+            // If after 6 PM (18), default to Tomorrow; otherwise Today
+            const isTodayOver = currentHour >= 18;
+            const initialDate = isTodayOver ? 'Tomorrow' : 'Today';
             setSelectedDate(initialDate);
 
             setSelectedImage(null);
@@ -198,13 +200,23 @@ const BookingModal = ({ service, visible, onClose }) => {
 
     if (!service) return null;
 
-    const isEmergency = service.name.toLowerCase().includes('emergency');
+    const isEmergency = service?.name?.toLowerCase().includes('emergency') || service?.is_emergency;
 
     // Determine available days
     const currentHour = new Date().getHours();
     const isTodayOver = currentHour >= 18; // 6 PM
 
-    const availableDays = isTodayOver ? ['Tomorrow'] : ['Today', 'Tomorrow'];
+    // For Emergency Repair Specialist: only 'Today' before 6 PM; only 'Tomorrow' after 6 PM
+    // For other services: both 'Today' & 'Tomorrow' before 6 PM; 'Tomorrow' after 6 PM
+    const availableDays = isEmergency
+        ? (isTodayOver ? ['Tomorrow'] : ['Today'])
+        : (isTodayOver ? ['Tomorrow'] : ['Today', 'Tomorrow']);
+
+    React.useEffect(() => {
+        if (availableDays && availableDays.length > 0 && !availableDays.includes(selectedDate)) {
+            setSelectedDate(availableDays[0]);
+        }
+    }, [isEmergency, isTodayOver]);
 
     const handleSubmit = () => {
         snitch.logEvent('booking_creation_started', { service: service?.name });
