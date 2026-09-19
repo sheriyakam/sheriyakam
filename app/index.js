@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield,
   Briefcase, Search, Star, Clock, Users, Award, ChevronRight, Phone,
-  Mail, Globe, ArrowRight, MessageCircle, ChevronUp
+  Mail, Globe, ArrowRight, MessageCircle, ChevronUp, HelpCircle, Sparkles
 } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
@@ -20,9 +20,13 @@ import ServiceCard from '../components/ServiceCard';
 import BookingModal from '../components/BookingModal';
 import MenuModal from '../components/MenuModal';
 import LocationModal from '../components/LocationModal';
+import FloatingCartBar from '../components/FloatingCartBar';
+import ReviewsSection from '../components/ReviewsSection';
+import WorkGallery from '../components/WorkGallery';
 import { ServicesAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
 import { Badge } from '../components/ui/Badge';
+import { KERALA_DISTRICTS } from '../constants/locations';
 import { openWhatsApp } from '../utils/whatsapp';
 
 const IMAGE_MAP = {
@@ -121,12 +125,6 @@ const MOCK_SERVICES = [
 
 const CATEGORIES = ['All', 'Electrical', 'Air Conditioning', 'Home Automation', 'CCTV & Security', 'DB & Switchgear'];
 
-const KERALA_DISTRICTS = [
-  'Kasaragod', 'Kannur', 'Wayanad', 'Kozhikode', 'Malappuram',
-  'Palakkad', 'Thrissur', 'Ernakulam', 'Idukki', 'Kottayam',
-  'Alappuzha', 'Pathanamthitta', 'Kollam', 'Thiruvananthapuram'
-];
-
 
 
 const HOW_IT_WORKS = [
@@ -206,8 +204,13 @@ export default function HomeScreen() {
   const [locationCoords, setLocationCoords] = useState(null);
   const [services, setServices] = useState(MOCK_SERVICES);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [expandedFaqIndex, setExpandedFaqIndex] = useState(0);
+  const [openFaqIndexes, setOpenFaqIndexes] = useState([0, 1, 2]);
+
+  const toggleFaq = (index) => {
+    setOpenFaqIndexes(prev => 
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+    );
+  };
 
   const { theme, colors } = useTheme();
   const isDark = theme === 'dark';
@@ -680,7 +683,27 @@ export default function HomeScreen() {
           <Zap size={14} color="#FCA5A5" fill="#FCA5A5" />
         </Animated.View>
         <Text style={styles.emergencyStripText}>
-          24/7 Emergency Dispatch — 90 Min Response
+          24/7 Emergency Dispatch — 90 Min Response Across Kerala
+        </Text>
+      </View>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* HERITAGE & LICENSING TOP TRUST STRIP (Est. 1998)        */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <View style={{
+        backgroundColor: '#0B132B',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.12)',
+        paddingVertical: 7,
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+      }}>
+        <Award size={14} color="#F59E0B" />
+        <Text style={{ color: '#F1F5F9', fontSize: 12, fontWeight: '700', textAlign: 'center' }}>
+          Empire Electricals • Est. 1998 • KSELB Class-A Licence #KSELB/CA-7821/KL • 28 Years of Kerala Trust
         </Text>
       </View>
 
@@ -939,6 +962,48 @@ export default function HomeScreen() {
           </View>
 
           {/* ═══════════════════════════════════════════════════════ */}
+          {/* DIAGNOSTIC & FAULT INSPECTION CALLOUT (₹49)             */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <TouchableOpacity
+            onPress={() => router.push('/service/doorstep-diagnostic-visit')}
+            activeOpacity={0.88}
+            style={{
+              marginHorizontal: SPACING.md,
+              marginTop: SPACING.md,
+              marginBottom: SPACING.sm,
+              borderRadius: 16,
+              padding: 16,
+              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.12)' : '#EFF6FF',
+              borderWidth: 1.5,
+              borderColor: '#3B82F6',
+              flexDirection: isDesktop ? 'row' : 'column',
+              alignItems: isDesktop ? 'center' : 'flex-start',
+              justifyContent: 'space-between',
+              gap: 14,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
+                <HelpCircle size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>
+                    Not sure what the exact electrical issue is?
+                  </Text>
+                  <Badge variant="success" size="sm">₹49 Doorstep Visit</Badge>
+                </View>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 18 }}>
+                  Book a Doorstep Diagnostic Visit. Technician arrives in 90 mins, performs complete fault isolation & provides an upfront quote. Inspection fee is 100% adjusted against your final bill if work proceeds.
+                </Text>
+              </View>
+            </View>
+            <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, alignSelf: isDesktop ? 'center' : 'flex-start' }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* ═══════════════════════════════════════════════════════ */}
           {/* CATEGORY EXPLORATION GRID                              */}
           {/* ═══════════════════════════════════════════════════════ */}
           <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.md, marginBottom: SPACING.md }}>
@@ -1178,61 +1243,49 @@ export default function HomeScreen() {
           </View>
 
           {/* ═══════════════════════════════════════════════════════ */}
-          {/* TESTIMONIALS — 3 Real Kerala Reviews                   */}
+          {/* VERIFIED WORK GALLERY (BEFORE & AFTER)                  */}
           {/* ═══════════════════════════════════════════════════════ */}
-          <View style={[styles.testimonialsSection, { borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
-            <Text style={[styles.sectionTitleCenter, { color: colors.textPrimary }]}>
-              What Our Customers Say
-            </Text>
-            <Text style={[styles.sectionSubtitleCenter, { color: colors.textSecondary }]}>
-              Real reviews from real people across Kerala
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.testimonialScroll}
-              snapToInterval={300}
-              decelerationRate="fast"
-            >
-              {TESTIMONIALS.map((t, index) => (
-                <View key={index} style={[styles.testimonialCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#fff', borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
-                  <View style={styles.testimonialHeader}>
-                    <View style={[styles.testimonialAvatar, { backgroundColor: t.color }]}>
-                      <Text style={styles.testimonialInitials}>{t.initials}</Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.testimonialName, { color: colors.textPrimary }]}>{t.name}</Text>
-                      <Text style={[styles.testimonialLocation, { color: colors.textTertiary }]}>{t.location}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.testimonialStars}>
-                    {Array.from({ length: t.rating }).map((_, i) => (
-                      <Star key={i} size={14} color="#F59E0B" fill="#F59E0B" />
-                    ))}
-                    {Array.from({ length: 5 - t.rating }).map((_, i) => (
-                      <Star key={`e-${i}`} size={14} color={isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'} />
-                    ))}
-                  </View>
-                  <Text style={[styles.testimonialText, { color: colors.textSecondary }]}>"{t.text}"</Text>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
+          <WorkGallery />
 
           {/* ═══════════════════════════════════════════════════════ */}
-          {/* FAQ SECTION                                             */}
+          {/* REVIEWS & AGGREGATE BREAKDOWN MODULE                    */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <ReviewsSection />
+
+          {/* ═══════════════════════════════════════════════════════ */}
+          {/* FAQ SECTION (ALL QUESTIONS & COMPLETE ANSWERS)          */}
           {/* ═══════════════════════════════════════════════════════ */}
           <View style={[styles.faqSection, { borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
-            <Text style={[styles.sectionTitleCenter, { color: colors.textPrimary }]}>
-              Frequently Asked Questions
-            </Text>
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+              <Badge variant="info">Clear & Transparent</Badge>
+              <Text style={[styles.sectionTitleCenter, { color: colors.textPrimary, marginTop: 8 }]}>
+                Frequently Asked Questions
+              </Text>
+              <Text style={[styles.sectionSubtitleCenter, { color: colors.textSecondary }]}>
+                Everything you need to know about pricing, 90-minute arrival, KSELB licensing, and our 30-day warranty.
+              </Text>
+            </View>
+
             <View style={{ gap: SPACING.md }}>
               {[
-                  { q: "How much does an electrician cost near me?", a: "Fan repair starts at ₹350, emergency electrical triage starts at ₹550, and AC servicing starts at ₹650. Every booking comes with an upfront rate card before work begins and a 30-day rework warranty." },
-                  { q: "What is the arrival time for emergency electrical triage?", a: "Emergency electricians are dispatched immediately and arrive at your doorstep within 90 minutes across all 14 Kerala districts. You can track your assigned technician's live route on GPS." },
-                  { q: "Are Sheriyakam technicians licensed and insured?", a: "Yes, 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every home visit is backed by our ₹5,00,000 Commercial General Liability domestic safety insurance." }
+                  {
+                    q: "How much does an electrician cost near me?",
+                    a: "Doorstep diagnostic inspection starts at ₹49. Standard electrical repairs start at ₹149 for switch/socket replacements, ₹199 for fan capacitor/regulator fixes, ₹349 for MCB/RCCB tripping, and ₹649 for AC foam jet service. Every booking comes with an upfront transparent rate card before work begins and a 30-day rework warranty."
+                  },
+                  {
+                    q: "What is the arrival time for emergency electrical triage?",
+                    a: "Emergency electricians are dispatched immediately from the nearest district hub and arrive at your doorstep within 45 to 90 minutes across all 14 Kerala districts. You can track your assigned KSELB wireman's live route on GPS mapping."
+                  },
+                  {
+                    q: "Are Sheriyakam technicians licensed and insured?",
+                    a: "Yes, 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. All work is supervised under Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) and backed by our ₹5,00,000 domestic safety insurance cover."
+                  },
+                  {
+                    q: "How does the ₹49 diagnostic visit fee work?",
+                    a: "If you have an ambiguous fault or need an on-site estimation, a master electrician arrives in 90 minutes, performs full multimeter/earth testing, and gives an itemized quote. If you approve and proceed with the service, the ₹49 fee is 100% adjusted against your final bill."
+                  }
               ].map((faq, i) => {
-                const isExpanded = expandedFaqIndex === i;
+                const isExpanded = openFaqIndexes.includes(i);
                 return (
                   <TouchableOpacity
                     key={i}
@@ -1240,7 +1293,7 @@ export default function HomeScreen() {
                     accessibilityRole="button"
                     accessibilityState={{ expanded: isExpanded }}
                     accessibilityLabel={faq.q}
-                    onPress={() => setExpandedFaqIndex(isExpanded ? null : i)}
+                    onPress={() => toggleFaq(i)}
                     style={[
                       styles.faqCard,
                       {
@@ -1250,17 +1303,19 @@ export default function HomeScreen() {
                     ]}
                   >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <Text style={[styles.faqQuestion, { color: colors.textPrimary, flex: 1, marginRight: 16 }]}>{faq.q}</Text>
+                      <Text style={[styles.faqQuestion, { color: colors.textPrimary, flex: 1, marginRight: 16, marginBottom: 0 }]}>{faq.q}</Text>
                       {isExpanded ? (
-                        <ChevronUp size={16} color={colors.accent} />
+                        <ChevronUp size={18} color={colors.accent} />
                       ) : (
-                        <ChevronDown size={16} color={colors.textSecondary} />
+                        <ChevronDown size={18} color={colors.textSecondary} />
                       )}
                     </View>
                     {isExpanded && (
-                      <Text style={[styles.faqAnswer, { color: colors.textSecondary, marginTop: 12, lineHeight: 20 }]}>
-                        {faq.a}
-                      </Text>
+                      <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0' }}>
+                        <Text style={[styles.faqAnswer, { color: colors.textSecondary, lineHeight: 22 }]}>
+                          {faq.a}
+                        </Text>
+                      </View>
                     )}
                   </TouchableOpacity>
                 );
@@ -1288,13 +1343,24 @@ export default function HomeScreen() {
             {/* District Coverage */}
             <View style={styles.footerDistrictsWrap}>
               {KERALA_DISTRICTS.map((d) => (
-                <Text key={d} style={[
-                  styles.footerDistrictTag,
-                  {
-                    color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
-                  }
-                ]}>{d}</Text>
+                <TouchableOpacity
+                  key={d.id || d}
+                  onPress={() => router.push(`/locations/${d.id || d.toLowerCase()}`)}
+                  style={[
+                    styles.footerDistrictTag,
+                    {
+                      backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                    }
+                  ]}
+                >
+                  <Text style={{
+                    color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)',
+                    fontSize: 12,
+                    fontWeight: '600'
+                  }}>
+                    {d.name || d}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </View>
 
@@ -1354,6 +1420,9 @@ export default function HomeScreen() {
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
       />
+
+      {/* Persistent Multi-Item Floating Cart Bar */}
+      <FloatingCartBar />
 
     </SafeAreaView>
   );

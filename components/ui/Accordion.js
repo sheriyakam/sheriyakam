@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { COLORS } from '../../constants/theme';
@@ -7,7 +7,8 @@ import { COLORS } from '../../constants/theme';
 export const AccordionItem = ({
     title,
     children,
-    isOpen = false,
+    isOpen: controlledIsOpen,
+    defaultOpen = false,
     onToggle,
     icon: Icon,
     style,
@@ -15,19 +16,35 @@ export const AccordionItem = ({
     const { colors, theme } = useTheme() || { colors: COLORS, theme: 'dark' };
     const isDark = theme === 'dark';
 
+    const [internalOpen, setInternalOpen] = useState(defaultOpen);
+    const isControlled = typeof controlledIsOpen === 'boolean';
+    const isOpen = isControlled ? controlledIsOpen : internalOpen;
+
+    const handlePress = () => {
+        if (onToggle) {
+            onToggle();
+        }
+        if (!isControlled) {
+            setInternalOpen(prev => !prev);
+        }
+    };
+
     return (
         <View style={[
             styles.itemContainer,
             {
                 backgroundColor: isDark ? '#18181B' : '#FAFAFA',
-                borderColor: isDark ? '#27272A' : '#E4E4E7',
+                borderColor: isOpen ? (colors.accent || '#3B82F6') : (isDark ? '#27272A' : '#E4E4E7'),
             },
             style
         ]}>
             <TouchableOpacity
-                onPress={onToggle}
+                onPress={handlePress}
                 activeOpacity={0.7}
                 style={styles.header}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: isOpen }}
+                accessibilityLabel={title}
             >
                 <View style={styles.headerLeft}>
                     {Icon ? (
@@ -42,12 +59,18 @@ export const AccordionItem = ({
                     styles.chevronWrap,
                     isOpen && { transform: [{ rotate: '180deg' }] }
                 ]}>
-                    <ChevronDown size={18} color={colors.textTertiary} />
+                    <ChevronDown size={18} color={isOpen ? colors.accent : colors.textTertiary} />
                 </View>
             </TouchableOpacity>
 
             {isOpen ? (
-                <View style={[styles.body, { borderTopColor: isDark ? '#27272A' : '#E4E4E7' }]}>
+                <View style={[
+                    styles.body,
+                    {
+                        borderTopColor: isDark ? 'rgba(255,255,255,0.08)' : '#E4E4E7',
+                        backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : '#FFFFFF'
+                    }
+                ]}>
                     {typeof children === 'string' ? (
                         <Text style={[styles.bodyText, { color: colors.textSecondary }]}>
                             {children}
@@ -62,7 +85,8 @@ export const AccordionItem = ({
 };
 
 export const Accordion = ({
-    items = [], // [{ id, title, content, icon }]
+    items, // [{ id, title, content, icon }]
+    children,
     allowMultiple = false,
     defaultOpenId,
     style,
@@ -81,9 +105,17 @@ export const Accordion = ({
         }
     };
 
+    if (children) {
+        return (
+            <View style={[styles.accordion, style]}>
+                {children}
+            </View>
+        );
+    }
+
     return (
         <View style={[styles.accordion, style]}>
-            {items.map((item, index) => {
+            {(items || []).map((item, index) => {
                 const itemId = item.id || String(index);
                 const isOpen = openIds.includes(itemId);
                 return (
@@ -104,7 +136,7 @@ export const Accordion = ({
 
 const styles = StyleSheet.create({
     accordion: {
-        gap: 8,
+        gap: 10,
         width: '100%',
     },
     itemContainer: {
@@ -123,23 +155,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
-        paddingRight: 10,
+        marginRight: 10,
     },
     title: {
         fontSize: 15,
-        fontWeight: '600',
-        lineHeight: 20,
+        fontWeight: '700',
+        flex: 1,
     },
     chevronWrap: {
-        width: 24,
-        height: 24,
+        width: 28,
+        height: 28,
         alignItems: 'center',
         justifyContent: 'center',
     },
     body: {
+        paddingVertical: 14,
         paddingHorizontal: 16,
-        paddingBottom: 16,
-        paddingTop: 12,
         borderTopWidth: 1,
     },
     bodyText: {

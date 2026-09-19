@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, HelpCircle, MessageSquare } from 'lucide-react-native';
+import { ArrowLeft, HelpCircle, MessageSquare, Shield, Clock, Award, CheckCircle } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
 import { Accordion, AccordionItem } from '../components/ui/Accordion';
 import { Badge } from '../components/ui/Badge';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import FloatingCartBar from '../components/FloatingCartBar';
 
 export default function FAQScreen() {
     const router = useRouter();
@@ -34,7 +35,7 @@ export default function FAQScreen() {
                         Got Questions? We Have Answers.
                     </Text>
                     <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-                        Everything you need to know about booking, electrician verification, tariffs, and our 30-day warranty.
+                        Everything you need to know about booking, electrician verification, tariffs, 90-minute arrival, and our 30-day warranty.
                     </Text>
                 </View>
 
@@ -56,31 +57,50 @@ export default function FAQScreen() {
                     </Text>
                 </View>
 
-                {/* FAQ Accordions */}
+                {/* FAQ Accordions: EMERGENCY & ARRIVAL */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                    EMERGENCY DISPATCH & ARRIVAL
+                </Text>
+                <Accordion>
+                    <AccordionItem title="What is the arrival time for emergency electrical triage?" defaultOpen={true}>
+                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                            Emergency electricians are dispatched immediately from the nearest district hub and arrive at your doorstep within 45 to 90 minutes across all 14 Kerala districts. You can track your assigned KSELB wireman's live route on GPS mapping.
+                        </Text>
+                    </AccordionItem>
+
+                    <AccordionItem title="How does 24/7 emergency electrical triage work?">
+                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                            For critical hazards like sparking switchboards, burning smells, or total blackout tripping, our dedicated emergency squad prioritizes your booking. Main DP breaker isolation advice is provided over phone while the squad is en route.
+                        </Text>
+                    </AccordionItem>
+                </Accordion>
+
+                {/* FAQ Accordions: CONTRACTOR VETTING & LICENSING */}
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
                     CONTRACTOR VETTING & SAFETY
                 </Text>
                 <Accordion>
-                    <AccordionItem title="Are your electricians government licensed?">
+                    <AccordionItem title="Are Sheriyakam technicians licensed and insured?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Yes, 100%. Every contractor on Sheriyakam holds a verified wireman or supervisor license issued by the Kerala Electrical Inspectorate. We verify license credentials against state government databases and perform police background checks.
+                            Yes, 100%. Every contractor on Sheriyakam holds a verified wireman or supervisor license issued by the Kerala Electrical Inspectorate. All work is supervised under Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) and backed by our ₹5,00,000 Commercial General Liability domestic safety protection cover.
                         </Text>
                     </AccordionItem>
 
                     <AccordionItem title="What happens if electrical equipment is accidentally damaged?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Every booking is protected by Sheriyakam's domestic safety cover up to ₹5,00,000 for accidental equipment damage caused during repair.
+                            Every booking is protected by Sheriyakam's domestic safety cover up to ₹5,00,000 for accidental equipment damage caused during repair. Claims are processed within 48 hours.
                         </Text>
                     </AccordionItem>
                 </Accordion>
 
+                {/* FAQ Accordions: PRICING & DIAGNOSTIC VISITS */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    PRICING & PAYMENTS
+                    PRICING & DIAGNOSTIC VISITS
                 </Text>
                 <Accordion>
-                    <AccordionItem title="How does the ₹149 inspection fee work?">
+                    <AccordionItem title="How does the ₹49 diagnostic visit fee work?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            The ₹149 inspection charge covers doorstep diagnosis and fault isolation. If you approve the repair and proceed with the service, the inspection fee is fully adjusted against your final bill.
+                            If you have an ambiguous fault or need an on-site estimation, a master electrician arrives in 90 minutes, performs full multimeter and earth resistance testing, and gives an itemized quote. If you approve and proceed with the service, the ₹49 fee is 100% adjusted against your final bill.
                         </Text>
                     </AccordionItem>
 
@@ -91,6 +111,7 @@ export default function FAQScreen() {
                     </AccordionItem>
                 </Accordion>
 
+                {/* FAQ Accordions: WARRANTY & REWORKS */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
                     WARRANTY & REWORKS
                 </Text>
@@ -120,6 +141,8 @@ export default function FAQScreen() {
                     </Button>
                 </Card>
             </ScrollView>
+
+            <FloatingCartBar />
         </SafeAreaView>
     );
 }
@@ -145,7 +168,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 16,
-        paddingBottom: 60,
+        paddingBottom: 80,
         maxWidth: 880,
         width: '100%',
         alignSelf: 'center',
@@ -166,7 +189,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         textAlign: 'center',
         lineHeight: 19,
-        maxWidth: 340,
+        maxWidth: 420,
     },
     sectionTitle: {
         fontSize: 12,
@@ -176,8 +199,8 @@ const styles = StyleSheet.create({
         paddingLeft: 2,
     },
     faqAnswer: {
-        fontSize: 13,
-        lineHeight: 20,
+        fontSize: 14,
+        lineHeight: 22,
     },
     contactCard: {
         padding: 18,

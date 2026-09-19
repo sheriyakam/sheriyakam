@@ -17,6 +17,7 @@ import { getAllServices } from '../../constants/catalog';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import FloatingCartBar from '../../components/FloatingCartBar';
 import { openWhatsApp } from '../../utils/whatsapp';
 
 export default function DistrictDetailScreen() {
@@ -210,6 +211,8 @@ export default function DistrictDetailScreen() {
                     </View>
                 </Card>
             </ScrollView>
+
+            <FloatingCartBar />
         </SafeAreaView>
     );
 }

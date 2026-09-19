@@ -8,14 +8,17 @@ import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     ArrowLeft, Search, Star, Clock, ShieldCheck, Zap,
-    ChevronRight, CheckCircle2, Phone, MessageCircle, AlertTriangle
+    ChevronRight, CheckCircle2, Phone, MessageCircle, AlertTriangle, Plus, Check
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { COLORS, SPACING } from '../../constants/theme';
 import { CATEGORIES, getAllServices } from '../../constants/catalog';
+import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import FloatingCartBar from '../../components/FloatingCartBar';
 import { openWhatsApp } from '../../utils/whatsapp';
 
 export default function ServicesMarketplaceScreen() {
@@ -25,9 +28,23 @@ export default function ServicesMarketplaceScreen() {
     const { width } = useWindowDimensions();
     const isDesktop = width >= 1024;
     const isTablet = width >= 640 && width < 1024;
+    const { addItem, items } = useCart();
+    const { success } = useToast();
 
     const [selectedCategory, setSelectedCategory] = useState('electrical');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const handleAddToCart = (e, service) => {
+        e?.stopPropagation?.();
+        addItem({
+            id: service.id || service.slug,
+            title: service.title,
+            price: service.startingPrice || service.price || 299,
+            duration: service.duration,
+            category: service.categoryName || 'Home Service',
+        }, 1);
+        success(`Added "${service.title}" to cart!`, 'Cart Updated');
+    };
 
     const currentCategory = useMemo(() => {
         return CATEGORIES.find(c => c.id === selectedCategory) || CATEGORIES[0];
@@ -220,9 +237,32 @@ export default function ServicesMarketplaceScreen() {
                                         </View>
                                     </View>
 
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Text style={{ fontSize: 12, fontWeight: '700', color: colors.accent }}>Details & Book</Text>
-                                        <ChevronRight size={14} color={colors.accent} />
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                        <TouchableOpacity
+                                            onPress={(e) => handleAddToCart(e, service)}
+                                            style={{
+                                                backgroundColor: (items || []).some(i => i.id === (service.id || service.slug)) ? '#10B981' : colors.accent,
+                                                paddingHorizontal: 12,
+                                                paddingVertical: 6,
+                                                borderRadius: 8,
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                gap: 4
+                                            }}
+                                        >
+                                            {(items || []).some(i => i.id === (service.id || service.slug)) ? (
+                                                <>
+                                                    <Check size={12} color="#FFFFFF" />
+                                                    <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>Added</Text>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Plus size={12} color="#FFFFFF" />
+                                                    <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>Add</Text>
+                                                </>
+                                            )}
+                                        </TouchableOpacity>
+                                        <ChevronRight size={14} color={colors.textTertiary} />
                                     </View>
                                 </View>
                             </Card>
@@ -249,6 +289,8 @@ export default function ServicesMarketplaceScreen() {
                     </View>
                 </View>
             </ScrollView>
+
+            <FloatingCartBar />
         </SafeAreaView>
     );
 }

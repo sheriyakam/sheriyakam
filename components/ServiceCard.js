@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions, Animated, Pressable, Platform } from 'react-native';
-import { Star, Clock, MapPin, Zap } from 'lucide-react-native';
+import { Star, Clock, MapPin, Zap, Plus, Check } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { useCart } from '../context/CartContext';
 
 const ServiceCard = ({
+    id,
     name,
     rating,
     specialty,
@@ -14,11 +16,16 @@ const ServiceCard = ({
     image,
     isEmergency = false,
     fullWidth = false,
-    onPress
+    onPress,
+    onAddToCart
 }) => {
     const { width } = useWindowDimensions();
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
+    const { addItem, items } = useCart();
+
+    const cartItem = (items || []).find(i => i.id === id || i.title === name);
+    const inCartQty = cartItem ? cartItem.quantity : 0;
 
     const isSmallScreen = width < 768;
     const cardWidth = isSmallScreen
@@ -43,6 +50,22 @@ const ServiceCard = ({
             speed: 25,
             bounciness: 8,
         }).start();
+    };
+
+    const handleAddClick = (e) => {
+        e?.stopPropagation?.();
+        if (onAddToCart) {
+            onAddToCart();
+        } else {
+            addItem({
+                id: id || name.toLowerCase().replace(/\s+/g, '-'),
+                title: name,
+                price: Number(price) || 299,
+                category: specialty || 'Electrical',
+                duration: time || '45 mins',
+                image: typeof image === 'string' ? image : undefined
+            }, 1);
+        }
     };
 
     const cardBg = isDark ? '#18181b' : '#ffffff';
@@ -127,14 +150,35 @@ const ServiceCard = ({
                         {/* Price & Action */}
                         <View style={styles.footer}>
                             <View>
-                              <Text style={[{ fontSize: 10, color: colors.textTertiary, fontWeight: '500', letterSpacing: 0.3 }]}>Starting from</Text>
-                              <Text style={[styles.price, { color: colors.textPrimary }]}>₹{price}</Text>
+                                <Text style={[{ fontSize: 10, color: colors.textTertiary, fontWeight: '500', letterSpacing: 0.3 }]}>Starting from</Text>
+                                <Text style={[styles.price, { color: colors.textPrimary }]}>₹{price}</Text>
                             </View>
-                            <View
-                                style={[styles.bookBtn, { backgroundColor: isEmergency ? COLORS.danger : colors.accent }]}
+
+                            <TouchableOpacity
+                                onPress={handleAddClick}
+                                activeOpacity={0.8}
+                                style={[
+                                    styles.bookBtn,
+                                    inCartQty > 0 ? {
+                                        backgroundColor: '#10B981',
+                                        borderColor: '#10B981',
+                                    } : {
+                                        backgroundColor: isEmergency ? COLORS.danger : colors.accent
+                                    }
+                                ]}
                             >
-                                <Text style={styles.bookBtnText}>Book</Text>
-                            </View>
+                                {inCartQty > 0 ? (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Check size={13} color="#fff" />
+                                        <Text style={styles.bookBtnText}>Added ({inCartQty})</Text>
+                                    </View>
+                                ) : (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <Plus size={13} color="#fff" />
+                                        <Text style={styles.bookBtnText}>Add</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Animated.View>
@@ -244,8 +288,8 @@ const styles = StyleSheet.create({
         letterSpacing: -0.3,
     },
     bookBtn: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: 14,
+        paddingVertical: 7,
         borderRadius: 10,
     },
     bookBtnText: {

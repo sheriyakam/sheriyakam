@@ -1,7 +1,7 @@
 /**
  * SHERIYAKAM — Centralized Multi-Category Service Catalogue
  * Structured service hierarchy for Kerala's Home-Services Marketplace.
- * Supports deep electrical subcategories and extensible multi-category expansion.
+ * Granular priced sub-services across Electrical, AC, Plumbing, CCTV, Commercial & AMC.
  */
 
 export const CATEGORIES = [
@@ -10,11 +10,114 @@ export const CATEGORIES = [
         name: 'Electrician',
         shortName: 'Electrical',
         icon: 'Zap',
-        tagline: 'Kerala Electrical Inspectorate Certified',
+        tagline: 'Kerala Electrical Inspectorate Certified Wiremen',
         description: 'Certified wiremen & supervisors for residential, commercial & emergency repairs.',
         isPrimary: true,
         available: true,
         subcategories: [
+            {
+                id: 'diagnostic',
+                name: 'Inspection & Consultation',
+                description: 'Low-cost fault diagnosis with upfront quote before repair.',
+                services: [
+                    {
+                        id: 'diagnostic-visit',
+                        slug: 'doorstep-diagnostic-visit',
+                        title: 'Book a Diagnostic & Fault Inspection Visit',
+                        category: 'electrical',
+                        subcategory: 'diagnostic',
+                        startingPrice: 49,
+                        price: 49,
+                        duration: '30–45 mins',
+                        rating: 5.0,
+                        reviewsCount: 412,
+                        completedJobs: '1,890+',
+                        warrantyDays: 30,
+                        description: 'Low-cost doorstep diagnostic visit for ambiguous faults. Master electrician inspects the fault on-site, isolates the issue, and provides a clear itemized quote before work starts. If you proceed with the repair, the ₹49 fee is fully adjusted against your final bill.',
+                        problemsCovered: [
+                            'Not sure what is causing the electrical trip or burning smell',
+                            'Multiple switchboards or appliances malfunctioning simultaneously',
+                            'Need on-site assessment for full house rewiring or renovation quote',
+                            'Pre-purchase electrical health check for rented flat/house'
+                        ],
+                        inclusions: [
+                            'Complete doorstep arrival by KSELB licensed electrician within 90 mins',
+                            'Digital multimeter voltage, phase & earth leakage test',
+                            'Fault isolation & safety advisory report',
+                            'Upfront transparent price estimate before any repair commences',
+                            '100% inspection fee waiver when service is approved'
+                        ],
+                        exclusions: [
+                            'Physical component replacement labor (quoted on arrival based on rate card)'
+                        ],
+                        materialsPolicy: 'Genuine ISI certified replacement spares provided with bill at MRP.',
+                        addons: []
+                    }
+                ]
+            },
+            {
+                id: 'switch-socket',
+                name: 'Switches, Sockets & MCB',
+                description: 'Repair burned switches, 16A power plugs, tripping breakers & DB boards.',
+                services: [
+                    {
+                        id: 'switch-socket-repair',
+                        slug: 'switch-socket-replacement',
+                        title: 'Switch & 16A Power Socket Replacement',
+                        category: 'electrical',
+                        subcategory: 'switch-socket',
+                        startingPrice: 149,
+                        price: 149,
+                        duration: '20–30 mins',
+                        rating: 4.9,
+                        reviewsCount: 520,
+                        completedJobs: '2,150+',
+                        warrantyDays: 30,
+                        description: 'Safe replacement and wiring of loose, sparking, or burned 6A/16A modular and non-modular switches, power sockets, and AC/geyser points.',
+                        problemsCovered: [
+                            'Switchboard sparking or loose contact',
+                            'Heavy appliance 16A plug melted or burned',
+                            'Switch button stuck or not turning on'
+                        ],
+                        inclusions: [
+                            'Switchboard faceplate unscrewing and line testing',
+                            'Phase, neutral & ground terminal screw tightening',
+                            'Replacement switch/socket mounting and load test'
+                        ],
+                        exclusions: ['Chipping wall for new gang box'],
+                        materialsPolicy: 'Modular switches (Roma, Legrand, Crabtree) supplied at transparent MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'mcb-fuse-tripping',
+                        slug: 'mcb-tripping-db-repair',
+                        title: 'MCB / RCCB Tripping & DB Overhaul',
+                        category: 'electrical',
+                        subcategory: 'switch-socket',
+                        startingPrice: 349,
+                        price: 349,
+                        duration: '45–60 mins',
+                        rating: 4.9,
+                        reviewsCount: 680,
+                        completedJobs: '2,740+',
+                        warrantyDays: 30,
+                        description: 'Detailed circuit isolation for persistent MCB or RCCB earth-leakage trips, busbar burnouts, and distribution board short-circuit troubleshooting.',
+                        problemsCovered: [
+                            'RCCB trips immediately when power is turned on',
+                            'MCB breaker getting extremely hot or buzzing',
+                            'Neutral link burn out in distribution box'
+                        ],
+                        inclusions: [
+                            'Insulation resistance megger test per sub-circuit',
+                            'Earth leakage isolation and neutral fault clearance',
+                            'MCB terminal tightening and load balancing across phases'
+                        ],
+                        exclusions: ['Underground cable trenching'],
+                        materialsPolicy: 'Havells / Schneider / L&T C-curve MCBs at official MRP.',
+                        addons: []
+                    }
+                ]
+            },
             {
                 id: 'fan',
                 name: 'Fan Services',
@@ -23,519 +126,183 @@ export const CATEGORIES = [
                     {
                         id: 'fan-repair',
                         slug: 'fan-repair',
-                        title: 'Ceiling & Exhaust Fan Repair',
+                        title: 'Ceiling & Exhaust Fan Repair / Capacitor Fix',
                         category: 'electrical',
                         subcategory: 'fan',
-                        startingPrice: 350,
-                        duration: '30–60 mins',
+                        startingPrice: 199,
+                        price: 199,
+                        duration: '30–45 mins',
                         rating: 4.9,
-                        reviewsCount: 348,
-                        completedJobs: '1,420+',
+                        reviewsCount: 890,
+                        completedJobs: '3,420+',
                         warrantyDays: 30,
                         description: 'Complete diagnosis and repair for noisy, slow, or vibrating ceiling and exhaust fans. Covers capacitor replacement, bearing lubrication check, and step regulator wiring.',
                         problemsCovered: [
-                            'Fan running at very slow speed',
-                            'Loud hum, squeak, or bearing noise',
-                            'Fan not starting or regulator switch dead',
-                            'Unbalanced wobbling blade vibration'
+                            'Fan running at very slow speed even on speed 5',
+                            'Loud hum, squeak, or bearing friction noise',
+                            'Fan not starting or regulator switch dead'
                         ],
                         inclusions: [
-                            'Complete motor winding & bearing diagnosis',
                             'Capacitor voltage check & replacement labor',
                             'Regulator wiring & switchboard connection test',
-                            'Blade balancing & safety downrod clamp inspection',
-                            'Post-service 10-minute speed load test'
+                            'Blade balancing & safety downrod clamp inspection'
                         ],
-                        exclusions: [
-                            'Cost of new replacement fan (if motor coil is burnt)',
-                            'Decorative chandelier rewiring',
-                            'New ceiling hook anchoring & masonry chipping'
-                        ],
-                        materialsPolicy: 'Standard capacitors (2.5uF/3.15uF) & regulators provided at transparent MRP. Genuine ISI certified spares with manufacturer bill.',
-                        addons: [
-                            { id: 'add-fan-cap', title: 'Heavy-Duty 3.15uF ISI Capacitor', price: 95 },
-                            { id: 'add-fan-reg', title: '5-Step Rotary Electronic Regulator', price: 185 },
-                            { id: 'add-fan-rod', title: 'Heavy Gauge Downrod Extension (1.5 ft)', price: 140 }
-                        ],
-                        faqs: [
-                            {
-                                q: 'Why is my ceiling fan running so slowly even at maximum speed?',
-                                a: 'In 90% of cases, a degraded start/run capacitor (loss of capacitance due to voltage fluctuations) is the culprit. Replacing it with a genuine 2.5uF or 3.15uF ISI capacitor restores full RPM immediately.'
-                            },
-                            {
-                                q: 'Is spare part cost included in the ₹350 service fee?',
-                                a: 'The service charge covers diagnosis, inspection, and repair labour. Any replacement parts (like capacitors or regulators) are billed transparently at official MRP.'
-                            }
-                        ]
+                        exclusions: ['Motor rewind if copper coils are burnt'],
+                        materialsPolicy: 'Heavy-duty 2.5uF/3.15uF ISI capacitors provided at MRP (₹80–120).',
+                        addons: []
                     },
                     {
                         id: 'fan-installation',
                         slug: 'fan-installation',
-                        title: 'New Ceiling Fan Installation',
+                        title: 'New Ceiling Fan Installation & Regulator Wiring',
                         category: 'electrical',
                         subcategory: 'fan',
                         startingPrice: 299,
+                        price: 299,
                         duration: '30–45 mins',
                         rating: 4.9,
-                        reviewsCount: 280,
-                        completedJobs: '1,150+',
+                        reviewsCount: 420,
+                        completedJobs: '1,650+',
                         warrantyDays: 30,
-                        description: 'Professional assembly and secure mounting of new ceiling fans with downrod assembly, safety shackle installation, and step regulator wiring.',
+                        description: 'Professional assembly and secure ceiling mounting of standard and BLDC remote fans with downrod assembly, safety shackle installation, and step regulator wiring.',
                         problemsCovered: [
                             'Unbox and assemble new fan',
                             'Secure hook mounting & safety pin locking',
                             'Connect regulator and switch control'
                         ],
                         inclusions: [
-                            'Blade assembly and angle alignment',
+                            'Blade assembly and pitch angle alignment',
                             'Secure downrod mounting to ceiling hook',
-                            'Switchboard connection and regulator calibration'
+                            'Switchboard connection and calibration'
                         ],
-                        exclusions: [
-                            'New ceiling hook fabrication/drilling into concrete RCC slab'
-                        ],
-                        materialsPolicy: 'Anchor bolts and wire extensions charged at standard hardware store rates if needed.',
-                        addons: []
-                    },
-                    {
-                        id: 'fan-regulator',
-                        slug: 'fan-regulator-replacement',
-                        title: 'Fan Regulator Replacement',
-                        category: 'electrical',
-                        subcategory: 'fan',
-                        startingPrice: 199,
-                        duration: '20–30 mins',
-                        rating: 4.8,
-                        reviewsCount: 195,
-                        completedJobs: '890+',
-                        warrantyDays: 30,
-                        description: 'Replace faulty, humming, or burnt step regulators with smooth, energy-saving rotary regulators.',
-                        problemsCovered: ['Fan runs on single speed only', 'Regulator heating or sparking', 'Loose knob'],
-                        inclusions: ['Old regulator removal', 'New module snap-in wiring', 'Speed variation test'],
-                        exclusions: ['Switchboard plate replacement'],
-                        materialsPolicy: 'Modular regulator available at MRP or provide your own.',
-                        addons: []
-                    },
-                    {
-                        id: 'exhaust-fan-install',
-                        slug: 'exhaust-fan-installation',
-                        title: 'Exhaust Fan Installation / Replacement',
-                        category: 'electrical',
-                        subcategory: 'fan',
-                        startingPrice: 349,
-                        duration: '30–45 mins',
-                        rating: 4.8,
-                        reviewsCount: 160,
-                        completedJobs: '620+',
-                        warrantyDays: 30,
-                        description: 'Kitchen and bathroom exhaust fan mounting with secure wall bracket anchoring, louvre flap alignment, and power wiring.',
-                        problemsCovered: ['Kitchen grease exhaust setup', 'Bathroom moisture ventilation', 'Vibrating exhaust replacement'],
-                        inclusions: ['Wall frame mounting', 'Power line connection', 'Airflow direction verification'],
-                        exclusions: ['Glass or concrete wall duct core cutting'],
-                        materialsPolicy: 'Screws, rawl plugs & power cable included up to 1 meter.',
-                        addons: []
-                    },
-                    {
-                        id: 'fan-removal',
-                        slug: 'fan-removal',
-                        title: 'Fan Uninstallation / Removal',
-                        category: 'electrical',
-                        subcategory: 'fan',
-                        startingPrice: 149,
-                        duration: '15–20 mins',
-                        rating: 4.8,
-                        reviewsCount: 92,
-                        completedJobs: '410+',
-                        warrantyDays: 30,
-                        description: 'Safe unmounting and packing of ceiling or exhaust fans with wire insulation capping.',
-                        problemsCovered: ['Moving home / renovations', 'Replacing old fan'],
-                        inclusions: ['Safe disconnect', 'Wire insulation cap', 'Careful blade dismantling'],
-                        exclusions: ['Disposal of old metal'],
-                        materialsPolicy: 'N/A',
-                        addons: []
-                    }
-                ]
-            },
-            {
-                id: 'switch-socket',
-                name: 'Switch & Socket',
-                description: 'Modular switch replacement, power socket fixes, AC 16A points & board rewiring.',
-                services: [
-                    {
-                        id: 'switchboard-repair',
-                        slug: 'switchboard-repair',
-                        title: 'Switchboard Repair & Rewiring',
-                        category: 'electrical',
-                        subcategory: 'switch-socket',
-                        startingPrice: 299,
-                        duration: '30–60 mins',
-                        rating: 4.9,
-                        reviewsCount: 310,
-                        completedJobs: '1,280+',
-                        warrantyDays: 30,
-                        description: 'Comprehensive switchboard troubleshooting for burnt connections, sparking terminals, loose wiring, and intermittent power supply.',
-                        problemsCovered: ['Sparking inside switchboard', 'Burning smell or black marks', 'Switches not turning on', 'Loose internal wire loops'],
-                        inclusions: ['Faceplate disassembly & terminal check', 'Tightening internal phase/neutral bus lines', 'Defective switch isolation & rewiring'],
-                        exclusions: ['New conduit trenching'],
-                        materialsPolicy: 'Genuine Anchor/Legrand/Havells modular switches billed at MRP if replacement required.',
-                        addons: []
-                    },
-                    {
-                        id: 'switch-replacement',
-                        slug: 'switch-replacement',
-                        title: 'Modular Switch Replacement',
-                        category: 'electrical',
-                        subcategory: 'switch-socket',
-                        startingPrice: 199,
-                        duration: '20–30 mins',
-                        rating: 4.8,
-                        reviewsCount: 220,
-                        completedJobs: '940+',
-                        warrantyDays: 30,
-                        description: 'Replace broken or stiff modular 6A/16A switches with exact matching brands.',
-                        problemsCovered: ['Stuck switch rocker', 'Switch not making contact', 'Physical cracked plate'],
-                        inclusions: ['Old switch removal', 'New switch mounting', 'Polarity & load check'],
-                        exclusions: ['Main conduit rewiring'],
-                        materialsPolicy: 'Standard modular switch available at MRP.',
-                        addons: []
-                    },
-                    {
-                        id: 'socket-replacement',
-                        slug: 'socket-replacement',
-                        title: 'Power Socket Replacement (6A / 16A)',
-                        category: 'electrical',
-                        subcategory: 'switch-socket',
-                        startingPrice: 249,
-                        duration: '20–30 mins',
-                        rating: 4.9,
-                        reviewsCount: 275,
-                        completedJobs: '1,050+',
-                        warrantyDays: 30,
-                        description: 'Fix loose, burnt, or non-working 3-pin plug sockets with safety shutter mechanisms and proper earth continuity.',
-                        problemsCovered: ['Plug loose or falling out', 'No power in socket', 'Burnt terminal holes', 'Shutter stuck'],
-                        inclusions: ['Socket replacement', 'Earth pin continuity test', 'Load capacity check'],
-                        exclusions: [],
-                        materialsPolicy: 'Heavy-duty 16A sockets available with technician.',
-                        addons: []
-                    },
-                    {
-                        id: 'ac-switch-install',
-                        slug: 'ac-switch-installation',
-                        title: 'Dedicated AC Switch & Heavy Socket Setup',
-                        category: 'electrical',
-                        subcategory: 'switch-socket',
-                        startingPrice: 449,
-                        duration: '45–60 mins',
-                        rating: 4.9,
-                        reviewsCount: 185,
-                        completedJobs: '720+',
-                        warrantyDays: 30,
-                        description: 'Installation of high-load 20A/25A DP switches or starter boxes with 4 sq mm copper wiring for 1.5–2.0 Ton air conditioners.',
-                        problemsCovered: ['New AC electrical point', 'AC plug melting under load', 'No starter switch for AC'],
-                        inclusions: ['25A DP switch installation', 'Direct MCB feeder loop check', 'Earthing resistance test'],
-                        exclusions: ['Long cable run through multiple rooms (billed per meter)'],
-                        materialsPolicy: 'Finolex/Havells 4 sq mm FRLS wire and Crabtree/Legrand 25A DP switch at MRP.',
-                        addons: []
-                    }
-                ]
-            },
-            {
-                id: 'mcb-db',
-                name: 'MCB & Distribution Board',
-                description: 'MCB tripping, ELCB/RCCB earth leakage troubleshooting & DB board overhaul.',
-                services: [
-                    {
-                        id: 'mcb-tripping-diagnosis',
-                        slug: 'mcb-tripping-diagnosis',
-                        title: 'MCB / ELCB Frequent Tripping Diagnosis',
-                        category: 'electrical',
-                        subcategory: 'mcb-db',
-                        startingPrice: 450,
-                        duration: '45–75 mins',
-                        rating: 4.9,
-                        reviewsCount: 412,
-                        completedJobs: '1,680+',
-                        warrantyDays: 30,
-                        description: 'Specialized diagnostic using insulation testers (Megger) to pinpoint earth leakage, phase-to-neutral shorts, and overloaded circuit branches causing breakers to trip.',
-                        problemsCovered: ['MCB trips repeatedly when turning on specific lights/appliances', 'ELCB trips during rain/monsoon moisture', 'Main breaker warm to touch'],
-                        inclusions: ['Megger insulation resistance test per circuit', 'Isolation of faulty household loop', 'Neutral loop isolation & load balancing check'],
-                        exclusions: ['Replacing entire underground buried cables'],
-                        materialsPolicy: 'Type-C ISI MCBs (6A–32A) and 30mA RCCBs provided with warranty.',
-                        addons: []
-                    },
-                    {
-                        id: 'mcb-replacement',
-                        slug: 'mcb-replacement',
-                        title: 'Single Pole / Double Pole MCB Replacement',
-                        category: 'electrical',
-                        subcategory: 'mcb-db',
-                        startingPrice: 349,
-                        duration: '30–45 mins',
-                        rating: 4.8,
-                        reviewsCount: 230,
-                        completedJobs: '890+',
-                        warrantyDays: 30,
-                        description: 'Replacement of weak, jammed, or charred miniature circuit breakers with exact curve rating (B-curve / C-curve).',
-                        problemsCovered: ['MCB won’t stay in ON position', 'Internal trip mechanism burnt', 'Current leakage'],
-                        inclusions: ['Busbar safety disconnection', 'New MCB DIN rail clip-on', 'Torque tightening of copper terminals'],
-                        exclusions: [],
-                        materialsPolicy: 'Schneider / Legrand / Havells MCB at MRP.',
-                        addons: []
-                    },
-                    {
-                        id: 'db-box-installation',
-                        slug: 'db-box-installation',
-                        title: 'Distribution Board (DB) Upgrade / Installation',
-                        category: 'electrical',
-                        subcategory: 'mcb-db',
-                        startingPrice: 950,
-                        duration: '2–3 hrs',
-                        rating: 4.9,
-                        reviewsCount: 145,
-                        completedJobs: '430+',
-                        warrantyDays: 30,
-                        description: 'Full distribution board modernization: replace old fuse boards with 4-way to 12-way SPN/TPN modular enclosure with busbars and RCCB.',
-                        problemsCovered: ['Old rewirable porcelain fuse replacement', 'Adding new sub-circuits for upper floor', 'Dangerous messy DB board cleanup'],
-                        inclusions: ['Demounting old fuse board', 'DIN rail mounting & color-coded phase wiring', 'RCCB 30mA shock protection integration', 'Circuit labeling index'],
-                        exclusions: ['External KSEB meter box shifting'],
-                        materialsPolicy: 'Metal clad IP43/IP54 DB enclosures provided at wholesale partner prices.',
-                        addons: []
-                    }
-                ]
-            },
-            {
-                id: 'lighting',
-                name: 'Lighting & Fixtures',
-                description: 'LED lights, tube lights, chandeliers, spotlights & outdoor waterproof lights.',
-                services: [
-                    {
-                        id: 'led-light-installation',
-                        slug: 'led-light-installation',
-                        title: 'LED Batten & Panel Light Installation',
-                        category: 'electrical',
-                        subcategory: 'lighting',
-                        startingPrice: 199,
-                        duration: '20–30 mins',
-                        rating: 4.9,
-                        reviewsCount: 390,
-                        completedJobs: '1,560+',
-                        warrantyDays: 30,
-                        description: 'Precision mounting and electrical connection of surface or concealed LED panel lights, batten tube lights, and cove lighting.',
-                        problemsCovered: ['New LED light fixture setup', 'Replacing old flickering fluorescent tubes', 'Adding ceiling surface lights'],
-                        inclusions: ['Drilling and wall clip anchoring', 'Connector block safety wiring', 'Switch polarity check'],
-                        exclusions: ['Gypsum false ceiling circular hole cutting'],
-                        materialsPolicy: 'Wipro/Philips LED battens available upon request.',
-                        addons: []
-                    },
-                    {
-                        id: 'chandelier-installation',
-                        slug: 'chandelier-installation',
-                        title: 'Chandelier & Decorative Hanging Light Installation',
-                        category: 'electrical',
-                        subcategory: 'lighting',
-                        startingPrice: 599,
-                        duration: '45–90 mins',
-                        rating: 4.9,
-                        reviewsCount: 120,
-                        completedJobs: '340+',
-                        warrantyDays: 30,
-                        description: 'Careful heavy-duty anchoring, crystal assembly, and balanced hanging of premium chandeliers, pendant lights, and staircase lights.',
-                        problemsCovered: ['Heavy chandelier RCC ceiling anchoring', 'Multi-tier pendant light wiring', 'Dimmable controller setup'],
-                        inclusions: ['Heavy-duty ceiling hook anchoring', 'Multi-wire circuit grouping', 'Safe bulb socket testing and balance adjustment'],
-                        exclusions: ['Scaffolding for ceilings above 14 feet (charged separately)'],
-                        materialsPolicy: 'Expansion metal anchor fasteners included.',
-                        addons: []
-                    },
-                    {
-                        id: 'outdoor-lighting',
-                        slug: 'outdoor-lighting-setup',
-                        title: 'Outdoor & Gate Light Waterproof Installation',
-                        category: 'electrical',
-                        subcategory: 'lighting',
-                        startingPrice: 349,
-                        duration: '30–60 mins',
-                        rating: 4.8,
-                        reviewsCount: 165,
-                        completedJobs: '510+',
-                        warrantyDays: 30,
-                        description: 'IP65 waterproof garden, compound wall, and pillar gate light wiring with moisture-sealed junction boxes.',
-                        problemsCovered: ['Gate pillar light setup', 'Garden floodlights with motion sensor', 'Water entering outdoor light causing tripping'],
-                        inclusions: ['Waterproof gland sealing', 'Weatherproof switch connection', 'Earth continuity test'],
-                        exclusions: ['Underground soil trenching beyond 5 meters'],
-                        materialsPolicy: 'Weatherproof silicon seals and heavy rubber gaskets included.',
+                        exclusions: ['Ceiling hook masonry drilling'],
+                        materialsPolicy: 'Extension wires and anchor fasteners charged at store rate if needed.',
                         addons: []
                     }
                 ]
             },
             {
                 id: 'wiring',
-                name: 'Wiring & Earthing',
-                description: 'Full house rewiring, point extension, concealed conduit & copper safety earthing.',
+                name: 'Wiring & Cable Pulling',
+                description: 'Point wiring, short circuit isolation & conduit cabling.',
                 services: [
                     {
-                        id: 'house-rewiring',
-                        slug: 'complete-house-rewiring',
-                        title: 'Complete House / Apartment Rewiring',
+                        id: 'conduit-point-wiring',
+                        slug: 'conduit-point-wiring',
+                        title: 'New Point Wiring & Concealed Conduit (Per Point)',
                         category: 'electrical',
                         subcategory: 'wiring',
-                        startingPrice: 550,
-                        duration: '1–3 days',
-                        rating: 4.9,
-                        reviewsCount: 290,
-                        completedJobs: '810+',
-                        warrantyDays: 90,
-                        description: 'Comprehensive rewiring for aged or damaged electrical installations using FRLS (Flame Retardant Low Smoke) copper cables according to IS 732 standards.',
-                        problemsCovered: ['Old aluminum wiring upgrade', 'Overloaded wiring heating in walls', 'Post-renovation circuit restructuring'],
-                        inclusions: ['Full load estimation (kW) by licensed supervisor', 'Cable pulling through existing conduits', 'Phase-wise circuit segregation', 'Megger test certificate'],
-                        exclusions: ['Major masonry wall wall-saw cutting (quoted per foot)'],
-                        materialsPolicy: 'Finolex / RR Kabel / V-Guard 100% pure electrolytic copper wire billed transparently with invoice.',
-                        addons: []
-                    },
-                    {
-                        id: 'new-electrical-point',
-                        slug: 'new-electrical-point',
-                        title: 'Additional Electrical Point (Light / Fan / Socket)',
-                        category: 'electrical',
-                        subcategory: 'wiring',
-                        startingPrice: 249,
-                        duration: '30–45 mins',
+                        startingPrice: 299,
+                        price: 299,
+                        duration: '45–60 mins',
                         rating: 4.8,
-                        reviewsCount: 340,
-                        completedJobs: '1,350+',
-                        warrantyDays: 30,
-                        description: 'Add a new switch/socket point, TV point, or study light point using concealed or neat PVC surface casing.',
-                        problemsCovered: ['Need socket near study table or bed', 'Adding new balcony light point', 'Water purifier plug point'],
-                        inclusions: ['Wiring up to 3 meters', 'Modular switch/socket installation', 'Connection to nearest phase loop'],
-                        exclusions: ['Long cable run above 5 meters (nominal per meter rate)'],
-                        materialsPolicy: '1.5 sq mm / 2.5 sq mm FRLS wire included for standard runs.',
+                        reviewsCount: 310,
+                        completedJobs: '1,280+',
+                        warrantyDays: 60,
+                        description: 'Complete new electrical point installation through existing PVC conduits with 1.5 sq mm / 2.5 sq mm FRLS fire-retardant copper wires from DB to switchbox.',
+                        problemsCovered: [
+                            'Adding extra light, socket or TV point in room',
+                            'Replacing old degraded wires inside conduit',
+                            'Dedicated power circuit for microwave or computer setup'
+                        ],
+                        inclusions: [
+                            'Fish-tape wire pulling through PVC pipe conduits',
+                            'Phase, neutral, and dedicated earthing wire termination',
+                            'Switchboard connection and load testing'
+                        ],
+                        exclusions: ['Concrete wall chipping / plastering'],
+                        materialsPolicy: 'Finolex / RR Kabel 100% pure electrolytic copper wire at market price.',
                         addons: []
                     },
                     {
-                        id: 'earthing-setup',
-                        slug: 'safety-earthing-installation',
-                        title: 'Safety Earthing Pit & Electrode Setup',
+                        id: 'house-rewiring-meter',
+                        slug: 'complete-house-rewiring',
+                        title: 'Full House Rewiring & Safety Earthing (Per Room)',
                         category: 'electrical',
                         subcategory: 'wiring',
-                        startingPrice: 1200,
+                        startingPrice: 1499,
+                        price: 1499,
                         duration: '2–4 hrs',
+                        rating: 4.9,
+                        reviewsCount: 210,
+                        completedJobs: '740+',
+                        warrantyDays: 90,
+                        description: 'Comprehensive rewiring for aged Kerala homes. Includes circuit separation for heavy appliances, chemical earth pit resistance optimization (<1 Ohm), and modern DB layout.',
+                        problemsCovered: [
+                            'Old aluminum or single-insulated wires causing constant tripping',
+                            'Electric shock sensations on metal taps and geysers',
+                            'KSEB meter upgrade load certification requirement'
+                        ],
+                        inclusions: [
+                            'Complete room wire extraction and FRLS copper pulling',
+                            'Chemical earth pit resistance measurement & earthing connection',
+                            'Circuit segregation with individual MCBs'
+                        ],
+                        exclusions: ['Masonry wall chasing civil labor'],
+                        materialsPolicy: 'Complete transparent material estimation prior to job.',
+                        addons: []
+                    }
+                ]
+            },
+            {
+                id: 'power-backup',
+                name: 'Inverters & 3-Phase DB',
+                description: 'Home power backup, UPS changeover & 3-phase load balancing.',
+                services: [
+                    {
+                        id: 'inverter-ups-setup',
+                        slug: 'inverter-ups-installation',
+                        title: 'Inverter, Battery & Bypass Changeover Switch Setup',
+                        category: 'electrical',
+                        subcategory: 'power-backup',
+                        startingPrice: 499,
+                        price: 499,
+                        duration: '60 mins',
+                        rating: 4.9,
+                        reviewsCount: 350,
+                        completedJobs: '1,490+',
+                        warrantyDays: 30,
+                        description: 'Pure sine wave inverter connection, tubular battery acid/gravity terminal maintenance, safety bypass changeover switch wiring, and dedicated essential load circuit separation.',
+                        problemsCovered: [
+                            'Inverter not switching over during KSEB power cut',
+                            'Battery backup lasting only few minutes',
+                            'Adding manual bypass rotary switch for emergencies'
+                        ],
+                        inclusions: [
+                            'Inverter DC cable terminal crimping and petroleum jelly coating',
+                            'AC input/output wiring to main distribution box',
+                            'Rotary manual bypass switch integration'
+                        ],
+                        exclusions: ['Inverter motherboard bench repair'],
+                        materialsPolicy: 'Bypass switches and 10 sq mm battery cables available at MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'three-phase-load-balance',
+                        slug: 'three-phase-load-balancing',
+                        title: '3-Phase Neutral Load Balancing & Main DB Overhaul',
+                        category: 'electrical',
+                        subcategory: 'power-backup',
+                        startingPrice: 899,
+                        price: 899,
+                        duration: '90 mins',
                         rating: 5.0,
                         reviewsCount: 180,
-                        completedJobs: '590+',
-                        warrantyDays: 90,
-                        description: 'Installation of copper-bonded chemical earthing electrodes with charcoal/salt or BFC compound to achieve safe earth resistance (< 2 Ohms).',
-                        problemsCovered: ['Getting mild electric shock from refrigerator/washing machine metal body', 'ELCB not tripping during earth faults', 'Lightning arrestor earthing pit installation'],
-                        inclusions: ['Earth pit digging & pipe driving', 'BFC conductive chemical compound filling', 'Main panel earth busbar connection', 'Earth resistance meter test (< 2 Ohms verified)'],
-                        exclusions: ['Drilling through hard solid rock terrain'],
-                        materialsPolicy: 'Pure copper earth plate / copper-bonded steel rod (10ft) provided at wholesale rate.',
-                        addons: []
-                    }
-                ]
-            },
-            {
-                id: 'inverter-power',
-                name: 'Inverter & UPS',
-                description: 'Inverter installation, battery water top-up, backup wiring & bypass switches.',
-                services: [
-                    {
-                        id: 'inverter-installation',
-                        slug: 'inverter-ups-installation',
-                        title: 'Inverter & Battery System Installation',
-                        category: 'electrical',
-                        subcategory: 'inverter-power',
-                        startingPrice: 499,
-                        duration: '45–75 mins',
-                        rating: 5.0,
-                        reviewsCount: 260,
-                        completedJobs: '1,020+',
-                        warrantyDays: 30,
-                        description: 'Safe installation and dedicated load segregation for home inverters (sine wave / UPS) with tubular battery terminal protection.',
-                        problemsCovered: ['New inverter setup for Kerala power cuts', 'Connecting critical fan/light loads to inverter backup', 'Rotary bypass switch setup'],
-                        inclusions: ['Inverter input/output terminal wiring', 'Battery lead-acid connector cleaning & petroleum jelly coating', 'Manual bypass switch connection', 'AC mains changeover test'],
-                        exclusions: ['Supply of inverter unit or battery'],
-                        materialsPolicy: 'Heavy battery copper lugs and 4 sq mm multi-strand cable included.',
-                        addons: []
-                    },
-                    {
-                        id: 'inverter-service',
-                        slug: 'inverter-battery-health-service',
-                        title: 'Inverter & Battery Comprehensive Health Service',
-                        category: 'electrical',
-                        subcategory: 'inverter-power',
-                        startingPrice: 349,
-                        duration: '30–45 mins',
-                        rating: 4.9,
-                        reviewsCount: 175,
-                        completedJobs: '680+',
-                        warrantyDays: 30,
-                        description: 'Battery gravity test, terminal de-sulphation, distilled water top-up, and charging voltage calibration.',
-                        problemsCovered: ['Inverter backup time drastically reduced', 'Battery emitting bad smell or boiling', 'Inverter beeping continuously on overload error'],
-                        inclusions: ['Hydrometer specific gravity test per cell', 'Terminal corrosion cleaning', 'Distilled water top-up up to 2 liters', 'Inverter cut-off voltage testing'],
-                        exclusions: ['Cost of new battery cells'],
-                        materialsPolicy: 'Demineralized battery water supplied.',
-                        addons: []
-                    }
-                ]
-            },
-            {
-                id: 'appliances-other',
-                name: 'Appliance Electrical Setup',
-                description: 'Geyser points, doorbell, EV home chargers & CCTV electrical integration.',
-                services: [
-                    {
-                        id: 'geyser-electrical-point',
-                        slug: 'geyser-electrical-installation',
-                        title: 'Geyser / Water Heater Electrical Point Installation',
-                        category: 'electrical',
-                        subcategory: 'appliances-other',
-                        startingPrice: 399,
-                        duration: '30–45 mins',
-                        rating: 4.9,
-                        reviewsCount: 215,
-                        completedJobs: '840+',
-                        warrantyDays: 30,
-                        description: 'High-load 16A/20A waterproof socket point with dedicated earthing and miniature isolator switch for bathroom water heaters.',
-                        problemsCovered: ['Installing power point for new water heater', 'Geyser tripping main ELCB', 'Burnt 16A socket replacement'],
-                        inclusions: ['16A moisture-resistant socket box', 'Dedicated 2.5/4 sq mm copper wiring to DB', 'Earth continuity test (< 1 Ohm)'],
-                        exclusions: ['Plumbing water inlet/outlet pipes'],
-                        materialsPolicy: 'ISI 16A modular socket and MCB at MRP.',
-                        addons: []
-                    },
-                    {
-                        id: 'doorbell-installation',
-                        slug: 'doorbell-installation',
-                        title: 'Calling Bell & Video Doorbell Electrical Setup',
-                        category: 'electrical',
-                        subcategory: 'appliances-other',
-                        startingPrice: 199,
-                        duration: '20–30 mins',
-                        rating: 4.8,
-                        reviewsCount: 140,
-                        completedJobs: '590+',
-                        warrantyDays: 30,
-                        description: 'Wired or wireless doorbell chime mounting with outdoor push-button wiring and transformer safety setup.',
-                        problemsCovered: ['Doorbell not ringing', 'Continuous buzzing chime', 'Video doorbell 12V/24V power wiring'],
-                        inclusions: ['Chime unit mounting', 'Bell push switch connection', 'Audibility test'],
-                        exclusions: [],
-                        materialsPolicy: 'Bell wire included up to 5 meters.',
-                        addons: []
-                    },
-                    {
-                        id: 'ev-charger-setup',
-                        slug: 'ev-home-charger-installation',
-                        title: 'EV (Electric Vehicle) 16A / 32A Home Charger Setup',
-                        category: 'electrical',
-                        subcategory: 'appliances-other',
-                        startingPrice: 850,
-                        duration: '1–2 hrs',
-                        rating: 5.0,
-                        reviewsCount: 88,
-                        completedJobs: '240+',
+                        completedJobs: '620+',
                         warrantyDays: 60,
-                        description: 'Certified 3.3kW / 7.2kW AC home charger power setup with dedicated 32A industrial socket, Type-A RCCB shock protector, and low-impedance earthing.',
-                        problemsCovered: ['Safe home charging setup for 2-wheeler / 4-wheeler EV', 'Preventing overheating of standard wall plugs', 'Dedicated sub-meter setup for EV charging'],
-                        inclusions: ['32A Industrial IP66 socket box', 'Dedicated feeder cable from main DB with 32A MCB + 30mA RCCB', 'Earth resistance verification (< 1 Ohm for EV safety)', 'Charging handshake test'],
-                        exclusions: ['KSEB sanction load enhancement paperwork'],
-                        materialsPolicy: '6 sq mm 3-core armored cable & industrial socket billed at wholesale rate.',
+                        description: 'Equal distribution of household single-phase electrical loads across R-Y-B phases to prevent neutral wire burnout, low voltage dips, and frequent KSEB fuse blows.',
+                        problemsCovered: [
+                            'One phase showing low voltage (dim lights) while other phases are fine',
+                            'Main neutral link melting inside energy meter panel',
+                            'Frequent tripping of 63A 4-pole main isolator'
+                        ],
+                        inclusions: [
+                            'Clamp-meter live current draw measurement across all 3 phases',
+                            'Sub-circuit rewiring and re-allocation on busbars',
+                            'Phase indicator LED lamp installation & neutral tightness test'
+                        ],
+                        exclusions: ['KSEB overhead service line repair'],
+                        materialsPolicy: '4-pole isolators and copper busbars billed at standard rate.',
                         addons: []
                     }
                 ]
@@ -562,17 +329,339 @@ export const CATEGORIES = [
                         title: 'AC Deep Clean Foam Jet Pump Service',
                         category: 'ac',
                         subcategory: 'ac-maintenance',
-                        startingPrice: 650,
+                        startingPrice: 649,
+                        price: 649,
                         duration: '45–60 mins',
                         rating: 4.8,
-                        reviewsCount: 310,
-                        completedJobs: '1,120+',
+                        reviewsCount: 520,
+                        completedJobs: '2,120+',
                         warrantyDays: 30,
-                        description: 'High-pressure foam jet cleaning of indoor cooling coils, blower wheel, drain tray and outdoor condenser fins to eliminate mold, odors, and boost cooling.',
-                        problemsCovered: ['AC throwing weak airflow', 'Foul damp smell from AC', 'High electricity bills due to choked condenser fins'],
-                        inclusions: ['Indoor unit high pressure jet wash with waterproof jacket', 'Outdoor condenser fin chemical wash', 'Drain pipe flushing & anti-bacterial spray', 'Gas pressure & current draw (Ampere) test'],
-                        exclusions: ['Gas refilling / compressor valve repair (charged separately)'],
+                        description: 'High-pressure foam jet cleaning of indoor cooling coils, blower wheel, drain tray and outdoor condenser fins to eliminate mold, odors, and boost cooling efficiency.',
+                        problemsCovered: [
+                            'AC throwing weak airflow or reduced cooling',
+                            'Foul damp smell when AC is switched on',
+                            'High electricity bills due to choked condenser fins'
+                        ],
+                        inclusions: [
+                            'Indoor unit high pressure jet wash with waterproof apron jacket',
+                            'Outdoor condenser fin chemical wash',
+                            'Drain pipe flushing & anti-bacterial spray',
+                            'Gas pressure & current draw (Ampere) test'
+                        ],
+                        exclusions: ['Refrigerant gas refill labor and material'],
                         materialsPolicy: 'Coil cleaning solution and anti-microbial spray included.',
+                        addons: []
+                    },
+                    {
+                        id: 'ac-anti-fungal-service',
+                        slug: 'ac-anti-microbial-service',
+                        title: 'AC Anti-Microbial Jet Wash + Drain Sanitation',
+                        category: 'ac',
+                        subcategory: 'ac-maintenance',
+                        startingPrice: 799,
+                        price: 799,
+                        duration: '60 mins',
+                        rating: 4.9,
+                        reviewsCount: 230,
+                        completedJobs: '890+',
+                        warrantyDays: 45,
+                        description: 'Hospital-grade disinfectant foam treatment designed for coastal Kerala high-humidity environments. Removes toxic black mold, dust mites, and bacteria from the blower barrel.',
+                        problemsCovered: [
+                            'Allergy/sneezing triggered when turning on bedroom AC',
+                            'Heavy slimy algae buildup inside drain tray',
+                            'Sluggish airflow and whistling fan sound'
+                        ],
+                        inclusions: [
+                            'Dual-chemical foam application & high-pressure rinse',
+                            'Complete blower fan dismantle & disinfection',
+                            'Drain line vacuum purge & tablet anti-clog treatment'
+                        ],
+                        exclusions: ['Compressor replacement'],
+                        materialsPolicy: 'Eco-friendly non-corrosive chemical foam included.',
+                        addons: []
+                    }
+                ]
+            },
+            {
+                id: 'ac-repairs',
+                name: 'Repairs & Gas Refilling',
+                description: 'Water leakage, gas top-up, wall uninstallation & PCB diagnostics.',
+                services: [
+                    {
+                        id: 'ac-water-leakage',
+                        slug: 'ac-water-leakage-fix',
+                        title: 'AC Indoor Water Leakage & Choked Drain Fix',
+                        category: 'ac',
+                        subcategory: 'ac-repairs',
+                        startingPrice: 399,
+                        price: 399,
+                        duration: '30–45 mins',
+                        rating: 4.8,
+                        reviewsCount: 340,
+                        completedJobs: '1,310+',
+                        warrantyDays: 30,
+                        description: 'Immediate resolution of water dripping from indoor AC unit over walls, beds, or flooring. Clears drain pipe blockages, fixes slope issues, and re-seals tray cracks.',
+                        problemsCovered: [
+                            'Water overflowing from indoor unit front panel',
+                            'Algae / dust blockage inside 1/2 inch PVC drain line',
+                            'Improper wall slope causing backflow'
+                        ],
+                        inclusions: [
+                            'High-pressure water purge through full drain line',
+                            'Drain pan inspection and sealant application',
+                            'Indoor backplate leveling adjustment'
+                        ],
+                        exclusions: ['New drain pipe routing through wall chipping'],
+                        materialsPolicy: 'Flexible drain pipe extensions provided at MRP if needed.',
+                        addons: []
+                    },
+                    {
+                        id: 'ac-gas-leak-topup',
+                        slug: 'ac-gas-leak-and-refill',
+                        title: 'AC Gas Leak Test & Refrigerant (R32/R410A) Top-Up',
+                        category: 'ac',
+                        subcategory: 'ac-repairs',
+                        startingPrice: 1499,
+                        price: 1499,
+                        duration: '60–90 mins',
+                        rating: 4.9,
+                        reviewsCount: 410,
+                        completedJobs: '1,640+',
+                        warrantyDays: 60,
+                        description: 'Nitrogen pressure leak detection, copper flare nut tightening, deep vacuuming, and 100% pure genuine refrigerant charging for optimum ice-cold cooling.',
+                        problemsCovered: [
+                            'AC running but room not getting cold at all',
+                            'Ice forming on thin copper pipe near outdoor unit',
+                            'Hissing gas leak sound from indoor flare nuts'
+                        ],
+                        inclusions: [
+                            'Soap bubble & electronic halogen leak check',
+                            'Flare joint re-flaring and copper brazing if minor leak',
+                            'Vacuum pump evacuation (-30 inHg) and digital scale gas charging'
+                        ],
+                        exclusions: ['Condenser coil replacement if completely rusted'],
+                        materialsPolicy: 'Certified DuPont / Chemours R32, R410A, or R22 refrigerant.',
+                        addons: []
+                    },
+                    {
+                        id: 'ac-uninstallation-reinstallation',
+                        slug: 'ac-uninstallation-reinstallation',
+                        title: 'Split AC Dismantling & Wall Mounting Setup',
+                        category: 'ac',
+                        subcategory: 'ac-repairs',
+                        startingPrice: 899,
+                        price: 899,
+                        duration: '60–90 mins',
+                        rating: 4.9,
+                        reviewsCount: 280,
+                        completedJobs: '980+',
+                        warrantyDays: 30,
+                        description: 'Careful pump-down gas locking, electrical decoupling, outdoor bracket mounting, core hole copper routing, and balanced indoor unit hanging.',
+                        problemsCovered: [
+                            'Relocating AC to new room or shifting house',
+                            'Upgrading to new inverter AC and removing old unit'
+                        ],
+                        inclusions: [
+                            'Safe refrigerant gas pump-down into compressor',
+                            'Bracket anchor bolting on brick/concrete wall',
+                            'Copper line connection and leak vacuum check'
+                        ],
+                        exclusions: ['Extra copper pipe beyond 3 meters'],
+                        materialsPolicy: 'Heavy-duty powder coated outdoor wall brackets at MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'ac-pcb-repair',
+                        slug: 'ac-pcb-circuit-diagnosis',
+                        title: 'AC Inverter PCB Motherboard Circuit Troubleshooting',
+                        category: 'ac',
+                        subcategory: 'ac-repairs',
+                        startingPrice: 499,
+                        price: 499,
+                        duration: '45–60 mins',
+                        rating: 4.7,
+                        reviewsCount: 190,
+                        completedJobs: '670+',
+                        warrantyDays: 30,
+                        description: 'Diagnosis of inverter AC error codes (E1, E6, F3), communication faults between indoor/outdoor units, sensor failures, and power supply relay faults.',
+                        problemsCovered: [
+                            'AC display flashing error codes and shutting down',
+                            'Outdoor compressor motor fan not starting',
+                            'Remote control signals not responding'
+                        ],
+                        inclusions: [
+                            'Microcontroller & IPM module voltage testing',
+                            'Temperature thermistor sensor calibration',
+                            'Bench repair pickup & reinstallation service'
+                        ],
+                        exclusions: ['Cost of IC replacement parts if burnt'],
+                        materialsPolicy: 'Itemized component estimate provided before bench repair.',
+                        addons: []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'plumbing',
+        name: 'Plumbing',
+        shortName: 'Plumbing',
+        icon: 'Droplet',
+        tagline: 'Water Motor, Tap Leaks, Pipes & Sanitaryware',
+        description: 'Verified plumbers for pipe leaks, water motor pumps, CP fittings & bathroom sanitaryware.',
+        available: true,
+        subcategories: [
+            {
+                id: 'taps-fittings',
+                name: 'Taps & Sanitary Fittings',
+                description: 'Tap leaks, flush tanks, angle valves & mixer cartridges.',
+                services: [
+                    {
+                        id: 'plumbing-tap-leak',
+                        slug: 'tap-leak-spindle-repair',
+                        title: 'Tap Leak, Mixer Spindle & Angle Valve Replacement',
+                        category: 'plumbing',
+                        subcategory: 'taps-fittings',
+                        startingPrice: 149,
+                        price: 149,
+                        duration: '20–30 mins',
+                        rating: 4.8,
+                        reviewsCount: 430,
+                        completedJobs: '1,890+',
+                        warrantyDays: 30,
+                        description: 'Quick resolution of non-stop dripping taps, stuck quarter-turn cartridges, leaking kitchen sink mixers, and broken brass angle valves.',
+                        problemsCovered: [
+                            'Tap continuously dripping water wasting tank capacity',
+                            'Water leaking from mixer handle or swivel spout',
+                            'Corroded geyser inlet angle valve broken at thread'
+                        ],
+                        inclusions: [
+                            'Teflon tape sealing and spindle removal',
+                            'New ceramic cartridge / angle valve installation',
+                            'Water pressure leak test'
+                        ],
+                        exclusions: ['Concealed diverter body replacement inside wall'],
+                        materialsPolicy: 'Jaquar / Hindware / Cera genuine CP fittings provided at MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'plumbing-flush-cistern',
+                        slug: 'toilet-flush-tank-repair',
+                        title: 'Toilet Flush Tank / Cistern Leakage & Syphon Repair',
+                        category: 'plumbing',
+                        subcategory: 'taps-fittings',
+                        startingPrice: 299,
+                        price: 299,
+                        duration: '30–45 mins',
+                        rating: 4.7,
+                        reviewsCount: 290,
+                        completedJobs: '1,150+',
+                        warrantyDays: 30,
+                        description: 'Fixing continuous water trickling into toilet commode, stuck push buttons, faulty ball valves, and loose flush tank flapper valves.',
+                        problemsCovered: [
+                            'Flush tank constantly overflowing or not filling up',
+                            'Dual-flush top button broken or sunken',
+                            'Water continuously leaking into closet bowl'
+                        ],
+                        inclusions: [
+                            'Inlet ball cock & syphon mechanism adjustment',
+                            'Rubber washer replacement & scale removal',
+                            'Flush discharge and water level calibration'
+                        ],
+                        exclusions: ['Ceramic commode replacement'],
+                        materialsPolicy: 'Universal syphon kits & dual-flush buttons at store rates.',
+                        addons: []
+                    }
+                ]
+            },
+            {
+                id: 'pumps-drainage',
+                name: 'Water Pumps & Tank Cleaning',
+                description: 'Well motors, booster pumps, drain clearing & tank hygiene.',
+                services: [
+                    {
+                        id: 'plumbing-pump-starter',
+                        slug: 'water-motor-pump-repair',
+                        title: 'Water Motor / Booster Pump Starter & Air-Lock Fix',
+                        category: 'plumbing',
+                        subcategory: 'pumps-drainage',
+                        startingPrice: 399,
+                        price: 399,
+                        duration: '45 mins',
+                        rating: 4.9,
+                        reviewsCount: 360,
+                        completedJobs: '1,470+',
+                        warrantyDays: 30,
+                        description: 'Troubleshooting self-priming motors, openwell submersibles, pressure booster pumps, foot valve priming issues, and starter capacitor problems.',
+                        problemsCovered: [
+                            'Motor running but no water pumping to overhead tank',
+                            'Motor humming loudly without spinning',
+                            'Pressure pump cycling ON and OFF every few seconds'
+                        ],
+                        inclusions: [
+                            'Suction pipe air-lock priming & foot valve check',
+                            'Starter box relay & capacitor test',
+                            'Pressure switch diaphragm adjustment'
+                        ],
+                        exclusions: ['Deep well physical extraction below 40 feet'],
+                        materialsPolicy: 'Start capacitors and foot valves supplied at MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'plumbing-drain-blockage',
+                        slug: 'drain-pipe-blockage-clearing',
+                        title: 'Kitchen Sink & Bathroom Drain Blockage Clearing',
+                        category: 'plumbing',
+                        subcategory: 'pumps-drainage',
+                        startingPrice: 349,
+                        price: 349,
+                        duration: '45 mins',
+                        rating: 4.8,
+                        reviewsCount: 410,
+                        completedJobs: '1,680+',
+                        warrantyDays: 30,
+                        description: 'Mechanical snake wire drain clearing to remove hair, grease, soap scum, and solid clogs from kitchen waste pipes and bathroom floor traps.',
+                        problemsCovered: [
+                            'Kitchen sink water pooling and draining very slowly',
+                            'Bathroom floor trap overflowing into bedroom',
+                            'Foul sewage smell rising from drain outlets'
+                        ],
+                        inclusions: [
+                            'Heavy gauge drain auger / snake clearing',
+                            'P-trap dismantling and grease sludge removal',
+                            'High-volume water flow flushing test'
+                        ],
+                        exclusions: ['Main road underground sewer line excavation'],
+                        materialsPolicy: 'Drain unblocking enzymes included in service.',
+                        addons: []
+                    },
+                    {
+                        id: 'plumbing-tank-clean',
+                        slug: 'overhead-water-tank-cleaning',
+                        title: 'Overhead Water Tank Mechanized Chemical Cleaning',
+                        category: 'plumbing',
+                        subcategory: 'pumps-drainage',
+                        startingPrice: 699,
+                        price: 699,
+                        duration: '60–90 mins',
+                        rating: 4.9,
+                        reviewsCount: 220,
+                        completedJobs: '840+',
+                        warrantyDays: 30,
+                        description: '6-stage deep tank sanitization: sludge extraction, high-pressure rotary jet wash, chemical algae descaling, UV antibacterial spray, and float valve inspection.',
+                        problemsCovered: [
+                            'Reddish mud/sediment coming out of bathroom taps',
+                            'Algae and green fungus coating internal tank walls',
+                            'Float valve malfunctioning causing daily tank overflow'
+                        ],
+                        inclusions: [
+                            'Submersible sludge pump dewatering',
+                            'Manual rotary scrubbing of corners and walls',
+                            'Food-grade hydrogen peroxide / UV sanitization spray',
+                            'Automatic mechanical float valve check'
+                        ],
+                        exclusions: ['RCC underground sump exceeding 2,000 liters'],
+                        materialsPolicy: 'Food-safe eco-friendly sanitizing agents included.',
                         addons: []
                     }
                 ]
@@ -589,27 +678,121 @@ export const CATEGORIES = [
         available: true,
         subcategories: [
             {
-                id: 'cctv-setup',
-                name: 'Camera Installation',
-                description: 'IP & HD security camera setup for homes & shops.',
+                id: 'camera-setup',
+                name: 'Camera Installation & Config',
+                description: 'IP & HD cameras, multi-channel NVRs, offline repairs & video doorbells.',
                 services: [
                     {
-                        id: 'cctv-installation',
-                        slug: 'cctv-camera-setup',
-                        title: 'CCTV Security Camera Installation & Mobile App Config',
+                        id: 'cctv-camera-single',
+                        slug: 'single-cctv-camera-mounting',
+                        title: 'Single HD/IP Bullet / Dome Camera Mounting & Wiring',
                         category: 'cctv',
-                        subcategory: 'cctv-setup',
-                        startingPrice: 700,
-                        duration: '1–2 hrs',
+                        subcategory: 'camera-setup',
+                        startingPrice: 399,
+                        price: 399,
+                        duration: '45 mins',
                         rating: 4.9,
-                        reviewsCount: 195,
-                        completedJobs: '670+',
+                        reviewsCount: 280,
+                        completedJobs: '1,180+',
                         warrantyDays: 30,
-                        description: 'Mounting of bullet/dome HD/IP cameras with waterproof junction box, BNC/CAT6 termination, NVR/DVR connection, and mobile remote live view setup.',
-                        problemsCovered: ['New home surveillance setup', 'Camera offline or blank screen', 'Configuring mobile phone viewing'],
-                        inclusions: ['Camera mounting and angle alignment', 'CAT6 / 3+1 coaxial cable clipping up to 15m', 'Router port forwarding & mobile app configuration', 'Night vision IR check'],
-                        exclusions: ['Cost of cameras, DVR/NVR, and hard drive'],
-                        materialsPolicy: 'BNC connectors, DC pins, and PVC junction boxes included.',
+                        description: 'Precision mounting of outdoor weatherproof bullet or indoor dome cameras with junction box, BNC/RJ45 termination, and optimal blindspot-free angle alignment.',
+                        problemsCovered: [
+                            'Adding extra camera to porch, gate, or backyard',
+                            'Fixing camera loose mounting or wrong angle',
+                            'Replacing faulty camera lens with new HD unit'
+                        ],
+                        inclusions: [
+                            'Waterproof IP66 PVC junction box mounting',
+                            'Coaxial 3+1 or Cat6 cable termination with BNC/DC pins',
+                            'Day/Night infrared vision calibration'
+                        ],
+                        exclusions: ['Cost of camera hardware'],
+                        materialsPolicy: 'Waterproof connectors and junction boxes included.',
+                        addons: []
+                    },
+                    {
+                        id: 'cctv-dvr-nvr-live',
+                        slug: 'dvr-nvr-mobile-app-configuration',
+                        title: '4/8 Channel DVR/NVR Setup + Mobile App Live Remote Stream',
+                        category: 'cctv',
+                        subcategory: 'camera-setup',
+                        startingPrice: 1199,
+                        price: 1199,
+                        duration: '90 mins',
+                        rating: 4.9,
+                        reviewsCount: 340,
+                        completedJobs: '1,420+',
+                        warrantyDays: 60,
+                        description: 'Complete centralized setup of Hikvision / CP Plus / Dahua DVR or NVR recorders, hard disk initialization, motion alert scheduling, and live streaming to smartphones worldwide.',
+                        problemsCovered: [
+                            'Setting up live camera viewing on family smartphones',
+                            'Hard drive not recording or showing HDD Error',
+                            'Connecting DVR to WiFi router via LAN cable'
+                        ],
+                        inclusions: [
+                            'DVR/NVR firmware configuration and password reset',
+                            'Surveillance HDD formatting and continuous loop recording setup',
+                            'Mobile app pairing (Hik-Connect / gCMOB / DMSS)',
+                            'Motion detection alert zones configuration'
+                        ],
+                        exclusions: ['Cost of NVR/DVR hardware and surveillance hard disk'],
+                        materialsPolicy: 'HDMI cables and patch cords provided at MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'cctv-offline-fix',
+                        slug: 'cctv-offline-power-supply-repair',
+                        title: 'Camera Video Loss, Power Supply & Connector Fix',
+                        category: 'cctv',
+                        subcategory: 'camera-setup',
+                        startingPrice: 299,
+                        price: 299,
+                        duration: '30 mins',
+                        rating: 4.8,
+                        reviewsCount: 190,
+                        completedJobs: '760+',
+                        warrantyDays: 30,
+                        description: 'Rapid troubleshooting for "No Video", black screens, rolling horizontal line interference, blown 12V SMPS power supplies, and chewed cabling.',
+                        problemsCovered: [
+                            'One or multiple cameras showing black screen / video loss',
+                            'Night vision IR LEDs not glowing in dark',
+                            'Smell of burning from centralized CCTV power supply box'
+                        ],
+                        inclusions: [
+                            '12V DC power supply voltage drop multimeter test',
+                            'BNC/DC jack re-crimping and continuity check',
+                            'Video balun replacement if long-distance cable signal dropped'
+                        ],
+                        exclusions: ['Replacing entire underground cable line'],
+                        materialsPolicy: '4-channel / 8-channel SMPS power supply units at MRP.',
+                        addons: []
+                    },
+                    {
+                        id: 'cctv-video-doorbell',
+                        slug: 'video-door-phone-intercom-setup',
+                        title: 'Video Door Phone (VDP) Intercom Installation',
+                        category: 'cctv',
+                        subcategory: 'camera-setup',
+                        startingPrice: 799,
+                        price: 799,
+                        duration: '60 mins',
+                        rating: 4.9,
+                        reviewsCount: 160,
+                        completedJobs: '540+',
+                        warrantyDays: 30,
+                        description: 'Installation of high-definition outdoor bell camera with 7-inch indoor color monitor, electronic lock integration, and 2-way audio communication.',
+                        problemsCovered: [
+                            'Installing secure front door video visitor verification',
+                            'Electric gate lock release from inside home',
+                            'Replacing old non-working doorbell'
+                        ],
+                        inclusions: [
+                            'Outdoor camera unit weather shield mounting',
+                            'Indoor TFT monitor bracket hanging and power supply wiring',
+                            'Two-way crystal audio and electric strike lock handshake test'
+                        ],
+                        exclusions: ['Electronic door lock hardware (charged extra)'],
+                        materialsPolicy: 'Shielded 4-core communication wire at store rates.',
                         addons: []
                     }
                 ]
@@ -617,36 +800,130 @@ export const CATEGORIES = [
         ]
     },
     {
-        id: 'automation',
-        name: 'Smart Home Automation',
-        shortName: 'Home Automation',
-        icon: 'Cpu',
-        tagline: 'WiFi Smart Switches, Voice Relays & Mobile App Control',
-        description: 'Transform existing switchboards into smartphone and Alexa/Google Home controlled smart systems without rewiring.',
+        id: 'commercial',
+        name: 'Commercial Electrical',
+        shortName: 'Commercial',
+        icon: 'Building2',
+        tagline: 'KSELB Class-A Corporate Fitouts & Compliance Audits',
+        description: '3-phase industrial switchgear, corporate IT office wiring, load enhancement & safety certifications.',
         available: true,
         subcategories: [
             {
-                id: 'smart-switches',
-                name: 'Smart Switches',
-                description: 'Retrofit WiFi relays behind existing switchboards.',
+                id: 'corporate-projects',
+                name: 'Corporate & Industrial',
+                description: 'Safety audits, 3-phase APFC panels, clean UPS cabling & retail fitouts.',
                 services: [
                     {
-                        id: 'smart-switch-setup',
-                        slug: 'smart-home-switch-setup',
-                        title: 'Smart Switch & WiFi Hub Automation (1-Room Setup)',
-                        category: 'automation',
-                        subcategory: 'smart-switches',
-                        startingPrice: 1499,
-                        duration: '1–2 hrs',
+                        id: 'commercial-safety-audit',
+                        slug: 'corporate-electrical-safety-audit',
+                        title: 'Corporate & IT Office Electrical Safety Audit (SAC 9987)',
+                        category: 'commercial',
+                        subcategory: 'corporate-projects',
+                        startingPrice: 1999,
+                        price: 1999,
+                        duration: '2 hrs',
+                        rating: 5.0,
+                        reviewsCount: 120,
+                        completedJobs: '490+',
+                        warrantyDays: 90,
+                        description: 'Comprehensive CEA 2010 safety regulation audit for commercial offices, clinics, and IT facilities. Includes thermal infrared busbar imaging, earth pit resistance testing, and formal sign-off report for building insurance.',
+                        problemsCovered: [
+                            'Annual mandatory electrical safety inspection for commercial insurance',
+                            'Investigating frequent server room MCB tripping',
+                            'Assessing existing electrical load capacity for office expansion'
+                        ],
+                        inclusions: [
+                            'Thermal infrared camera scan of DB boards for loose overheating terminals',
+                            'Digital earth tester pit resistance measurement (< 1 Ohm)',
+                            'Harmonic distortion, power factor, and phase balance inspection',
+                            'Official KSELB Class-A signed electrical inspection certificate'
+                        ],
+                        exclusions: ['Physical rewiring rectification labor'],
+                        materialsPolicy: 'Itemized SAC 9987 GST tax invoice issued for corporate filing.',
+                        addons: []
+                    },
+                    {
+                        id: 'commercial-apfc-panel',
+                        slug: 'apfc-panel-power-factor-maintenance',
+                        title: '3-Phase APFC Panel & Power Factor Capacitor Overhaul',
+                        category: 'commercial',
+                        subcategory: 'corporate-projects',
+                        startingPrice: 2499,
+                        price: 2499,
+                        duration: '3 hrs',
                         rating: 4.9,
-                        reviewsCount: 140,
-                        completedJobs: '420+',
+                        reviewsCount: 95,
+                        completedJobs: '380+',
                         warrantyDays: 60,
-                        description: 'Retrofit smart WiFi relay modules behind your existing switchboard to control lights and fans via smartphone, scheduling, and voice assistants (Alexa/Google Home).',
-                        problemsCovered: ['Wanting to control fans/lights via smartphone app', 'Setting automated timer for porch/gate lights at sunset', 'Voice control integration for elderly parents'],
-                        inclusions: ['Concealed installation of smart relay modules behind existing switchboard', 'Neutral wire verification & safe capacitor loop integration', 'Mobile app setup (Smart Life / Tuya / Sonoff)', 'Alexa / Google Assistant voice linking', 'Family member app sharing & automation routines'],
-                        exclusions: ['Cost of smart WiFi relay hardware modules (billed at MRP or supply your own)'],
-                        materialsPolicy: 'Sonoff / Tuya / Oakter certified smart relays available with technician.',
+                        description: 'Maintenance of Automatic Power Factor Correction (APFC) panels to maintain power factor above 0.98, preventing heavy KSEB low-power-factor penalties for commercial LT-IV/LT-VII connections.',
+                        problemsCovered: [
+                            'KSEB electricity bill showing thousands of rupees in low PF penalties',
+                            'APFC controller relay not switching capacitor banks',
+                            'Bulging or ruptured power capacitors in main panel'
+                        ],
+                        inclusions: [
+                            'Capacitance microfarad (kVAR) test for every capacitor step',
+                            'Microprocessor APFC relay programming and CT coil ratio check',
+                            'Heavy duty capacitor switching contactor terminal cleaning'
+                        ],
+                        exclusions: ['Cost of new heavy-duty kVAR capacitors'],
+                        materialsPolicy: 'L&T / Epcos / Schneider industrial capacitors at wholesale rates.',
+                        addons: []
+                    },
+                    {
+                        id: 'commercial-ups-server',
+                        slug: 'ups-server-rack-cabling',
+                        title: 'Dedicated Clean-Power UPS Rack Cabling & Isolation DB',
+                        category: 'commercial',
+                        subcategory: 'corporate-projects',
+                        startingPrice: 1899,
+                        price: 1899,
+                        duration: '2 hrs',
+                        rating: 4.9,
+                        reviewsCount: 110,
+                        completedJobs: '430+',
+                        warrantyDays: 60,
+                        description: 'Dedicated 3-phase online UPS output distribution, isolated neutral grounding, server rack PDU wiring, and surge protection device (SPD) installation for IT facilities.',
+                        problemsCovered: [
+                            'Server rebooting during KSEB-to-Generator grid changeover',
+                            'Neutral-to-earth voltage higher than 2 Volts damaging IT hardware',
+                            'Workstation circuits tripping when heavy air-conditioner compressors start'
+                        ],
+                        inclusions: [
+                            'Dedicated clean neutral busbar separation',
+                            'Type-2 Surge Protection Device (SPD) integration in server DB',
+                            'PDU circuit load balancing and live changeover drill'
+                        ],
+                        exclusions: ['UPS battery replacement'],
+                        materialsPolicy: 'FRLS multi-strand cables and industrial sockets at wholesale price.',
+                        addons: []
+                    },
+                    {
+                        id: 'commercial-retail-lights',
+                        slug: 'retail-lighting-led-track-maintenance',
+                        title: 'Retail Showroom LED Track Light & Driver Replacement',
+                        category: 'commercial',
+                        subcategory: 'corporate-projects',
+                        startingPrice: 899,
+                        price: 899,
+                        duration: '60 mins',
+                        rating: 4.8,
+                        reviewsCount: 140,
+                        completedJobs: '610+',
+                        warrantyDays: 30,
+                        description: 'Fast repair and re-alignment of commercial track lights, architectural profile lights, COB spotlights, and constant-current LED drivers for retail showrooms and boutiques.',
+                        problemsCovered: [
+                            'Showroom display track lights flickering or completely off',
+                            'LED power supply driver smoking or clicking',
+                            'Re-aiming spotlight beams on seasonal clothing/jewelry displays'
+                        ],
+                        inclusions: [
+                            'Track connector voltage test and copper strip re-tensioning',
+                            'Constant-current driver replacement and heat-sink paste application',
+                            'Illuminance Lux level verification'
+                        ],
+                        exclusions: ['Cost of replacement track light heads'],
+                        materialsPolicy: 'Philips / Wipro commercial grade LED drivers at MRP.',
                         addons: []
                     }
                 ]
@@ -654,46 +931,109 @@ export const CATEGORIES = [
         ]
     },
     {
-        id: 'plumbing',
-        name: 'Plumbing',
-        shortName: 'Plumbing',
-        icon: 'Droplet',
-        tagline: 'Water Motor, Tap Leaks, Pipes & Sanitaryware',
-        description: 'Verified plumbers for pipe leaks, water motor pumps, CP fittings & bathroom sanitaryware.',
+        id: 'amc',
+        name: 'Care AMC Plans',
+        shortName: 'Care AMC',
+        icon: 'ShieldCheck',
+        tagline: 'Annual Electrical Maintenance & Zero-Cost Breakdown Cover',
+        description: 'Scheduled quarterly preventive inspections, earth pit tests & priority 45-min emergency dispatch.',
         available: true,
-        subcategories: []
-    },
-    {
-        id: 'appliances',
-        name: 'Appliance Repair',
-        shortName: 'Appliance Repair',
-        icon: 'WashingMachine',
-        tagline: 'Washing Machine, Refrigerator & Microwave',
-        description: 'Doorstep diagnosis and repair for domestic home appliances.',
-        available: true,
-        subcategories: []
-    },
-    {
-        id: 'carpentry',
-        name: 'Carpentry',
-        shortName: 'Carpentry',
-        icon: 'Hammer',
-        tagline: 'Doors, Locks, Hinges & Furniture Assembly',
-        description: 'Skilled carpenters for door repairs, new locks, and custom woodwork.',
-        available: false,
-        comingSoon: true,
-        subcategories: []
-    },
-    {
-        id: 'painting',
-        name: 'Painting',
-        shortName: 'Painting',
-        icon: 'Paintbrush',
-        tagline: 'Interior, Exterior & Monsoon Waterproofing',
-        description: 'Professional home painting and anti-fungal wall waterproofing.',
-        available: false,
-        comingSoon: true,
-        subcategories: []
+        subcategories: [
+            {
+                id: 'annual-plans',
+                name: 'Annual Maintenance Contracts',
+                description: 'Preventive care, zero-visit fees & priority hotline.',
+                services: [
+                    {
+                        id: 'amc-residential-home',
+                        slug: 'residential-home-care-amc',
+                        title: 'Residential Home Care AMC (4 Scheduled Visits/Year)',
+                        category: 'amc',
+                        subcategory: 'annual-plans',
+                        startingPrice: 1999,
+                        price: 1999,
+                        duration: 'Yearly Plan',
+                        rating: 4.9,
+                        reviewsCount: 380,
+                        completedJobs: '1,560+',
+                        warrantyDays: 365,
+                        description: 'Complete peace of mind for Kerala villas and apartments. 4 scheduled preventive audit visits (every 3 months), RCCB leakage test, unlimited breakdown visits with zero callout fee, and 15% discount on all spare parts.',
+                        problemsCovered: [
+                            'Preventing monsoon short circuits and electrical fire risks',
+                            'Eliminating paying separate visit fees for small monthly repairs',
+                            'Ensuring inverter, water motor & geysers run at peak efficiency year-round'
+                        ],
+                        inclusions: [
+                            '4 Comprehensive quarterly health audits with digital report',
+                            'Full DB terminal tightening and thermal hotspot scan',
+                            'Unlimited emergency breakdown visits with priority 45-min SLA',
+                            '15% flat discount on all genuine ISI replacement parts'
+                        ],
+                        exclusions: ['Cost of major hardware spares (fans, motors)'],
+                        materialsPolicy: 'All spares provided at manufacturer MRP less 15% subscriber discount.',
+                        addons: []
+                    },
+                    {
+                        id: 'amc-commercial-store',
+                        slug: 'commercial-retail-care-amc',
+                        title: 'Commercial & Retail Store Care AMC (6 Audits/Year)',
+                        category: 'amc',
+                        subcategory: 'annual-plans',
+                        startingPrice: 4999,
+                        price: 4999,
+                        duration: 'Yearly Plan',
+                        rating: 5.0,
+                        reviewsCount: 150,
+                        completedJobs: '540+',
+                        warrantyDays: 365,
+                        description: 'Tailored for retail showrooms, corporate offices, clinics, and restaurants. 6 bi-monthly audits, 3-phase load balancing, power factor monitoring, dedicated licensed supervisor, and SAC 9987 tax invoicing.',
+                        problemsCovered: [
+                            'Ensuring 99.9% power uptime and preventing business disruptions',
+                            'Eliminating KSEB low power factor penalty charges',
+                            'Full building insurance compliance sign-off'
+                        ],
+                        inclusions: [
+                            '6 Bi-monthly comprehensive electrical inspections',
+                            '3-Phase load balancing and APFC capacitor bank health check',
+                            'Dedicated senior supervisor direct phone number',
+                            '20% discount on industrial switchgear and lighting'
+                        ],
+                        exclusions: ['Underground line excavation'],
+                        materialsPolicy: 'SAC 9987 GST input tax credit invoice provided.',
+                        addons: []
+                    },
+                    {
+                        id: 'amc-apartment-community',
+                        slug: 'gated-community-apartment-amc',
+                        title: 'Gated Community & Apartment Complex AMC (12 Audits/Year)',
+                        category: 'amc',
+                        subcategory: 'annual-plans',
+                        startingPrice: 12499,
+                        price: 12499,
+                        duration: 'Yearly Plan',
+                        rating: 5.0,
+                        reviewsCount: 60,
+                        completedJobs: '190+',
+                        warrantyDays: 365,
+                        description: 'Centralized maintenance for Resident Welfare Associations (RWA) and gated apartment complexes. Covers common area switchgear, Automatic Mains Failure (AMF) DG panels, booster pumps, and annual chemical earth pit testing.',
+                        problemsCovered: [
+                            'DG generator automatic transfer switch failure during power cut',
+                            'Water pump starter burning out leaving residents without water',
+                            'High earth pit resistance creating dangerous shock hazards in common areas'
+                        ],
+                        inclusions: [
+                            '12 Monthly preventive inspections of common facilities',
+                            'AMF panel & DG synchronization health check',
+                            'Chemical earth pit resistance testing with certified meter (< 1 Ohm)',
+                            '24/7 Dedicated RWA escalation helpline'
+                        ],
+                        exclusions: ['Cost of commercial DG generator replacement parts'],
+                        materialsPolicy: 'Quarterly compliance certificate issued for association records.',
+                        addons: []
+                    }
+                ]
+            }
+        ]
     }
 ];
 
@@ -716,6 +1056,8 @@ export const getAllServices = () => {
 
 // Helper: Get single service by slug or id
 export const getServiceBySlugOrId = (identifier) => {
+    if (!identifier) return null;
     const all = getAllServices();
-    return all.find(s => s.id === identifier || s.slug === identifier) || null;
+    const clean = String(identifier).toLowerCase().trim();
+    return all.find(s => s.id.toLowerCase() === clean || s.slug.toLowerCase() === clean) || null;
 };
