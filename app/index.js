@@ -203,8 +203,22 @@ export default function HomeScreen() {
   const [locationName, setLocationName] = useState('Thalassery, Kerala');
   const [locationCoords, setLocationCoords] = useState(null);
   const [services, setServices] = useState(MOCK_SERVICES);
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaqIndexes, setOpenFaqIndexes] = useState([0, 1, 2]);
+  const mainScrollRef = useRef(null);
+
+  const scrollToCatalog = (category = 'All', query = '') => {
+    setSelectedCategory(category);
+    setSearchQuery(query);
+    if (mainScrollRef.current) {
+      if (typeof mainScrollRef.current.scrollTo === 'function') {
+        mainScrollRef.current.scrollTo({ y: isDesktop ? 620 : 720, animated: true });
+      } else if (mainScrollRef.current.getNode && typeof mainScrollRef.current.getNode().scrollTo === 'function') {
+        mainScrollRef.current.getNode().scrollTo({ y: isDesktop ? 620 : 720, animated: true });
+      }
+    }
+  };
 
   const toggleFaq = (index) => {
     setOpenFaqIndexes(prev => 
@@ -759,10 +773,11 @@ export default function HomeScreen() {
       </Animated.View>
 
       <Animated.ScrollView
+        ref={mainScrollRef}
         contentContainerStyle={styles.scrollContent}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: Platform.OS !== 'web' }
         )}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
@@ -828,10 +843,10 @@ export default function HomeScreen() {
                 {/* Quick Intent Pills */}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
                   {[
-                    { label: '🌀 Fan Repair', q: 'Fan' },
-                    { label: '⚡ MCB Tripping', q: 'DB' },
-                    { label: '❄️ AC Service', q: 'AC' },
-                    { label: '🔋 Inverter', q: 'Inverter' },
+                    { label: '🌀 Fan Repair', category: 'Electrical', q: 'Fan' },
+                    { label: '⚡ MCB Tripping', category: 'DB & Switchgear', q: 'DB' },
+                    { label: '❄️ AC Service', category: 'Air Conditioning', q: '' },
+                    { label: '🔋 Inverter', category: 'Electrical', q: 'Inverter' },
                     { label: '🚨 24/7 Emergency', path: '/emergency-electrician' },
                     { label: '🏢 Commercial', path: '/commercial' },
                     { label: '🛡️ Care AMC', path: '/amc' },
@@ -841,7 +856,7 @@ export default function HomeScreen() {
                       key={idx}
                       onPress={() => {
                         if (pill.path) router.push(pill.path);
-                        else if (pill.q) setSearchQuery(pill.q);
+                        else scrollToCatalog(pill.category || 'All', pill.q || '');
                       }}
                       style={{
                         backgroundColor: 'rgba(255,255,255,0.15)',
@@ -1016,16 +1031,19 @@ export default function HomeScreen() {
 
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {[
-                { title: '⚡ Electrical', sub: 'Fans, DB, Wiring, Inverters', path: '/services', badge: 'Flagship' },
-                { title: '❄️ AC Service', sub: 'Jet Wash & Gas Refill', path: '/services', badge: 'Active' },
+                { title: '⚡ Electrical', sub: 'Fans, DB, Wiring, Inverters', category: 'Electrical', badge: 'Flagship' },
+                { title: '❄️ AC Service', sub: 'Jet Wash & Gas Refill', category: 'Air Conditioning', badge: 'Active' },
                 { title: '🚰 Plumbing', sub: 'Pipes, Taps & Motor Starter', path: '/services', badge: 'Active' },
-                { title: '📹 CCTV Security', sub: 'IP Cameras & NVR Setup', path: '/services', badge: 'Active' },
+                { title: '📹 CCTV Security', sub: 'IP Cameras & NVR Setup', category: 'CCTV & Security', badge: 'Active' },
                 { title: '🏢 Commercial B2B', sub: 'Offices, Shops & Clinics', path: '/commercial', badge: 'Corporate' },
                 { title: '🛡️ Care AMC', sub: 'Annual Maintenance Plans', path: '/amc', badge: 'Peace of Mind' },
               ].map((item, idx) => (
                 <TouchableOpacity
                   key={idx}
-                  onPress={() => router.push(item.path)}
+                  onPress={() => {
+                    if (item.path) router.push(item.path);
+                    else if (item.category) scrollToCatalog(item.category, '');
+                  }}
                   style={{
                     width: isDesktop ? '31.8%' : isTablet ? '48%' : '48%',
                     backgroundColor: isDark ? '#18181B' : '#FFFFFF',
