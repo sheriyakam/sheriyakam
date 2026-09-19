@@ -11,6 +11,10 @@ import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { initSentry } from '../services/sentry';
+
+initSentry();
+
 export { ErrorBoundary } from '../components/ErrorBoundary';
 
 export default function Layout() {

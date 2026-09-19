@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Linking
 import { useTheme } from '../context/ThemeContext';
 import { useRouter } from 'expo-router';
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Copy, Check, Home, Phone, MessageCircle } from 'lucide-react-native';
+import { captureException } from '../services/sentry';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -27,6 +28,7 @@ class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error('ErrorBoundary caught:', error, errorInfo);
+        captureException(error, { componentStack: errorInfo?.componentStack });
         this.setState({ errorInfo });
     }
 

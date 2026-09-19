@@ -13,6 +13,7 @@ import { COLORS } from '../constants/theme';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import { openWhatsApp } from '../utils/whatsapp';
+import { createBooking } from '../constants/bookingStore';
 
 const PROBLEM_OPTIONS = [
     { id: 'diagnostic', label: 'Not sure / Need on-site fault check', price: '₹49', icon: HelpCircle, desc: 'Master electrician tests with multimeter before any work' },
@@ -57,6 +58,25 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
         if (!cleanPhoneDigits || cleanPhoneDigits.length < 10) {
             alert('Please enter a valid 10-digit mobile number so our master electrician can call you.');
             return;
+        }
+
+        try {
+            createBooking({
+                customerName: name.trim() || 'Resident Customer',
+                customerPhone: `+91 ${cleanPhoneDigits}`,
+                service: selectedProblem.label,
+                serviceType: 'Electrical',
+                category: 'Electrical',
+                district: 'Kannur',
+                taluk: 'Thalassery',
+                address: location || 'Thalassery / Kannur',
+                price: parseInt((selectedProblem.price || '249').replace(/\D/g, ''), 10) || 249,
+                status: 'open',
+                preferredTime: preferredTime,
+                source: 'QuickLeadModal Web',
+            });
+        } catch (e) {
+            console.error('Failed to save booking to local store:', e);
         }
 
         const msg = `⚡ *SHERIYAKAM SERVICE REQUEST*\n\n` +

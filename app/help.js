@@ -6,7 +6,7 @@ import {
     ArrowLeft, Search, Calendar, CreditCard, ShieldCheck, Zap,
     User, HelpCircle, ChevronRight, Scale, Mail, Phone, Clock,
     AlertTriangle, ShieldAlert, CheckCircle2, FileText, Sparkles,
-    Flame, DollarSign, Wrench, Shield, RefreshCw, BookOpen, Layers
+    Flame, DollarSign, Wrench, Shield, RefreshCw, BookOpen, Layers, Award
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';

@@ -33,6 +33,7 @@ import { openWhatsApp } from '../utils/whatsapp';
 import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import SectionErrorBoundary from '../components/SectionErrorBoundary';
 
 export { ErrorBoundary };
 
@@ -752,6 +753,7 @@ export default function HomeScreen() {
         {/* ═══════════════════════════════════════════════════════ */}
         {/* HERO SECTION — Streamlined, Zero-Scroll Mobile Ready   */}
         {/* ═══════════════════════════════════════════════════════ */}
+        <SectionErrorBoundary name="Hero Section">
         <Animated.View style={[
           styles.heroBanner,
           {
@@ -912,6 +914,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </Animated.View>
+        </SectionErrorBoundary>
 
         {/* Animated Content Wrapper */}
         <Animated.View style={{
@@ -942,6 +945,7 @@ export default function HomeScreen() {
           {/* ═══════════════════════════════════════════════════════ */}
           {/* SERVICES SECTION — 6 Core Streamlined Options           */}
           {/* ═══════════════════════════════════════════════════════ */}
+          <SectionErrorBoundary name="Services Catalog">
           <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.lg, marginBottom: SPACING.sm }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>
@@ -1043,6 +1047,7 @@ export default function HomeScreen() {
               <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
             </View>
           </TouchableOpacity>
+          </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* HOW IT WORKS — 4 Steps                                 */}
@@ -1130,16 +1135,21 @@ export default function HomeScreen() {
           {/* ═══════════════════════════════════════════════════════ */}
           {/* VERIFIED WORK GALLERY (BEFORE & AFTER)                  */}
           {/* ═══════════════════════════════════════════════════════ */}
-          <WorkGallery />
+          <SectionErrorBoundary name="Work Gallery">
+            <WorkGallery />
+          </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* REVIEWS & AGGREGATE BREAKDOWN MODULE                    */}
           {/* ═══════════════════════════════════════════════════════ */}
-          <ReviewsSection />
+          <SectionErrorBoundary name="Customer Reviews">
+            <ReviewsSection />
+          </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* FAQ SECTION (ALL QUESTIONS & COMPLETE ANSWERS)          */}
           {/* ═══════════════════════════════════════════════════════ */}
+          <SectionErrorBoundary name="FAQ Section">
           <View style={[styles.faqSection, { borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
               <Badge variant="info">Clear & Transparent</Badge>
@@ -1190,6 +1200,7 @@ export default function HomeScreen() {
               })}
             </View>
           </View>
+          </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* PROFESSIONAL FOOTER — Districts + Licensing            */}
