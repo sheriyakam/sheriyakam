@@ -87,6 +87,46 @@ export default function LocationsDirectoryScreen() {
                     </View>
                 </View>
 
+                {/* Thalassery HQ Banner */}
+                {!searchQuery && (
+                    <Card variant="default" style={[styles.districtCard, { backgroundColor: isDark ? '#1E293B' : '#EFF6FF', borderColor: '#2563EB66', borderWidth: 1.5, marginBottom: 14 }]}>
+                        <View style={styles.districtCardTop}>
+                            <View style={{ flex: 1 }}>
+                                <View style={styles.nameRow}>
+                                    <Text style={[styles.districtName, { color: colors.textPrimary }]}>
+                                        Thalassery (Empire Electricals HQ)
+                                    </Text>
+                                    <Badge variant="info" size="sm">Main Hub • Est. 1998</Badge>
+                                </View>
+                                <Text style={[styles.districtMalayalam, { color: colors.accent }]}>
+                                    തലശ്ശേരി • Class-A Licence #KSELB/CA-7821/KL
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.statsRow}>
+                            <View style={styles.statPill}>
+                                <Clock size={13} color="#F59E0B" />
+                                <Text style={[styles.statText, { color: colors.textSecondary }]}>30–45 min arrival</Text>
+                            </View>
+                            <View style={styles.statPill}>
+                                <Users size={13} color="#10B981" />
+                                <Text style={[styles.statText, { color: colors.textSecondary }]}>16 Master Wiremen</Text>
+                            </View>
+                        </View>
+                        <View style={styles.cardActions}>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onPress={() => router.push('/thalassery-electrician')}
+                                iconRight={ChevronRight}
+                                style={{ flex: 1 }}
+                            >
+                                Visit Thalassery HQ Hub
+                            </Button>
+                        </View>
+                    </Card>
+                )}
+
                 {/* Districts Grid */}
                 <View style={[styles.districtsGrid, isDesktop && styles.desktopGrid]}>
                     {filteredDistricts.map((district) => (
@@ -140,7 +180,7 @@ export default function LocationsDirectoryScreen() {
                                 <Button
                                     variant="primary"
                                     size="sm"
-                                    onPress={() => router.push(`/locations/${district.id}`)}
+                                    onPress={() => router.push(`/${district.id}-electrician`)}
                                     iconRight={ChevronRight}
                                     style={{ flex: 1 }}
                                 >

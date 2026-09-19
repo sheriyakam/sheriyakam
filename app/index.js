@@ -1409,28 +1409,76 @@ export default function HomeScreen() {
               </Text>
             </View>
 
+            {/* High-Intent Specialized Services Links */}
+            <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 4, width: '100%' }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textSecondary, letterSpacing: 0.8, marginBottom: 8, textTransform: 'uppercase' }}>
+                Popular Electrical Specializations in Kerala
+              </Text>
+              <View style={styles.footerDistrictsWrap}>
+                <TouchableOpacity onPress={() => router.push('/emergency-electrician-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2', borderColor: '#EF444433', borderWidth: 1 }]}>
+                  <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '700' }}>⚡ 24/7 Emergency Electrician</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/fan-repair-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
+                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>Ceiling Fan & BLDC Repair</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/cctv-installation-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
+                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>CCTV Camera Setup</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/ac-repair-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
+                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>AC Foam Jet Wash</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/house-rewiring-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
+                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>House Rewiring & DB Repair</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {/* District Coverage */}
-            <View style={styles.footerDistrictsWrap}>
-              {KERALA_DISTRICTS.map((d) => (
+            <View style={{ alignItems: 'center', marginTop: 8, marginBottom: 4, width: '100%' }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textSecondary, letterSpacing: 0.8, marginBottom: 8, textTransform: 'uppercase' }}>
+                Electricians Across All 14 Kerala Districts
+              </Text>
+              <View style={styles.footerDistrictsWrap}>
                 <TouchableOpacity
-                  key={d.id || d}
-                  onPress={() => router.push(`/locations/${d.id || d.toLowerCase()}`)}
+                  onPress={() => router.push('/thalassery-electrician')}
                   style={[
                     styles.footerDistrictTag,
                     {
-                      backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                      backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : '#EFF6FF',
+                      borderColor: '#2563EB44',
+                      borderWidth: 1,
                     }
                   ]}
                 >
                   <Text style={{
-                    color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)',
+                    color: colors.accent,
                     fontSize: 12,
-                    fontWeight: '600'
+                    fontWeight: '700'
                   }}>
-                    {d.name || d}
+                    Thalassery HQ (തലശ്ശേരി)
                   </Text>
                 </TouchableOpacity>
-              ))}
+                {KERALA_DISTRICTS.map((d) => (
+                  <TouchableOpacity
+                    key={d.id || d}
+                    onPress={() => router.push(d.id === 'kannur' ? '/kannur-electrician' : `/${d.id}-electrician`)}
+                    style={[
+                      styles.footerDistrictTag,
+                      {
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                      }
+                    ]}
+                  >
+                    <Text style={{
+                      color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)',
+                      fontSize: 12,
+                      fontWeight: '600'
+                    }}>
+                      {d.name || d}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <View style={styles.footerLinks}>
