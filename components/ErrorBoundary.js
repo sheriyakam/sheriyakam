@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Linking } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useRouter } from 'expo-router';
-import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Copy, Check, Home } from 'lucide-react-native';
+import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Copy, Check, Home, Phone, MessageCircle } from 'lucide-react-native';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false, error: null, errorInfo: null };
+        this.state = { 
+            hasError: !!props.error, 
+            error: props.error || null, 
+            errorInfo: null 
+        };
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        if (props.error && !state.hasError) {
+            return { hasError: true, error: props.error };
+        }
+        return null;
     }
 
     static getDerivedStateFromError(error) {
@@ -15,20 +26,26 @@ class ErrorBoundary extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        // Log to error reporting service in production
         console.error('ErrorBoundary caught:', error, errorInfo);
         this.setState({ errorInfo });
     }
 
     handleRetry = () => {
+        if (typeof this.props.retry === 'function') {
+            try {
+                this.props.retry();
+            } catch (e) {
+                console.error('Retry failed:', e);
+            }
+        }
         this.setState({ hasError: false, error: null, errorInfo: null });
     };
 
     render() {
-        if (this.state.hasError) {
+        if (this.state.hasError || this.props.error) {
             return (
                 <ErrorFallbackUI
-                    error={this.state.error}
+                    error={this.state.error || this.props.error}
                     errorInfo={this.state.errorInfo}
                     onRetry={this.handleRetry}
                     fallbackMessage={this.props.fallbackMessage}
@@ -36,7 +53,7 @@ class ErrorBoundary extends React.Component {
             );
         }
 
-        return this.props.children;
+        return this.props.children || null;
     }
 }
 
@@ -157,6 +174,29 @@ const ErrorFallbackUI = ({ error, errorInfo, onRetry, fallbackMessage }) => {
                         </ScrollView>
                     </View>
                 )}
+
+                {/* Direct Support Options */}
+                <View style={[styles.supportBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', borderColor: colors.border }]}>
+                    <Text style={[styles.supportBoxTitle, { color: colors.textSecondary }]}>Need immediate assistance?</Text>
+                    <View style={styles.supportRow}>
+                        <TouchableOpacity 
+                            style={[styles.supportBtn, { backgroundColor: '#10B981' }]} 
+                            onPress={() => Linking.openURL('https://wa.me/917594056789?text=Hi%20Sheriyakam%20Team%2C%20I%20faced%20an%20error%20on%20the%20website%20and%20need%20help.')}
+                            activeOpacity={0.8}
+                        >
+                            <MessageCircle size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                            <Text style={styles.supportBtnText}>WhatsApp</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={[styles.supportBtn, { backgroundColor: colors.bgSecondary, borderColor: colors.border, borderWidth: 1 }]} 
+                            onPress={() => Linking.openURL('tel:04902996789')}
+                            activeOpacity={0.8}
+                        >
+                            <Phone size={15} color={colors.textPrimary} style={{ marginRight: 6 }} />
+                            <Text style={[styles.supportBtnText, { color: colors.textPrimary }]}>0490 299 6789</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
                 {/* Action Buttons */}
                 <View style={styles.btnRow}>
@@ -317,6 +357,41 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
     },
+    supportBox: {
+        width: '100%',
+        padding: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        marginBottom: 16,
+        alignItems: 'center',
+    },
+    supportBoxTitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 8,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    supportRow: {
+        flexDirection: 'row',
+        gap: 10,
+        width: '100%',
+        justifyContent: 'center',
+    },
+    supportBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 9,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        flex: 1,
+    },
+    supportBtnText: {
+        color: '#FFFFFF',
+        fontSize: 13,
+        fontWeight: '700',
+    },
     btn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -351,4 +426,5 @@ const styles = StyleSheet.create({
     },
 });
 
+export { ErrorBoundary, ErrorFallbackUI };
 export default ErrorBoundary;

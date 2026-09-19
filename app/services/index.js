@@ -20,6 +20,9 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import FloatingCartBar from '../../components/FloatingCartBar';
 import { openWhatsApp } from '../../utils/whatsapp';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+
+export { ErrorBoundary };
 
 export default function ServicesMarketplaceScreen() {
     const router = useRouter();

@@ -32,6 +32,9 @@ import { KERALA_DISTRICTS } from '../constants/locations';
 import { openWhatsApp } from '../utils/whatsapp';
 import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
+export { ErrorBoundary };
 
 const IMAGE_MAP = {
   'emergency.png': require('../assets/images/emergency.png'),

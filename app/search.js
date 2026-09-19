@@ -15,6 +15,9 @@ import { Dropdown } from '../components/ui/Dropdown';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
+export { ErrorBoundary };
 
 const SERVICES_DATA = [
     {
