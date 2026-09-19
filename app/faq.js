@@ -52,64 +52,64 @@ export default function FAQScreen() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         <UserCheck size={14} color={colors.accent} />
                         <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
-                            Reviewed & Verified by KSELB Grade-A Electrical Supervisors
+                            Reviewed & Verified by Master Electricians
                         </Text>
                     </View>
                     <Text style={{ fontSize: 12, color: colors.textSecondary, lineHeight: 18 }}>
-                        Authored by the technical team at Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL). All safety instructions follow Central Electricity Authority (CEA) Safety Regulations and Kerala State Electricity Board (KSEB) standards.
+                        All work procedures and pricing adhere to Central Electricity Authority (CEA) safety standards and Kerala State Electricity Board (KSEB) domestic wiring regulations.
                     </Text>
                 </View>
 
                 {/* FAQ Accordions: EMERGENCY & ARRIVAL */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                    EMERGENCY DISPATCH & ARRIVAL
+                    SERVICE BOOKING & ARRIVAL
                 </Text>
                 <Accordion>
-                    <AccordionItem title="What is the arrival time for emergency electrical triage?" defaultOpen={true}>
+                    <AccordionItem title="What is the arrival time for electrical visits?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Emergency electricians are dispatched immediately from the nearest district hub and arrive at your doorstep within 45 to 90 minutes across all 14 Kerala districts. You can track your assigned KSELB wireman's live route on GPS mapping.
+                            Our master electrician typically arrives at your doorstep within 45 to 90 minutes across Thalassery, Kannur, and Kozhikode areas. We call you immediately after booking to confirm the exact arrival time.
                         </Text>
                     </AccordionItem>
 
-                    <AccordionItem title="How does 24/7 emergency electrical triage work?">
+                    <AccordionItem title="How does emergency electrical triage work?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            For critical hazards like sparking switchboards, burning smells, or total blackout tripping, our dedicated emergency squad prioritizes your booking. Main DP breaker isolation advice is provided over phone while the squad is en route.
+                            For critical hazards like sparking switchboards, burning smell, or total blackout tripping, our master wireman prioritizes your request. We provide immediate breaker isolation advice over the phone while on the way.
                         </Text>
                     </AccordionItem>
                 </Accordion>
 
-                {/* FAQ Accordions: CONTRACTOR VETTING & LICENSING */}
+                {/* FAQ Accordions: CONTRACTOR VETTING & SAFETY */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    CONTRACTOR VETTING & SAFETY
+                    SAFETY & QUALITY GUARANTEE
                 </Text>
                 <Accordion>
-                    <AccordionItem title="Are Sheriyakam technicians licensed and insured?" defaultOpen={true}>
+                    <AccordionItem title="Are Sheriyakam technicians licensed?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Yes, 100%. Every contractor on Sheriyakam holds a verified wireman or supervisor license issued by the Kerala Electrical Inspectorate. All work is supervised under Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) and backed by our ₹5,00,000 Commercial General Liability domestic safety protection cover.
+                            Yes. Every job is executed or inspected by an experienced, certified wireman holding recognized electrical credentials. All repairs come backed with our 30-day rework warranty.
                         </Text>
                     </AccordionItem>
 
-                    <AccordionItem title="What happens if electrical equipment is accidentally damaged?">
+                    <AccordionItem title="What if an issue recurs after the fix?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Every booking is protected by Sheriyakam's domestic safety cover up to ₹5,00,000 for accidental equipment damage caused during repair. Claims are processed within 48 hours.
+                            If the same problem returns within 30 days of completion, simply call us or message on WhatsApp. We will revisit and resolve it at zero additional charge.
                         </Text>
                     </AccordionItem>
                 </Accordion>
 
                 {/* FAQ Accordions: PRICING & DIAGNOSTIC VISITS */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    PRICING & DIAGNOSTIC VISITS
+                    PRICING & PAYMENT
                 </Text>
                 <Accordion>
-                    <AccordionItem title="How does the ₹49 diagnostic visit fee work?">
+                    <AccordionItem title="Do I have to pay anything in advance?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            If you have an ambiguous fault or need an on-site estimation, a master electrician arrives in 90 minutes, performs full multimeter and earth resistance testing, and gives an itemized quote. If you approve and proceed with the service, the ₹49 fee is 100% adjusted against your final bill.
+                            No advance payment is needed. You pay safely via UPI or cash only after the work is fully completed, tested, and verified to your satisfaction.
                         </Text>
                     </AccordionItem>
 
-                    <AccordionItem title="Can I pay after the service is completed?">
+                    <AccordionItem title="How are prices determined?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Absolutely. You can choose 'Pay After Service' at checkout and pay the technician directly via UPI QR or cash once you test and verify the fix.
+                            All standard repairs follow our transparent upfront rate card (e.g., switches from ₹149, fan repairs from ₹249). For custom wiring or DB overhaul, an itemized quote is provided before starting any work.
                         </Text>
                     </AccordionItem>
                 </Accordion>
