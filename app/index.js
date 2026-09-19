@@ -23,6 +23,7 @@ import LocationModal from '../components/LocationModal';
 import { ServicesAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
 import { Badge } from '../components/ui/Badge';
+import { openWhatsApp } from '../utils/whatsapp';
 
 const IMAGE_MAP = {
   'emergency.png': require('../assets/images/emergency.png'),
@@ -869,11 +870,7 @@ export default function HomeScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    onPress={() => {
-                      const url = `https://wa.me/914952800000?text=${encodeURIComponent("Hi Sheriyakam, I want to book a home service.")}`;
-                      if (Platform.OS === 'web') window.open(url, '_blank');
-                      else Linking.openURL(url);
-                    }}
+                    onPress={() => openWhatsApp("Hi Sheriyakam, I want to book a home service.")}
                     style={{
                       backgroundColor: '#25D366',
                       paddingHorizontal: 14,

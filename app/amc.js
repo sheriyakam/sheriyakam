@@ -16,6 +16,8 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../context/ToastContext';
+import { sendAMCSubscriptionWhatsApp } from '../utils/whatsapp';
+import { validateIndianPhone } from '../utils/validation';
 
 const AMC_PLANS = [
     {
@@ -100,8 +102,9 @@ export default function AMCPlansScreen() {
     const activePlanObj = AMC_PLANS.find(p => p.id === selectedPlan) || AMC_PLANS[0];
 
     const handleSubscribeInquiry = () => {
-        if (!phone.trim() || phone.trim().length < 10) {
-            toastError('Please enter your 10-digit mobile number for membership activation.', 'Required');
+        const phoneValidation = validateIndianPhone(phone);
+        if (!phoneValidation.isValid) {
+            toastError(phoneValidation.error || 'Please enter your 10-digit mobile number for membership activation.', 'Required');
             return;
         }
 
@@ -115,13 +118,13 @@ export default function AMCPlansScreen() {
     };
 
     const handleWhatsAppConsult = (planTitle) => {
-        const text = `Hi Sheriyakam, I would like to subscribe to the *${planTitle || activePlanObj.title}* (₹${activePlanObj.price}/year). Please share membership details.`;
-        const url = `https://wa.me/914952800000?text=${encodeURIComponent(text)}`;
-        if (Platform.OS === 'web') {
-            window.open(url, '_blank');
-        } else {
-            Linking.openURL(url);
-        }
+        sendAMCSubscriptionWhatsApp({
+            planTitle: planTitle || activePlanObj.title,
+            price: activePlanObj.price,
+            city,
+            name,
+            phone
+        });
     };
 
     return (

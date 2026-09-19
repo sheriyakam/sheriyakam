@@ -18,6 +18,8 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../context/ToastContext';
 import { useBookings } from '../constants/bookingStore';
+import { sendEmergencySOSWhatsApp } from '../utils/whatsapp';
+import { validateIndianPhone } from '../utils/validation';
 
 const EMERGENCY_HAZARDS = [
     {
@@ -89,18 +91,18 @@ export default function EmergencyElectricianScreen() {
 
     const handleWhatsAppDispatch = () => {
         const hazardObj = EMERGENCY_HAZARDS.find(h => h.id === selectedHazard);
-        const text = `🚨 *EMERGENCY ELECTRICAL DISPATCH REQUEST*\n\n*Hazard:* ${hazardObj?.title || 'Electrical Emergency'}\n*Location:* ${district}${address ? ' - ' + address : ''}\n*Contact:* ${phone || 'Immediate Dispatch'}\n\nPlease dispatch the nearest KSELB licensed emergency technician immediately.`;
-        const url = `https://wa.me/914952800000?text=${encodeURIComponent(text)}`;
-        if (Platform.OS === 'web') {
-            window.open(url, '_blank');
-        } else {
-            Linking.openURL(url);
-        }
+        sendEmergencySOSWhatsApp({
+            hazard: hazardObj?.title,
+            location: `${district}${address ? ' - ' + address : ''}`,
+            phone: phone || 'Immediate Dispatch',
+            name: name || 'Resident'
+        });
     };
 
     const handleEmergencySubmit = () => {
-        if (!phone.trim() || phone.trim().length < 10) {
-            toastError('Please enter a valid 10-digit mobile number for emergency callback.', 'Required');
+        const phoneValidation = validateIndianPhone(phone);
+        if (!phoneValidation.isValid) {
+            toastError(phoneValidation.error || 'Please enter a valid 10-digit mobile number for emergency callback.', 'Required');
             return;
         }
 
@@ -113,7 +115,7 @@ export default function EmergencyElectricianScreen() {
                 serviceCategory: 'electrical',
                 price: 499,
                 customerName: name.trim() || 'Emergency Caller',
-                customerPhone: phone.trim(),
+                customerPhone: phoneValidation.formatted || phone.trim(),
                 address: address.trim() || `${district}, Kerala`,
                 district: district,
                 timeSlot: 'Immediate (90-min Emergency Dispatch)',

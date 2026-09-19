@@ -16,6 +16,7 @@ import { CATEGORIES, getAllServices } from '../../constants/catalog';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { openWhatsApp } from '../../utils/whatsapp';
 
 export default function ServicesMarketplaceScreen() {
     const router = useRouter();
@@ -52,10 +53,7 @@ export default function ServicesMarketplaceScreen() {
     }, [selectedCategory, searchQuery]);
 
     const handleWhatsAppHelp = () => {
-        const url = `https://wa.me/914952800000?text=${encodeURIComponent("Hi Sheriyakam, I would like to inquire about home service booking in Kerala.")}`;
-        if (Platform.OS === 'web') {
-            window.open(url, '_blank');
-        }
+        openWhatsApp("Hi Sheriyakam, I would like to inquire about home service booking in Kerala.");
     };
 
     return (

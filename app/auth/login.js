@@ -9,6 +9,7 @@ import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { isSupabaseConfigured } from '../../config/supabaseConfig';
 import { UsersAPI } from '../../services/supabaseAPI';
 import { checkRateLimit, generateOTP, hashPassword } from '../../utils/security';
+import { validateIndianPhone } from '../../utils/validation';
 import { snitch } from '../../utils/snitch';
 
 export default function AuthScreen() {
@@ -60,12 +61,6 @@ export default function AuthScreen() {
         return re.test(email);
     };
 
-    const validatePhone = (phone) => {
-        // Validates 10 digit numbers starting with 6-9
-        const re = /^[6-9]\d{9}$/;
-        return re.test(phone);
-    };
-
     const handleAuth = async () => {
         // 1. Validation Logic
         if (!isLogin) {
@@ -82,7 +77,7 @@ export default function AuthScreen() {
                 Alert.alert("Validation Error", "Please enter a valid email address");
                 return;
             }
-            if (!validatePhone(mobile)) {
+            if (!validateIndianPhone(mobile).isValid) {
                 Alert.alert("Validation Error", "Please enter a valid 10-digit mobile number");
                 return;
             }

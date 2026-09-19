@@ -3,17 +3,15 @@
  * Input sanitization, validation, and security helpers
  */
 
+import { sanitizeText, validateIndianPhone } from './validation';
+
 // ============================================================
 //  INPUT SANITIZATION
 // ============================================================
 
-/** Strip HTML tags and dangerous characters */
+/** Strip HTML tags and dangerous characters (delegates to centralized sanitizer) */
 export const sanitizeInput = (input) => {
-    if (typeof input !== 'string') return input;
-    return input
-        .replace(/<[^>]*>/g, '')          // Remove HTML tags
-        .replace(/[<>"'&]/g, '')          // Remove dangerous chars
-        .trim();
+    return sanitizeText(input);
 };
 
 /** Sanitize email — lowercase, trim, validate */
@@ -38,10 +36,9 @@ export const isValidEmail = (email) => {
     return re.test(email);
 };
 
-/** Validate 10-digit Indian mobile number */
+/** Validate 10-digit Indian mobile number (delegates to centralized validator) */
 export const isValidPhone = (phone) => {
-    const re = /^[6-9]\d{9}$/;
-    return re.test(phone);
+    return validateIndianPhone(phone).isValid;
 };
 
 /** Validate password strength */

@@ -19,14 +19,12 @@ import { useTheme } from '../context/ThemeContext';
 import LocationMap from './LocationMap';
 import { LocationsAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
+import { KERALA_DISTRICTS } from '../constants/locations';
 
-const MOCK_CITIES = [
-    "Thalassery, Kerala",
-    "Mahe, Puducherry",
-    "Calicut, Kerala",
-    "Kochi, Kerala",
-    "Kannur, Kerala"
-];
+const DEFAULT_KERALA_CITIES = KERALA_DISTRICTS.flatMap(d => [
+    `${d.name}, Kerala`,
+    ...d.municipalities.slice(0, 2).map(m => `${m.name}, ${d.name}`)
+]);
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,7 +37,7 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
     const [mapRegion, setMapRegion] = useState(null);
     const [selectedCoord, setSelectedCoord] = useState(null);
     const [addressText, setAddressText] = useState('');
-    const [cities, setCities] = useState(MOCK_CITIES);
+    const [cities, setCities] = useState(DEFAULT_KERALA_CITIES);
     const mapRef = useRef(null);
 
     useEffect(() => {

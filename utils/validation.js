@@ -132,3 +132,13 @@ export const buildVerifiedBookingPayload = (bookingData) => {
 
     return payload;
 };
+
+/**
+ * Format numerical amount into Indian Rupee currency format (e.g. ₹1,999)
+ * @param {number|string} amount
+ * @returns {string}
+ */
+export const formatINR = (amount) => {
+    const num = Number(amount) || 0;
+    return `₹${num.toLocaleString('en-IN')}`;
+};

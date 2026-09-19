@@ -17,6 +17,7 @@ import { getAllServices } from '../../constants/catalog';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { openWhatsApp } from '../../utils/whatsapp';
 
 export default function DistrictDetailScreen() {
     const { district: districtParam } = useLocalSearchParams();
@@ -45,9 +46,7 @@ export default function DistrictDetailScreen() {
 
     const handleWhatsAppDispatch = () => {
         const text = `Hi Sheriyakam, I need an electrician in *${districtData.name}* (Locality: ${selectedMuni || districtData.name}). Please confirm available technician.`;
-        const url = `https://wa.me/914952800000?text=${encodeURIComponent(text)}`;
-        if (Platform.OS === 'web') window.open(url, '_blank');
-        else Linking.openURL(url);
+        openWhatsApp(text);
     };
 
     return (

@@ -17,6 +17,8 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../context/ToastContext';
+import { sendCommercialInquiryWhatsApp } from '../utils/whatsapp';
+import { validateIndianPhone } from '../utils/validation';
 
 const COMMERCIAL_SEGMENTS = [
     {
@@ -73,8 +75,9 @@ export default function CommercialServicesScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFormSubmit = () => {
-        if (!contactPerson.trim() || !phone.trim() || phone.trim().length < 10) {
-            toastError('Please enter your contact name and a valid 10-digit phone number.', 'Missing Information');
+        const phoneValidation = validateIndianPhone(phone);
+        if (!contactPerson.trim() || !phoneValidation.isValid) {
+            toastError(phoneValidation.error || 'Please enter your contact name and a valid 10-digit phone number.', 'Missing Information');
             return;
         }
 
@@ -90,13 +93,12 @@ export default function CommercialServicesScreen() {
     };
 
     const handleWhatsAppConsult = () => {
-        const text = `Hi Sheriyakam Commercial Team,\n\nI want to discuss an electrical project for our facility:\n*Company:* ${companyName || 'Not specified'}\n*Facility:* ${facilityType}\n*Location:* ${district}\n\nPlease share commercial contract details.`;
-        const url = `https://wa.me/914952800000?text=${encodeURIComponent(text)}`;
-        if (Platform.OS === 'web') {
-            window.open(url, '_blank');
-        } else {
-            Linking.openURL(url);
-        }
+        sendCommercialInquiryWhatsApp({
+            company: companyName || 'Commercial Client',
+            facility: facilityType,
+            district: district,
+            phone: phone || 'Immediate Consultation'
+        });
     };
 
     return (

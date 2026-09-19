@@ -20,6 +20,7 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { Checkbox } from '../../components/ui/Checkbox';
+import { openWhatsApp } from '../../utils/whatsapp';
 
 export default function SingleServiceDetailScreen() {
     const { id } = useLocalSearchParams();
@@ -104,12 +105,7 @@ export default function SingleServiceDetailScreen() {
 
     const handleWhatsAppInquiry = () => {
         const text = `Hi Sheriyakam, I want to book: *${service.title}* (₹${totalPrice}). Please confirm availability.`;
-        const url = `https://wa.me/914952800000?text=${encodeURIComponent(text)}`;
-        if (Platform.OS === 'web') {
-            window.open(url, '_blank');
-        } else {
-            Linking.openURL(url);
-        }
+        openWhatsApp(text);
     };
 
     return (
