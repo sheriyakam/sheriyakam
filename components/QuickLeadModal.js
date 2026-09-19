@@ -16,7 +16,6 @@ import { openWhatsApp } from '../utils/whatsapp';
 import { createBooking } from '../constants/bookingStore';
 
 const PROBLEM_OPTIONS = [
-    { id: 'diagnostic', label: 'Not sure / Need on-site fault check', price: '₹49', icon: HelpCircle, desc: 'Master electrician tests with multimeter before any work' },
     { id: 'fan', label: 'Fan Repair / Slow Speed / Noise', price: 'From ₹249', icon: Fan, desc: 'Capacitor fix, bearing noise, or regulator change' },
     { id: 'switch', label: 'Switch & Socket Sparking / Burned', price: 'From ₹149', icon: Plug, desc: 'Replace burned 6A/16A switchboards or AC points' },
     { id: 'mcb', label: 'Power Outage / MCB Fuse Box Tripping', price: 'From ₹349', icon: Zap, desc: 'Find short circuits & fix tripping distribution box' },
@@ -85,7 +84,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
             `*Customer Name:* ${name || 'Resident'}\n` +
             `*Phone:* ${phone}\n` +
             `*Preferred Time:* ${preferredTime}\n\n` +
-            `_Requested via Sheriyakam Web App • Empire Electricals Est. 1998_`;
+            `_Requested via Sheriyakam Web App_`;
 
         openWhatsApp(msg);
         setIsSubmitted(true);
@@ -104,7 +103,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
             `*Customer Name:* ${name || 'Resident'}\n` +
             `*Phone:* ${phone}\n` +
             `*Preferred Time:* ${preferredTime}\n\n` +
-            `_Requested via Sheriyakam Web App • Empire Electricals Est. 1998_`;
+            `_Requested via Sheriyakam Web App_`;
         openWhatsApp(msg);
     };
 
@@ -136,7 +135,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                                 {isSubmitted ? 'Request Sent!' : 'Book an Electrician in 3 Simple Steps'}
                             </Text>
                             <Text style={[styles.headerSub, { color: colors.textSecondary }]}>
-                                Empire Electricals (Est. 1998) • KSELB Licence #KSELB/CA-7821/KL
+                                Verified Electrical Services Across Kerala • Upfront Pricing
                             </Text>
                         </View>
                         <TouchableOpacity

@@ -631,7 +631,7 @@ export default function HomeScreen() {
                 "name": "How much does an electrician cost in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Doorstep diagnostic visits start at ₹49, and standard electrical repairs start at ₹149 for switch replacements and ₹249 for fan repairs through Sheriyakam. All bookings include upfront transparent pricing, verified wireman licensing under Empire Electricals (Est. 1998, KSELB Licence #KSELB/CA-7821/KL), and a 30-day rework warranty."
+                  "text": "Standard electrical repairs start at ₹149 for switch replacements and ₹249 for fan repairs through Sheriyakam. All bookings include upfront transparent pricing, verified wireman licensing, and a 30-day rework warranty."
                 }
               },
               {
@@ -647,7 +647,7 @@ export default function HomeScreen() {
                 "name": "Are Sheriyakam electricians certified and insured?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate under Empire Electricals (Licence #KSELB/CA-7821/KL). Every visit is backed by a ₹5,00,000 domestic safety protection cover against accidental equipment damage."
+                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every visit is backed by a ₹5,00,000 domestic safety protection cover against accidental equipment damage."
                 }
               }
             ]
@@ -665,26 +665,6 @@ export default function HomeScreen() {
         </Animated.View>
         <Text style={styles.emergencyStripText}>
           24/7 Emergency Dispatch — 90 Min Response Across Kerala
-        </Text>
-      </View>
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* HERITAGE & LICENSING TOP TRUST STRIP (Est. 1998)        */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      <View style={{
-        backgroundColor: '#0B132B',
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.12)',
-        paddingVertical: 7,
-        paddingHorizontal: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-      }}>
-        <Award size={14} color="#F59E0B" />
-        <Text style={{ color: '#F1F5F9', fontSize: 12, fontWeight: '700', textAlign: 'center' }}>
-          Empire Electricals • Est. 1998 • KSELB Class-A Licence #KSELB/CA-7821/KL • 28 Years of Kerala Trust
         </Text>
       </View>
 
@@ -769,7 +749,7 @@ export default function HomeScreen() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <Zap size={14} color="#F59E0B" fill="#F59E0B" />
                   <Text style={[styles.heroTag, { marginBottom: 0 }]}>
-                    THALASSERY HQ • KSELB LICENCE #KSELB/CA-7821/KL
+                    24/7 DOORSTEP ELECTRICAL SERVICES ACROSS KERALA
                   </Text>
                 </View>
 
@@ -792,8 +772,8 @@ export default function HomeScreen() {
                     <Text style={styles.trustText}>KSELB Certified</Text>
                   </View>
                   <View style={styles.trustItem}>
-                    <Award size={13} color="#F59E0B" />
-                    <Text style={styles.trustText}>Est. 1998 (Empire)</Text>
+                    <Clock size={13} color="#F59E0B" />
+                    <Text style={styles.trustText}>90-Min Arrival</Text>
                   </View>
                   <View style={styles.trustItem}>
                     <Shield size={13} color="#60A5FA" />
@@ -834,57 +814,6 @@ export default function HomeScreen() {
                       What's the problem? — Book Now
                     </Text>
                     <ArrowRight size={18} color="#FFFFFF" />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Secondary Fast Action Buttons: Phone & WhatsApp */}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      const phoneUrl = 'tel:+914952800000';
-                      if (Platform.OS === 'web') window.location.href = phoneUrl;
-                      else Linking.openURL(phoneUrl);
-                    }}
-                    style={{
-                      flex: 1,
-                      minHeight: 44,
-                      backgroundColor: 'rgba(255,255,255,0.14)',
-                      paddingHorizontal: 14,
-                      paddingVertical: 10,
-                      borderRadius: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 6,
-                      borderWidth: 1,
-                      borderColor: 'rgba(255,255,255,0.22)',
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Call Helpline"
-                  >
-                    <Phone size={15} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>Call Helpline</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => openWhatsApp("Hi Sheriyakam, I need an electrician at my doorstep.")}
-                    style={{
-                      flex: 1,
-                      minHeight: 44,
-                      backgroundColor: '#25D366',
-                      paddingHorizontal: 14,
-                      paddingVertical: 10,
-                      borderRadius: 12,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 6,
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Chat on WhatsApp"
-                  >
-                    <MessageCircle size={15} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>WhatsApp</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -1000,53 +929,6 @@ export default function HomeScreen() {
               })}
             </View>
           )}
-
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* DIAGNOSTIC & FAULT INSPECTION CALLOUT (₹49)             */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          <TouchableOpacity
-            onPress={() => openQuickLead({
-              id: 'diagnostic',
-              label: 'Not sure / Need on-site fault check',
-              price: '₹49',
-              desc: 'Master electrician tests with multimeter before any work'
-            })}
-            activeOpacity={0.88}
-            style={{
-              marginHorizontal: SPACING.md,
-              marginTop: SPACING.md,
-              marginBottom: SPACING.lg,
-              borderRadius: 16,
-              padding: 16,
-              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.12)' : '#EFF6FF',
-              borderWidth: 1.5,
-              borderColor: '#3B82F6',
-              flexDirection: isDesktop ? 'row' : 'column',
-              alignItems: isDesktop ? 'center' : 'flex-start',
-              justifyContent: 'space-between',
-              gap: 14,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
-                <HelpCircle size={22} color="#FFFFFF" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>
-                    Not sure what the exact electrical issue is?
-                  </Text>
-                  <Badge variant="success" size="sm">₹49 Doorstep Visit</Badge>
-                </View>
-                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 18 }}>
-                  Book a Doorstep Diagnostic Visit. Technician arrives in 90 mins, performs complete fault isolation & provides an upfront quote. Inspection fee is 100% adjusted against your final bill if work proceeds.
-                </Text>
-              </View>
-            </View>
-            <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, alignSelf: isDesktop ? 'center' : 'flex-start' }}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
-            </View>
-          </TouchableOpacity>
           </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
@@ -1212,10 +1094,10 @@ export default function HomeScreen() {
                 <Text style={{ color: colors.accent, fontWeight: '800' }}>yakam</Text>
               </Text>
               <Text style={[styles.footerTagline, { color: colors.textTertiary }]}>
-                Empire Electricals • Est. 1998 • 28+ Years of Service • 18,000+ Lifetime Kerala Fixes • 2,400+ App Dispatches
+                Kerala's Certified On-Demand Electrical Services • Upfront Pricing • 30-Day Warranty • 2,400+ App Dispatches
               </Text>
               <Text style={[styles.footerLicense, { color: colors.textTertiary }]}>
-                Class-A Licensed Electrical Contractors | Licence #KSELB/CA-7821/KL
+                Verified & Background-Checked Electrical Technicians Across 14 Districts
               </Text>
             </View>
 
