@@ -51,9 +51,11 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
         setStep(3);
     };
 
+    const cleanPhoneDigits = (phone || '').replace(/\D/g, '');
+
     const handleSubmit = () => {
-        if (!phone.trim()) {
-            alert('Please enter your mobile number so we can call you.');
+        if (!cleanPhoneDigits || cleanPhoneDigits.length < 10) {
+            alert('Please enter a valid 10-digit mobile number so our master electrician can call you.');
             return;
         }
 
@@ -67,6 +69,23 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
 
         openWhatsApp(msg);
         setIsSubmitted(true);
+    };
+
+    const handleCallHelpline = () => {
+        const phoneUrl = 'tel:+914952800000';
+        if (Platform.OS === 'web') window.location.href = phoneUrl;
+        else Linking.openURL(phoneUrl);
+    };
+
+    const handleResendWhatsApp = () => {
+        const msg = `⚡ *SHERIYAKAM SERVICE REQUEST*\n\n` +
+            `*Problem:* ${selectedProblem.label} (${selectedProblem.price})\n` +
+            `*Location:* ${location || 'Thalassery / Kannur'}\n` +
+            `*Customer Name:* ${name || 'Resident'}\n` +
+            `*Phone:* ${phone}\n` +
+            `*Preferred Time:* ${preferredTime}\n\n` +
+            `_Requested via Sheriyakam Web App • Empire Electricals Est. 1998_`;
+        openWhatsApp(msg);
     };
 
     const handleResetAndClose = () => {
@@ -94,7 +113,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                     <View style={[styles.header, { borderBottomColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-                                {isSubmitted ? 'Request Received!' : 'Book an Electrician in 3 Simple Steps'}
+                                {isSubmitted ? 'Request Sent!' : 'Book an Electrician in 3 Simple Steps'}
                             </Text>
                             <Text style={[styles.headerSub, { color: colors.textSecondary }]}>
                                 Empire Electricals (Est. 1998) • KSELB Licence #KSELB/CA-7821/KL
@@ -116,10 +135,10 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                                 <CheckCircle2 size={48} color="#10B981" />
                             </View>
                             <Text style={[styles.successTitle, { color: colors.textPrimary }]}>
-                                Thank You! We’ve Received Your Request
+                                Request Prepared!
                             </Text>
                             <Text style={[styles.successDesc, { color: colors.textSecondary }]}>
-                                Your inquiry has been sent directly to our master electrician on WhatsApp. We will call you at <Text style={{ fontWeight: '800', color: colors.textPrimary }}>{phone}</Text> within 15 minutes to confirm our arrival time.
+                                Your booking details were opened in WhatsApp. If you sent the message, our master electrician will call <Text style={{ fontWeight: '800', color: colors.textPrimary }}>{phone}</Text> within 15 minutes.
                             </Text>
 
                             <View style={[styles.summaryCard, { backgroundColor: isDark ? '#27272A' : '#F1F5F9' }]}>
@@ -134,7 +153,46 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                                 </Text>
                             </View>
 
-                            <Button variant="primary" size="lg" fullWidth onPress={handleResetAndClose}>
+                            {/* Fallback actions if WhatsApp didn't open */}
+                            <View style={{ width: '100%', gap: 8, marginTop: 4 }}>
+                                <Text style={{ fontSize: 11.5, color: colors.textTertiary, textAlign: 'center' }}>
+                                    Didn't open WhatsApp or popup blocked?
+                                </Text>
+                                <View style={{ flexDirection: 'row', gap: 8 }}>
+                                    <TouchableOpacity
+                                        onPress={handleResendWhatsApp}
+                                        style={{
+                                            flex: 1,
+                                            minHeight: 42,
+                                            backgroundColor: '#25D366',
+                                            borderRadius: 10,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            paddingHorizontal: 8,
+                                        }}
+                                    >
+                                        <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '700' }}>Resend on WhatsApp</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleCallHelpline}
+                                        style={{
+                                            flex: 1,
+                                            minHeight: 42,
+                                            backgroundColor: isDark ? '#27272A' : '#F1F5F9',
+                                            borderColor: isDark ? '#3F3F46' : '#CBD5E1',
+                                            borderWidth: 1,
+                                            borderRadius: 10,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            paddingHorizontal: 8,
+                                        }}
+                                    >
+                                        <Text style={{ color: colors.textPrimary, fontSize: 12.5, fontWeight: '700' }}>📞 Call Helpline</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            <Button variant="primary" size="lg" fullWidth onPress={handleResetAndClose} style={{ marginTop: 8 }}>
                                 Done
                             </Button>
                         </View>
