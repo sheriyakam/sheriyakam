@@ -6,7 +6,7 @@ import {
 import {
     X, Zap, Fan, Plug, ShieldCheck, BatteryCharging,
     HelpCircle, Phone, ArrowRight, CheckCircle2, MapPin,
-    Clock, User, Check
+    Clock, User, Check, Sparkles, Bot, AlertCircle, Loader2
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
@@ -14,6 +14,8 @@ import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import { openWhatsApp } from '../utils/whatsapp';
 import { createBooking } from '../constants/bookingStore';
+import { ClaudeAiService } from '../services/claudeAiService';
+import { findCustomerByPhone, recordCustomerBooking } from '../constants/customerStore';
 
 const PROBLEM_OPTIONS = [
     { id: 'fan', label: 'Fan Repair / Slow Speed / Noise', price: 'From ₹249', icon: Fan, desc: 'Capacitor fix, bearing noise, or regulator change' },
@@ -41,6 +43,12 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
     const [preferredTime, setPreferredTime] = useState('As soon as possible (45–90 mins)');
     const [isSubmitted, setIsSubmitted] = useState(false);
 
+    // AI Smart Triage States
+    const [freeTextProblem, setFreeTextProblem] = useState('');
+    const [isAnalyzingAi, setIsAnalyzingAi] = useState(false);
+    const [aiTriageResult, setAiTriageResult] = useState(null);
+    const [recognizedCustomer, setRecognizedCustomer] = useState(null);
+
     const handleSelectProblem = (prob) => {
         setSelectedProblem(prob);
         setStep(2);
@@ -49,6 +57,50 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
     const handleSelectLocation = (loc) => {
         setLocation(loc);
         setStep(3);
+    };
+
+    const handleRunAiTriage = async () => {
+        if (!freeTextProblem.trim()) return;
+        setIsAnalyzingAi(true);
+        try {
+            const triage = await ClaudeAiService.triageProblem(freeTextProblem.trim());
+            setAiTriageResult(triage);
+            if (triage && triage.matchedServiceName) {
+                const matchedObj = PROBLEM_OPTIONS.find(p => p.id === triage.matchedServiceId) || {
+                    id: triage.matchedServiceId || 'ai-custom',
+                    label: triage.matchedServiceName,
+                    price: triage.estimatedPrice || 'From ₹249',
+                    icon: Zap,
+                    desc: triage.diagnosisNote || 'AI Diagnosed Service'
+                };
+                setSelectedProblem(matchedObj);
+            }
+        } catch (e) {
+            console.warn('AI Triage error:', e);
+        } finally {
+            setIsAnalyzingAi(false);
+        }
+    };
+
+    const handlePhoneChange = (val) => {
+        setPhone(val);
+        const clean = val.replace(/\D/g, '');
+        if (clean.length >= 10) {
+            const customer = findCustomerByPhone(clean);
+            if (customer) {
+                setRecognizedCustomer(customer);
+                if (!name && customer.name) {
+                    setName(customer.name);
+                }
+                if (!location && customer.addresses && customer.addresses.length > 0) {
+                    setLocation(customer.addresses[0]);
+                }
+            } else {
+                setRecognizedCustomer(null);
+            }
+        } else {
+            setRecognizedCustomer(null);
+        }
     };
 
     const cleanPhoneDigits = (phone || '').replace(/\D/g, '');
@@ -60,6 +112,14 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
         }
 
         try {
+            // Record customer into Customer Store
+            recordCustomerBooking({
+                phone: `+91 ${cleanPhoneDigits}`,
+                name: name.trim() || 'Resident Customer',
+                address: location || 'Thalassery / Kannur'
+            });
+
+            // Create Booking
             createBooking({
                 customerName: name.trim() || 'Resident Customer',
                 customerPhone: `+91 ${cleanPhoneDigits}`,
@@ -73,6 +133,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                 status: 'open',
                 preferredTime: preferredTime,
                 source: 'QuickLeadModal Web',
+                aiTriage: aiTriageResult || (freeTextProblem ? { userDescription: freeTextProblem } : null),
             });
         } catch (e) {
             console.error('Failed to save booking to local store:', e);
@@ -80,6 +141,8 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
 
         const msg = `⚡ *SHERIYAKAM SERVICE REQUEST*\n\n` +
             `*Problem:* ${selectedProblem.label} (${selectedProblem.price})\n` +
+            (aiTriageResult?.diagnosisNote ? `*AI Diagnosis Note:* ${aiTriageResult.diagnosisNote}\n` : '') +
+            (freeTextProblem ? `*Customer Description:* "${freeTextProblem}"\n` : '') +
             `*Location:* ${location || 'Thalassery / Kannur'}\n` +
             `*Customer Name:* ${name || 'Resident'}\n` +
             `*Phone:* ${phone}\n` +
@@ -99,6 +162,8 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
     const handleResendWhatsApp = () => {
         const msg = `⚡ *SHERIYAKAM SERVICE REQUEST*\n\n` +
             `*Problem:* ${selectedProblem.label} (${selectedProblem.price})\n` +
+            (aiTriageResult?.diagnosisNote ? `*AI Diagnosis Note:* ${aiTriageResult.diagnosisNote}\n` : '') +
+            (freeTextProblem ? `*Customer Description:* "${freeTextProblem}"\n` : '') +
             `*Location:* ${location || 'Thalassery / Kannur'}\n` +
             `*Customer Name:* ${name || 'Resident'}\n` +
             `*Phone:* ${phone}\n` +
@@ -110,6 +175,8 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
     const handleResetAndClose = () => {
         setIsSubmitted(false);
         setStep(1);
+        setAiTriageResult(null);
+        setFreeTextProblem('');
         onClose();
     };
 
@@ -239,7 +306,86 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                                         Step 1: What is the electrical problem?
                                     </Text>
                                     <Text style={[styles.stepSub, { color: colors.textSecondary }]}>
-                                        Select the issue below or choose "Not sure" for a ₹49 on-site diagnostic visit:
+                                        Select an issue below, or describe the problem for an instant AI diagnosis:
+                                    </Text>
+
+                                    {/* AI Smart Triage Box */}
+                                    <View style={[styles.aiTriageBox, { backgroundColor: isDark ? '#1E2230' : '#F0F7FF', borderColor: isDark ? '#3B82F655' : '#BFDBFE' }]}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                                            <Sparkles size={16} color="#3B82F6" />
+                                            <Text style={[styles.aiTriageTitle, { color: colors.textPrimary }]}>
+                                                Describe what's wrong in your own words
+                                            </Text>
+                                        </View>
+
+                                        <TextInput
+                                            style={[
+                                                styles.aiTextInput,
+                                                {
+                                                    backgroundColor: isDark ? '#141824' : '#FFFFFF',
+                                                    borderColor: isDark ? '#2D3748' : '#CBD5E1',
+                                                    color: colors.textPrimary
+                                                }
+                                            ]}
+                                            placeholder="e.g. Ceiling fan humming loudly and not spinning, or spark from AC point..."
+                                            placeholderTextColor="#94A3B8"
+                                            value={freeTextProblem}
+                                            onChangeText={setFreeTextProblem}
+                                            multiline
+                                        />
+
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.aiAnalyzeBtn,
+                                                (!freeTextProblem.trim() || isAnalyzingAi) && styles.aiAnalyzeBtnDisabled
+                                            ]}
+                                            onPress={handleRunAiTriage}
+                                            disabled={!freeTextProblem.trim() || isAnalyzingAi}
+                                        >
+                                            {isAnalyzingAi ? (
+                                                <Text style={styles.aiAnalyzeBtnText}>Analyzing issue with AI...</Text>
+                                            ) : (
+                                                <>
+                                                    <Bot size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                                    <Text style={styles.aiAnalyzeBtnText}>Auto-Match Service with AI</Text>
+                                                </>
+                                            )}
+                                        </TouchableOpacity>
+
+                                        {aiTriageResult && (
+                                            <View style={[styles.aiResultCard, { backgroundColor: isDark ? '#181C28' : '#FFFFFF', borderColor: isDark ? '#2D3748' : '#E2E8F0' }]}>
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Text style={[styles.aiResultMatched, { color: '#3B82F6' }]}>
+                                                        Matched: {aiTriageResult.matchedServiceName}
+                                                    </Text>
+                                                    <Badge variant={aiTriageResult.urgency === 'Emergency' ? 'danger' : 'info'} size="sm">
+                                                        {aiTriageResult.urgency || 'Standard'} • {aiTriageResult.estimatedPrice}
+                                                    </Badge>
+                                                </View>
+                                                {aiTriageResult.diagnosisNote ? (
+                                                    <Text style={[styles.aiResultDiagnosis, { color: colors.textSecondary }]}>
+                                                        💡 <Text style={{ fontWeight: '700' }}>Diagnosis:</Text> {aiTriageResult.diagnosisNote}
+                                                    </Text>
+                                                ) : null}
+                                                {aiTriageResult.clarifyingQuestion ? (
+                                                    <Text style={[styles.aiResultQuestion, { color: colors.textTertiary }]}>
+                                                        ❓ <Text style={{ fontWeight: '600' }}>Question:</Text> {aiTriageResult.clarifyingQuestion}
+                                                    </Text>
+                                                ) : null}
+                                                <Button
+                                                    variant="primary"
+                                                    size="sm"
+                                                    onPress={() => setStep(2)}
+                                                    style={{ marginTop: 8 }}
+                                                >
+                                                    Confirm This Service & Continue ›
+                                                </Button>
+                                            </View>
+                                        )}
+                                    </View>
+
+                                    <Text style={[styles.orDividerText, { color: colors.textTertiary }]}>
+                                        — OR SELECT COMMON SERVICE —
                                     </Text>
 
                                     <View style={styles.problemsList}>
@@ -365,6 +511,21 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                                         No signup, password, or advance payment required. We will call you to confirm:
                                     </Text>
 
+                                    {/* Recognized Customer Banner */}
+                                    {recognizedCustomer && (
+                                        <View style={[styles.recognizedBanner, { backgroundColor: isDark ? '#1C2E20' : '#ECFDF5', borderColor: '#10B981' }]}>
+                                            <Sparkles size={16} color="#10B981" />
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.recognizedTitle, { color: colors.textPrimary }]}>
+                                                    Welcome back, {recognizedCustomer.name}!
+                                                </Text>
+                                                <Text style={[styles.recognizedSub, { color: colors.textSecondary }]}>
+                                                    Returning customer ({recognizedCustomer.totalBookings} prior bookings). Priority dispatch applied.
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    )}
+
                                     <View style={{ gap: 10, marginTop: 6 }}>
                                         <View>
                                             <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>Your Mobile Phone Number *</Text>
@@ -381,7 +542,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                                                 placeholderTextColor="#94A3B8"
                                                 keyboardType="phone-pad"
                                                 value={phone}
-                                                onChangeText={setPhone}
+                                                onChangeText={handlePhoneChange}
                                             />
                                         </View>
 
@@ -669,5 +830,85 @@ const styles = StyleSheet.create({
     },
     summaryText: {
         fontSize: 12.5,
+    },
+    aiTriageBox: {
+        borderRadius: 14,
+        padding: 12,
+        borderWidth: 1,
+        gap: 8,
+        marginTop: 4,
+    },
+    aiTriageTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    aiTextInput: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
+        borderWidth: 1,
+        fontSize: 13,
+        minHeight: 52,
+    },
+    aiAnalyzeBtn: {
+        backgroundColor: '#2563EB',
+        borderRadius: 10,
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    aiAnalyzeBtnDisabled: {
+        opacity: 0.5,
+    },
+    aiAnalyzeBtnText: {
+        color: '#FFFFFF',
+        fontSize: 12.5,
+        fontWeight: '700',
+    },
+    aiResultCard: {
+        padding: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+        gap: 6,
+        marginTop: 4,
+    },
+    aiResultMatched: {
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    aiResultDiagnosis: {
+        fontSize: 12,
+        lineHeight: 16,
+    },
+    aiResultQuestion: {
+        fontSize: 11.5,
+        lineHeight: 15,
+        fontStyle: 'italic',
+    },
+    orDividerText: {
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 1,
+        textAlign: 'center',
+        marginVertical: 4,
+    },
+    recognizedBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        padding: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        marginBottom: 8,
+    },
+    recognizedTitle: {
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    recognizedSub: {
+        fontSize: 11.5,
+        lineHeight: 15,
     },
 });

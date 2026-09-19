@@ -9,7 +9,8 @@ import {
     ArrowLeft, Zap, Phone, MapPin, User, CheckCircle2,
     AlertTriangle, Shield, Clock, Search, RefreshCw,
     UserCheck, ChevronRight, MessageCircle, Lock, Unlock,
-    DollarSign, ExternalLink, Filter, Check, X
+    DollarSign, ExternalLink, Filter, Check, X, Sparkles,
+    Camera, FileText, BarChart2, Bot, Upload, Star
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
 import {
@@ -18,6 +19,11 @@ import {
 } from '../../constants/bookingStore';
 import { openWhatsApp } from '../../utils/whatsapp';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { ClaudeAiService } from '../../services/claudeAiService';
+import { AnalyticsService } from '../../services/analyticsService';
+import { StorageService } from '../../services/storageService';
+import { findCustomerByPhone, getCustomers } from '../../constants/customerStore';
+import { getTechnicians } from '../../constants/technicianStore';
 
 export { ErrorBoundary };
 
@@ -38,6 +44,26 @@ export default function ManualDispatchScreen() {
     const [customAssignee, setCustomAssignee] = useState('');
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+
+    // AI Quotation States
+    const [quoteModalVisible, setQuoteModalVisible] = useState(false);
+    const [roughNotes, setRoughNotes] = useState('');
+    const [draftedQuote, setDraftedQuote] = useState('');
+    const [isDraftingQuote, setIsDraftingQuote] = useState(false);
+
+    // AI First-Response States
+    const [replyModalVisible, setReplyModalVisible] = useState(false);
+    const [customerMsgInput, setCustomerMsgInput] = useState('');
+    const [draftedReply, setDraftedReply] = useState('');
+    const [isDraftingReply, setIsDraftingReply] = useState(false);
+
+    // Job Photo States
+    const [photosModalVisible, setPhotosModalVisible] = useState(false);
+    const [photoUrlInput, setPhotoUrlInput] = useState('');
+    const [photoType, setPhotoType] = useState('before');
+
+    // Digest state
+    const [isGeneratingDigest, setIsGeneratingDigest] = useState(false);
 
     const loadData = useCallback(() => {
         const all = getBookings();
@@ -60,6 +86,76 @@ export default function ManualDispatchScreen() {
             setPinError('');
         } else {
             setPinError('Invalid PIN code. Default owner PIN is 1998.');
+        }
+    };
+
+    const analyticsSummary = useMemo(() => {
+        return AnalyticsService.getSummary();
+    }, [bookings]);
+
+    const handleGenerateQuote = async () => {
+        if (!roughNotes.trim()) return;
+        setIsDraftingQuote(true);
+        try {
+            const quote = await ClaudeAiService.draftQuotation(roughNotes.trim());
+            setDraftedQuote(quote);
+        } catch (err) {
+            console.warn('AI Quote generation error:', err);
+        } finally {
+            setIsDraftingQuote(false);
+        }
+    };
+
+    const handleSendQuoteWhatsApp = () => {
+        if (selectedBooking && draftedQuote) {
+            openWhatsApp(draftedQuote, selectedBooking.customerPhone);
+            setQuoteModalVisible(false);
+            setDraftedQuote('');
+            setRoughNotes('');
+        }
+    };
+
+    const handleGenerateReply = async () => {
+        if (!customerMsgInput.trim()) return;
+        setIsDraftingReply(true);
+        try {
+            const reply = await ClaudeAiService.draftWhatsAppFirstResponse(customerMsgInput.trim());
+            setDraftedReply(reply);
+        } catch (err) {
+            console.warn('AI Reply generation error:', err);
+        } finally {
+            setIsDraftingReply(false);
+        }
+    };
+
+    const handleSendReplyWhatsApp = () => {
+        if (selectedBooking && draftedReply) {
+            openWhatsApp(draftedReply, selectedBooking.customerPhone);
+            setReplyModalVisible(false);
+            setDraftedReply('');
+            setCustomerMsgInput('');
+        }
+    };
+
+    const handleAttachPhoto = async () => {
+        if (!selectedBooking || !photoUrlInput.trim()) return;
+        await StorageService.uploadJobPhoto(selectedBooking.id, photoUrlInput.trim(), photoType);
+        Alert.alert('Photo Saved', `${photoType === 'before' ? 'Before-repair' : 'After-repair'} photo attached to #${selectedBooking.id}`);
+        setPhotoUrlInput('');
+        setPhotosModalVisible(false);
+        loadData();
+    };
+
+    const handleSendWeeklyDigest = async () => {
+        setIsGeneratingDigest(true);
+        try {
+            const summary = AnalyticsService.getSummary();
+            const digest = await ClaudeAiService.generateWeeklyDigest(summary);
+            openWhatsApp(digest, '+917594056789');
+        } catch (err) {
+            console.warn('Weekly digest error:', err);
+        } finally {
+            setIsGeneratingDigest(false);
         }
     };
 
@@ -127,7 +223,6 @@ export default function ManualDispatchScreen() {
 
     const handleSendPaymentLink = (booking) => {
         const amt = paymentAmount || booking.finalPrice || booking.price || 350;
-        const upiLink = `upi://pay?pa=sheriyakam@okhdfcbank&pn=Sheriyakam%20Services&am=${amt}&tn=Bill%20for%20Booking%20${booking.id}`;
         const razorpayDemoLink = `https://razorpay.me/@sheriyakam?amount=${amt}`;
 
         const msg = `⚡ *SHERIYAKAM ELECTRICAL BILL / RECEIPT*\n\n` +
@@ -193,6 +288,37 @@ export default function ManualDispatchScreen() {
                 </View>
                 <TouchableOpacity onPress={loadData} style={styles.refreshBtn}>
                     <RefreshCw size={16} color={COLORS.accent} />
+                </TouchableOpacity>
+            </View>
+
+            {/* Analytics Summary Bar */}
+            <View style={styles.analyticsBar}>
+                <View style={styles.analyticsStatsRow}>
+                    <View style={styles.statBox}>
+                        <Text style={styles.statLabel}>WEEK REVENUE</Text>
+                        <Text style={styles.statValue}>₹{analyticsSummary.weeklyRevenue || 0}</Text>
+                    </View>
+                    <View style={styles.statDivider} />
+                    <View style={styles.statBox}>
+                        <Text style={styles.statLabel}>JOBS THIS WEEK</Text>
+                        <Text style={styles.statValue}>{analyticsSummary.weeklyBookingsCount || 0}</Text>
+                    </View>
+                    <View style={styles.statDivider} />
+                    <View style={styles.statBox}>
+                        <Text style={styles.statLabel}>REPEAT RATE</Text>
+                        <Text style={styles.statValue}>{analyticsSummary.repeatRatePercent || 0}%</Text>
+                    </View>
+                </View>
+                <TouchableOpacity
+                    style={styles.weeklyDigestBtn}
+                    onPress={handleSendWeeklyDigest}
+                    disabled={isGeneratingDigest}
+                    activeOpacity={0.8}
+                >
+                    <Sparkles size={13} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.weeklyDigestBtnText}>
+                        {isGeneratingDigest ? 'Drafting Digest...' : 'AI Weekly Digest (WhatsApp)'}
+                    </Text>
                 </TouchableOpacity>
             </View>
 
@@ -272,13 +398,14 @@ export default function ManualDispatchScreen() {
                         const isNew = b.status === 'open' || b.status === 'pending';
                         const isInProgress = b.status === 'in_progress' || b.status === 'in-progress' || b.status === 'accepted';
                         const isAssigned = b.status === 'assigned';
+                        const custProfile = findCustomerByPhone(b.customerPhone);
 
                         return (
                             <View key={b.id} style={[styles.bookingCard, isNew && styles.bookingCardNew]}>
                                 {/* Top Row */}
                                 <View style={styles.bookingTopRow}>
-                                    <View>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <View style={{ flex: 1 }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                                             <Text style={styles.bookingId}>#{b.id}</Text>
                                             <View style={[
                                                 styles.statusBadge,
@@ -297,11 +424,30 @@ export default function ManualDispatchScreen() {
                                                     {b.status?.toUpperCase() || 'NEW'}
                                                 </Text>
                                             </View>
+
+                                            {/* Repeat Customer Tag */}
+                                            {custProfile && (custProfile.isRepeat || custProfile.totalBookings > 1) ? (
+                                                <View style={styles.repeatBadge}>
+                                                    <Star size={10} color="#F59E0B" />
+                                                    <Text style={styles.repeatBadgeText}>Repeat Client ({custProfile.totalBookings} orders)</Text>
+                                                </View>
+                                            ) : null}
                                         </View>
                                         <Text style={styles.bookingService}>{b.service}</Text>
                                     </View>
                                     <Text style={styles.bookingPrice}>₹{b.finalPrice || b.price || 350}</Text>
                                 </View>
+
+                                {/* AI Triage Callout if present */}
+                                {b.aiTriage ? (
+                                    <View style={styles.aiTriageCallout}>
+                                        <Sparkles size={13} color="#60A5FA" />
+                                        <Text style={styles.aiTriageCalloutText}>
+                                            <Text style={{ fontWeight: '700', color: '#93C5FD' }}>AI Triage: </Text>
+                                            {b.aiTriage.diagnosisNote || b.aiTriage.userDescription || 'Smart diagnosed'}
+                                        </Text>
+                                    </View>
+                                ) : null}
 
                                 {/* Customer Details */}
                                 <View style={styles.bookingDetails}>
@@ -322,6 +468,16 @@ export default function ManualDispatchScreen() {
                                         <Text style={styles.detailText}>{b.time || b.preferredTime || 'Immediate'}</Text>
                                     </View>
                                 </View>
+
+                                {/* Job Photos Indicators */}
+                                {(b.beforePhotoUrl || b.afterPhotoUrl) ? (
+                                    <View style={styles.photosIndicatorRow}>
+                                        <Camera size={13} color="#10B981" />
+                                        <Text style={styles.photosIndicatorText}>
+                                            Photos Attached: {b.beforePhotoUrl ? '• Before Repair ' : ''}{b.afterPhotoUrl ? '• After Repair' : ''}
+                                        </Text>
+                                    </View>
+                                ) : null}
 
                                 {/* Assignee Row */}
                                 <View style={styles.assigneeSection}>
@@ -363,8 +519,52 @@ export default function ManualDispatchScreen() {
                                                 <MessageCircle size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
                                                 <Text style={styles.actionBtnWhatsAppText}>WhatsApp</Text>
                                             </TouchableOpacity>
+
+                                            {/* AI Quote Button */}
+                                            <TouchableOpacity
+                                                style={styles.actionBtnAiQuote}
+                                                onPress={() => {
+                                                    setSelectedBooking(b);
+                                                    setRoughNotes('');
+                                                    setDraftedQuote('');
+                                                    setQuoteModalVisible(true);
+                                                }}
+                                                activeOpacity={0.8}
+                                            >
+                                                <Sparkles size={13} color="#93C5FD" style={{ marginRight: 4 }} />
+                                                <Text style={styles.actionBtnAiQuoteText}>AI Quote</Text>
+                                            </TouchableOpacity>
+
+                                            {/* AI Auto-Reply Button */}
+                                            <TouchableOpacity
+                                                style={styles.actionBtnAiReply}
+                                                onPress={() => {
+                                                    setSelectedBooking(b);
+                                                    setCustomerMsgInput('');
+                                                    setDraftedReply('');
+                                                    setReplyModalVisible(true);
+                                                }}
+                                                activeOpacity={0.8}
+                                            >
+                                                <Bot size={13} color="#A7F3D0" style={{ marginRight: 4 }} />
+                                                <Text style={styles.actionBtnAiReplyText}>AI Reply</Text>
+                                            </TouchableOpacity>
                                         </>
                                     ) : null}
+
+                                    {/* Photos Attachment Button */}
+                                    <TouchableOpacity
+                                        style={styles.actionBtnPhotos}
+                                        onPress={() => {
+                                            setSelectedBooking(b);
+                                            setPhotoUrlInput('');
+                                            setPhotosModalVisible(true);
+                                        }}
+                                        activeOpacity={0.8}
+                                    >
+                                        <Camera size={13} color="#CBD5E1" style={{ marginRight: 4 }} />
+                                        <Text style={styles.actionBtnPhotosText}>Photos</Text>
+                                    </TouchableOpacity>
 
                                     {!isInProgress && !isDone && (
                                         <TouchableOpacity
@@ -470,6 +670,224 @@ export default function ManualDispatchScreen() {
                                         <Text style={styles.markCashPaidBtnText}>Record Cash Received</Text>
                                     </TouchableOpacity>
                                 </View>
+                            </>
+                        )}
+                    </View>
+                </View>
+            </Modal>
+
+            {/* AI Quotation Modal */}
+            <Modal
+                visible={quoteModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setQuoteModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.paymentModalCard}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Sparkles size={18} color="#60A5FA" />
+                                <Text style={styles.modalTitle}>AI Quotation Assistant</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => setQuoteModalVisible(false)}>
+                                <X size={20} color="#71717A" />
+                            </TouchableOpacity>
+                        </View>
+
+                        {selectedBooking && (
+                            <>
+                                <Text style={styles.modalSub}>
+                                    Convert wireman rough notes into an itemized WhatsApp quote for #{selectedBooking.id} ({selectedBooking.customerName})
+                                </Text>
+
+                                <Text style={styles.inputLabel}>Wireman Rough On-Site Notes:</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { minHeight: 64, textAlignVertical: 'top' }]}
+                                    value={roughNotes}
+                                    onChangeText={setRoughNotes}
+                                    placeholder="e.g. 2 AC points installation, 1 MCB change, 15m 4sqmm wire needed..."
+                                    placeholderTextColor="#71717A"
+                                    multiline
+                                />
+
+                                <TouchableOpacity
+                                    style={[styles.aiActionBtn, (!roughNotes.trim() || isDraftingQuote) && styles.aiActionBtnDisabled]}
+                                    onPress={handleGenerateQuote}
+                                    disabled={!roughNotes.trim() || isDraftingQuote}
+                                    activeOpacity={0.85}
+                                >
+                                    <Sparkles size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                    <Text style={styles.aiActionBtnText}>
+                                        {isDraftingQuote ? 'Drafting Quote with Claude AI...' : 'Generate WhatsApp Quote'}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                {draftedQuote ? (
+                                    <View style={styles.aiPreviewBox}>
+                                        <Text style={styles.aiPreviewTitle}>WhatsApp Draft Preview:</Text>
+                                        <ScrollView style={{ maxHeight: 150 }}>
+                                            <Text style={styles.aiPreviewText}>{draftedQuote}</Text>
+                                        </ScrollView>
+                                        <TouchableOpacity
+                                            style={styles.sendWhatsAppPaymentBtn}
+                                            onPress={handleSendQuoteWhatsApp}
+                                            activeOpacity={0.85}
+                                        >
+                                            <MessageCircle size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                            <Text style={styles.sendWhatsAppPaymentBtnText}>Send Quote via WhatsApp</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : null}
+                            </>
+                        )}
+                    </View>
+                </View>
+            </Modal>
+
+            {/* AI Auto-Reply Modal */}
+            <Modal
+                visible={replyModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setReplyModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.paymentModalCard}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Bot size={18} color="#10B981" />
+                                <Text style={styles.modalTitle}>AI Auto-Response Bot</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => setReplyModalVisible(false)}>
+                                <X size={20} color="#71717A" />
+                            </TouchableOpacity>
+                        </View>
+
+                        {selectedBooking && (
+                            <>
+                                <Text style={styles.modalSub}>
+                                    Draft polite, standardized first response for customer inquiry #{selectedBooking.id}
+                                </Text>
+
+                                <Text style={styles.inputLabel}>Customer Inquiry / Message:</Text>
+                                <TextInput
+                                    style={[styles.modalInput, { minHeight: 64, textAlignVertical: 'top' }]}
+                                    value={customerMsgInput}
+                                    onChangeText={setCustomerMsgInput}
+                                    placeholder="e.g. When can you arrive? How much for 3 switch replacements?"
+                                    placeholderTextColor="#71717A"
+                                    multiline
+                                />
+
+                                <TouchableOpacity
+                                    style={[styles.aiActionBtn, (!customerMsgInput.trim() || isDraftingReply) && styles.aiActionBtnDisabled]}
+                                    onPress={handleGenerateReply}
+                                    disabled={!customerMsgInput.trim() || isDraftingReply}
+                                    activeOpacity={0.85}
+                                >
+                                    <Bot size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                    <Text style={styles.aiActionBtnText}>
+                                        {isDraftingReply ? 'Drafting Response...' : 'Draft Response with AI'}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                {draftedReply ? (
+                                    <View style={styles.aiPreviewBox}>
+                                        <Text style={styles.aiPreviewTitle}>WhatsApp Draft Preview:</Text>
+                                        <ScrollView style={{ maxHeight: 150 }}>
+                                            <Text style={styles.aiPreviewText}>{draftedReply}</Text>
+                                        </ScrollView>
+                                        <TouchableOpacity
+                                            style={styles.sendWhatsAppPaymentBtn}
+                                            onPress={handleSendReplyWhatsApp}
+                                            activeOpacity={0.85}
+                                        >
+                                            <MessageCircle size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                            <Text style={styles.sendWhatsAppPaymentBtnText}>Send Reply via WhatsApp</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : null}
+                            </>
+                        )}
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Photos Modal */}
+            <Modal
+                visible={photosModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setPhotosModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.paymentModalCard}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Camera size={18} color="#10B981" />
+                                <Text style={styles.modalTitle}>Job Photo Records</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => setPhotosModalVisible(false)}>
+                                <X size={20} color="#71717A" />
+                            </TouchableOpacity>
+                        </View>
+
+                        {selectedBooking && (
+                            <>
+                                <Text style={styles.modalSub}>
+                                    Attach before / after repair photos to #{selectedBooking.id} ({selectedBooking.service})
+                                </Text>
+
+                                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+                                    <TouchableOpacity
+                                        style={[styles.photoTypeTab, photoType === 'before' && styles.photoTypeTabActive]}
+                                        onPress={() => setPhotoType('before')}
+                                    >
+                                        <Text style={[styles.photoTypeTabText, photoType === 'before' && styles.photoTypeTabTextActive]}>
+                                            📷 Before Repair
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.photoTypeTab, photoType === 'after' && styles.photoTypeTabActive]}
+                                        onPress={() => setPhotoType('after')}
+                                    >
+                                        <Text style={[styles.photoTypeTabText, photoType === 'after' && styles.photoTypeTabTextActive]}>
+                                            ✨ After Repair
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                <Text style={styles.inputLabel}>Photo URL / Asset Link:</Text>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    value={photoUrlInput}
+                                    onChangeText={setPhotoUrlInput}
+                                    placeholder="https://... or storage uri"
+                                    placeholderTextColor="#71717A"
+                                />
+
+                                <TouchableOpacity
+                                    style={[styles.aiActionBtn, !photoUrlInput.trim() && styles.aiActionBtnDisabled]}
+                                    onPress={handleAttachPhoto}
+                                    disabled={!photoUrlInput.trim()}
+                                    activeOpacity={0.85}
+                                >
+                                    <Upload size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                    <Text style={styles.aiActionBtnText}>Attach Photo to Job</Text>
+                                </TouchableOpacity>
+
+                                {(selectedBooking.beforePhotoUrl || selectedBooking.afterPhotoUrl) ? (
+                                    <View style={[styles.aiPreviewBox, { marginTop: 12 }]}>
+                                        <Text style={styles.aiPreviewTitle}>Attached Photos:</Text>
+                                        {selectedBooking.beforePhotoUrl ? (
+                                            <Text style={styles.aiPreviewText}>• Before: {selectedBooking.beforePhotoUrl}</Text>
+                                        ) : null}
+                                        {selectedBooking.afterPhotoUrl ? (
+                                            <Text style={styles.aiPreviewText}>• After: {selectedBooking.afterPhotoUrl}</Text>
+                                        ) : null}
+                                    </View>
+                                ) : null}
                             </>
                         )}
                     </View>
@@ -897,6 +1315,201 @@ const styles = StyleSheet.create({
     markCashPaidBtnText: {
         color: '#10B981',
         fontSize: 13,
+        fontWeight: '700',
+    },
+    analyticsBar: {
+        backgroundColor: '#121214',
+        borderBottomWidth: 1,
+        borderBottomColor: '#27272A',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        gap: 10,
+    },
+    analyticsStatsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    statBox: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    statLabel: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#71717A',
+        letterSpacing: 0.5,
+    },
+    statValue: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        marginTop: 2,
+    },
+    statDivider: {
+        width: 1,
+        height: 24,
+        backgroundColor: '#27272A',
+    },
+    weeklyDigestBtn: {
+        backgroundColor: '#2563EB',
+        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    weeklyDigestBtnText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    repeatBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+        borderColor: '#F59E0B',
+        borderWidth: 1,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    repeatBadgeText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#F59E0B',
+    },
+    aiTriageCallout: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(59, 130, 246, 0.12)',
+        borderColor: 'rgba(59, 130, 246, 0.3)',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        marginBottom: 10,
+    },
+    aiTriageCalloutText: {
+        fontSize: 11.5,
+        color: '#D4D4D8',
+        flex: 1,
+    },
+    photosIndicatorRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 8,
+    },
+    photosIndicatorText: {
+        fontSize: 11,
+        color: '#10B981',
+        fontWeight: '600',
+    },
+    actionBtnAiQuote: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: '#3B82F6',
+        borderWidth: 1,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+    },
+    actionBtnAiQuoteText: {
+        color: '#93C5FD',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    actionBtnAiReply: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        borderColor: '#10B981',
+        borderWidth: 1,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+    },
+    actionBtnAiReplyText: {
+        color: '#A7F3D0',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    actionBtnPhotos: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+        borderColor: '#3F3F46',
+        borderWidth: 1,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+    },
+    actionBtnPhotosText: {
+        color: '#CBD5E1',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    aiActionBtn: {
+        backgroundColor: '#2563EB',
+        borderRadius: 10,
+        paddingVertical: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 12,
+    },
+    aiActionBtnDisabled: {
+        opacity: 0.5,
+    },
+    aiActionBtnText: {
+        color: '#FFFFFF',
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    aiPreviewBox: {
+        backgroundColor: '#121214',
+        borderColor: '#27272A',
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 12,
+        gap: 8,
+    },
+    aiPreviewTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#60A5FA',
+    },
+    aiPreviewText: {
+        fontSize: 12,
+        color: '#E4E4E7',
+        lineHeight: 18,
+    },
+    photoTypeTab: {
+        flex: 1,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#27272A',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#3F3F46',
+    },
+    photoTypeTabActive: {
+        backgroundColor: '#10B98122',
+        borderColor: '#10B981',
+    },
+    photoTypeTabText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#A1A1AA',
+    },
+    photoTypeTabTextActive: {
+        color: '#10B981',
         fontWeight: '700',
     },
 });

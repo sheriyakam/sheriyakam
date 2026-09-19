@@ -72,9 +72,130 @@ export const ServicesAPI = {
         const { data, error } = await supabase
             .from('services')
             .select('*')
-            .order('id', { ascending: true });
+            .eq('is_active', true)
+            .order('display_order', { ascending: true });
         return { data: data || [], error };
     },
+
+    /** Create a new service */
+    async create(serviceData) {
+        if (!isSupabaseConfigured) return { data: serviceData, error: null };
+        const { data, error } = await supabase
+            .from('services')
+            .insert([serviceData])
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    /** Update service price or details */
+    async update(id, updates) {
+        if (!isSupabaseConfigured) return { data: updates, error: null };
+        const { data, error } = await supabase
+            .from('services')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    /** Toggle active flag */
+    async toggleActive(id, isActive) {
+        if (!isSupabaseConfigured) return { data: null, error: null };
+        const { data, error } = await supabase
+            .from('services')
+            .update({ is_active: isActive })
+            .eq('id', id)
+            .select()
+            .single();
+        return { data, error };
+    }
+};
+
+// ============================================================
+//  CUSTOMERS API
+// ============================================================
+
+export const CustomersAPI = {
+    /** Find customer by phone */
+    async findByPhone(phone) {
+        if (!isSupabaseConfigured) return { data: null, error: null };
+        const { data, error } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('phone', phone)
+            .single();
+        return { data, error };
+    },
+
+    /** Record or update customer booking */
+    async recordBooking(customerData) {
+        if (!isSupabaseConfigured) return { data: customerData, error: null };
+        const existing = await this.findByPhone(customerData.phone);
+        if (existing.data) {
+            const { data, error } = await supabase
+                .from('customers')
+                .update({
+                    total_bookings: (existing.data.total_bookings || 1) + 1,
+                    last_booking_at: new Date().toISOString(),
+                })
+                .eq('id', existing.data.id)
+                .select()
+                .single();
+            return { data, error };
+        } else {
+            const { data, error } = await supabase
+                .from('customers')
+                .insert([{
+                    phone: customerData.phone,
+                    name: customerData.name || 'Resident Customer',
+                    addresses: customerData.address ? [customerData.address] : [],
+                    total_bookings: 1,
+                }])
+                .select()
+                .single();
+            return { data, error };
+        }
+    },
+
+    /** Get all customers (admin) */
+    async getAll() {
+        if (!isSupabaseConfigured) return { data: [], error: null };
+        const { data, error } = await supabase
+            .from('customers')
+            .select('*')
+            .order('last_booking_at', { ascending: false });
+        return { data: data || [], error };
+    }
+};
+
+// ============================================================
+//  TECHNICIANS API
+// ============================================================
+
+export const TechniciansAPI = {
+    /** Get all active technicians */
+    async getAll() {
+        if (!isSupabaseConfigured) return { data: [], error: null };
+        const { data, error } = await supabase
+            .from('technicians')
+            .select('*')
+            .eq('is_active', true)
+            .order('name', { ascending: true });
+        return { data: data || [], error };
+    },
+
+    /** Create/Add technician */
+    async create(techData) {
+        if (!isSupabaseConfigured) return { data: techData, error: null };
+        const { data, error } = await supabase
+            .from('technicians')
+            .insert([techData])
+            .select()
+            .single();
+        return { data, error };
+    }
 };
 
 // ============================================================
