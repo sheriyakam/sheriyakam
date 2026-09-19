@@ -384,7 +384,7 @@ export default function HomeScreen() {
         useNativeDriver: true,
       }).start();
     }
-  }, [services, selectedCategory, searchQuery]);
+  }, [services, searchQuery]);
 
   // Memoized dynamic styles (only recompute on theme change)
   const dynamicStyles = useMemo(() => ({
