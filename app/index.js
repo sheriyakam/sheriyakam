@@ -8,7 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Zap, MapPin, Menu as MenuIcon, ChevronDown, CheckCircle, Shield,
   Briefcase, Search, Star, Clock, Users, Award, ChevronRight, Phone,
-  Mail, Globe, ArrowRight, MessageCircle, ChevronUp, HelpCircle, Sparkles
+  Mail, Globe, ArrowRight, MessageCircle, ChevronUp, HelpCircle, Sparkles,
+  Snowflake, Droplets, Camera, Building2, ShieldCheck, AlertTriangle, BatteryCharging, Fan
 } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
@@ -21,6 +22,7 @@ import BookingModal from '../components/BookingModal';
 import MenuModal from '../components/MenuModal';
 import LocationModal from '../components/LocationModal';
 import FloatingCartBar from '../components/FloatingCartBar';
+import StickyMobileCTA from '../components/StickyMobileCTA';
 import ReviewsSection from '../components/ReviewsSection';
 import WorkGallery from '../components/WorkGallery';
 import { ServicesAPI } from '../services/supabaseAPI';
@@ -459,12 +461,17 @@ export default function HomeScreen() {
         <meta property="og:description" content="Licensed electricians across Kerala. 2400+ jobs completed. 4.9★ rating. Emergency dispatch in 90 minutes." />
         <meta property="og:url" content="https://sheriyakam.vercel.app/" />
         <meta property="og:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:alt" content="Sheriyakam Home and Electrical Services in Kerala" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Sheriyakam — Book Expert Electricians in 60 Seconds" />
         <meta name="twitter:description" content="Licensed electricians across Kerala. 2400+ jobs completed. 4.9★ rating. Emergency dispatch in 90 minutes." />
         <meta name="twitter:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
+        <meta name="twitter:image:alt" content="Sheriyakam Home and Electrical Services in Kerala" />
 
         {/* ═══════════════════════════════════════════════════════ */}
         {/* 1. SCHEMA.ORG & GOOGLE RICH RESULTS DUAL-VALIDATED JSON-LD */}
@@ -797,7 +804,10 @@ export default function HomeScreen() {
             <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop]}>
               {/* LEFT: Headline + Trust + Search */}
               <View style={[styles.heroLeft, isDesktop && { flex: 1, marginRight: 24 }]}>
-                <Text style={styles.heroTag}>⚡ FAST 60-SEC BOOKING • 90-MIN DOORSTEP ARRIVAL</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                  <Zap size={13} color="#F59E0B" fill="#F59E0B" />
+                  <Text style={[styles.heroTag, { marginBottom: 0 }]}>FAST 60-SEC BOOKING • 90-MIN DOORSTEP ARRIVAL</Text>
+                </View>
                 <Text style={styles.heroTitle}>
                   Book in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
                   Electrician at Your{'\n'}
@@ -834,7 +844,12 @@ export default function HomeScreen() {
                     onChangeText={setSearchQuery}
                   />
                   {searchQuery.length > 0 && (
-                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                    <TouchableOpacity
+                      onPress={() => setSearchQuery('')}
+                      style={{ minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center' }}
+                      accessibilityRole="button"
+                      accessibilityLabel="Clear Search"
+                    >
                       <Text style={{ color: '#94a3b8', fontSize: 18 }}>✕</Text>
                     </TouchableOpacity>
                   )}
@@ -843,34 +858,44 @@ export default function HomeScreen() {
                 {/* Quick Intent Pills */}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
                   {[
-                    { label: '🌀 Fan Repair', category: 'Electrical', q: 'Fan' },
-                    { label: '⚡ MCB Tripping', category: 'DB & Switchgear', q: 'DB' },
-                    { label: '❄️ AC Service', category: 'Air Conditioning', q: '' },
-                    { label: '🔋 Inverter', category: 'Electrical', q: 'Inverter' },
-                    { label: '🚨 24/7 Emergency', path: '/emergency-electrician' },
-                    { label: '🏢 Commercial', path: '/commercial' },
-                    { label: '🛡️ Care AMC', path: '/amc' },
-                    { label: '📁 Work Gallery', path: '/work' },
-                  ].map((pill, idx) => (
-                    <TouchableOpacity
-                      key={idx}
-                      onPress={() => {
-                        if (pill.path) router.push(pill.path);
-                        else scrollToCatalog(pill.category || 'All', pill.q || '');
-                      }}
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.15)',
-                        paddingHorizontal: 12,
-                        paddingVertical: 6,
-                        borderRadius: 16,
-                        marginRight: 8,
-                        borderWidth: 1,
-                        borderColor: 'rgba(255,255,255,0.2)'
-                      }}
-                    >
-                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>{pill.label}</Text>
-                    </TouchableOpacity>
-                  ))}
+                    { label: 'Fan Repair', category: 'Electrical', q: 'Fan', icon: Zap },
+                    { label: 'MCB Tripping', category: 'DB & Switchgear', q: 'DB', icon: Zap },
+                    { label: 'AC Service', category: 'Air Conditioning', q: '', icon: Snowflake },
+                    { label: 'Inverter', category: 'Electrical', q: 'Inverter', icon: BatteryCharging },
+                    { label: '24/7 Emergency', path: '/emergency-electrician', icon: AlertTriangle },
+                    { label: 'Commercial', path: '/commercial', icon: Building2 },
+                    { label: 'Care AMC', path: '/amc', icon: ShieldCheck },
+                    { label: 'Work Gallery', path: '/work', icon: Briefcase },
+                  ].map((pill, idx) => {
+                    const Icon = pill.icon;
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        onPress={() => {
+                          if (pill.path) router.push(pill.path);
+                          else scrollToCatalog(pill.category || 'All', pill.q || '');
+                        }}
+                        style={{
+                          minHeight: 44,
+                          backgroundColor: 'rgba(255,255,255,0.15)',
+                          paddingHorizontal: 14,
+                          paddingVertical: 10,
+                          borderRadius: 16,
+                          marginRight: 8,
+                          borderWidth: 1,
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 6
+                        }}
+                        accessibilityRole="button"
+                        accessibilityLabel={pill.label}
+                      >
+                        <Icon size={14} color="#FFFFFF" />
+                        <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '700' }}>{pill.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </ScrollView>
 
                 {/* Multi-Channel CTA Action Hub */}
@@ -878,14 +903,18 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={() => router.push('/services')}
                     style={{
+                      minHeight: 44,
                       backgroundColor: '#2563EB',
                       paddingHorizontal: 16,
-                      paddingVertical: 10,
+                      paddingVertical: 11,
                       borderRadius: 12,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: 6
+                      gap: 6,
+                      justifyContent: 'center'
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Browse Rate Cards"
                   >
                     <Zap size={15} color="#FFFFFF" />
                     <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>Browse Rate Cards</Text>
@@ -894,30 +923,38 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={() => router.push('/emergency-electrician')}
                     style={{
+                      minHeight: 44,
                       backgroundColor: '#EF4444',
                       paddingHorizontal: 16,
-                      paddingVertical: 10,
+                      paddingVertical: 11,
                       borderRadius: 12,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: 6
+                      gap: 6,
+                      justifyContent: 'center'
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel="24/7 Emergency Dispatch"
                   >
-                    <Zap size={15} color="#FFFFFF" fill="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>🚨 24/7 Emergency</Text>
+                    <AlertTriangle size={15} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>24/7 Emergency</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     onPress={() => openWhatsApp("Hi Sheriyakam, I want to book a home service.")}
                     style={{
+                      minHeight: 44,
                       backgroundColor: '#25D366',
                       paddingHorizontal: 14,
-                      paddingVertical: 10,
+                      paddingVertical: 11,
                       borderRadius: 12,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: 6
+                      gap: 6,
+                      justifyContent: 'center'
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Chat on WhatsApp"
                   >
                     <MessageCircle size={15} color="#FFFFFF" />
                     <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>WhatsApp</Text>
@@ -930,16 +967,20 @@ export default function HomeScreen() {
                       else Linking.openURL(phoneUrl);
                     }}
                     style={{
+                      minHeight: 44,
                       backgroundColor: 'rgba(255,255,255,0.12)',
                       paddingHorizontal: 14,
-                      paddingVertical: 10,
+                      paddingVertical: 11,
                       borderRadius: 12,
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 6,
                       borderWidth: 1,
-                      borderColor: 'rgba(255,255,255,0.2)'
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      justifyContent: 'center'
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Call Helpline"
                   >
                     <Phone size={14} color="#FFFFFF" />
                     <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>Call Helpline</Text>
@@ -1031,36 +1072,46 @@ export default function HomeScreen() {
 
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {[
-                { title: '⚡ Electrical', sub: 'Fans, DB, Wiring, Inverters', category: 'Electrical', badge: 'Flagship' },
-                { title: '❄️ AC Service', sub: 'Jet Wash & Gas Refill', category: 'Air Conditioning', badge: 'Active' },
-                { title: '🚰 Plumbing', sub: 'Pipes, Taps & Motor Starter', path: '/services', badge: 'Active' },
-                { title: '📹 CCTV Security', sub: 'IP Cameras & NVR Setup', category: 'CCTV & Security', badge: 'Active' },
-                { title: '🏢 Commercial B2B', sub: 'Offices, Shops & Clinics', path: '/commercial', badge: 'Corporate' },
-                { title: '🛡️ Care AMC', sub: 'Annual Maintenance Plans', path: '/amc', badge: 'Peace of Mind' },
-              ].map((item, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  onPress={() => {
-                    if (item.path) router.push(item.path);
-                    else if (item.category) scrollToCatalog(item.category, '');
-                  }}
-                  style={{
-                    width: isDesktop ? '31.8%' : isTablet ? '48%' : '48%',
-                    backgroundColor: isDark ? '#18181B' : '#FFFFFF',
-                    borderColor: isDark ? '#27272A' : '#E4E4E7',
-                    borderWidth: 1,
-                    borderRadius: 14,
-                    padding: 12,
-                    gap: 4
-                  }}
-                >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ color: colors.textPrimary, fontSize: 13.5, fontWeight: '800' }}>{item.title}</Text>
-                    <Badge variant="info" size="sm">{item.badge}</Badge>
-                  </View>
-                  <Text style={{ color: colors.textSecondary, fontSize: 11 }}>{item.sub}</Text>
-                </TouchableOpacity>
-              ))}
+                { title: 'Electrical', sub: 'Fans, DB, Wiring, Inverters', category: 'Electrical', badge: 'Flagship', icon: Zap, iconColor: '#3B82F6' },
+                { title: 'AC Service', sub: 'Jet Wash & Gas Refill', category: 'Air Conditioning', badge: 'Active', icon: Snowflake, iconColor: '#38BDF8' },
+                { title: 'Plumbing', sub: 'Pipes, Taps & Motor Starter', path: '/services', badge: 'Active', icon: Droplets, iconColor: '#0EA5E9' },
+                { title: 'CCTV Security', sub: 'IP Cameras & NVR Setup', category: 'CCTV & Security', badge: 'Active', icon: Camera, iconColor: '#A855F7' },
+                { title: 'Commercial B2B', sub: 'Offices, Shops & Clinics', path: '/commercial', badge: 'Corporate', icon: Building2, iconColor: '#F59E0B' },
+                { title: 'Care AMC', sub: 'Annual Maintenance Plans', path: '/amc', badge: 'Peace of Mind', icon: ShieldCheck, iconColor: '#10B981' },
+              ].map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    onPress={() => {
+                      if (item.path) router.push(item.path);
+                      else if (item.category) scrollToCatalog(item.category, '');
+                    }}
+                    style={{
+                      minHeight: 68,
+                      width: isDesktop ? '31.8%' : isTablet ? '48%' : '48%',
+                      backgroundColor: isDark ? '#18181B' : '#FFFFFF',
+                      borderColor: isDark ? '#27272A' : '#E4E4E7',
+                      borderWidth: 1,
+                      borderRadius: 14,
+                      padding: 12,
+                      gap: 6,
+                      justifyContent: 'center'
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.title}
+                  >
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Icon size={16} color={item.iconColor} />
+                        <Text style={{ color: colors.textPrimary, fontSize: 13.5, fontWeight: '800' }}>{item.title}</Text>
+                      </View>
+                      <Badge variant="info" size="sm">{item.badge}</Badge>
+                    </View>
+                    <Text style={{ color: colors.textSecondary, fontSize: 11 }}>{item.sub}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
 
@@ -1442,6 +1493,9 @@ export default function HomeScreen() {
       {/* Persistent Multi-Item Floating Cart Bar */}
       <FloatingCartBar />
 
+      {/* Sticky Mobile Quick Conversion & Helpline Bar */}
+      <StickyMobileCTA onBookPress={() => scrollToCatalog('All', '')} />
+
     </SafeAreaView>
   );
 }
@@ -1506,6 +1560,10 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   menuButton: {
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 10,
     borderRadius: 12,
   },
@@ -1530,8 +1588,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerLocationBtn: {
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -1545,13 +1605,17 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   headerAuthBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 1,
   },
   headerAuthBtnText: {
-    fontSize: 12,
+    fontSize: 12.5,
     fontWeight: '700',
   },
   headerBookBtn: {
@@ -1677,8 +1741,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryBadge: {
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
   },
@@ -1992,23 +2059,28 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   footerDistrictTag: {
-    fontSize: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
     overflow: 'hidden',
-    fontWeight: '500',
   },
   footerLinks: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     flexWrap: 'wrap',
     justifyContent: 'center',
+    marginVertical: 6,
   },
   footerLink: {
     fontSize: 13,
     fontWeight: '500',
+    paddingVertical: 10,
+    paddingHorizontal: 6,
   },
   footerDot: {
     fontSize: 8,

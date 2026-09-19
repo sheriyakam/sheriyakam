@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
-import { CheckCircle2, AlertTriangle, ArrowRight, Shield, Award, Sparkles } from 'lucide-react-native';
+import { CheckCircle2, AlertTriangle, ArrowRight, Shield, Award, Sparkles, MapPin } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS, SPACING } from '../constants/theme';
 import { Badge } from './ui/Badge';
@@ -110,9 +110,12 @@ export default function WorkGallery() {
                 <View style={styles.metaRow}>
                     <View>
                         <Text style={[styles.projectTitle, { color: colors.textPrimary }]}>{current.title}</Text>
-                        <Text style={[styles.projectLocation, { color: colors.textSecondary }]}>
-                            📍 {current.location} • {current.clientType}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
+                            <MapPin size={12} color={colors.textSecondary} />
+                            <Text style={[styles.projectLocation, { color: colors.textSecondary }]}>
+                                {current.location} • {current.clientType}
+                            </Text>
+                        </View>
                     </View>
                     <View style={styles.slaBadge}>
                         <Award size={13} color="#10B981" />
@@ -128,7 +131,13 @@ export default function WorkGallery() {
                             <AlertTriangle size={13} color="#FFFFFF" />
                             <Text style={styles.photoBannerText}>BEFORE REPAIR (HAZARD)</Text>
                         </View>
-                        <Image source={{ uri: current.beforeImage }} style={styles.photo} resizeMode="cover" />
+                        <Image
+                            source={{ uri: current.beforeImage }}
+                            style={styles.photo}
+                            resizeMode="cover"
+                            accessible={true}
+                            accessibilityLabel={`Before repair: ${current.title}`}
+                        />
                         <View style={styles.photoCaptionWrap}>
                             <Text style={[styles.photoCaption, { color: colors.textSecondary }]}>
                                 {current.beforeDesc}
@@ -142,7 +151,13 @@ export default function WorkGallery() {
                             <CheckCircle2 size={13} color="#FFFFFF" />
                             <Text style={styles.photoBannerText}>AFTER SHERIYAKAM FIX (CERTIFIED)</Text>
                         </View>
-                        <Image source={{ uri: current.afterImage }} style={styles.photo} resizeMode="cover" />
+                        <Image
+                            source={{ uri: current.afterImage }}
+                            style={styles.photo}
+                            resizeMode="cover"
+                            accessible={true}
+                            accessibilityLabel={`After certified repair: ${current.title}`}
+                        />
                         <View style={styles.photoCaptionWrap}>
                             <Text style={[styles.photoCaption, { color: colors.textSecondary }]}>
                                 {current.afterDesc}
@@ -198,8 +213,11 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.md,
     },
     pill: {
+        minHeight: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 9,
+        paddingVertical: 10,
         borderRadius: 20,
         borderWidth: 1,
     },

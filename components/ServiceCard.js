@@ -104,6 +104,8 @@ const ServiceCard = ({
                             source={typeof image === 'string' ? { uri: image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=80' } : (image || { uri: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=80' })}
                             style={styles.image}
                             resizeMode="cover"
+                            accessible={true}
+                            accessibilityLabel={`Photo for ${name}`}
                         />
                         {/* Subtle gradient overlay */}
                         <View style={styles.imageOverlay} />
@@ -288,14 +290,18 @@ const styles = StyleSheet.create({
         letterSpacing: -0.3,
     },
     bookBtn: {
+        minHeight: 44,
+        minWidth: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 14,
-        paddingVertical: 7,
+        paddingVertical: 10,
         borderRadius: 10,
     },
     bookBtnText: {
         color: '#fff',
         fontWeight: '700',
-        fontSize: 12,
+        fontSize: 12.5,
         letterSpacing: 0.2,
     },
     topRatedBadge: {

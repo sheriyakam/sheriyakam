@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Globe, Mail, Phone, ExternalLink, Shield, Award, Users, CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, Globe, Mail, Phone, ExternalLink, Shield, Award, Users, CheckCircle, UserCheck, Wrench, Heart } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -126,27 +126,36 @@ export default function AboutScreen() {
                     
                     <View style={{ gap: 14, marginTop: 10 }}>
                         <View style={{ gap: 4 }}>
-                            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
-                                👤 Who Authors & Oversees Our Work
-                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <UserCheck size={14} color={colors.accent} />
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
+                                    Who Authors & Oversees Our Work
+                                </Text>
+                            </View>
                             <Text style={{ fontSize: 13, color: colors.textSecondary, lineHeight: 19 }}>
                                 Supervised by KSELB Grade-A certified electrical engineers with over 25 years of Kerala fieldwork. Every wireman on our platform holds a valid Kerala Electrical Inspectorate permit.
                             </Text>
                         </View>
 
                         <View style={{ gap: 4 }}>
-                            <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981' }}>
-                                🛠️ How We Test & Verify Electricians
-                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Wrench size={14} color="#10B981" />
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981' }}>
+                                    How We Test & Verify Electricians
+                                </Text>
+                            </View>
                             <Text style={{ fontSize: 13, color: colors.textSecondary, lineHeight: 19 }}>
                                 We verify wireman credentials on government databases, mandate 1000V-rated insulated tools and calibrated true-RMS meters, and run practical on-site safety assessments before dispatch.
                             </Text>
                         </View>
 
                         <View style={{ gap: 4 }}>
-                            <Text style={{ fontSize: 13, fontWeight: '700', color: '#F59E0B' }}>
-                                ❤️ Why We Built Sheriyakam
-                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Heart size={14} color="#F59E0B" fill="#F59E0B" />
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#F59E0B' }}>
+                                    Why We Built Sheriyakam
+                                </Text>
+                            </View>
                             <Text style={{ fontSize: 13, color: colors.textSecondary, lineHeight: 19 }}>
                                 Created to eliminate inflated doorstep quotes, solve Kerala monsoon tripping hazards safely, and ensure every household gets fair pricing with an automatic 30-day rework warranty.
                             </Text>

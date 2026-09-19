@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, HelpCircle, MessageSquare, Shield, Clock, Award, CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, HelpCircle, MessageSquare, Shield, Clock, Award, CheckCircle, UserCheck } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
 import { Accordion, AccordionItem } from '../components/ui/Accordion';
@@ -49,9 +49,12 @@ export default function FAQScreen() {
                     marginBottom: 18,
                     gap: 6
                 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
-                        👤 Reviewed & Verified by KSELB Grade-A Electrical Supervisors
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <UserCheck size={14} color={colors.accent} />
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.accent }}>
+                            Reviewed & Verified by KSELB Grade-A Electrical Supervisors
+                        </Text>
+                    </View>
                     <Text style={{ fontSize: 12, color: colors.textSecondary, lineHeight: 18 }}>
                         Authored by the technical team at Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL). All safety instructions follow Central Electricity Authority (CEA) Safety Regulations and Kerala State Electricity Board (KSEB) standards.
                     </Text>

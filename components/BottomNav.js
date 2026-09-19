@@ -150,10 +150,11 @@ const styles = StyleSheet.create({
     navItem: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 4,
+        paddingVertical: 6,
         paddingHorizontal: 12,
         position: 'relative',
         minWidth: 58,
+        minHeight: 44,
     },
     activeIndicator: {
         position: 'absolute',
