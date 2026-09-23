@@ -117,7 +117,6 @@ export default function SavedResumesPage() {
                   <TouchableOpacity
                     style={styles.iconBtn}
                     onPress={() => handleDuplicate(res)}
-                    title="Duplicate"
                   >
                     <Copy size={14} color="#4B5563" />
                     <Text style={styles.iconBtnText}>Duplicate</Text>
@@ -127,7 +126,6 @@ export default function SavedResumesPage() {
                     <TouchableOpacity
                       style={styles.iconBtn}
                       onPress={() => handleDelete(res.id)}
-                      title="Delete"
                     >
                       <Trash2 size={14} color="#DC2626" />
                       <Text style={[styles.iconBtnText, { color: '#DC2626' }]}>Delete</Text>

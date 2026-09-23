@@ -895,6 +895,7 @@ export function generateTextSelectableAtsHtml(resumeData: any, template = 'ats-c
 
 const RESUMES_STORAGE_KEY = 'sheriyakam_career_resumes_v2';
 const LEDGER_STORAGE_KEY = 'sheriyakam_career_ledger_v2';
+const ANALYSES_STORAGE_KEY = 'sheriyakam_career_analyses_v1';
 
 export function getSavedResumes(): SavedResume[] {
   if (typeof window === 'undefined') return [];

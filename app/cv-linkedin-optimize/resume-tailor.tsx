@@ -18,7 +18,8 @@ import {
   Copy,
   Download,
   AlertCircle,
-  FileCheck
+  FileCheck,
+  Info
 } from 'lucide-react-native';
 
 export default function ResumeTailorPage() {
