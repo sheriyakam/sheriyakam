@@ -35,7 +35,8 @@ export function handleWebhookEvent(event) {
 
     switch (eventType) {
         case 'payment.captured': {
-            const payment = payload.payment.entity;
+            const payment = payload?.payment?.entity || payload?.payment;
+            if (!payment) return { status: 'ERROR', error: 'Missing payment entity' };
             console.log(`[Webhook] Payment Captured: ${payment.id} for ₹${payment.amount / 100}`);
             return {
                 status: 'SUCCESS',
@@ -47,7 +48,8 @@ export function handleWebhookEvent(event) {
         }
 
         case 'transfer.processed': {
-            const transfer = payload.transfer.entity;
+            const transfer = payload?.transfer?.entity || payload?.transfer;
+            if (!transfer) return { status: 'ERROR', error: 'Missing transfer entity' };
             console.log(`[Webhook] Split Transfer Settled: ${transfer.id} to ${transfer.account} (₹${transfer.amount / 100})`);
             return {
                 status: 'SUCCESS',
@@ -59,7 +61,8 @@ export function handleWebhookEvent(event) {
         }
 
         case 'transfer.failed': {
-            const transfer = payload.transfer.entity;
+            const transfer = payload?.transfer?.entity || payload?.transfer;
+            if (!transfer) return { status: 'ERROR', error: 'Missing transfer entity' };
             console.error(`[Webhook] Transfer Failed: ${transfer.id} - ${transfer.error_description}`);
             return {
                 status: 'FAILED',
@@ -70,7 +73,8 @@ export function handleWebhookEvent(event) {
         }
 
         case 'dispute.created': {
-            const dispute = payload.dispute.entity;
+            const dispute = payload?.dispute?.entity || payload?.dispute;
+            if (!dispute) return { status: 'ERROR', error: 'Missing dispute entity' };
             console.warn(`[Webhook] Customer Dispute Created: ${dispute.id} - Locking Escrow`);
             return {
                 status: 'DISPUTE_LOCKED',
@@ -81,7 +85,8 @@ export function handleWebhookEvent(event) {
         }
 
         case 'refund.processed': {
-            const refund = payload.refund.entity;
+            const refund = payload?.refund?.entity || payload?.refund;
+            if (!refund) return { status: 'ERROR', error: 'Missing refund entity' };
             console.log(`[Webhook] Refund Processed: ${refund.id} for ₹${refund.amount / 100}`);
             return {
                 status: 'REFUNDED',
