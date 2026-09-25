@@ -17,7 +17,7 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../context/ToastContext';
-import { useBookings } from '../constants/bookingStore';
+import { createBooking } from '../constants/bookingStore';
 import { sendEmergencySOSWhatsApp } from '../utils/whatsapp';
 import { validateIndianPhone } from '../utils/validation';
 
@@ -71,7 +71,6 @@ export default function EmergencyElectricianScreen() {
     const { width } = useWindowDimensions();
     const isDesktop = width >= 1024;
     const { success, error: toastError } = useToast();
-    const { createBooking } = useBookings();
 
     const [selectedHazard, setSelectedHazard] = useState(EMERGENCY_HAZARDS[0].id);
     const [name, setName] = useState('');
