@@ -170,7 +170,7 @@ export default function AboutScreen() {
                 {/* Operated By */}
                 <View style={[styles.card, styles.highlightCard]}>
                     <Text style={styles.highlightTitle}>POWERED BY</Text>
-                    <Text style={styles.empireText}>Sheriyakam Kerala</Text>
+                    <Text style={styles.brandText}>Sheriyakam Kerala</Text>
                     <Text style={styles.highlightSubText}>Verified Technicians</Text>
                 </View>
 
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
         letterSpacing: 2,
         marginBottom: 8,
     },
-    empireText: {
+    brandText: {
         fontSize: 24,
         fontWeight: '900',
         color: COLORS.accent,

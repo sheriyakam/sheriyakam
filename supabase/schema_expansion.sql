@@ -107,5 +107,5 @@ ON CONFLICT (id) DO UPDATE SET price = EXCLUDED.price, description = EXCLUDED.de
 -- Initial Seed Technician (Owner)
 INSERT INTO public.technicians (id, name, phone, role, license_number, district, taluk, is_active, is_available)
 VALUES
-    ('tech_owner', 'Zanjan', '+91 75940 56789', 'owner', 'KSELB/CA-7821/KL', 'Kannur', 'Thalassery', true, true)
+    ('tech_owner', 'Zanjan', '+91 75940 56789', 'owner', 'KSELB/WB-4102/KL', 'Kannur', 'Thalassery', true, true)
 ON CONFLICT (id) DO NOTHING;
