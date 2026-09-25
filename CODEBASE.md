@@ -170,8 +170,8 @@ export default function AboutScreen() {
                 {/* Operated By */}
                 <View style={[styles.card, styles.highlightCard]}>
                     <Text style={styles.highlightTitle}>POWERED BY</Text>
-                    <Text style={styles.empireText}>Empire Electricals</Text>
-                    <Text style={styles.highlightSubText}>Since 1998</Text>
+                    <Text style={styles.empireText}>Sheriyakam Kerala</Text>
+                    <Text style={styles.highlightSubText}>Verified Technicians</Text>
                 </View>
 
                 {/* Contact */}

@@ -2,7 +2,7 @@
 
 > **Internal Operations Guide, Emergency SOP & Production Deployment Checklist**  
 > **Platform Version:** 1.0.0 Production Release  
-> **Heritage:** Empire Electricals • Est. 1998 • KSELB Certified
+> **Service Standard:** Verified Electricians • KSELB Certified
 
 ---
 
