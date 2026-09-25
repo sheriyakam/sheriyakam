@@ -141,7 +141,7 @@ export default function CustomerPaymentScreen() {
                     <View style={{ flex: 1 }}>
                         <Text style={styles.techName}>{booking.partnerName || 'Shyam Prasad'}</Text>
                         <Text style={styles.techMeta}>
-                            KSELB License: <Text style={{ color: COLORS.accent, fontWeight: '700' }}>#KSELB/CA-7821/KL</Text>
+                            KSELB License: <Text style={{ color: COLORS.accent, fontWeight: '700' }}>#{booking.kselbLicense || 'KSELB/WB-4102/KL'}</Text>
                         </Text>
                         <Text style={styles.techMeta}>
                             Service: <Text style={{ color: COLORS.textPrimary }}>{booking.service}</Text>
