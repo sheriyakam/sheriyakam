@@ -39,7 +39,7 @@ const DEFAULT_FAQS = [
         id: 'faq-3',
         category: 'Safety',
         q: 'Are Sheriyakam technicians licensed and insured?',
-        a: 'Yes, 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. All work is supervised under Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) and backed by our ₹5,00,000 domestic safety insurance cover.'
+        a: 'Yes, 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. All work is backed by verified safety protocols and our ₹5,00,000 domestic safety insurance cover.'
     },
     {
         id: 'faq-4',

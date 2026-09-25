@@ -97,11 +97,9 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                         "email": "support@sheriyakam.in",
                         "priceRange": "₹49 - ₹1,499",
                         "image": "https://sheriyakam.vercel.app/og-image.png",
-                        "parentOrganization": {
+                        "provider": {
                             "@type": "Organization",
-                            "name": "Empire Electricals",
-                            "foundingDate": "1998",
-                            "license": "KSELB/CA-7821/KL",
+                            "name": "Sheriyakam",
                             "url": "https://sheriyakam.vercel.app"
                         },
                         "address": {
@@ -469,10 +467,10 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                     <Award size={24} color="#2563EB" />
                     <View style={{ flex: 1, gap: 4 }}>
                         <Text style={[styles.trustBoxTitle, { color: colors.textPrimary }]}>
-                            Empire Electricals Class-A Certified (Est. 1998)
+                            Certified & Verified Technicians
                         </Text>
                         <Text style={[styles.trustBoxSub, { color: colors.textSecondary }]}>
-                            Licence #KSELB/CA-7821/KL • All dispatches in {data.name} are covered under ₹5 Lakh property protection insurance with zero hidden fees.
+                            All dispatches in {data.name} are covered under ₹5 Lakh property protection insurance with zero hidden fees.
                         </Text>
                     </View>
                 </View>
@@ -613,7 +611,7 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                         </TouchableOpacity>
                     </View>
                     <Text style={[styles.legalCopyText, { color: colors.textTertiary }]}>
-                        © 2026 Sheriyakam • Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) • Thalassery, Kerala
+                        © 2026 Sheriyakam. All rights reserved. • Kerala, India
                     </Text>
                 </View>
             </ScrollView>

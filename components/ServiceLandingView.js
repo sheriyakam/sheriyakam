@@ -106,9 +106,8 @@ export default function ServiceLandingView({
                         "description": metaDescription,
                         "provider": {
                             "@type": "HomeAndConstructionBusiness",
-                            "name": "Sheriyakam (Empire Electricals Est. 1998)",
+                            "name": "Sheriyakam",
                             "telephone": "+91 495 280 0000",
-                            "license": "KSELB/CA-7821/KL",
                             "url": "https://sheriyakam.vercel.app",
                             "address": {
                                 "@type": "PostalAddress",
@@ -344,7 +343,7 @@ export default function ServiceLandingView({
                             Licensed KSELB Wiremen & ₹5 Lakh Insurance Cover
                         </Text>
                         <Text style={[styles.trustBoxSub, { color: colors.textSecondary }]}>
-                            Supervised under Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL). Every visit is backed by comprehensive safety protocols.
+                            Every visit is executed by verified wiremen and backed by comprehensive safety protocols.
                         </Text>
                     </View>
                 </View>
@@ -427,7 +426,7 @@ export default function ServiceLandingView({
                         </TouchableOpacity>
                     </View>
                     <Text style={[styles.legalCopyText, { color: colors.textTertiary }]}>
-                        © 2026 Sheriyakam • Empire Electricals (Est. 1998, Class-A Licence #KSELB/CA-7821/KL) • Thalassery, Kerala
+                        © 2026 Sheriyakam. All rights reserved. • Kerala, India
                     </Text>
                 </View>
             </ScrollView>

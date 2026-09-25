@@ -11,11 +11,11 @@ export const DISTRICT_SEO_DATA = {
         name: 'Thalassery',
         districtName: 'Kannur (Thalassery HQ)',
         malayalam: 'തലശ്ശേരി',
-        h1: 'Licensed Electrician in Thalassery — 45-Min Doorstep Service | Empire Electricals HQ',
+        h1: 'Licensed Electrician in Thalassery — 45-Min Doorstep Service | Sheriyakam HQ',
         metaTitle: 'Electrician in Thalassery — 45-Min Doorstep Service | Sheriyakam HQ',
-        metaDescription: 'Book KSELB licensed electricians in Thalassery, Kannur. Est. 1998 by Empire Electricals. 45-min arrival in Thalassery town, Temple Gate, Dharmadam, Koduvally & Kadirur. ₹49 diagnostic visit.',
+        metaDescription: 'Book KSELB licensed electricians in Thalassery, Kannur. 45-min arrival in Thalassery town, Temple Gate, Dharmadam, Koduvally & Kadirur. ₹49 diagnostic visit.',
         canonical: 'https://sheriyakam.vercel.app/thalassery-electrician',
-        tagline: 'Empire Electricals HQ • 28+ Years Serving Thalassery',
+        tagline: 'Main Operations Hub • Serving Thalassery & Malabar',
         arrivalMins: 45,
         activeTechs: 16,
         rating: '4.9★ (640+ Reviews)',
@@ -26,7 +26,7 @@ export const DISTRICT_SEO_DATA = {
             'Chonadam', 'Muzhappilangad', 'Eranholi', 'Pinarayi', 'Koolibazar',
             'Thiruvangad', 'Guzili Street', 'Pilakool'
         ],
-        intro: 'Operating directly from our Empire Electricals headquarters in Thalassery (Est. 1998), Sheriyakam provides rapid 45-minute electrician dispatch across Thalassery municipality, Temple Gate, Dharmadam, Koduvally, and surrounding Malabar towns. From coastal salt-corrosion wire restoration in coastal heritage homes to modern modular switchgear and 3-phase commercial DB maintenance, our KSELB Class-A certified electricians guarantee upfront pricing and a 30-day rework warranty.',
+        intro: 'Operating directly from our central operations hub in Thalassery, Sheriyakam provides rapid 45-minute electrician dispatch across Thalassery municipality, Temple Gate, Dharmadam, Koduvally, and surrounding Malabar towns. From coastal salt-corrosion wire restoration in coastal heritage homes to modern modular switchgear and 3-phase commercial DB maintenance, our certified electricians guarantee upfront pricing and a 30-day rework warranty.',
         regionalProblems: [
             'High humidity and sea salt oxidation in coastal Thalassery homes causing socket sparking and switch failure.',
             'Old building heritage wiring needing safe conduit upgrade without damaging traditional woodwork.',
@@ -39,8 +39,8 @@ export const DISTRICT_SEO_DATA = {
                 a: 'Our Thalassery dispatch hub is located on Main Road. We reach Temple Gate, Dharmadam, Koduvally, Kadirur, and town locations within 30 to 45 minutes of booking.'
             },
             {
-                q: 'Is Sheriyakam connected with Empire Electricals Thalassery?',
-                a: 'Yes, Sheriyakam is the digital doorstep on-demand platform founded by Empire Electricals (Est. 1998, KSELB Class-A Licence #KSELB/CA-7821/KL), serving North Malabar with over 28 years of trusted service.'
+                q: 'What is Sheriyakam\'s service coverage in Thalassery?',
+                a: 'Sheriyakam is the digital doorstep on-demand platform serving North Malabar with transparent fixed rates and 45-minute arrival across Thalassery municipality.'
             },
             {
                 q: 'What is the diagnostic visit cost in Thalassery?',
@@ -112,7 +112,7 @@ export const DISTRICT_SEO_DATA = {
             'Mattannur (Airport Zone)', 'Iritty', 'Thottada', 'Mele Chovva',
             'South Bazar', 'Pappinisseri', 'Valapattanam', 'Chakkarakkal'
         ],
-        intro: 'Sheriyakam provides trusted, licensed electrical services across the entirety of Kannur district, including Kannur Corporation, Thalassery, Payyanur, Taliparamba, Mattannur International Airport zone, and Iritty. Backed by over 28 years of local field experience, our team tackles residential rewiring, AC jet cleaning, CCTV setups, and distribution switchgear overhauls with transparent pricing and ₹5 Lakh property damage protection.',
+        intro: 'Sheriyakam provides trusted, licensed electrical services across the entirety of Kannur district, including Kannur Corporation, Thalassery, Payyanur, Taliparamba, Mattannur International Airport zone, and Iritty. Backed by verified local electricians, our team tackles residential rewiring, AC jet cleaning, CCTV setups, and distribution switchgear overhauls with transparent pricing and ₹5 Lakh property damage protection.',
         regionalProblems: [
             'Saline air corrosion on metal switch boxes and outdoor junction points in coastal Kannur and Valapattanam.',
             'Voltage fluctuations and surge spikes during monsoon thunderstorms requiring automatic voltage stabilizers and RCCB testing.',
