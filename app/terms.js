@@ -38,7 +38,7 @@ export default function TermsScreen() {
                 </TouchableOpacity>
                 <View style={{ flex: 1, paddingHorizontal: 8 }}>
                     <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Terms of Service</Text>
-                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Empire Electricals Est. 1998 • KSELB Licence #KSELB/CA-7821/KL</Text>
+                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Customer Protection & Fair Service Standards</Text>
                 </View>
                 <TouchableOpacity onPress={() => router.push('/grievance')} style={styles.hubBtn}>
                     <Badge variant="gold" size="sm">Grievance Desk</Badge>
@@ -53,7 +53,7 @@ export default function TermsScreen() {
                         Terms of Service & Customer Protection Agreement
                     </Text>
                     <Text style={styles.heroSub}>
-                        Welcome to Sheriyakam, operated under Empire Electricals (Est. 1998, Class-A KSELB Licence #KSELB/CA-7821/KL, Thalassery, Kerala). We believe in simple, transparent terms without fine-print traps.
+                        Welcome to Sheriyakam, Kerala's trusted on-demand electrical service platform. We believe in simple, transparent terms without fine-print traps.
                     </Text>
                     <View style={styles.badgeRow}>
                         <Badge variant="success">Pay After Work</Badge>
@@ -132,7 +132,7 @@ export default function TermsScreen() {
                                 1. Inform the technician and raise a dispute in the app or call support (+91 495 280 0000).
                             </Text>
                             <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
-                                2. An Empire Electricals senior supervisor will review the job photos and multitester readings within 24 hours.
+                                2. A senior electrical supervisor will review the job photos and multitester readings within 24 hours.
                             </Text>
                             <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
                                 3. If the work was unsatisfactory, charges are adjusted or a free rework is dispatched. Customers may not arbitrarily withhold legitimate labor/material fees for completed code-compliant work.
@@ -160,7 +160,7 @@ export default function TermsScreen() {
                             • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>What is NOT Covered</Text>: Pre-existing degraded wiring beyond the repair scope, acts of nature (direct lightning strikes, flood waterlogging), appliances with pre-existing internal board failures, or unapproved side-deals arranged outside the Sheriyakam platform.
                         </Text>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Claim Process</Text>: Submit claim within 72 hours via the app or <Text style={{ color: colors.accent, fontWeight: '700' }}>claims@sheriyakam.in</Text> with photos and description. An Empire Electricals engineer will inspect on-site within 24 hours.
+                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Claim Process</Text>: Submit claim within 72 hours via the app or <Text style={{ color: colors.accent, fontWeight: '700' }}>claims@sheriyakam.in</Text> with photos and description. A technical supervisor will inspect on-site within 24 hours.
                         </Text>
                     </View>
                 </Card>
@@ -174,7 +174,7 @@ export default function TermsScreen() {
                         </Text>
                     </View>
                     <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Sheriyakam operates as a technology intermediary connecting consumers with licensed electrical wiremen under the supervision of Empire Electricals. In all non-insured claims, platform liability is capped at the total fee charged for that specific service visit. These terms are governed exclusively by the laws of India, and courts in Kannur / Kozhikode, Kerala hold jurisdiction.
+                        Sheriyakam operates as an on-demand technology service connecting consumers with licensed, verified electrical wiremen. In all non-insured claims, platform liability is capped at the total fee charged for that specific service visit. These terms are governed exclusively by the laws of India, and courts in Kannur / Kozhikode, Kerala hold jurisdiction.
                     </Text>
                 </Card>
 
