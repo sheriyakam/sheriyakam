@@ -1,0 +1,25 @@
+{
+  "short_name": "Sheriyakam",
+  "name": "Sheriyakam - Kerala On-Demand Electrician & Home Services",
+  "description": "Book certified electrical wiremen and home repair specialists in Kerala within 45-90 minutes.",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0A0F1C",
+  "theme_color": "#3B82F6",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["lifestyle", "utilities", "business"],
+  "lang": "en-IN"
+}

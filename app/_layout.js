@@ -6,6 +6,7 @@ import { CartProvider } from '../context/CartContext';
 import { Stack } from 'expo-router';
 import ErrorBoundary from '../components/ErrorBoundary';
 import BottomNav from '../components/BottomNav';
+import PwaInstallPrompt from '../components/PwaInstallPrompt';
 import { View } from 'react-native';
 
 import { StatusBar } from 'expo-status-bar';
@@ -29,6 +30,7 @@ export default function Layout() {
                                 <View style={{ flex: 1 }}>
                                     <Stack screenOptions={{ headerShown: false }} />
                                     <BottomNav />
+                                    <PwaInstallPrompt />
                                 </View>
                             </ErrorBoundary>
                         </SafeAreaProvider>
