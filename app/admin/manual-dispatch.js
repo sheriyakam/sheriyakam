@@ -203,7 +203,7 @@ export default function ManualDispatchScreen() {
             `📍 *Location:* ${booking.address || booking.taluk || 'Thalassery'}\n` +
             `🕒 *Arrival:* 45–90 minutes\n\n` +
             `If you need anything, call our direct line: 0490 299 6789.\n` +
-            `_Sheriyakam Home Services • Empire Electricals Est. 1998_`;
+            `_Sheriyakam Home Services • Kerala_`;
         openWhatsApp(msg, booking.customerPhone);
     };
 
@@ -233,7 +233,7 @@ export default function ManualDispatchScreen() {
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.headerTitle}>Operations & Dispatch Desk</Text>
-                    <Text style={styles.headerSub}>Single-Page Job Tracker • Empire Electricals Est. 1998</Text>
+                    <Text style={styles.headerSub}>Single-Page Job Tracker • Sheriyakam Kerala</Text>
                 </View>
                 <TouchableOpacity onPress={loadData} style={styles.refreshBtn}>
                     <RefreshCw size={16} color={COLORS.accent} />

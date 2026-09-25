@@ -30,8 +30,8 @@ export default function AboutScreen() {
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F8FAFC' }]}>
             <Head>
-                <title>About Sheriyakam & Empire Electricals (Est. 1998) | Kerala</title>
-                <meta name="description" content="Discover the 28-year heritage of Empire Electricals (Est. 1998, Thalassery, KSELB Licence #KSELB/CA-7821/KL) and how Sheriyakam brings trusted, transparent electrical repairs to all 14 Kerala districts." />
+                <title>About Sheriyakam | Kerala</title>
+                <meta name="description" content="Discover how Sheriyakam brings trusted, transparent electrical repairs and verified technicians to all 14 Kerala districts." />
                 <link rel="canonical" href="https://sheriyakam.vercel.app/about" />
             </Head>
 
@@ -50,7 +50,7 @@ export default function AboutScreen() {
                 </TouchableOpacity>
                 <View style={{ flex: 1, paddingHorizontal: 8 }}>
                     <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>About Sheriyakam</Text>
-                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Empire Electricals • 28+ Years of Service • Est. 1998</Text>
+                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Verified Technicians • Upfront Pricing • 14 Districts</Text>
                 </View>
                 <TouchableOpacity onPress={() => router.push('/locations')} style={styles.hubBtn}>
                     <Badge variant="info" size="sm">14 Districts</Badge>
@@ -71,32 +71,32 @@ export default function AboutScreen() {
                         Kerala’s Most Trusted Doorstep Electrical Service Platform
                     </Text>
                     <View style={styles.badgeRow}>
-                        <Badge variant="gold" size="md">Empire Electricals Est. 1998</Badge>
-                        <Badge variant="success" size="md">KSELB Class-A #KSELB/CA-7821/KL</Badge>
+                        <Badge variant="gold" size="md">Verified Electrical Service</Badge>
+                        <Badge variant="success" size="md">Licensed & Insured</Badge>
                     </View>
                 </View>
 
-                {/* Heritage Story: Empire Electricals (Est. 1998) */}
+                {/* Heritage Story: Mission */}
                 <Card variant="elevated" style={[styles.storyCard, { backgroundColor: isDark ? '#18181B' : '#0F172A' }]}>
                     <View style={styles.storyHeader}>
                         <Award size={28} color="#F59E0B" />
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.storyPretitle}>OUR 28-YEAR HERITAGE</Text>
-                            <Text style={styles.storyTitle}>From Thalassery Workshop to Statewide On-Demand Platform</Text>
+                            <Text style={styles.storyPretitle}>OUR MISSION</Text>
+                            <Text style={styles.storyTitle}>Quality Electrical Care Across Kerala</Text>
                         </View>
                     </View>
                     <Text style={styles.storyText}>
-                        In 1998, master electrical contractors founded <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Empire Electricals</Text> on Main Road in Thalassery, North Malabar. Starting with heavy commercial distribution wiring, industrial control panels, and coastal home rewiring, our team built a reputation for honest diagnostics, zero cut corners, and strict code compliance under the Kerala State Electricity Licensing Board (KSELB).
+                        <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Sheriyakam</Text> ("ശരിയാക്കാം" — "We will fix it") was created to solve everyday domestic and commercial electrical emergencies with honest diagnostics, zero cut corners, and strict safety compliance under the Kerala State Electricity Licensing Board (KSELB).
                     </Text>
                     <Text style={styles.storyText}>
-                        Over 28+ years, Empire Electricals completed more than <Text style={{ fontWeight: '800', color: '#60A5FA' }}>18,000+ physical installations and repairs</Text>. In 2024, we launched <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Sheriyakam</Text> ("ശരിയാക്കാം" — "We will fix it") to bring that same generational craftsmanship directly to your smartphone with transparent fixed rates and 45–90 minute doorstep dispatch.
+                        With more than <Text style={{ fontWeight: '800', color: '#60A5FA' }}>18,000+ verified installations and repairs</Text>, Sheriyakam delivers professional craftsmanship directly to your smartphone with transparent fixed rates and 45–90 minute doorstep dispatch across all 14 districts of Kerala.
                     </Text>
                 </Card>
 
                 {/* Stats Row */}
                 <View style={styles.statsRow}>
                     {[
-                        { value: '28+ Yrs', label: 'Kerala Heritage', icon: Award, color: '#F59E0B' },
+                        { value: '4.9★', label: 'Customer Rating', icon: Award, color: '#F59E0B' },
                         { value: '18,000+', label: 'Lifetime Fixes', icon: CheckCircle, color: '#10B981' },
                         { value: '250+', label: 'Licensed Wiremen', icon: Users, color: '#2563EB' },
                         { value: '14/14', label: 'Districts Active', icon: MapPin, color: '#8B5CF6' },
@@ -149,7 +149,7 @@ export default function AboutScreen() {
                             <View style={{ flex: 1, gap: 2 }}>
                                 <Text style={[styles.pillarTitle, { color: colors.textPrimary }]}>30-Day Free Rework Guarantee</Text>
                                 <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                    If the same issue reoccurs within 30 days, an Empire Electricals supervisor revisits and fixes it at ₹0 visit fee.
+                                    If the same issue reoccurs within 30 days, a senior supervisor revisits and fixes it at ₹0 visit fee.
                                 </Text>
                             </View>
                         </View>
@@ -200,7 +200,7 @@ export default function AboutScreen() {
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Headquarters & Main Workshop</Text>
                                 <Text style={[styles.contactValue, { color: colors.textPrimary }]}>
-                                    Empire Electricals, Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala - 670101
+                                    Sheriyakam Technologies, Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala - 670101
                                 </Text>
                             </View>
                         </View>
@@ -210,7 +210,7 @@ export default function AboutScreen() {
                 {/* Footer */}
                 <View style={styles.aboutFooter}>
                     <Text style={[styles.footerText, { color: colors.textTertiary }]}>
-                        © 2026 Sheriyakam • Empire Electricals (Est. 1998)
+                        © 2026 Sheriyakam. All rights reserved.
                     </Text>
                     <Text style={[styles.footerSubtext, { color: colors.textTertiary }]}>
                         Crafted with pride in Thalassery for all 14 Kerala Districts

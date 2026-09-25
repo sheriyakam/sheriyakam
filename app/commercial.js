@@ -127,7 +127,7 @@ export default function CommercialServicesScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Hero Header */}
                 <View style={[styles.heroBanner, { backgroundColor: isDark ? '#18181B' : '#1E293B', borderColor: isDark ? '#27272A' : '#334155' }]}>
-                    <Badge variant="info" size="md">KSELB Class-A Contractor Licence #KSELB/CA-7821/KL</Badge>
+                    <Badge variant="info" size="md">Certified Commercial Electrical Contractors</Badge>
                     <Text style={styles.heroTitle}>
                         Commercial Electrical Solutions & Facility Maintenance in Kerala
                     </Text>

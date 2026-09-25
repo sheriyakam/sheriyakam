@@ -51,11 +51,11 @@ const HELP_CATEGORIES = [
 
 const LEGAL_POLICIES = [
     {
-        title: 'About Empire Electricals & Sheriyakam',
-        desc: 'Est. 1998 in Thalassery, 28+ years of heritage, Class-A KSELB Licence #KSELB/CA-7821/KL.',
+        title: 'About Sheriyakam',
+        desc: 'Our mission, verified electricians, upfront rates, and statewide coverage in Kerala.',
         route: '/about',
         icon: Award,
-        badge: 'Est. 1998',
+        badge: 'Kerala',
         badgeColor: 'amber'
     },
     {

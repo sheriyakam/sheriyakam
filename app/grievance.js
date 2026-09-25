@@ -127,7 +127,7 @@ export default function GrievanceRedressalScreen() {
                         <View style={styles.contactRow}>
                             <MapPin size={16} color={colors.accent} />
                             <Text style={[styles.contactText, { color: colors.textSecondary }]}>
-                                Empire Electricals / Sheriyakam, Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala - 670101
+                                Sheriyakam Technologies, Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala - 670101
                             </Text>
                         </View>
                         <View style={styles.contactRow}>
