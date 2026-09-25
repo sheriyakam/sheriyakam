@@ -27,13 +27,8 @@ import { getTechnicians } from '../../constants/technicianStore';
 
 export { ErrorBoundary };
 
-const DEFAULT_PIN = '1998';
-
 export default function ManualDispatchScreen() {
     const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [pinInput, setPinInput] = useState('');
-    const [pinError, setPinError] = useState('');
 
     const [bookings, setBookings] = useState([]);
     const [filterStatus, setFilterStatus] = useState('all');
@@ -79,15 +74,6 @@ export default function ManualDispatchScreen() {
         bookingEvents.on('change', loadData);
         return () => bookingEvents.off('change', loadData);
     }, [loadData]);
-
-    const handleUnlock = () => {
-        if (pinInput === DEFAULT_PIN || pinInput === '1234' || pinInput === 'admin') {
-            setIsAuthenticated(true);
-            setPinError('');
-        } else {
-            setPinError('Invalid PIN code. Default owner PIN is 1998.');
-        }
-    };
 
     const analyticsSummary = useMemo(() => {
         return AnalyticsService.getSummary();
@@ -237,43 +223,6 @@ export default function ManualDispatchScreen() {
         openWhatsApp(msg, booking.customerPhone);
         setPaymentModalVisible(false);
     };
-
-    // PIN Login Guard Screen
-    if (!isAuthenticated) {
-        return (
-            <SafeAreaView style={styles.loginContainer}>
-                <View style={styles.loginCard}>
-                    <View style={styles.loginIconWrap}>
-                        <Lock size={28} color={COLORS.accent} />
-                    </View>
-                    <Text style={styles.loginTitle}>Owner Dispatch Desk</Text>
-                    <Text style={styles.loginSubtitle}>Enter owner PIN code to manage bookings and assignments</Text>
-
-                    <TextInput
-                        style={styles.pinInput}
-                        placeholder="Enter PIN (Default: 1998)"
-                        placeholderTextColor="#71717A"
-                        secureTextEntry
-                        keyboardType="number-pad"
-                        value={pinInput}
-                        onChangeText={setPinInput}
-                        onSubmitEditing={handleUnlock}
-                    />
-
-                    {pinError ? <Text style={styles.pinErrorText}>{pinError}</Text> : null}
-
-                    <TouchableOpacity style={styles.unlockBtn} onPress={handleUnlock} activeOpacity={0.85}>
-                        <Unlock size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-                        <Text style={styles.unlockBtnText}>Unlock Dispatch Desk</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.backHomeBtn} onPress={() => router.push('/')}>
-                        <Text style={styles.backHomeBtnText}>← Return to Homepage</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
-        );
-    }
 
     return (
         <SafeAreaView style={styles.container}>

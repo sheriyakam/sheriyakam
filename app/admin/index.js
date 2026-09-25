@@ -17,7 +17,7 @@ import { getPartners, approvePartner, rejectPartner } from '../../constants/part
 import { getBookings, calculateSLA, bookingEvents } from '../../constants/bookingStore';
 import { isSupabaseConfigured } from '../../config/supabaseConfig';
 import { UsersAPI } from '../../services/supabaseAPI';
-import { checkRateLimit, hashPassword } from '../../utils/security';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 
 // Brand tokens
 const C = {
@@ -70,13 +70,7 @@ const Badge = ({ status }) => {
 
 export default function AdminDashboard() {
     const router = useRouter();
-
-    // Authentication
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [loginError, setLoginError] = useState('');
-    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const { logoutAdmin } = useAdminAuth();
 
     // Operator Role Switcher (Lean single-operator mode)
     const [opsRole, setOpsRole] = useState('ops'); // 'ops' (default) or 'admin'
@@ -95,55 +89,16 @@ export default function AdminDashboard() {
     }, []);
 
     useEffect(() => {
-        if (!isAuthenticated) return;
         loadData();
         bookingEvents.on('change', loadData);
         return () => bookingEvents.off('change', loadData);
-    }, [isAuthenticated, loadData]);
+    }, [loadData]);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         loadData();
         setTimeout(() => setRefreshing(false), 800);
     }, [loadData]);
-
-    const handleLogin = async () => {
-        const cleanUsername = username.trim().toLowerCase();
-        const limitRes = checkRateLimit('admin_login', 5, 60000);
-        if (!limitRes.allowed) {
-            setLoginError(`Too many login attempts. Try again in ${Math.ceil(limitRes.retryAfterMs / 1000)} seconds.`);
-            return;
-        }
-
-        setIsLoggingIn(true);
-        setLoginError('');
-
-        try {
-            if (isSupabaseConfigured) {
-                const { data: dbUser, error } = await UsersAPI.findByIdentifier(cleanUsername);
-                if (dbUser && dbUser.role === 'admin') {
-                    const hashed = hashPassword(password);
-                    if (dbUser.password === password || dbUser.password === hashed) {
-                        setIsAuthenticated(true);
-                        setLoginError('');
-                        setIsLoggingIn(false);
-                        return;
-                    }
-                }
-            }
-        } catch (err) {
-            console.error("Admin authentication error:", err);
-        }
-
-        // Offline / Developer fallback credentials
-        if (cleanUsername === 'admin' && password === 'sheri@25') {
-            setIsAuthenticated(true);
-            setLoginError('');
-        } else {
-            setLoginError('Invalid credentials. Check username and password.');
-        }
-        setIsLoggingIn(false);
-    };
 
     // Computed Stats
     const totalPartners   = partners.length;
@@ -159,47 +114,6 @@ export default function AdminDashboard() {
     const slaList = bookings.map(b => calculateSLA(b));
     const breachedSlaCount = slaList.filter(s => s.isBreached).length;
     const warningSlaCount = slaList.filter(s => s.isWarning).length;
-
-    // Login Screen
-    if (!isAuthenticated) {
-        return (
-            <SafeAreaView style={s.loginBg}>
-                <View style={s.loginCard}>
-                    <View style={s.loginIconWrap}>
-                        <ShieldAlert size={32} color={C.danger} />
-                    </View>
-                    <Text style={s.loginTitle}>Operations Portal</Text>
-                    <Text style={s.loginSub}>SHERIYAKAM · INTERNAL OPERATIONS</Text>
-
-                    {loginError ? <Text style={s.loginError}>{loginError}</Text> : null}
-
-                    <TextInput
-                        style={s.loginInput}
-                        placeholder="Username (e.g. admin)"
-                        placeholderTextColor={C.muted}
-                        value={username}
-                        onChangeText={setUsername}
-                        autoCapitalize="none"
-                    />
-                    <TextInput
-                        style={s.loginInput}
-                        placeholder="Password (e.g. sheri@25)"
-                        placeholderTextColor={C.muted}
-                        secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
-                        autoCapitalize="none"
-                    />
-                    <TouchableOpacity style={s.loginBtn} onPress={handleLogin}>
-                        <Text style={s.loginBtnText}>Sign In to Command Center</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ marginTop: 24, alignSelf: 'center' }} onPress={() => router.replace('/')}>
-                        <Text style={{ color: C.muted, fontSize: 13 }}>← Back to Customer Marketplace</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
-        );
-    }
 
     const CORE_SCREENS = [
         {
@@ -315,11 +229,7 @@ export default function AdminDashboard() {
                         <RefreshCw size={16} color={C.accent} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={s.logoutBtn} onPress={() => {
-                        setIsAuthenticated(false);
-                        setUsername('');
-                        setPassword('');
-                    }}>
+                    <TouchableOpacity style={s.logoutBtn} onPress={logoutAdmin}>
                         <LogOut size={16} color={C.danger} />
                     </TouchableOpacity>
                 </View>
