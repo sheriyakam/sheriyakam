@@ -94,12 +94,12 @@ export default function LocationsDirectoryScreen() {
                             <View style={{ flex: 1 }}>
                                 <View style={styles.nameRow}>
                                     <Text style={[styles.districtName, { color: colors.textPrimary }]}>
-                                        Thalassery (Empire Electricals HQ)
+                                        Thalassery (Main Operations Hub)
                                     </Text>
-                                    <Badge variant="info" size="sm">Main Hub • Est. 1998</Badge>
+                                    <Badge variant="info" size="sm">Main Operations Hub</Badge>
                                 </View>
                                 <Text style={[styles.districtMalayalam, { color: colors.accent }]}>
-                                    തലശ്ശേരി • Class-A Licence #KSELB/CA-7821/KL
+                                    തലശ്ശേരി • Central Malabar Dispatch Hub
                                 </Text>
                             </View>
                         </View>

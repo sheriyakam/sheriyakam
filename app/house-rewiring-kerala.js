@@ -9,7 +9,7 @@ export default function HouseRewiringKeralaScreen() {
             metaTitle="House Rewiring Contractors in Kerala — KSELB Licensed Wiremen | Sheriyakam"
             metaDescription="Certified house rewiring contractors in Kerala. Complete residential rewiring, conduit cable pulling, DB distribution board overhaul & chemical copper earthing. Starts ₹550."
             h1="Complete House Rewiring, DB Overhaul & Earthing in Kerala"
-            tagline="Empire Electricals Est. 1998 • KSELB Class-A Licensed Wiremen"
+            tagline="Certified On-Demand Electrical Services • Licensed Wiremen"
             startingPrice={550}
             duration="1–3 days"
             canonical="https://sheriyakam.vercel.app/house-rewiring-kerala"
@@ -28,7 +28,7 @@ export default function HouseRewiringKeralaScreen() {
                 },
                 {
                     q: 'Do you provide a safety certificate after rewiring?',
-                    a: 'Yes, every complete rewiring job is tested with high-precision digital insulation testers and digital earth testers, followed by a formal workmanship guarantee certificate from Empire Electricals (Class-A Licence #KSELB/CA-7821/KL).'
+                    a: 'Yes, every complete rewiring job is tested with high-precision digital insulation testers and digital earth testers, followed by a formal workmanship guarantee certificate and 30-day rework warranty.'
                 }
             ]}
         />

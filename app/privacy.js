@@ -187,7 +187,7 @@ export default function PrivacyScreen() {
                             K. Suresh Kumar (Chief Grievance Redressal Officer)
                         </Text>
                         <Text style={[styles.officerDetail, { color: colors.textSecondary }]}>
-                            Empire Electricals / Sheriyakam, Main Road, Thalassery, Kannur, Kerala - 670101
+                            Sheriyakam Technologies, Main Road, Thalassery, Kannur, Kerala - 670101
                         </Text>
                         <Text style={[styles.officerContact, { color: colors.accent }]}>
                             Email: grievance@sheriyakam.in • dpo@sheriyakam.in
