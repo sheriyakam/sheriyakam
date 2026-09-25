@@ -69,7 +69,7 @@ export default function PartnerSupport() {
 
     const handleWhatsAppSupervisor = () => {
         const text = encodeURIComponent(
-            `Hello Suresh Kumar, this is Partner ${partner.name} (KSELB: ${partner.kselbLicense || 'KSELB/CA-7821/KL'}). I need urgent field support in ${partner.taluk || 'Thalassery'} taluk.`
+            `Hello Suresh Kumar, this is Partner ${partner.name} (KSELB: ${partner.kselbLicense || 'KSELB/WB-4102/KL'}). I need urgent field support in ${partner.taluk || 'Thalassery'} taluk.`
         );
         const url = `whatsapp://send?phone=91${supervisor.phone}&text=${text}`;
         Linking.openURL(url).catch(() => {

@@ -140,7 +140,7 @@ export default function PartnerTraining() {
     const handleDownloadCert = (modTitle, certId) => {
         Alert.alert(
             '📄 Certificate Generated',
-            `Official KSELB-aligned competency certificate for "${modTitle}" (Cert #${certId || 'KSELB-CA-7821'}) has been prepared and dispatched to your email: ${partner.email}`
+            `Official KSELB-aligned competency certificate for "${modTitle}" (Cert #${certId || 'KSELB-WB-4102'}) has been prepared and dispatched to your email: ${partner.email}`
         );
     };
 
@@ -182,7 +182,7 @@ export default function PartnerTraining() {
                         </View>
                     </View>
                     <Text style={styles.expiryAlertText}>
-                        Wireman permit <Text style={{ color: COLORS.textPrimary, fontWeight: '700' }}>#{partner.kselbLicense || 'KSELB/CA-7821/KL'}</Text> expires on <Text style={{ fontWeight: '800', color: COLORS.textPrimary }}>15 October 2026</Text>. Automatic dispatch will pause if renewal is not completed before deadline.
+                        Wireman permit <Text style={{ color: COLORS.textPrimary, fontWeight: '700' }}>#{partner.kselbLicense || 'KSELB/WB-4102/KL'}</Text> expires on <Text style={{ fontWeight: '800', color: COLORS.textPrimary }}>15 October 2026</Text>. Automatic dispatch will pause if renewal is not completed before deadline.
                     </Text>
                     <TouchableOpacity
                         style={styles.renewBtn}
@@ -201,7 +201,7 @@ export default function PartnerTraining() {
                         </View>
                         <View style={{ flex: 1, marginLeft: 12 }}>
                             <Text style={styles.licenseHeading}>Kerala State Electricity Licensing Board</Text>
-                            <Text style={styles.licenseNumber}>License: {partner.kselbLicense || 'KSELB/CA-7821/KL'}</Text>
+                            <Text style={styles.licenseNumber}>License: {partner.kselbLicense || 'KSELB/WB-4102/KL'}</Text>
                             <Text style={styles.licenseHolder}>{partner.name} • Thalassery Taluk</Text>
                         </View>
                     </View>

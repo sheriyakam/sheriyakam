@@ -24,7 +24,7 @@ export const DEFAULT_PARTNER_MOCK = {
     latitude: 11.7480,
     longitude: 75.4894,
     experienceYears: 7,
-    kselbLicense: 'KSELB/CA-7821/KL',
+    kselbLicense: 'KSELB/WB-4102/KL',
     insuranceCover: '₹5 Lakh Active Trade Cover (Policy #SH-KL-9921)',
     serviceTypes: ['Electrical', 'AC', 'Plumbing', 'CCTV', 'Emergency'],
     categoryCertifications: [
