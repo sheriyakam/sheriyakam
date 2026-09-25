@@ -645,3 +645,14 @@ export const resetBookings = async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
     bookingEvents.emit('change');
 };
+
+export const useBookings = () => {
+    return {
+        bookings: getBookings(),
+        createBooking,
+        getBookingById,
+        calculateSLA,
+        cancelBooking,
+        payBooking
+    };
+};
