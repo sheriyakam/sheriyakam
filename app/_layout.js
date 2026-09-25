@@ -1,6 +1,7 @@
 import '../utils/ssr-polyfill';
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
+import { LanguageProvider } from '../context/LanguageContext';
 import { ToastProvider } from '../context/ToastContext';
 import { CartProvider } from '../context/CartContext';
 import { Stack } from 'expo-router';
@@ -21,22 +22,24 @@ export { ErrorBoundary } from '../components/ErrorBoundary';
 export default function Layout() {
     return (
         <ThemeProvider>
-            <AuthProvider>
-                <ToastProvider>
-                    <CartProvider>
-                        <SafeAreaProvider>
-                            <ErrorBoundary>
-                                <StatusBar style="auto" />
-                                <View style={{ flex: 1 }}>
-                                    <Stack screenOptions={{ headerShown: false }} />
-                                    <BottomNav />
-                                    <PwaInstallPrompt />
-                                </View>
-                            </ErrorBoundary>
-                        </SafeAreaProvider>
-                    </CartProvider>
-                </ToastProvider>
-            </AuthProvider>
+            <LanguageProvider>
+                <AuthProvider>
+                    <ToastProvider>
+                        <CartProvider>
+                            <SafeAreaProvider>
+                                <ErrorBoundary>
+                                    <StatusBar style="auto" />
+                                    <View style={{ flex: 1 }}>
+                                        <Stack screenOptions={{ headerShown: false }} />
+                                        <BottomNav />
+                                        <PwaInstallPrompt />
+                                    </View>
+                                </ErrorBoundary>
+                            </SafeAreaProvider>
+                        </CartProvider>
+                    </ToastProvider>
+                </AuthProvider>
+            </LanguageProvider>
         </ThemeProvider>
     );
 }
