@@ -19,6 +19,8 @@ initSentry();
 
 export { ErrorBoundary } from '../components/ErrorBoundary';
 
+import GlobalWebGLBackground from '../components/GlobalWebGLBackground';
+
 export default function Layout() {
     return (
         <ThemeProvider>
@@ -29,8 +31,9 @@ export default function Layout() {
                             <SafeAreaProvider>
                                 <ErrorBoundary>
                                     <StatusBar style="auto" />
-                                    <View style={{ flex: 1 }}>
-                                        <Stack screenOptions={{ headerShown: false }} />
+                                    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+                                        <GlobalWebGLBackground />
+                                        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
                                         <BottomNav />
                                         <PwaInstallPrompt />
                                     </View>

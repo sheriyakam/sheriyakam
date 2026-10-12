@@ -34,7 +34,6 @@ import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
-import AntiGravityHeroCanvas from '../components/AntiGravityHeroCanvas';
 
 export { ErrorBoundary };
 
@@ -742,9 +741,7 @@ export default function HomeScreen() {
             transform: [{ translateY: headerTranslateY }]
           }
         ]}>
-          <View style={[styles.heroGradient, { backgroundColor: '#0B0F19', position: 'relative', overflow: 'hidden' }]}>
-            {/* Awwwards 3D Anti-Gravity Physics Atmospheric Background */}
-            <AntiGravityHeroCanvas style={StyleSheet.absoluteFillObject} />
+          <View style={[styles.heroGradient, { backgroundColor: 'transparent', position: 'relative', overflow: 'hidden' }]}>
             <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop, { position: 'relative', zIndex: 2 }]}>
               <View style={[styles.heroLeft, isDesktop && { flex: 1 }]}>
                 

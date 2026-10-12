@@ -63,16 +63,25 @@ export default function Root({ children }) {
                 box-sizing: border-box;
                 -webkit-tap-highlight-color: transparent;
               }
-              html, body, #root {
+              html, body {
                 height: 100%;
                 width: 100%;
                 margin: 0;
                 padding: 0;
-                background-color: #0A0F1C;
+                background-color: #0B0F19;
                 font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                 text-rendering: optimizeLegibility;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
+              }
+              #root {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: transparent;
+                position: relative;
+                z-index: 1;
               }
               img {
                 content-visibility: auto;
