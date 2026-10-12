@@ -34,6 +34,7 @@ import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
+import AntiGravityHeroCanvas from '../components/AntiGravityHeroCanvas';
 
 export { ErrorBoundary };
 
@@ -741,12 +742,14 @@ export default function HomeScreen() {
             transform: [{ translateY: headerTranslateY }]
           }
         ]}>
-          <View style={[styles.heroGradient, { backgroundColor: colors.primary }]}>
-            <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop]}>
+          <View style={[styles.heroGradient, { backgroundColor: '#0B0F19', position: 'relative', overflow: 'hidden' }]}>
+            {/* Awwwards 3D Anti-Gravity Physics Atmospheric Background */}
+            <AntiGravityHeroCanvas style={StyleSheet.absoluteFillObject} />
+            <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop, { position: 'relative', zIndex: 2 }]}>
               <View style={[styles.heroLeft, isDesktop && { flex: 1 }]}>
                 
                 {/* Heritage & Tag */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <View nativeID="hero-kinetic-tag" style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <Zap size={14} color="#F59E0B" fill="#F59E0B" />
                   <Text style={[styles.heroTag, { marginBottom: 0 }]}>
                     24/7 DOORSTEP ELECTRICAL SERVICES ACROSS KERALA
@@ -754,19 +757,19 @@ export default function HomeScreen() {
                 </View>
 
                 {/* Hero Title */}
-                <Text style={styles.heroTitle}>
+                <Text nativeID="hero-kinetic-title" style={styles.heroTitle}>
                   Book an Electrician in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
                   At Your Door in 90 Min
                 </Text>
 
                 {/* Hero Subtitle */}
-                <Text style={styles.heroSubtitle}>
+                <Text nativeID="hero-kinetic-subtitle" style={styles.heroSubtitle}>
                   Master wiremen across Thalassery, Kannur, Kozhikode & Wayanad.{'\n'}
                   Clear transparent rates • 30-day warranty • Direct confirmation call before arrival.
                 </Text>
 
                 {/* Trust Badges */}
-                <View style={styles.trustRow}>
+                <View nativeID="hero-kinetic-trust" style={styles.trustRow}>
                   <View style={styles.trustItem}>
                     <Shield size={13} color="#10B981" />
                     <Text style={styles.trustText}>KSELB Certified</Text>
