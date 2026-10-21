@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sheriyakam.domain.LanguageCode
+import com.sheriyakam.domain.LocalizationEngine
 import com.sheriyakam.domain.PaymentSplit
 import com.sheriyakam.domain.SplitBreakdown
 
@@ -22,6 +24,10 @@ fun BookingCheckoutScreen(
     travelAllowance: Double = 50.0,
     platformFee: Double = 29.0
 ) {
+    var selectedLanguage by remember { mutableStateOf(LanguageCode.EN) }
+
+    fun t(key: String): String = LocalizationEngine.getTranslation(selectedLanguage, key)
+
     // Computed reactively via KMP Shared Domain Logic
     val breakdown: SplitBreakdown = remember(laborCharge, materialsCharge, travelAllowance, platformFee) {
         PaymentSplit.calculateSplitBreakdown(
@@ -37,9 +43,16 @@ fun BookingCheckoutScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Booking Checkout",
+                        t("brandName"),
                         fontWeight = FontWeight.Bold,
                         color = Color.White
+                    )
+                },
+                actions = {
+                    LanguageSelector(
+                        selectedLanguage = selectedLanguage,
+                        onLanguageChange = { selectedLanguage = it },
+                        modifier = Modifier.padding(end = 12.dp)
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -64,14 +77,14 @@ fun BookingCheckoutScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "Kerala Electrical Service (SAC 9987)",
+                        t("serviceDiagnostic"),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "KSELB Certified Wireman On-Site Dispatch",
+                        t("licensedWiremen"),
                         fontSize = 14.sp,
                         color = Color(0xFF94A3B8)
                     )
@@ -89,7 +102,7 @@ fun BookingCheckoutScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     PriceRow("Labor Charge", "₹${breakdown.laborCharge.toInt()}")
-                    PriceRow("Platform & Diagnostic Fee", "₹${breakdown.platformFee.toInt()}")
+                    PriceRow(t("inspectionFeeAdjustable"), "₹${breakdown.platformFee.toInt()}")
                     PriceRow("ISI Approved Materials", "₹${breakdown.materialsCharge.toInt()}")
                     PriceRow("Travel Allowance", "₹${breakdown.travelAllowance.toInt()}")
                     PriceRow("GST (18% SAC 9987)", "₹${breakdown.totalTax}")
@@ -129,7 +142,7 @@ fun BookingCheckoutScreen(
                     .height(54.dp)
             ) {
                 Text(
-                    "Confirm & Pay ₹${breakdown.grandTotal}",
+                    "${t("bookNow")} • ₹${breakdown.grandTotal}",
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
