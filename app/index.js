@@ -34,6 +34,11 @@ import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
+import ThreeCircuitCanvas from '../components/ThreeCircuitCanvas';
+import InteractiveBreaker from '../components/InteractiveBreaker';
+import KeralaGridRadar from '../components/KeralaGridRadar';
+import BeforeAfterSlider from '../components/BeforeAfterSlider';
+import { soundFx } from '../services/audioFx';
 
 export { ErrorBoundary };
 
@@ -741,32 +746,68 @@ export default function HomeScreen() {
             transform: [{ translateY: headerTranslateY }]
           }
         ]}>
-          <View style={[styles.heroGradient, { backgroundColor: 'transparent', position: 'relative', overflow: 'hidden' }]}>
-            <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop, { position: 'relative', zIndex: 2 }]}>
+          <View style={[styles.heroGradient, { backgroundColor: colors.primary, position: 'relative' }]}>
+            {/* Awwwards-Tier 3D WebGL Three.js Electrical Grid Canvas */}
+            <ThreeCircuitCanvas style={StyleSheet.absoluteFillObject} />
+
+            <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop, { zIndex: 2 }]}>
               <View style={[styles.heroLeft, isDesktop && { flex: 1 }]}>
                 
-                {/* Heritage & Tag */}
-                <View nativeID="hero-kinetic-tag" style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                  <Zap size={14} color="#F59E0B" fill="#F59E0B" />
-                  <Text style={[styles.heroTag, { marginBottom: 0 }]}>
-                    24/7 DOORSTEP ELECTRICAL SERVICES ACROSS KERALA
-                  </Text>
+                {/* Live Voltage & Telemetry Pill */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: 'rgba(16, 185, 129, 0.4)'
+                  }}>
+                    <Zap size={13} color="#10B981" fill="#10B981" />
+                    <Text style={{ color: '#6EE7B7', fontSize: 11, fontWeight: '800', letterSpacing: 0.8 }}>
+                      230.4 V • 50 HZ • 14 DISTRICTS LIVE
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => soundFx.playClick()}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      borderColor: 'rgba(245, 158, 11, 0.35)'
+                    }}
+                  >
+                    <Sparkles size={12} color="#F59E0B" />
+                    <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '700' }}>
+                      ‘ശരിയാക്കാം’ (Sheriyakam) — We'll make it right!
+                    </Text>
+                  </TouchableOpacity>
                 </View>
 
                 {/* Hero Title */}
-                <Text nativeID="hero-kinetic-title" style={styles.heroTitle}>
+                <Text style={styles.heroTitle}>
                   Book an Electrician in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
                   At Your Door in 90 Min
                 </Text>
 
                 {/* Hero Subtitle */}
-                <Text nativeID="hero-kinetic-subtitle" style={styles.heroSubtitle}>
+                <Text style={styles.heroSubtitle}>
                   Master wiremen across Thalassery, Kannur, Kozhikode & Wayanad.{'\n'}
                   Clear transparent rates • 30-day warranty • Direct confirmation call before arrival.
                 </Text>
 
                 {/* Trust Badges */}
-                <View nativeID="hero-kinetic-trust" style={styles.trustRow}>
+                <View style={styles.trustRow}>
                   <View style={styles.trustItem}>
                     <Shield size={13} color="#10B981" />
                     <Text style={styles.trustText}>KSELB Certified</Text>
@@ -814,6 +855,75 @@ export default function HomeScreen() {
                       What's the problem? — Book Now
                     </Text>
                     <ArrowRight size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Awwwards Interactive Hub Pills */}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => { soundFx.playClick(); router.push('/interactive-grid'); }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: 'rgba(56, 189, 248, 0.3)'
+                    }}
+                  >
+                    <Zap size={14} color="#38BDF8" />
+                    <Text style={{ color: '#E0F2FE', fontSize: 12, fontWeight: '700' }}>
+                      3D Interactive Grid Lab
+                    </Text>
+                    <ChevronRight size={13} color="#38BDF8" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => { soundFx.playClick(); router.push('/safety-standards'); }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: 'rgba(16, 185, 129, 0.3)'
+                    }}
+                  >
+                    <ShieldCheck size={14} color="#34D399" />
+                    <Text style={{ color: '#D1FAE5', fontSize: 12, fontWeight: '700' }}>
+                      KSELB Safety Standards
+                    </Text>
+                    <ChevronRight size={13} color="#34D399" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => { soundFx.playClick(); router.push('/pricing-calculator'); }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: 'rgba(245, 158, 11, 0.3)'
+                    }}
+                  >
+                    <Sparkles size={14} color="#FBBF24" />
+                    <Text style={{ color: '#FEF3C7', fontSize: 12, fontWeight: '700' }}>
+                      Pricing & Load Estimator
+                    </Text>
+                    <ChevronRight size={13} color="#FBBF24" />
                   </TouchableOpacity>
                 </View>
 
@@ -929,6 +1039,75 @@ export default function HomeScreen() {
               })}
             </View>
           )}
+          </SectionErrorBoundary>
+
+          {/* ═══════════════════════════════════════════════════════ */}
+          {/* AWWWARDS-GRADE INTERACTIVE POWER LAB & SIMULATOR        */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <SectionErrorBoundary name="Interactive Engineering Lab">
+          <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.xl, marginBottom: SPACING.lg }}>
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: 'rgba(56, 189, 248, 0.08)',
+              padding: 16,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: 'rgba(56, 189, 248, 0.25)',
+              marginBottom: 16,
+            }}>
+              <View style={{ flex: 1, marginRight: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Zap size={16} color="#38BDF8" fill="#38BDF8" />
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#38BDF8', letterSpacing: 1 }}>
+                    ENGINEERING & TELEMETRY LAB
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 17, fontWeight: '900', color: colors.textPrimary }}>
+                  Test Circuit Breakers & Inspect Kerala Grid
+                </Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+                  Micro-interactions, real-time KSELB wireman radar, and fault isolation testing.
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => { soundFx.playClick(); router.push('/interactive-grid'); }}
+                style={{
+                  backgroundColor: '#2563EB',
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '800' }}>Full 3D Lab</Text>
+                <ChevronRight size={14} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Live Kerala Radar */}
+            <KeralaGridRadar onSelectDistrict={(d) => openQuickLead({
+              id: `radar-${d.id}`,
+              label: `${d.name} Immediate Triage`,
+              price: '₹49 Diagnostic',
+              desc: `Auto-assigned to nearest on-duty ${d.name} wireman`
+            })} />
+
+            {/* Interactive DIN-Rail Breaker */}
+            <InteractiveBreaker onEmergencyClick={() => openQuickLead({
+              id: 'emergency-trip-fix',
+              label: 'Emergency MCB Tripping Triage',
+              price: 'From ₹349',
+              desc: 'Immediate 90-minute blackout and tripping repair'
+            })} />
+
+            {/* Before / After Engineering Standard */}
+            <BeforeAfterSlider />
+          </View>
           </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}

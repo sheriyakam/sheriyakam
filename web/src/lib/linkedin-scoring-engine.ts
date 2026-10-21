@@ -90,7 +90,7 @@ export function calculateDeterministicLinkedInScore(
   }
 
   // Check 5: Excessive Emojis (2 pts)
-  const emojiCount = (hl.match(/[\uD83C-\uDBFF\uDC00-\uDFFF]/g) || []).length;
+  const emojiCount = (hl.match(/[\uD83C-\uDBFF\uDC00-\uDFFF]/gu) || []).length;
   if (emojiCount <= 1) {
     hlScore += 2;
     headlineChecks.push({ checkName: 'Professional Formatting', status: 'pass', detail: 'Clean, professional formatting without emoji overload.', scoreImpact: 2 });

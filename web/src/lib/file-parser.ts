@@ -15,7 +15,6 @@ export async function parseFileToText(
   // Safe dynamic loader to prevent Next.js webpack from throwing build-time errors
   const safeRequire = (pkgName: string) => {
     try {
-      // eslint-disable-next-line no-eval
       return eval('require')(pkgName);
     } catch {
       return null;

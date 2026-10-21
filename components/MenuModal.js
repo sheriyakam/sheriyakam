@@ -189,6 +189,26 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/services')}
                                     />
                                     <MenuItem
+                                        icon={Sparkles}
+                                        label="3D Interactive Grid Lab"
+                                        subtitle="Three.js circuit canvas, breaker & load simulator"
+                                        badge="Awwwards"
+                                        highlight
+                                        onPress={() => navigateTo('/interactive-grid')}
+                                    />
+                                    <MenuItem
+                                        icon={Shield}
+                                        label="KSELB Safety Standards"
+                                        subtitle="30mA RCCB, chemical earthing & lightning SPD"
+                                        onPress={() => navigateTo('/safety-standards')}
+                                    />
+                                    <MenuItem
+                                        icon={Zap}
+                                        label="Instant Price & Load Estimator"
+                                        subtitle="Transparent Kerala electrical rate calculator"
+                                        onPress={() => navigateTo('/pricing-calculator')}
+                                    />
+                                    <MenuItem
                                         icon={AlertTriangle}
                                         label="24/7 Emergency Triage"
                                         subtitle="90-min urgent dispatch across Kerala"
