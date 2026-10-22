@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react-native';
 import { useTheme } from '../../../context/ThemeContext';
 import { COLORS } from '../../../constants/theme';
 import { useRouter } from 'expo-router';
+import CodeHypeBadge from '../../../components/CodeHypeBadge';
 
 export const Footer: React.FC = () => {
     const router = useRouter();
@@ -87,6 +88,9 @@ export const Footer: React.FC = () => {
                     <Text style={styles.emailText}>support@sheriyakam.com</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Featured on CodeHype Badge */}
+            <CodeHypeBadge style={{ marginVertical: 8 }} />
 
             {/* Copyright Line */}
             <Text style={styles.copyright}>

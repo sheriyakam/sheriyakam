@@ -38,6 +38,7 @@ import ThreeCircuitCanvas from '../components/ThreeCircuitCanvas';
 import InteractiveBreaker from '../components/InteractiveBreaker';
 import KeralaGridRadar from '../components/KeralaGridRadar';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
+import CodeHypeBadge from '../components/CodeHypeBadge';
 import { soundFx } from '../services/audioFx';
 
 export { ErrorBoundary };
@@ -1395,6 +1396,7 @@ export default function HomeScreen() {
                 <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>support@sheriyakam.in</Text>
               </View>
             </View>
+            <CodeHypeBadge style={{ marginVertical: 14 }} />
             <Text style={[styles.footerCopy, { color: colors.textTertiary }]}>
               © 2026 Sheriyakam. All rights reserved. Serving all 14 districts of Kerala.
             </Text>
