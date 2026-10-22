@@ -17,7 +17,7 @@ public struct ActiveDispatchTrackerView: View {
 
     @State private var checkInInput: String = ""
     @State private var completionInput: String = ""
-    @State private var showDisputeModal: Boolean = false
+    @State private var showDisputeModal: Bool = false
     @State private var disputeReason: String = ""
 
     public init(

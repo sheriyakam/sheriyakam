@@ -4,7 +4,7 @@ struct SmartTriageView: View {
     @State private var problemText: String = "Main MCB trip and there is spark in the kitchen switchboard"
 
     // Symmetric to KMP Shared TriageEngine
-    private var isEmergency: Boolean {
+    private var isEmergency: Bool {
         let text = problemText.lowercased()
         return text.contains("mcb") || text.contains("trip") || text.contains("spark") ||
                text.contains("shock") || text.contains("smoke") || text.contains("fire")
