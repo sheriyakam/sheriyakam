@@ -62,7 +62,7 @@ sheriyakam/
 │   ├── src/iosMain/kotlin/             # iOS NSUserDefaults, CoreLocation & LocalAuthentication bindings
 │   └── src/commonTest/kotlin/          # KMP unit & contract tests (Ktor MockEngine, Storage, ETA, Sync)
 ├── androidApp/                     # Native Android Application
-│   ├── build.gradle.kts            # AGP 8.6.1 + Kotlin 2.0.21 + Jetpack Compose
+│   ├── build.gradle.kts            # AGP 8.6.1 + Kotlin 2.0.21 + Jetpack Compose + Release Signing & R8
 │   ├── proguard-rules.pro          # Production R8 keep rules for KMP serializable models & Razorpay
 │   └── src/main/
 │       ├── AndroidManifest.xml
@@ -76,7 +76,7 @@ sheriyakam/
 ├── iosApp/                         # Native iOS Application
 │   ├── Package.swift               # Swift 6 Package definition
 │   ├── SheriyakamApp.swift         # SwiftUI @main entry
-│   ├── Configuration/Info.plist    # Face ID, Location, BackgroundTasks privacy manifests
+│   ├── Configuration/              # Info.plist, ExportOptions.plist, TestFlightRelease.xcconfig
 │   ├── Navigation/AppNavigation.swift # SwiftUI NavigationStack router with sheriyakam:// URL schema
 │   ├── Services/                   # PushNotificationService, BackgroundSyncTaskHandler, RazorpayProcessor
 │   └── Views/                      # ActiveDispatchTrackerView, BookingCheckoutView, SmartTriageView
@@ -86,10 +86,11 @@ sheriyakam/
 │   └── (148 static routes)         # Full pre-rendered coverage for all 14 Kerala districts
 ├── backend/                        # Authoritative REST API & Autonomous Agents
 │   ├── server.js                   # Modular Express gateway mounted on unified port 8081
-│   ├── routes/                     # Auth webhooks (/api/auth) and agent controls (/api/agents)
+│   ├── routes/                     # Auth, agents, notifications, webhooks, and mutation batch sync
+│   ├── services/                   # Push notification dispatcher and background schedulers
 │   └── agents/                     # Autonomous SEO, GEO/AEO, and content freshness sweepers
 ├── metro.config.js                 # Single-origin reverse proxy directing /api/* traffic to Express
-└── tests/                          # Automated contract and regression test suites (60 tests)
+└── tests/                          # Automated contract and regression test suites (65 tests)
 ```
 
 ---
@@ -136,7 +137,7 @@ npx expo export -p web                 # Exports 148 static routes to dist/
 
 ### 5. Automated Verification & Quality Gates
 ```bash
-npm test                               # Run 60 automated contract & domain tests
+npm test                               # Run 65 automated contract & domain tests
 npm run lint                           # Run ESLint across repository
 npx tsc --noEmit                       # TypeScript compiler type check
 ```

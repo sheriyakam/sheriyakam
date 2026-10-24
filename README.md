@@ -4,7 +4,7 @@
 > Pure Native Android (Kotlin 2.0 + Jetpack Compose) • Pure Native iOS (Swift 6 + SwiftUI) • Unified Web (Single-Port 8081) • Kotlin Multiplatform (KMP Domain)
 
 [![Sheriyakam CI / Build Verification](https://github.com/sheriyakam/sheriyakam/actions/workflows/ci.yml/badge.svg)](https://github.com/sheriyakam/sheriyakam/actions/workflows/ci.yml)
-[![Tests Passing](https://img.shields.io/badge/tests-60%20passed-10B981)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-65%20passed-10B981)](tests/)
 [![ESLint](https://img.shields.io/badge/eslint-0%20errors-10B981)](eslint.config.mjs)
 [![Featured on CodeHype](https://www.codehype.ai/badges/sheriyakam.svg?variant=find-us&v=20)](https://www.codehype.ai/product/sheriyakam?utm_source=codehype_badge)
 
@@ -100,7 +100,7 @@ npx expo export -p web                 # Exports 148 pre-rendered static routes 
 
 ### 5. Automated Verification
 ```bash
-npm test                               # Run 60 automated contract and domain tests
+npm test                               # Run 65 automated contract and domain tests
 ```
 
 ---

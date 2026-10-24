@@ -36,7 +36,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// Global rate limiting (from utils/security.js — was previously unused)
+// Global rate limiting
 app.use(ipRateLimiter);
 
 // MongoDB Connection
@@ -53,6 +53,18 @@ app.use('/api/auth', authRouter);
 // Autonomous AI Agents Routes (SEO, GEO, AEO, Backlinks, Content)
 const agentsRouter = require('./routes/agents');
 app.use('/api/agents', agentsRouter);
+
+// Push Notification Dispatch Routes (FCM / APNs)
+const notificationsRouter = require('./routes/notifications');
+app.use('/api/notifications', notificationsRouter);
+
+// Webhook Routes (Razorpay Route & Disputes)
+const webhooksRouter = require('./routes/webhooks');
+app.use('/api/webhooks', webhooksRouter);
+
+// Offline Mutation Batch Sync Routes
+const mutationsRouter = require('./routes/mutations');
+app.use('/api/v1/mutations', mutationsRouter);
 
 // Agent Orchestrator Daemon
 const AgentOrchestrator = require('./agents/AgentOrchestrator');
@@ -79,4 +91,3 @@ if (require.main === module) {
 }
 
 module.exports = app;
-

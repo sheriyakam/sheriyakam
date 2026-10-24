@@ -74,6 +74,10 @@ jobs:
         run: ./gradlew :androidApp:assembleDebug --no-daemon
         continue-on-error: true
 
+      - name: 📦 Bundle Android Release AAB
+        run: ./gradlew :androidApp:bundleRelease --no-daemon
+        continue-on-error: true
+
   verify-ios-native:
     name: iOS Swift & SwiftUI Build Gate
     runs-on: macos-14
