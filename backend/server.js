@@ -59,14 +59,24 @@ const AgentOrchestrator = require('./agents/AgentOrchestrator');
 
 // Basic route to test the server
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'active', message: 'Sheriyakam Backend API is running properly' });
+    res.json({
+        status: 'active',
+        message: 'Sheriyakam Backend API is running properly on unified port 8081',
+        port: 8081
+    });
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    // Start silent background AI Agent Daemon
+// Start Server when executed directly; export as middleware when imported
+if (require.main === module) {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Standalone server is running on http://localhost:${PORT}`);
+        AgentOrchestrator.startDaemon(3000);
+    });
+} else {
+    // When mounted inside unified Metro dev server on port 8081
     AgentOrchestrator.startDaemon(3000);
-});
+}
+
+module.exports = app;
 
