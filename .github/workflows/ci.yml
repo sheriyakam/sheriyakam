@@ -70,6 +70,10 @@ jobs:
         run: ./gradlew :shared:testDebugUnitTest --no-daemon
         continue-on-error: true
 
+      - name: 📱 Assemble Android Debug APK
+        run: ./gradlew :androidApp:assembleDebug --no-daemon
+        continue-on-error: true
+
   verify-ios-native:
     name: iOS Swift & SwiftUI Build Gate
     runs-on: macos-14

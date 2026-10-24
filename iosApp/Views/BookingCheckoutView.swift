@@ -8,11 +8,16 @@ struct BookingCheckoutView: View {
     @State private var travelAllowance: Double = 50.0
     @State private var platformFee: Double = 29.0
 
+    public var onInitiateCheckout: ((Int64) -> Void)? = nil
+
     // Computed SAC 9987 Tax & Split Breakdown (Symmetric to KMP PaymentSplit domain)
     private var subtotalService: Double { laborCharge + platformFee }
     private var serviceTax: Double { (subtotalService * 0.18).rounded() }
     private var grandTotal: Int {
         Int((subtotalService + materialsCharge + travelAllowance + serviceTax).rounded())
+    }
+    private var amountPaise: Int64 {
+        Int64(grandTotal * 100)
     }
 
     var body: some View {
@@ -65,9 +70,9 @@ struct BookingCheckoutView: View {
 
                     Spacer()
 
-                    // Pay CTA
+                    // Pay CTA (Native Razorpay Checkout)
                     Button(action: {
-                        // Razorpay Route Escrow Trigger
+                        onInitiateCheckout?(amountPaise)
                     }) {
                         Text("Confirm & Pay ₹\(grandTotal)")
                             .font(.headline)
@@ -81,7 +86,7 @@ struct BookingCheckoutView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Booking Checkout")
+            .navigationTitle("Checkout")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -94,11 +99,9 @@ private struct PriceRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.subheadline)
                 .foregroundColor(Color(red: 148/255, green: 163/255, blue: 184/255))
             Spacer()
             Text(amount)
-                .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundColor(.white)
         }

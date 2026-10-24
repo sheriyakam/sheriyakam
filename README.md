@@ -4,7 +4,7 @@
 > Pure Native Android (Kotlin 2.0 + Jetpack Compose) • Pure Native iOS (Swift 6 + SwiftUI) • Unified Web (Single-Port 8081) • Kotlin Multiplatform (KMP Domain)
 
 [![Sheriyakam CI / Build Verification](https://github.com/sheriyakam/sheriyakam/actions/workflows/ci.yml/badge.svg)](https://github.com/sheriyakam/sheriyakam/actions/workflows/ci.yml)
-[![Tests Passing](https://img.shields.io/badge/tests-40%20passed-10B981)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-60%20passed-10B981)](tests/)
 [![ESLint](https://img.shields.io/badge/eslint-0%20errors-10B981)](eslint.config.mjs)
 [![Featured on CodeHype](https://www.codehype.ai/badges/sheriyakam.svg?variant=find-us&v=20)](https://www.codehype.ai/product/sheriyakam?utm_source=codehype_badge)
 
@@ -29,7 +29,10 @@ graph TD
 
     subgraph Portable_KMP_Shared_Tier [shared/ :shared]
         Domain["Domain: SAC 9987 Tax, AI Triage, SLA Tracker, Localization"]
-        Storage["Storage: Persistent Offline Queue & Drivers"]
+        Location["Location: Haversine ETA Engine & Platform Location Drivers"]
+        Notifications["Notifications: Push Routing & Deep Link Engine"]
+        Payment["Payment: Native Razorpay Checkout Contracts"]
+        Storage["Storage: Persistent Offline Queue & Sync Coordinator"]
         Security["Security: Biometric Authenticator Contracts"]
         Network["Network: Ktor 3.0 Client & Serialization"]
         Repo["Repository: Reactive StateFlow BookingRepository"]
@@ -59,10 +62,10 @@ graph TD
 
 | Layer | Technology | Primary Files / Modules |
 | :--- | :--- | :--- |
-| **Android Native** | Kotlin 2.0, Jetpack Compose, Material 3 | [`androidApp/`](androidApp/), [`MainActivity.kt`](androidApp/src/main/kotlin/com/sheriyakam/android/MainActivity.kt) |
-| **iOS Native** | Swift 6, SwiftUI, NavigationStack | [`iosApp/`](iosApp/), [`SheriyakamApp.swift`](iosApp/SheriyakamApp.swift) |
-| **Shared Domain** | Kotlin Multiplatform (KMP), Ktor 3.0 | [`shared/`](shared/), [`PaymentSplit.kt`](shared/src/commonMain/kotlin/com/sheriyakam/domain/PaymentSplit.kt) |
-| **Web Portal** | Expo Router v3, Three.js WebGL Canvas | [`app/`](app/), [`ThreeCircuitCanvas.js`](components/ThreeCircuitCanvas.js) |
+| **Android Native** | Kotlin 2.0, Jetpack Compose, Material 3, WorkManager, Razorpay Android SDK | [`androidApp/`](androidApp/), [`MainActivity.kt`](androidApp/src/main/kotlin/com/sheriyakam/android/MainActivity.kt) |
+| **iOS Native** | Swift 6, SwiftUI, NavigationStack, BackgroundTasks, Razorpay iOS | [`iosApp/`](iosApp/), [`SheriyakamApp.swift`](iosApp/SheriyakamApp.swift) |
+| **Shared Domain** | Kotlin Multiplatform (KMP), Ktor 3.0, Location, Push, Payment Contracts | [`shared/`](shared/), [`PaymentSplit.kt`](shared/src/commonMain/kotlin/com/sheriyakam/domain/PaymentSplit.kt) |
+| **Web Portal** | Expo Router v3, React Native Web, Three.js WebGL (sub-second LCP) | [`app/`](app/) |
 | **Backend & Agents** | Express.js, MongoDB Compass, Claude AI | [`backend/server.js`](backend/server.js), [`AgentOrchestrator.js`](backend/agents/AgentOrchestrator.js) |
 
 ---
@@ -97,23 +100,15 @@ npx expo export -p web                 # Exports 148 pre-rendered static routes 
 
 ### 5. Automated Verification
 ```bash
-npm test                               # Run 40 automated contract and domain tests
-npm run lint                           # Run ESLint 9 checks (0 errors, 0 warnings)
-npx tsc --noEmit                       # TypeScript compiler type check
+npm test                               # Run 60 automated contract and domain tests
 ```
 
 ---
 
-## 🔐 Security & Access Control
+## 📱 Feature Capabilities
 
-- **Two-Step Physical Verification**: Check-in arrival OTP and post-repair completion OTP protect customer funds in escrow.
-- **Biometric Security**: Android `BiometricPrompt` and iOS Face ID (`LocalAuthentication`) protect wireman authentication.
-- **Timing-Safe Webhooks**: Supabase and Razorpay webhooks use `crypto.timingSafeEqual` with secret validation.
-- **SAC 9987 Tax Compliance**: Automated 18% GST calculation and 10% platform / 90% partner payout escrow splits.
-
----
-
-## 📄 License & Attribution
-
-Copyright © 2026 Sheriyakam. All rights reserved. Built for all 14 districts of Kerala.
-Featured on [CodeHype](https://www.codehype.ai/product/sheriyakam?utm_source=codehype_badge).
+- **Zero-WebView Native Apps**: 100% native Compose components on Android and 100% native SwiftUI components on iOS.
+- **Kerala Road ETA Engine**: Haversine distance calculator with Kerala urban arterial speed index (28 km/h) and road curvature factors.
+- **Biometric Security**: Hardware-backed biometric authentication (Android BiometricPrompt, iOS Face ID / Touch ID) for high-value dispatch actions.
+- **Offline Mutation Sync**: Persistent Key-Value offline mutation queue with exponential backoff and background reconciliation via Android WorkManager and iOS BackgroundTasks.
+- **SAC 9987 Tax & Split Math**: Exact integer arithmetic preventing IEEE 754 floating-point inaccuracies during GST split computation.

@@ -11,6 +11,8 @@ public struct ActiveDispatchTrackerView: View {
     public let checkInOtp: String
     public let completionOtp: String
     public let remainingMinutes: Int
+    public let transitDistanceKm: Double?
+    public let transitEtaMinutes: Int?
     public let onVerifyCheckIn: (String) -> Void
     public let onVerifyCompletion: (String) -> Void
     public let onRaiseDispute: (String) -> Void
@@ -31,6 +33,8 @@ public struct ActiveDispatchTrackerView: View {
         checkInOtp: String,
         completionOtp: String,
         remainingMinutes: Int = 55,
+        transitDistanceKm: Double? = nil,
+        transitEtaMinutes: Int? = nil,
         onVerifyCheckIn: @escaping (String) -> Void = { _ in },
         onVerifyCompletion: @escaping (String) -> Void = { _ in },
         onRaiseDispute: @escaping (String) -> Void = { _ in }
@@ -45,6 +49,8 @@ public struct ActiveDispatchTrackerView: View {
         self.checkInOtp = checkInOtp
         self.completionOtp = completionOtp
         self.remainingMinutes = remainingMinutes
+        self.transitDistanceKm = transitDistanceKm
+        self.transitEtaMinutes = transitEtaMinutes
         self.onVerifyCheckIn = onVerifyCheckIn
         self.onVerifyCompletion = onVerifyCompletion
         self.onRaiseDispute = onRaiseDispute
@@ -90,6 +96,33 @@ public struct ActiveDispatchTrackerView: View {
                 .padding(16)
                 .background(Color(red: 0.12, green: 0.16, blue: 0.23))
                 .cornerRadius(12)
+
+                // Live GPS Transit ETA Card
+                if transitDistanceKm != nil || transitEtaMinutes != nil {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("LIVE WIREMAN GPS TRANSIT")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.cyan)
+                            Text(transitEtaMinutes != nil && transitEtaMinutes! > 0 ? "Arriving in ~\(transitEtaMinutes!) mins" : "Wireman Arrived on Site")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        Spacer()
+                        if let km = transitDistanceKm {
+                            Text(String(format: "%.1f km away", km))
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.cyan)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color(red: 0.08, green: 0.20, blue: 0.35))
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(16)
+                    .background(Color(red: 0.06, green: 0.14, blue: 0.23))
+                    .cornerRadius(12)
+                }
 
                 // Assigned Wireman Card
                 VStack(alignment: .leading, spacing: 8) {

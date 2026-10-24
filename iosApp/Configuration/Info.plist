@@ -24,6 +24,16 @@
     <string>Sheriyakam uses your location to dispatch nearby certified electricians and track live arrival.</string>
     <key>NSFaceIDUsageDescription</key>
     <string>Sheriyakam uses Face ID for instant, secure wireman check-in verification.</string>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.sheriyakam.offlineSync</string>
+    </array>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+        <string>processing</string>
+    </array>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
         <string>armv7</string>

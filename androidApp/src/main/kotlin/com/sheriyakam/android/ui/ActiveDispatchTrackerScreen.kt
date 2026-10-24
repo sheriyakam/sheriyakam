@@ -23,6 +23,8 @@ fun ActiveDispatchTrackerScreen(
     booking: Booking,
     remainingMinutes: Long,
     slaStatus: String,
+    transitDistanceKm: Double? = null,
+    transitEtaMinutes: Int? = null,
     onVerifyCheckInOtp: (String) -> Unit,
     onVerifyCompletionOtp: (String) -> Unit,
     onRaiseDispute: (String) -> Unit,
@@ -125,6 +127,57 @@ fun ActiveDispatchTrackerScreen(
                         color = if (remainingMinutes <= 15) Color(0xFFEF4444) else Color(0xFF10B981),
                         trackColor = Color(0xFF334155)
                     )
+                }
+            }
+
+            // Live GPS Transit ETA Card (when technician is en route)
+            if (transitDistanceKm != null || transitEtaMinutes != null) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0F233A)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Live Wireman GPS Transit",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF38BDF8)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (transitEtaMinutes != null && transitEtaMinutes > 0) {
+                                    "Arriving in ~$transitEtaMinutes mins"
+                                } else {
+                                    "Wireman Arrived on Site"
+                                },
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                        if (transitDistanceKm != null) {
+                            Surface(
+                                color = Color(0xFF1E3A5F),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    text = "${transitDistanceKm} km away",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF38BDF8),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

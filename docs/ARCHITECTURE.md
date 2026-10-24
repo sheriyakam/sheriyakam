@@ -16,7 +16,10 @@ graph TD
 
     subgraph Portable_KMP_Shared_Tier [shared/ :shared]
         Domain["Domain: SAC 9987 Tax, AI Triage, SLA Tracker, Localization"]
-        Storage["Storage: Persistent Offline Queue & Drivers"]
+        Location["Location: Haversine ETA Engine & Platform Location Drivers"]
+        Notifications["Notifications: Push Routing & Deep Link Engine"]
+        Payment["Payment: Native Razorpay Checkout Contracts"]
+        Storage["Storage: Persistent Offline Queue & Sync Coordinator"]
         Security["Security: Biometric Authenticator Contracts"]
         Network["Network: Ktor 3.0 Client & Serialization"]
         Repo["Repository: Reactive StateFlow BookingRepository"]
@@ -48,27 +51,34 @@ sheriyakam/
 │   ├── build.gradle.kts
 │   ├── src/commonMain/kotlin/
 │   │   ├── com/sheriyakam/domain/      # Tax math, SLA tracker, phone validation, triage, bilingual engine
+│   │   ├── com/sheriyakam/location/    # DistanceCalculator (Haversine & Kerala road transit ETA)
+│   │   ├── com/sheriyakam/notifications/ # PushNotificationManager & deep-link resolver
+│   │   ├── com/sheriyakam/payment/     # NativePaymentProcessor & order models
 │   │   ├── com/sheriyakam/network/     # Ktor 3.0 client, models, offline mutation queue
 │   │   ├── com/sheriyakam/repository/  # StateFlow booking repository & state machines
-│   │   ├── com/sheriyakam/storage/     # Persistent offline queue & KeyValue drivers
+│   │   ├── com/sheriyakam/storage/     # Persistent offline queue, KeyValue drivers & Sync Coordinator
 │   │   └── com/sheriyakam/security/    # Cross-platform biometric authenticator interface
-│   ├── src/androidMain/kotlin/         # Android SharedPreferences & BiometricManager bindings
-│   ├── src/iosMain/kotlin/             # iOS NSUserDefaults & LocalAuthentication bindings
-│   └── src/commonTest/kotlin/          # KMP unit & contract tests (Ktor MockEngine, Storage)
+│   ├── src/androidMain/kotlin/         # Android SharedPreferences, LocationManager & Biometric bindings
+│   ├── src/iosMain/kotlin/             # iOS NSUserDefaults, CoreLocation & LocalAuthentication bindings
+│   └── src/commonTest/kotlin/          # KMP unit & contract tests (Ktor MockEngine, Storage, ETA, Sync)
 ├── androidApp/                     # Native Android Application
 │   ├── build.gradle.kts            # AGP 8.6.1 + Kotlin 2.0.21 + Jetpack Compose
-│   ├── proguard-rules.pro          # Production R8 keep rules for KMP serializable models
+│   ├── proguard-rules.pro          # Production R8 keep rules for KMP serializable models & Razorpay
 │   └── src/main/
 │       ├── AndroidManifest.xml
 │       └── kotlin/com/sheriyakam/android/
 │           ├── MainActivity.kt     # Jetpack Compose Host & Deep Link handler
 │           ├── navigation/         # Compose AppNavigation routing
+│           ├── notifications/      # SheriyakamFirebaseMessagingService
+│           ├── payment/            # AndroidRazorpayPaymentProcessor
+│           ├── workers/            # SyncOfflineMutationsWorker (Android WorkManager)
 │           └── ui/                 # ActiveDispatchTracker, BookingCheckout, SmartTriage, NetworkStatusBanner
 ├── iosApp/                         # Native iOS Application
 │   ├── Package.swift               # Swift 6 Package definition
 │   ├── SheriyakamApp.swift         # SwiftUI @main entry
-│   ├── Configuration/Info.plist    # Face ID (NSFaceIDUsageDescription) & Location privacy manifests
+│   ├── Configuration/Info.plist    # Face ID, Location, BackgroundTasks privacy manifests
 │   ├── Navigation/AppNavigation.swift # SwiftUI NavigationStack router with sheriyakam:// URL schema
+│   ├── Services/                   # PushNotificationService, BackgroundSyncTaskHandler, RazorpayProcessor
 │   └── Views/                      # ActiveDispatchTrackerView, BookingCheckoutView, SmartTriageView
 ├── app/                            # Universal Web Client (Expo Router v3)
 │   ├── index.js                    # Awwwards-caliber 3D WebGL Three.js grid & CodeHype product badge
@@ -79,7 +89,7 @@ sheriyakam/
 │   ├── routes/                     # Auth webhooks (/api/auth) and agent controls (/api/agents)
 │   └── agents/                     # Autonomous SEO, GEO/AEO, and content freshness sweepers
 ├── metro.config.js                 # Single-origin reverse proxy directing /api/* traffic to Express
-└── tests/                          # Automated contract and regression test suites (40 tests)
+└── tests/                          # Automated contract and regression test suites (60 tests)
 ```
 
 ---
@@ -93,6 +103,8 @@ sheriyakam/
    - Customers can freeze payout instantaneously via `disputeBooking(id, reason)` which flags `payoutStatus = "ESCROW_LOCKED"`.
 3. **Hardware Biometric Guardrails**:
    - Wiremen authenticate on-site check-in using Android `BiometricPrompt` or iOS Face ID (`LocalAuthentication`).
+4. **Offline Synchronization & Idempotency**:
+   - Outbox pattern with unique UUID idempotency keys ensures network drops never produce duplicate bookings, payments, or OTP verifications.
 
 ---
 
@@ -124,7 +136,7 @@ npx expo export -p web                 # Exports 148 static routes to dist/
 
 ### 5. Automated Verification & Quality Gates
 ```bash
-npm test                               # Run 40 automated contract & domain tests
-npm run lint                           # Run ESLint 9 across repository
+npm test                               # Run 60 automated contract & domain tests
+npm run lint                           # Run ESLint across repository
 npx tsc --noEmit                       # TypeScript compiler type check
 ```

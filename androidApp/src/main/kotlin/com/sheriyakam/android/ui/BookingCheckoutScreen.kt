@@ -22,7 +22,8 @@ fun BookingCheckoutScreen(
     laborCharge: Double = 400.0,
     materialsCharge: Double = 300.0,
     travelAllowance: Double = 50.0,
-    platformFee: Double = 29.0
+    platformFee: Double = 29.0,
+    onInitiateCheckout: (Long) -> Unit = {}
 ) {
     var selectedLanguage by remember { mutableStateOf(LanguageCode.EN) }
 
@@ -132,9 +133,12 @@ fun BookingCheckoutScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Confirm & Pay CTA
+            // Confirm & Pay CTA (Native Razorpay Checkout)
             Button(
-                onClick = { /* Launch Razorpay Route Escrow */ },
+                onClick = {
+                    val amountPaise = PaymentSplit.rupeesToPaise(breakdown.grandTotal)
+                    onInitiateCheckout(amountPaise)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
