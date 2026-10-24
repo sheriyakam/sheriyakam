@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.ktor.client.mock)
         }
         androidMain.dependencies {
+            implementation(libs.androidx.biometric)
         }
         iosMain.dependencies {
         }

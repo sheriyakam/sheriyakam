@@ -22,6 +22,8 @@
     <true/>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Sheriyakam uses your location to dispatch nearby certified electricians and track live arrival.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Sheriyakam uses Face ID for instant, secure wireman check-in verification.</string>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
         <string>armv7</string>
