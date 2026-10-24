@@ -33,9 +33,7 @@ export default function DesktopNavbar({ locationName, onLocationPress, onEmergen
 
   const navItems = [
     { label: 'Services', action: () => (onCatalogScroll ? onCatalogScroll() : router.push('/services')) },
-    { label: '3D Grid Lab', path: '/interactive-grid', badge: '3D', badgeColor: '#38BDF8' },
     { label: 'AI Fault Triage', path: '/smart-triage', badge: 'AI', badgeColor: '#EF4444' },
-    { label: 'KSELB Standards', path: '/safety-standards' },
     { label: 'Pricing Estimator', path: '/pricing-calculator' },
     { label: 'Commercial B2B', path: '/commercial-audit' },
   ];

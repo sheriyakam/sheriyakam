@@ -188,20 +188,7 @@ export default function MenuModal({ visible, onClose }) {
                                         highlight
                                         onPress={() => navigateTo('/services')}
                                     />
-                                    <MenuItem
-                                        icon={Sparkles}
-                                        label="3D Interactive Grid Lab"
-                                        subtitle="Three.js circuit canvas, breaker & load simulator"
-                                        badge="Awwwards"
-                                        highlight
-                                        onPress={() => navigateTo('/interactive-grid')}
-                                    />
-                                    <MenuItem
-                                        icon={Shield}
-                                        label="KSELB Safety Standards"
-                                        subtitle="30mA RCCB, chemical earthing & lightning SPD"
-                                        onPress={() => navigateTo('/safety-standards')}
-                                    />
+                                    
                                     <MenuItem
                                         icon={Zap}
                                         label="Instant Price & Load Estimator"

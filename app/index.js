@@ -34,10 +34,6 @@ import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
-import ThreeCircuitCanvas from '../components/ThreeCircuitCanvas';
-import InteractiveBreaker from '../components/InteractiveBreaker';
-import KeralaGridRadar from '../components/KeralaGridRadar';
-import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import CodeHypeBadge from '../components/CodeHypeBadge';
 import { soundFx } from '../services/audioFx';
 
@@ -749,29 +745,13 @@ export default function HomeScreen() {
         ]}>
           <View style={[styles.heroGradient, { backgroundColor: colors.primary, position: 'relative' }]}>
             {/* Awwwards-Tier 3D WebGL Three.js Electrical Grid Canvas */}
-            <ThreeCircuitCanvas style={StyleSheet.absoluteFillObject} />
 
             <View style={[styles.heroContent, isDesktop && styles.heroContentDesktop, { zIndex: 2 }]}>
               <View style={[styles.heroLeft, isDesktop && { flex: 1 }]}>
                 
                 {/* Live Voltage & Telemetry Pill */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-                  <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 6,
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                    borderRadius: 20,
-                    borderWidth: 1,
-                    borderColor: 'rgba(16, 185, 129, 0.4)'
-                  }}>
-                    <Zap size={13} color="#10B981" fill="#10B981" />
-                    <Text style={{ color: '#6EE7B7', fontSize: 11, fontWeight: '800', letterSpacing: 0.8 }}>
-                      230.4 V • 50 HZ • 14 DISTRICTS LIVE
-                    </Text>
-                  </View>
+                  
 
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -810,20 +790,8 @@ export default function HomeScreen() {
                 {/* Trust Badges */}
                 <View style={styles.trustRow}>
                   <View style={styles.trustItem}>
-                    <Shield size={13} color="#10B981" />
-                    <Text style={styles.trustText}>KSELB Certified</Text>
-                  </View>
-                  <View style={styles.trustItem}>
                     <Clock size={13} color="#F59E0B" />
-                    <Text style={styles.trustText}>90-Min Arrival</Text>
-                  </View>
-                  <View style={styles.trustItem}>
-                    <Shield size={13} color="#60A5FA" />
-                    <Text style={styles.trustText}>₹5 Lakh Cover</Text>
-                  </View>
-                  <View style={styles.trustItem}>
-                    <CheckCircle size={13} color="#10B981" />
-                    <Text style={styles.trustText}>Pay After Testing</Text>
+                    <Text style={styles.trustText}>90-Min Arrival Across Kerala</Text>
                   </View>
                 </View>
 
@@ -856,75 +824,6 @@ export default function HomeScreen() {
                       What's the problem? — Book Now
                     </Text>
                     <ArrowRight size={18} color="#FFFFFF" />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Awwwards Interactive Hub Pills */}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => { soundFx.playClick(); router.push('/interactive-grid'); }}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      borderRadius: 12,
-                      borderWidth: 1,
-                      borderColor: 'rgba(56, 189, 248, 0.3)'
-                    }}
-                  >
-                    <Zap size={14} color="#38BDF8" />
-                    <Text style={{ color: '#E0F2FE', fontSize: 12, fontWeight: '700' }}>
-                      3D Interactive Grid Lab
-                    </Text>
-                    <ChevronRight size={13} color="#38BDF8" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => { soundFx.playClick(); router.push('/safety-standards'); }}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      borderRadius: 12,
-                      borderWidth: 1,
-                      borderColor: 'rgba(16, 185, 129, 0.3)'
-                    }}
-                  >
-                    <ShieldCheck size={14} color="#34D399" />
-                    <Text style={{ color: '#D1FAE5', fontSize: 12, fontWeight: '700' }}>
-                      KSELB Safety Standards
-                    </Text>
-                    <ChevronRight size={13} color="#34D399" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => { soundFx.playClick(); router.push('/pricing-calculator'); }}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      borderRadius: 12,
-                      borderWidth: 1,
-                      borderColor: 'rgba(245, 158, 11, 0.3)'
-                    }}
-                  >
-                    <Sparkles size={14} color="#FBBF24" />
-                    <Text style={{ color: '#FEF3C7', fontSize: 12, fontWeight: '700' }}>
-                      Pricing & Load Estimator
-                    </Text>
-                    <ChevronRight size={13} color="#FBBF24" />
                   </TouchableOpacity>
                 </View>
 
@@ -1043,73 +942,51 @@ export default function HomeScreen() {
           </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
-          {/* AWWWARDS-GRADE INTERACTIVE POWER LAB & SIMULATOR        */}
+          {/* DIAGNOSTIC & FAULT INSPECTION CALLOUT (₹49)             */}
           {/* ═══════════════════════════════════════════════════════ */}
-          <SectionErrorBoundary name="Interactive Engineering Lab">
-          <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.xl, marginBottom: SPACING.lg }}>
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              backgroundColor: 'rgba(56, 189, 248, 0.08)',
-              padding: 16,
+          <TouchableOpacity
+            onPress={() => openQuickLead({
+              id: 'diagnostic',
+              label: 'Not sure / Need on-site fault check',
+              price: '₹49',
+              desc: 'Master electrician tests with multimeter before any work'
+            })}
+            activeOpacity={0.88}
+            style={{
+              marginHorizontal: SPACING.md,
+              marginTop: SPACING.md,
+              marginBottom: SPACING.lg,
               borderRadius: 16,
-              borderWidth: 1,
-              borderColor: 'rgba(56, 189, 248, 0.25)',
-              marginBottom: 16,
-            }}>
-              <View style={{ flex: 1, marginRight: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <Zap size={16} color="#38BDF8" fill="#38BDF8" />
-                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#38BDF8', letterSpacing: 1 }}>
-                    ENGINEERING & TELEMETRY LAB
+              padding: 16,
+              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.12)' : '#EFF6FF',
+              borderWidth: 1.5,
+              borderColor: '#3B82F6',
+              flexDirection: isDesktop ? 'row' : 'column',
+              alignItems: isDesktop ? 'center' : 'flex-start',
+              justifyContent: 'space-between',
+              gap: 14,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
+                <HelpCircle size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>
+                    Not sure what the exact electrical issue is?
                   </Text>
+                  <Badge variant="success" size="sm">₹49 Doorstep Visit</Badge>
                 </View>
-                <Text style={{ fontSize: 17, fontWeight: '900', color: colors.textPrimary }}>
-                  Test Circuit Breakers & Inspect Kerala Grid
-                </Text>
-                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
-                  Micro-interactions, real-time KSELB wireman radar, and fault isolation testing.
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 18 }}>
+                  Book a Doorstep Diagnostic Visit. Technician arrives in 90 mins, performs complete fault isolation & provides an upfront quote. Inspection fee is 100% adjusted against your final bill if work proceeds.
                 </Text>
               </View>
-
-              <TouchableOpacity
-                onPress={() => { soundFx.playClick(); router.push('/interactive-grid'); }}
-                style={{
-                  backgroundColor: '#2563EB',
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderRadius: 12,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 6
-                }}
-              >
-                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '800' }}>Full 3D Lab</Text>
-                <ChevronRight size={14} color="#FFFFFF" />
-              </TouchableOpacity>
             </View>
-
-            {/* Live Kerala Radar */}
-            <KeralaGridRadar onSelectDistrict={(d) => openQuickLead({
-              id: `radar-${d.id}`,
-              label: `${d.name} Immediate Triage`,
-              price: '₹49 Diagnostic',
-              desc: `Auto-assigned to nearest on-duty ${d.name} wireman`
-            })} />
-
-            {/* Interactive DIN-Rail Breaker */}
-            <InteractiveBreaker onEmergencyClick={() => openQuickLead({
-              id: 'emergency-trip-fix',
-              label: 'Emergency MCB Tripping Triage',
-              price: 'From ₹349',
-              desc: 'Immediate 90-minute blackout and tripping repair'
-            })} />
-
-            {/* Before / After Engineering Standard */}
-            <BeforeAfterSlider />
-          </View>
-          </SectionErrorBoundary>
+            <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, alignSelf: isDesktop ? 'center' : 'flex-start' }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
+            </View>
+          </TouchableOpacity>
 
           {/* ═══════════════════════════════════════════════════════ */}
           {/* HOW IT WORKS — 4 Steps                                 */}
