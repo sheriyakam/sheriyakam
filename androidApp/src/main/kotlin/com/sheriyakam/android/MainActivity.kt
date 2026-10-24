@@ -9,11 +9,23 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.sheriyakam.android.ui.BookingCheckoutScreen
+import com.sheriyakam.android.navigation.NavigationState
+import com.sheriyakam.android.navigation.SheriyakamNativeApp
+import com.sheriyakam.repository.BookingRepository
 
 class MainActivity : ComponentActivity() {
+
+    private val repository = BookingRepository()
+    private val navigationState = NavigationState()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Process incoming deep link
+        intent?.dataString?.let { uri ->
+            navigationState.handleDeepLink(uri)
+        }
+
         setContent {
             val sheriyakamColorScheme = darkColorScheme(
                 primary = Color(0xFFF59E0B), // Volt Gold
@@ -29,7 +41,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    BookingCheckoutScreen()
+                    SheriyakamNativeApp(
+                        repository = repository,
+                        navState = navigationState
+                    )
                 }
             }
         }

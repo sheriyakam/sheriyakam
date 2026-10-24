@@ -4,7 +4,7 @@ import SwiftUI
 struct SheriyakamApp: App {
     var body: some Scene {
         WindowGroup {
-            BookingCheckoutView()
+            SheriyakamRootView()
                 .preferredColorScheme(.dark)
         }
     }

@@ -23,9 +23,14 @@ export default function ThreeCircuitCanvas({ style, interactive = true }) {
     let pointLight;
     let isDisposed = false;
 
-    // Async import Three.js safely for Web runtime
-    import('three').then((THREE) => {
-      if (isDisposed || !mountRef.current) return;
+    // Async import Three.js safely for Web runtime with idle callback optimization
+    const scheduleInit = typeof window.requestIdleCallback === 'function'
+      ? window.requestIdleCallback
+      : (cb) => setTimeout(cb, 80);
+
+    const idleHandle = scheduleInit(() => {
+      import('three').then((THREE) => {
+        if (isDisposed || !mountRef.current) return;
 
       const width = mountRef.current.clientWidth || window.innerWidth;
       const height = mountRef.current.clientHeight || 500;
@@ -195,9 +200,13 @@ export default function ThreeCircuitCanvas({ style, interactive = true }) {
     }).catch((err) => {
       console.warn('[ThreeCircuitCanvas] Three.js initialization fallback:', err);
     });
+  });
 
     return () => {
       isDisposed = true;
+      if (typeof cancelIdleCallback === 'function' && idleHandle) {
+        cancelIdleCallback(idleHandle);
+      }
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       if (renderer) {
         renderer.dispose();
