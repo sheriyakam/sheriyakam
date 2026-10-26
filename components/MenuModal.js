@@ -28,7 +28,7 @@ const MENU_WIDTH = Math.min(width * 0.90, 390);
 
 const PERSONA_TABS = [
     { id: 'customer', label: 'Services', icon: User },
-    { id: 'business', label: 'B2B & Care', icon: Building2 },
+    { id: 'business', label: 'Partners', icon: HardHat },
     { id: 'legal', label: 'Legal', icon: Scale },
 ];
 
@@ -203,6 +203,14 @@ export default function MenuModal({ visible, onClose }) {
                                         onPress={() => navigateTo('/emergency-electrician')}
                                     />
                                     <MenuItem
+                                        icon={Sparkles}
+                                        label="CV & LinkedIn Optimizer"
+                                        subtitle="AI resume builder, ATS scoring & LinkedIn audit"
+                                        badge="AI"
+                                        highlight
+                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
+                                    />
+                                    <MenuItem
                                         icon={ShoppingCart}
                                         label="Cart & Checkout"
                                         subtitle="Review selected services & spares"
@@ -278,23 +286,6 @@ export default function MenuModal({ visible, onClose }) {
                         {/* ─────────────────── 2. BUSINESS & CARE PERSONA ─────────────────── */}
                         {activePersona === 'business' && (
                             <>
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.accent }]}>ANNUAL CONTRACTS & B2B</Text>
-                                    <MenuItem
-                                        icon={Shield}
-                                        label="Sheriyakam Care AMC"
-                                        subtitle="Preventive care plans for homes & shops"
-                                        highlight
-                                        onPress={() => navigateTo('/amc')}
-                                    />
-                                    <MenuItem
-                                        icon={Building2}
-                                        label="Commercial Contracting"
-                                        subtitle="Offices, clinics & apartment switchgear"
-                                        highlight
-                                        onPress={() => navigateTo('/commercial')}
-                                    />
-                                </View>
 
                                 <View style={styles.section}>
                                     <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>TECHNICIAN NETWORK</Text>
@@ -312,16 +303,6 @@ export default function MenuModal({ visible, onClose }) {
                                     />
                                 </View>
 
-                                <View style={styles.section}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>FREE ELECTRICIAN CAREER TOOL</Text>
-                                    <MenuItem
-                                        icon={Sparkles}
-                                        label="CV & LinkedIn Optimizer"
-                                        subtitle="Gulf & industrial electrical CV tailoring"
-                                        badge="FREE"
-                                        onPress={() => navigateTo('/cv-linkedin-optimize')}
-                                    />
-                                </View>
                             </>
                         )}
 

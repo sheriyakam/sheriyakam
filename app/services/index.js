@@ -273,10 +273,35 @@ export default function ServicesMarketplaceScreen() {
                     </View>
                 )}
 
+                {/* Free Electrician & Technician Career Tool Banner */}
+                <TouchableOpacity
+                    activeOpacity={0.85}
+                    onPress={() => router.push('/cv-linkedin-optimize')}
+                    style={[styles.careerBanner, { backgroundColor: isDark ? '#052e16' : '#ecfdf5', borderColor: isDark ? '#166534' : '#a7f3d0' }]}
+                >
+                    <View style={styles.careerBannerIcon}>
+                        <Zap size={18} color="#10B981" />
+                    </View>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={[styles.careerBannerTitle, { color: isDark ? '#f0fdf4' : '#065f46' }]}>
+                                CV & LinkedIn Optimizer
+                            </Text>
+                            <View style={styles.freeBadge}>
+                                <Text style={styles.freeBadgeText}>FREE AI TOOL</Text>
+                            </View>
+                        </View>
+                        <Text style={[styles.careerBannerSub, { color: isDark ? '#86efac' : '#047857' }]}>
+                            Tailor your electrical & technician resume for Kerala, Gulf & overseas roles with 100-pt ATS scoring.
+                        </Text>
+                    </View>
+                    <ChevronRight size={18} color="#10B981" />
+                </TouchableOpacity>
+
                 {/* Support & Commercial Footer Banner */}
                 <View style={[styles.helpBanner, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                     <View style={{ flex: 1, paddingRight: 12 }}>
-                        <Text style={[styles.helpTitle, { color: colors.textPrimary }]}>Need a custom quote or commercial service?</Text>
+                        <Text style={[styles.helpTitle, { color: colors.textPrimary }]}>Need a custom electrical consultation?</Text>
                         <Text style={[styles.helpSub, { color: colors.textSecondary }]}>
                             Speak directly with our senior electrical supervisors for site inspection and project estimates.
                         </Text>
@@ -285,9 +310,6 @@ export default function ServicesMarketplaceScreen() {
                         <TouchableOpacity style={styles.whatsappBtn} onPress={handleWhatsAppHelp}>
                             <MessageCircle size={14} color="#FFFFFF" />
                             <Text style={styles.whatsappBtnText}>WhatsApp</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.callBtn} onPress={() => router.push('/commercial')}>
-                            <Text style={styles.callBtnText}>Commercial B2B</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -448,6 +470,43 @@ const styles = StyleSheet.create({
     },
     emptyTitle: { fontSize: 16, fontWeight: '800' },
     emptyDesc: { fontSize: 13, textAlign: 'center', maxWidth: 360 },
+    careerBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        marginTop: 20,
+        gap: 12,
+    },
+    careerBannerIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    careerBannerTitle: {
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    careerBannerSub: {
+        fontSize: 12,
+        lineHeight: 16,
+        marginTop: 2,
+    },
+    freeBadge: {
+        backgroundColor: '#10B981',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    freeBadgeText: {
+        color: '#FFFFFF',
+        fontSize: 9,
+        fontWeight: '800',
+    },
     helpBanner: {
         flexDirection: 'row',
         flexWrap: 'wrap',

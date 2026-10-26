@@ -54,6 +54,14 @@ export const NavBar: React.FC<NavBarProps> = ({
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                    onPress={() => router.push('/services')}
+                    style={styles.navLinkBtn}
+                    accessibilityRole="link"
+                >
+                    <Text style={[styles.navLinkText, { color: colors.textSecondary }]}>Services</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
                     onPress={onOpenTemplates}
                     style={styles.navLinkBtn}
                     accessibilityRole="button"
@@ -117,6 +125,9 @@ export const NavBar: React.FC<NavBarProps> = ({
                 <View style={[styles.mobileMenuDropdown, { backgroundColor: isDark ? '#0D1525' : '#FFFFFF', borderColor: isDark ? '#1E293B' : '#E2E8F0' }]}>
                     <TouchableOpacity onPress={() => { setMobileMenuOpen(false); router.push('/'); }} style={styles.mobileMenuItem}>
                         <Text style={[styles.mobileMenuText, { color: colors.textPrimary }]}>Home</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => { setMobileMenuOpen(false); router.push('/services'); }} style={styles.mobileMenuItem}>
+                        <Text style={[styles.mobileMenuText, { color: colors.textPrimary }]}>Services</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => { setMobileMenuOpen(false); onOpenTemplates && onOpenTemplates(); }} style={styles.mobileMenuItem}>
                         <Text style={[styles.mobileMenuText, { color: colors.textPrimary }]}>Templates</Text>

@@ -80,7 +80,7 @@ const WORK_PROJECTS = [
     {
         id: 'commercial-malappuram',
         title: 'Commercial Restaurant Kitchen Switchgear & Exhaust Interlock',
-        category: 'Commercial',
+        category: 'DB & Switchgear',
         location: 'Manjeri, Malappuram',
         district: 'Malappuram',
         duration: '6 Hours',
@@ -109,7 +109,7 @@ const WORK_PROJECTS = [
     }
 ];
 
-const CATEGORIES = ['All', 'DB & Switchgear', 'Wiring & Switches', 'Solar & Inverter', 'CCTV & Security', 'Commercial', 'Earthing & Safety'];
+const CATEGORIES = ['All', 'DB & Switchgear', 'Wiring & Switches', 'Solar & Inverter', 'CCTV & Security', 'Earthing & Safety'];
 
 export default function WorkShowcaseScreen() {
     const router = useRouter();

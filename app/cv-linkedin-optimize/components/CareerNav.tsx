@@ -13,7 +13,8 @@ import {
   X,
   Sparkles,
   ShieldCheck,
-  Briefcase
+  Briefcase,
+  Layers
 } from 'lucide-react-native';
 import { getCreditLedger } from '../../../services/careerService';
 
@@ -24,6 +25,7 @@ export function CareerNav() {
   const ledger = getCreditLedger();
 
   const navLinks = [
+    { label: 'Services', path: '/services', icon: Layers },
     { label: 'Resume Analyzer', path: '/cv-linkedin-optimize/resume-analyzer', icon: FileText },
     { label: 'Job Tailor', path: '/cv-linkedin-optimize/resume-tailor', icon: Target },
     { label: 'Resume Builder', path: '/cv-linkedin-optimize/resume-builder', icon: Briefcase },

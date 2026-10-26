@@ -35,7 +35,6 @@ export default function DesktopNavbar({ locationName, onLocationPress, onEmergen
     { label: 'Services', action: () => (onCatalogScroll ? onCatalogScroll() : router.push('/services')) },
     { label: 'AI Fault Triage', path: '/smart-triage', badge: 'AI', badgeColor: '#EF4444' },
     { label: 'Pricing Estimator', path: '/pricing-calculator' },
-    { label: 'Commercial B2B', path: '/commercial-audit' },
   ];
 
   const handleNav = (item) => {

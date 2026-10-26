@@ -10,7 +10,7 @@ import {
     MapPin, Clock, Calendar, ChevronRight, CheckCircle, Phone,
     Navigation, User, Power, Briefcase, TrendingUp, Star, Zap,
     IndianRupee, Shield, Award, AlertTriangle, BookOpen, Headphones,
-    X, Bell, Radio, ArrowUpRight, Flame, Trophy, Gift, Target, Sparkles
+    X, Bell, Radio, ArrowUpRight, Flame, Trophy, Gift, Target, Sparkles, Compass
 } from 'lucide-react-native';
 
 import {

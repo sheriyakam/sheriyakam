@@ -202,18 +202,6 @@ export default function CustomerDashboardScreen() {
                             <Text style={styles.shortcutDesc}>90-Min Spark & Tripping Response</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => router.push('/amc')} style={[styles.shortcutCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                            <ShieldCheck size={22} color="#10B981" />
-                            <Text style={[styles.shortcutTitle, { color: colors.textPrimary }]}>Sheriyakam Care AMC</Text>
-                            <Text style={[styles.shortcutDesc, { color: colors.textSecondary }]}>Preventive Electrical Care Plans</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => router.push('/commercial')} style={[styles.shortcutCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                            <Zap size={22} color={colors.accent} />
-                            <Text style={[styles.shortcutTitle, { color: colors.textPrimary }]}>Commercial Contracting</Text>
-                            <Text style={[styles.shortcutDesc, { color: colors.textSecondary }]}>Offices, Clinics & Apartments</Text>
-                        </TouchableOpacity>
-
                         <TouchableOpacity onPress={() => router.push('/work')} style={[styles.shortcutCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                             <FileText size={22} color="#3B82F6" />
                             <Text style={[styles.shortcutTitle, { color: colors.textPrimary }]}>Work Portfolio</Text>

@@ -154,8 +154,7 @@ export default function ReviewsSection() {
                     { id: 'electrical', label: '⚡ Electrical & Fans' },
                     { id: 'ac', label: '❄️ AC Foam Jet' },
                     { id: 'plumbing', label: '💧 Water Motors & Taps' },
-                    { id: 'cctv', label: '📹 CCTV Surveillance' },
-                    { id: 'commercial', label: '🏢 Commercial Audits' }
+                    { id: 'cctv', label: '📹 CCTV Surveillance' }
                 ].map((cat) => {
                     const isSelected = activeCategory === cat.id;
                     return (
