@@ -6,7 +6,6 @@
 [![Sheriyakam CI / Build Verification](https://github.com/sheriyakam/sheriyakam/actions/workflows/ci.yml/badge.svg)](https://github.com/sheriyakam/sheriyakam/actions/workflows/ci.yml)
 [![Tests Passing](https://img.shields.io/badge/tests-65%20passed-10B981)](tests/)
 [![ESLint](https://img.shields.io/badge/eslint-0%20errors-10B981)](eslint.config.mjs)
-[![Featured on CodeHype](https://www.codehype.ai/badges/sheriyakam.svg?variant=find-us&v=20)](https://www.codehype.ai/product/sheriyakam?utm_source=codehype_badge)
 
 ---
 
@@ -24,7 +23,7 @@ graph TD
     subgraph Client_Presentation_Tier
         Android["Android Native (Kotlin 2.0 + Jetpack Compose)"]
         iOS["iOS Native (Swift 6 + SwiftUI + NavigationStack)"]
-        WebExpo["Web Portal (Expo Web / Three.js 3D WebGL / CodeHype)"]
+        WebExpo["Web Portal (Expo Web / Three.js 3D WebGL)"]
     end
 
     subgraph Portable_KMP_Shared_Tier [shared/ :shared]

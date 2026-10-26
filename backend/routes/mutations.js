@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
-
-const processedIdempotencyKeys = new Set();
+const { cacheGet, cacheSet } = require('../utils/security');
 
 // POST /api/v1/mutations/batch
-router.post('/batch', (req, res) => {
-  const { mutations } = req.body;
+router.post('/batch', async (req, res) => {
+  const { mutations } = req.body || {};
   if (!Array.isArray(mutations)) {
     return res.status(400).json({ error: 'mutations array is required' });
+  }
+
+  // Rate/resource exhaustion guard: limit batch size to 100
+  if (mutations.length > 100) {
+    return res.status(413).json({ error: 'BATCH_SIZE_EXCEEDED', maxAllowed: 100 });
   }
 
   const results = [];
@@ -17,12 +21,16 @@ router.post('/batch', (req, res) => {
       continue;
     }
 
-    if (processedIdempotencyKeys.has(item.idempotencyKey)) {
+    const cacheKey = `mutation:idempotency:${item.idempotencyKey}`;
+    const alreadyProcessed = await cacheGet(cacheKey);
+
+    if (alreadyProcessed) {
       results.push({ id: item.id, status: 'ALREADY_SYNCED', idempotencyKey: item.idempotencyKey });
       continue;
     }
 
-    processedIdempotencyKeys.add(item.idempotencyKey);
+    // Cache with 7-day TTL (604800s) to prevent replay
+    await cacheSet(cacheKey, { syncedAt: Date.now(), id: item.id }, 604800);
     results.push({ id: item.id, status: 'SYNCED', idempotencyKey: item.idempotencyKey });
   }
 

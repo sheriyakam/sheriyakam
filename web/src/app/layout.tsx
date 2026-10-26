@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
 import { Sparkles, FileText, Linkedin, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import CodeHypeBadge from '@/components/CodeHypeBadge';
 
 export const metadata: Metadata = {
   title: 'Sheriyakam AI — AI Resume Builder & LinkedIn Profile Optimizer',
@@ -87,7 +86,6 @@ export default function RootLayout({
               <span>Strict Anti-Fabrication Guarantee · Zero Hallucinated Experience</span>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <CodeHypeBadge />
               <div className="flex items-center gap-4">
                 <span>Pay-Per-Pack (No Auto-Renewals)</span>
                 <span>100% Vector ATS PDF Export</span>

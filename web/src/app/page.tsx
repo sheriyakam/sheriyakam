@@ -18,7 +18,6 @@ import {
   ChevronUp,
   AlertCircle
 } from 'lucide-react';
-import CodeHypeBadge from '@/components/CodeHypeBadge';
 
 export default function LandingPage() {
   const [demoStep, setDemoStep] = useState<1 | 2 | 3 | 4>(4);
@@ -86,10 +85,6 @@ export default function LandingPage() {
               <Linkedin className="w-4 h-4 text-sky-400" />
               <span>Optimize LinkedIn Profile</span>
             </Link>
-          </div>
-
-          <div className="mt-6 flex justify-center">
-            <CodeHypeBadge />
           </div>
 
           <p className="mt-4 text-xs font-mono text-slate-500">

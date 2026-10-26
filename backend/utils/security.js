@@ -255,5 +255,8 @@ module.exports = {
     handleSuccessfulLogin,
     unlockAccount,
     getLockoutStateForTest,
+    cacheSet,
+    cacheGet,
+    cacheDel,
     sleep
 };

@@ -81,7 +81,7 @@ sheriyakam/
 │   ├── Services/                   # PushNotificationService, BackgroundSyncTaskHandler, RazorpayProcessor
 │   └── Views/                      # ActiveDispatchTrackerView, BookingCheckoutView, SmartTriageView
 ├── app/                            # Universal Web Client (Expo Router v3)
-│   ├── index.js                    # Awwwards-caliber 3D WebGL Three.js grid & CodeHype product badge
+│   ├── index.js                    # Awwwards-caliber 3D WebGL Three.js grid
 │   ├── cv-linkedin-optimize/       # Deterministic AI Resume Builder & LinkedIn Optimizer
 │   └── (148 static routes)         # Full pre-rendered coverage for all 14 Kerala districts
 ├── backend/                        # Authoritative REST API & Autonomous Agents

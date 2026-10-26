@@ -24,7 +24,6 @@ import LocationModal from '../components/LocationModal';
 import FloatingCartBar from '../components/FloatingCartBar';
 import StickyMobileCTA from '../components/StickyMobileCTA';
 import ReviewsSection from '../components/ReviewsSection';
-import WorkGallery from '../components/WorkGallery';
 import { ServicesAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
 import { Badge } from '../components/ui/Badge';
@@ -34,7 +33,6 @@ import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
-import CodeHypeBadge from '../components/CodeHypeBadge';
 import { soundFx } from '../services/audioFx';
 
 export { ErrorBoundary };
@@ -941,53 +939,7 @@ export default function HomeScreen() {
           )}
           </SectionErrorBoundary>
 
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* DIAGNOSTIC & FAULT INSPECTION CALLOUT (₹49)             */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          <TouchableOpacity
-            onPress={() => openQuickLead({
-              id: 'diagnostic',
-              label: 'Not sure / Need on-site fault check',
-              price: '₹49',
-              desc: 'Master electrician tests with multimeter before any work'
-            })}
-            activeOpacity={0.88}
-            style={{
-              marginHorizontal: SPACING.md,
-              marginTop: SPACING.md,
-              marginBottom: SPACING.lg,
-              borderRadius: 16,
-              padding: 16,
-              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.12)' : '#EFF6FF',
-              borderWidth: 1.5,
-              borderColor: '#3B82F6',
-              flexDirection: isDesktop ? 'row' : 'column',
-              alignItems: isDesktop ? 'center' : 'flex-start',
-              justifyContent: 'space-between',
-              gap: 14,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center' }}>
-                <HelpCircle size={22} color="#FFFFFF" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>
-                    Not sure what the exact electrical issue is?
-                  </Text>
-                  <Badge variant="success" size="sm">₹49 Doorstep Visit</Badge>
-                </View>
-                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, lineHeight: 18 }}>
-                  Book a Doorstep Diagnostic Visit. Technician arrives in 90 mins, performs complete fault isolation & provides an upfront quote. Inspection fee is 100% adjusted against your final bill if work proceeds.
-                </Text>
-              </View>
-            </View>
-            <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, alignSelf: isDesktop ? 'center' : 'flex-start' }}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13 }}>Book Diagnostic (₹49) →</Text>
-            </View>
-          </TouchableOpacity>
-
+          
           {/* ═══════════════════════════════════════════════════════ */}
           {/* HOW IT WORKS — 4 Steps                                 */}
           {/* ═══════════════════════════════════════════════════════ */}
@@ -1071,13 +1023,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* ═══════════════════════════════════════════════════════ */}
-          {/* VERIFIED WORK GALLERY (BEFORE & AFTER)                  */}
-          {/* ═══════════════════════════════════════════════════════ */}
-          <SectionErrorBoundary name="Work Gallery">
-            <WorkGallery />
-          </SectionErrorBoundary>
-
+          
           {/* ═══════════════════════════════════════════════════════ */}
           {/* REVIEWS & AGGREGATE BREAKDOWN MODULE                    */}
           {/* ═══════════════════════════════════════════════════════ */}
@@ -1273,7 +1219,6 @@ export default function HomeScreen() {
                 <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>support@sheriyakam.in</Text>
               </View>
             </View>
-            <CodeHypeBadge style={{ marginVertical: 14 }} />
             <Text style={[styles.footerCopy, { color: colors.textTertiary }]}>
               © 2026 Sheriyakam. All rights reserved. Serving all 14 districts of Kerala.
             </Text>
