@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions, Animated, Pressable, Platform } from 'react-native';
-import { Clock, MapPin, Zap, ShieldCheck } from 'lucide-react-native';
+import { Clock, MapPin, Zap, ShieldCheck, Plus, Minus, Check } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { useCart } from '../context/CartContext';
 
 const ServiceCard = ({
     id,
@@ -21,6 +22,7 @@ const ServiceCard = ({
     const { width } = useWindowDimensions();
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
+    const { items = [], addItem, removeItem, updateQuantity } = useCart();
 
     const isSmallScreen = width < 768;
     const cardWidth = isSmallScreen
@@ -47,8 +49,63 @@ const ServiceCard = ({
         }).start();
     };
 
-    const handleBookClick = (e) => {
+    // Find if current service is in cart
+    const cartItem = items.find(i => 
+        i.id === id || 
+        (i.name && name && i.name.toLowerCase() === name.toLowerCase()) || 
+        (i.title && name && i.title.toLowerCase() === name.toLowerCase())
+    );
+    const quantity = cartItem ? (Number(cartItem.quantity) || 0) : 0;
+
+    // Services 1 and 6: Strict toggle only (max quantity 1)
+    // 1: Fault Inspection & Multimeter Diagnosis (₹149)
+    // 6: House Wiring, Additional Points & Earthing (₹550)
+    const isToggleOnly = id === 1 || id === 6 || (name && (
+        name.toLowerCase().includes('fault inspection') || 
+        name.toLowerCase().includes('house wiring')
+    ));
+
+    const handleAdd = (e) => {
         e?.stopPropagation?.();
+        addItem({
+            id,
+            name,
+            title: name,
+            price: Number(price) || 149,
+            time,
+            duration: time,
+            image,
+            specialty,
+        }, 1);
+    };
+
+    const handleToggleRemove = (e) => {
+        e?.stopPropagation?.();
+        if (cartItem) {
+            removeItem(cartItem.id);
+        }
+    };
+
+    const handleDecrement = (e) => {
+        e?.stopPropagation?.();
+        if (!cartItem) return;
+        if (quantity <= 1) {
+            removeItem(cartItem.id);
+        } else {
+            updateQuantity(cartItem.id, quantity - 1);
+        }
+    };
+
+    const handleIncrement = (e) => {
+        e?.stopPropagation?.();
+        if (!cartItem) {
+            handleAdd(e);
+        } else {
+            updateQuantity(cartItem.id, quantity + 1);
+        }
+    };
+
+    const handleCardPress = () => {
         if (onPress) {
             onPress();
         } else if (onBook) {
@@ -61,7 +118,7 @@ const ServiceCard = ({
 
     return (
         <Pressable
-            onPress={handleBookClick}
+            onPress={handleCardPress}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ hovered }) => [
@@ -147,23 +204,69 @@ const ServiceCard = ({
                                 <Text style={[styles.price, { color: colors.textPrimary }]}>₹{price}</Text>
                             </View>
 
-                            <TouchableOpacity
-                                onPress={handleBookClick}
-                                activeOpacity={0.8}
-                                style={[
-                                    styles.bookBtn,
-                                    {
-                                        backgroundColor: isEmergency ? COLORS.danger : colors.accent
-                                    }
-                                ]}
-                                accessibilityRole="button"
-                                accessibilityLabel={`Book ${name}`}
-                            >
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                                    <Zap size={13} color="#fff" fill="#fff" />
-                                    <Text style={styles.bookBtnText}>Book</Text>
-                                </View>
-                            </TouchableOpacity>
+                            {/* Cart Action Buttons */}
+                            {isToggleOnly ? (
+                                quantity > 0 ? (
+                                    <TouchableOpacity
+                                        onPress={handleToggleRemove}
+                                        activeOpacity={0.8}
+                                        style={[styles.actionBtn, styles.addedBtn]}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Remove ${name} from cart`}
+                                    >
+                                        <Check size={13} color="#FFFFFF" strokeWidth={3} />
+                                        <Text style={styles.actionBtnText}>✓ Added</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <TouchableOpacity
+                                        onPress={handleAdd}
+                                        activeOpacity={0.8}
+                                        style={[styles.actionBtn, { backgroundColor: isEmergency ? COLORS.danger : colors.accent }]}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Add ${name} to cart`}
+                                    >
+                                        <Plus size={13} color="#FFFFFF" strokeWidth={2.5} />
+                                        <Text style={styles.actionBtnText}>+ Add</Text>
+                                    </TouchableOpacity>
+                                )
+                            ) : (
+                                quantity > 0 ? (
+                                    <View style={styles.stepperContainer}>
+                                        <TouchableOpacity
+                                            onPress={handleDecrement}
+                                            activeOpacity={0.7}
+                                            style={[styles.stepperBtn, { backgroundColor: isDark ? '#27272A' : '#E2E8F0' }]}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={`Decrease quantity for ${name}`}
+                                        >
+                                            <Minus size={13} color={colors.textPrimary} strokeWidth={2.5} />
+                                        </TouchableOpacity>
+
+                                        <Text style={[styles.stepperQtyText, { color: colors.textPrimary }]}>{quantity}</Text>
+
+                                        <TouchableOpacity
+                                            onPress={handleIncrement}
+                                            activeOpacity={0.7}
+                                            style={[styles.stepperBtn, { backgroundColor: colors.accent }]}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={`Increase quantity for ${name}`}
+                                        >
+                                            <Plus size={13} color="#FFFFFF" strokeWidth={2.5} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    <TouchableOpacity
+                                        onPress={handleAdd}
+                                        activeOpacity={0.8}
+                                        style={[styles.actionBtn, { backgroundColor: isEmergency ? COLORS.danger : colors.accent }]}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Add ${name} to cart`}
+                                    >
+                                        <Plus size={13} color="#FFFFFF" strokeWidth={2.5} />
+                                        <Text style={styles.actionBtnText}>+ Add</Text>
+                                    </TouchableOpacity>
+                                )
+                            )}
                         </View>
                     </View>
                 </Animated.View>
@@ -298,20 +401,43 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: -0.3,
     },
-    bookBtn: {
-        minHeight: 40,
-        minWidth: 80,
-        justifyContent: 'center',
+    actionBtn: {
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5,
         paddingHorizontal: 16,
         paddingVertical: 9,
         borderRadius: 10,
+        minWidth: 84,
+        minHeight: 38,
     },
-    bookBtnText: {
-        color: '#fff',
+    addedBtn: {
+        backgroundColor: '#10B981',
+    },
+    actionBtnText: {
+        color: '#FFFFFF',
         fontWeight: '700',
         fontSize: 12.5,
         letterSpacing: 0.2,
+    },
+    stepperContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    stepperBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    stepperQtyText: {
+        fontSize: 14,
+        fontWeight: '700',
+        minWidth: 20,
+        textAlign: 'center',
     },
 });
 
