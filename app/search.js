@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Star, Clock, ShieldCheck, Plus, ShoppingCart, SlidersHorizontal } from 'lucide-react-native';
+import { ArrowLeft, Star, Clock, ShieldCheck, Zap, SlidersHorizontal } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
 import { Searchbar } from '../components/ui/Searchbar';
@@ -13,7 +13,6 @@ import { RangeSlider } from '../components/ui/Slider';
 import { Modal } from '../components/ui/Modal';
 import { Dropdown } from '../components/ui/Dropdown';
 import { EmptyState } from '../components/ui/EmptyState';
-import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
@@ -112,7 +111,6 @@ const TALUKS = [
 export default function SearchScreen() {
     const router = useRouter();
     const { colors, theme } = useTheme() || { colors: COLORS, theme: 'dark' };
-    const { addItem, itemCount } = useCart();
     const { success } = useToast();
     const isDark = theme === 'dark';
 
@@ -147,11 +145,6 @@ export default function SearchScreen() {
         });
     }, [query, selectedCategory, selectedTaluk, maxPrice, minRating]);
 
-    const handleAddToCart = (service) => {
-        addItem(service, 1);
-        success(`Added "${service.title}" to cart!`, 'Cart Updated');
-    };
-
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
             {/* Header */}
@@ -170,18 +163,6 @@ export default function SearchScreen() {
                         onFilterPress={() => setShowFilterModal(true)}
                     />
                 </View>
-
-                <TouchableOpacity 
-                    onPress={() => router.push('/cart')} 
-                    style={[styles.cartIconBtn, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}
-                >
-                    <ShoppingCart size={20} color={colors.textPrimary} />
-                    {itemCount > 0 ? (
-                        <View style={[styles.cartBadge, { backgroundColor: colors.accent }]}>
-                            <Text style={styles.cartBadgeText}>{itemCount}</Text>
-                        </View>
-                    ) : null}
-                </TouchableOpacity>
             </View>
 
             {/* Category Filter Pills */}
@@ -286,10 +267,10 @@ export default function SearchScreen() {
                                         <Button
                                             variant="primary"
                                             size="sm"
-                                            iconLeft={Plus}
-                                            onPress={() => handleAddToCart(service)}
+                                            iconLeft={Zap}
+                                            onPress={() => router.push(`/service/${service.id}`)}
                                         >
-                                            Add
+                                            Book
                                         </Button>
                                     </View>
                                 </View>

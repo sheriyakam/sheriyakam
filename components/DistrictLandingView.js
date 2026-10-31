@@ -364,7 +364,7 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                 )}
 
                 {/* ═══════════════════════════════════════════════════════ */}
-                {/* POPULAR SERVICES CATALOG WITH ADD TO CART & BOOK       */}
+                {/* POPULAR SERVICES CATALOG WITH DIRECT BOOKING           */}
                 {/* ═══════════════════════════════════════════════════════ */}
                 <View style={styles.sectionWrap}>
                     <View style={styles.sectionHeaderBetween}>

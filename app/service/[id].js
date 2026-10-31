@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-    ArrowLeft, Star, Clock, ShieldCheck, Check, ShoppingCart,
+    ArrowLeft, Star, Clock, ShieldCheck, Check,
     Zap, HelpCircle, ChevronDown, ChevronUp, AlertCircle, Phone, MessageCircle,
     CheckCircle2, XCircle, Shield
 } from 'lucide-react-native';
@@ -382,20 +382,11 @@ export default function SingleServiceDetailScreen() {
                                 <Button
                                     variant="primary"
                                     size="lg"
+                                    iconLeft={Zap}
                                     onPress={handleBookNow}
                                     style={{ marginTop: 16 }}
                                 >
                                     Proceed to Schedule
-                                </Button>
-
-                                <Button
-                                    variant="outline"
-                                    size="lg"
-                                    onPress={handleAddToCart}
-                                    iconLeft={ShoppingCart}
-                                    style={{ marginTop: 10 }}
-                                >
-                                    Add to Cart
                                 </Button>
 
                                 <TouchableOpacity onPress={handleWhatsAppInquiry} style={styles.whatsAppInquiryBtn}>
@@ -406,7 +397,7 @@ export default function SingleServiceDetailScreen() {
                                 <View style={styles.desktopTrustFooter}>
                                     <ShieldCheck size={14} color="#10B981" />
                                     <Text style={[styles.desktopTrustText, { color: colors.textTertiary }]}>
-                                        ₹5 Lakh domestic property damage cover included
+                                        30-Day Workmanship Warranty included
                                     </Text>
                                 </View>
                             </Card>
@@ -425,22 +416,13 @@ export default function SingleServiceDetailScreen() {
                     }
                 ]}>
                     <Button
-                        variant="outline"
-                        size="lg"
-                        onPress={handleAddToCart}
-                        iconLeft={ShoppingCart}
-                        style={{ flex: 1 }}
-                    >
-                        Add
-                    </Button>
-
-                    <Button
                         variant="primary"
                         size="lg"
+                        iconLeft={Zap}
                         onPress={handleBookNow}
-                        style={{ flex: 1.6 }}
+                        style={{ flex: 1 }}
                     >
-                        Book • ₹{totalPrice}
+                        Book Now • ₹{totalPrice}
                     </Button>
                 </View>
             )}

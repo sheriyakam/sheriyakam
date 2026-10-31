@@ -8,17 +8,15 @@ import Head from 'expo-router/head';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     ArrowLeft, Search, Star, Clock, ShieldCheck, Zap,
-    ChevronRight, CheckCircle2, Phone, MessageCircle, AlertTriangle, Plus, Check
+    ChevronRight, CheckCircle2, Phone, MessageCircle, AlertTriangle
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { COLORS, SPACING } from '../../constants/theme';
 import { CATEGORIES, getAllServices } from '../../constants/catalog';
-import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import FloatingCartBar from '../../components/FloatingCartBar';
 import { openWhatsApp } from '../../utils/whatsapp';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 
@@ -31,23 +29,10 @@ export default function ServicesMarketplaceScreen() {
     const { width } = useWindowDimensions();
     const isDesktop = width >= 1024;
     const isTablet = width >= 640 && width < 1024;
-    const { addItem, items } = useCart();
-    const { success } = useToast();
+        const { success } = useToast();
 
     const [selectedCategory, setSelectedCategory] = useState('electrical');
     const [searchQuery, setSearchQuery] = useState('');
-
-    const handleAddToCart = (e, service) => {
-        e?.stopPropagation?.();
-        addItem({
-            id: service.id || service.slug,
-            title: service.title,
-            price: service.startingPrice || service.price || 299,
-            duration: service.duration,
-            category: service.categoryName || 'Home Service',
-        }, 1);
-        success(`Added "${service.title}" to cart!`, 'Cart Updated');
-    };
 
     const currentCategory = useMemo(() => {
         return CATEGORIES.find(c => c.id === selectedCategory) || CATEGORIES[0];
@@ -242,9 +227,12 @@ export default function ServicesMarketplaceScreen() {
 
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                         <TouchableOpacity
-                                            onPress={(e) => handleAddToCart(e, service)}
+                                            onPress={(e) => {
+                                                e?.stopPropagation?.();
+                                                router.push(`/service/${service.id || service.slug}`);
+                                            }}
                                             style={{
-                                                backgroundColor: (items || []).some(i => i.id === (service.id || service.slug)) ? '#10B981' : colors.accent,
+                                                backgroundColor: colors.accent,
                                                 paddingHorizontal: 12,
                                                 paddingVertical: 6,
                                                 borderRadius: 8,
@@ -252,18 +240,11 @@ export default function ServicesMarketplaceScreen() {
                                                 alignItems: 'center',
                                                 gap: 4
                                             }}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={`Book ${service.title}`}
                                         >
-                                            {(items || []).some(i => i.id === (service.id || service.slug)) ? (
-                                                <>
-                                                    <Check size={12} color="#FFFFFF" />
-                                                    <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>Added</Text>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Plus size={12} color="#FFFFFF" />
-                                                    <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>Add</Text>
-                                                </>
-                                            )}
+                                            <Zap size={12} color="#FFFFFF" fill="#FFFFFF" />
+                                            <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>Book</Text>
                                         </TouchableOpacity>
                                         <ChevronRight size={14} color={colors.textTertiary} />
                                     </View>
@@ -315,7 +296,6 @@ export default function ServicesMarketplaceScreen() {
                 </View>
             </ScrollView>
 
-            <FloatingCartBar />
         </SafeAreaView>
     );
 }
