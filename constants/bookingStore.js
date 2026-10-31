@@ -1,6 +1,6 @@
 import { recordPartnerInstantPayout } from './partnerStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { autoAssignPartner } from './assignmentEngine';
+import { autoAssignPartner, haversineDistanceKm } from './assignmentEngine';
 import { sanitizePayload, validateIndianPhone } from '../utils/validation';
 import { verifyOTPRateLimit } from '../utils/security';
 
@@ -33,30 +33,14 @@ export const bookingEvents = new SimpleEventEmitter();
 
 const NOW = Date.now();
 
-// Initial Mock Data covering 14 Kerala districts, SLA timers, disputes, and payouts
+// All Kerala Active & Open Customer Work Requests with precise GPS Coordinates
 const INITIAL_BOOKINGS = [
+    // ── KANNUR / THALASSERY HUB (Partner Shyam Prasad: 11.7480, 75.4894) ──
     {
         id: 'b-active-1',
         requiredSkill: 'Electrical',
         requiredTier: 'Gold',
         skillMatchPercent: 98,
-        siteNotes: {
-            gateCode: '#4821',
-            meterLocation: 'Ground floor external stairwell on left',
-            faultHistory: 'Main MCB tripped twice yesterday during heavy rain',
-            siteAdvisory: 'Beware of pet dog in front porch. Ring calling bell twice.'
-        },
-        hardwareBills: [
-            {
-                id: 'hb-demo-1',
-                photoUri: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500',
-                supplierName: 'Malabar Electrical Hardware, Thalassery',
-                billNo: 'ME-8841',
-                amount: 380,
-                date: 'Today, 03:15 PM',
-                items: 'Havells 32A C-Curve MCB + 2m conduit'
-            }
-        ],
         customerName: 'K.V. Raghu',
         customerPhone: '+91 94471 28901',
         service: 'Emergency Repair Specialist',
@@ -65,6 +49,8 @@ const INITIAL_BOOKINGS = [
         district: 'Kannur',
         taluk: 'Thalassery',
         address: 'Near Old Bus Stand, Goods Shed Road, Thalassery',
+        latitude: 11.7495,
+        longitude: 75.4891,
         distance: '1.4 km',
         price: 550,
         finalPrice: 550,
@@ -78,22 +64,17 @@ const INITIAL_BOOKINGS = [
         date: 'Today',
         time: 'Immediate (90-Min Emergency)',
         slaMinutes: 90,
-        createdAt: new Date(NOW - 35 * 60 * 1000).toISOString(), // 35 mins ago -> 55 mins remaining
+        createdAt: new Date(NOW - 35 * 60 * 1000).toISOString(),
         acceptedAt: new Date(NOW - 30 * 60 * 1000).toISOString(),
-        payoutStatus: 'pending'
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: '#4821', meterLocation: 'Ground floor stairwell', faultHistory: 'MCB sparking', siteAdvisory: 'Beware of pet dog' },
+        hardwareBills: [{ id: 'hb-demo-1', photoUri: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500', supplierName: 'Malabar Electrical Hardware, Thalassery', billNo: 'ME-8841', amount: 380, date: 'Today, 03:15 PM', items: 'Havells 32A C-Curve MCB' }]
     },
     {
         id: 'b-ping-1',
         requiredSkill: 'AC',
         requiredTier: 'Silver',
         skillMatchPercent: 92,
-        siteNotes: {
-            gateCode: 'Open Entry',
-            meterLocation: 'First floor balcony AC outdoor unit panel',
-            faultHistory: 'AC condenser fan making grinding noise; low cooling',
-            siteAdvisory: 'Ladder is available on-site with building security'
-        },
-        hardwareBills: [],
         customerName: 'Fatima Zohra',
         customerPhone: '+91 98470 55432',
         service: 'Inverter AC Fan & Gas Leak Check',
@@ -102,6 +83,8 @@ const INITIAL_BOOKINGS = [
         district: 'Kannur',
         taluk: 'Thalassery',
         address: 'Pilakool, Near Thalassery Stadium, Thalassery',
+        latitude: 11.7510,
+        longitude: 75.4920,
         distance: '2.3 km',
         price: 650,
         finalPrice: 650,
@@ -112,8 +95,134 @@ const INITIAL_BOOKINGS = [
         date: 'Today',
         time: 'Immediate (90-Min Emergency)',
         slaMinutes: 90,
-        createdAt: new Date(NOW - 72 * 60 * 1000).toISOString(), // 72 mins ago -> 18 mins left (WARNING RED/AMBER)
-        payoutStatus: 'pending'
+        createdAt: new Date(NOW - 72 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: 'Open Entry', meterLocation: 'First floor balcony unit', faultHistory: 'AC fan noise', siteAdvisory: 'Ladder on site' },
+        hardwareBills: []
+    },
+    {
+        id: 'b-open-dharmadam',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Bronze',
+        skillMatchPercent: 95,
+        customerName: 'Sujith Nambiar',
+        customerPhone: '+91 94471 88201',
+        service: 'Main Earth Leakage & Switchboard Sparking',
+        serviceType: 'Emergency',
+        category: 'Electrical',
+        district: 'Kannur',
+        taluk: 'Thalassery',
+        address: 'Beach Road, Near Dharmadam Island Approach, Thalassery',
+        latitude: 11.7680,
+        longitude: 75.4650,
+        distance: '3.4 km',
+        price: 599,
+        finalPrice: 599,
+        platformFee: 90, netPartnerPayout: 509,
+        status: 'open',
+        checkInOtp: '2233',
+        otp: '6677',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 15 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: '#1029', meterLocation: 'Right side verandah', faultHistory: 'Earthing voltage 48V', siteAdvisory: 'Ring doorbell twice' },
+        hardwareBills: []
+    },
+
+    // ── KOZHIKODE / VADAKARA HUB (Partner Abdul Kader: 11.6080, 75.5910) ──
+    {
+        id: 'b-open-vadakara',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Gold',
+        skillMatchPercent: 96,
+        customerName: 'M. K. Musthafa',
+        customerPhone: '+91 98472 10982',
+        service: 'Commercial 3-Phase DB Short Circuit',
+        serviceType: 'Electrical',
+        category: 'Electrical',
+        district: 'Kozhikode',
+        taluk: 'Vadakara',
+        address: 'Link Road, Near Old Bus Stand, Vadakara',
+        latitude: 11.6050,
+        longitude: 75.5890,
+        distance: '1.6 km',
+        price: 750,
+        finalPrice: 750,
+        platformFee: 113, netPartnerPayout: 637,
+        status: 'open',
+        checkInOtp: '4421',
+        otp: '8832',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 25 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: 'Commercial Entry', meterLocation: 'Behind cash counter', faultHistory: 'Phase 2 neutral burning', siteAdvisory: 'Main switch accessible' },
+        hardwareBills: []
+    },
+    {
+        id: 'b-open-chorode',
+        requiredSkill: 'AC',
+        requiredTier: 'Silver',
+        skillMatchPercent: 91,
+        customerName: 'Anjali Varma',
+        customerPhone: '+91 98470 99112',
+        service: 'Split AC Power PCB & Sensor Tripping',
+        serviceType: 'AC',
+        category: 'AC',
+        district: 'Kozhikode',
+        taluk: 'Vadakara',
+        address: 'Chorode National Highway Junction, Vadakara',
+        latitude: 11.6250,
+        longitude: 75.5820,
+        distance: '2.1 km',
+        price: 650,
+        finalPrice: 650,
+        platformFee: 98, netPartnerPayout: 552,
+        status: 'open',
+        checkInOtp: '7788',
+        otp: '9900',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 40 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: '#7712', meterLocation: 'Garage DB', faultHistory: 'Inverter board error E4', siteAdvisory: 'Keep tools ready' },
+        hardwareBills: []
+    },
+
+    // ── KOZHIKODE CITY HUB (Partner Ramesh Babu: 11.4170, 75.9340) ──
+    {
+        id: 'b-open-thamarassery',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Bronze',
+        skillMatchPercent: 94,
+        customerName: 'Bichu Moideen',
+        customerPhone: '+91 97451 11223',
+        service: 'Water Pump Starter Switch Repair',
+        serviceType: 'Electrical',
+        category: 'Electrical',
+        district: 'Kozhikode',
+        taluk: 'Thamarassery',
+        address: 'Chungam Junction, Wayanad Road, Thamarassery',
+        latitude: 11.4190,
+        longitude: 75.9360,
+        distance: '2.1 km',
+        price: 499,
+        finalPrice: 499,
+        platformFee: 75, netPartnerPayout: 424,
+        status: 'open',
+        checkInOtp: '3344',
+        otp: '5566',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 10 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: 'Open Farmhouse', meterLocation: 'Well pumphouse', faultHistory: 'Starter coil buzzing', siteAdvisory: 'Footwear not allowed in shed' },
+        hardwareBills: []
     },
     {
         id: 'b-sla-breach-1',
@@ -125,6 +234,8 @@ const INITIAL_BOOKINGS = [
         district: 'Kozhikode',
         taluk: 'Kozhikode',
         address: 'Mavoor Road, Near Focus Mall, Kozhikode',
+        latitude: 11.2588,
+        longitude: 75.7804,
         distance: '4.2 km',
         price: 750,
         finalPrice: 750,
@@ -135,35 +246,40 @@ const INITIAL_BOOKINGS = [
         date: 'Today',
         time: 'Immediate (90-Min Emergency)',
         slaMinutes: 90,
-        createdAt: new Date(NOW - 98 * 60 * 1000).toISOString(), // 98 mins ago -> BREACHED by 8 mins!
+        createdAt: new Date(NOW - 98 * 60 * 1000).toISOString(),
         payoutStatus: 'pending'
     },
+
+    // ── ERNAKULAM / KOCHI HUB (Partner Praveen T.: 9.9816, 76.2999) ──
     {
-        id: 'b-enroute-1',
-        customerName: 'Dr. Vivek Menon',
-        customerPhone: '+91 98471 23456',
-        service: 'Split AC Deep Foam Cleaning',
-        serviceType: 'AC',
-        category: 'AC',
-        district: 'Kannur',
-        taluk: 'Thalassery',
-        address: 'Sea View Ward, Thalassery',
-        distance: '2.4 km',
-        price: 1250,
-        finalPrice: 1250,
-        platformFee: 188, netPartnerPayout: 1062,
-        status: 'arrived',
-        assignedPartnerId: 'p1',
-        partnerName: 'Shyam Prasad',
-        assignedPartnerPhone: '+91 98765 43210',
-        checkInOtp: '9012',
-        otp: '3456',
+        id: 'b-open-kochi',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Gold',
+        skillMatchPercent: 97,
+        customerName: 'Mathew Abraham',
+        customerPhone: '+91 98471 77209',
+        service: 'Apartment DB Trip & Inverter Wiring Check',
+        serviceType: 'Electrical',
+        category: 'Electrical',
+        district: 'Ernakulam',
+        taluk: 'Kochi',
+        address: 'InfoPark Phase 1 Road, Kakkanad, Kochi',
+        latitude: 9.9890,
+        longitude: 76.3080,
+        distance: '3.2 km',
+        price: 650,
+        finalPrice: 650,
+        platformFee: 98, netPartnerPayout: 552,
+        status: 'open',
+        checkInOtp: '9911',
+        otp: '2244',
         date: 'Today',
-        time: 'Scheduled',
+        time: 'Immediate (90-Min Emergency)',
         slaMinutes: 90,
-        createdAt: new Date(NOW - 45 * 60 * 1000).toISOString(),
-        arrivedAt: new Date(NOW - 5 * 60 * 1000).toISOString(),
-        payoutStatus: 'pending'
+        createdAt: new Date(NOW - 18 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: '#4092 (Tower B)', meterLocation: 'Basement DB Room', faultHistory: 'UPS bypass tripped', siteAdvisory: 'Visitor parking at Bay 12' },
+        hardwareBills: []
     },
     {
         id: 'b-disputed-1',
@@ -175,59 +291,120 @@ const INITIAL_BOOKINGS = [
         district: 'Ernakulam',
         taluk: 'Kochi',
         address: 'Palarivattom Bypass, Near Metro Pillar 502, Kochi',
+        latitude: 9.9982,
+        longitude: 76.3117,
         distance: '3.8 km',
         price: 1800,
         finalPrice: 2200,
         platformFee: 330, netPartnerPayout: 1870,
         status: 'disputed',
-        assignedPartnerId: 'p2',
-        partnerName: 'Abdul Kader',
-        assignedPartnerPhone: '+91 76543 21098',
+        assignedPartnerId: 'p4',
+        partnerName: 'Praveen T.',
+        assignedPartnerPhone: '+91 94471 99881',
         checkInOtp: '4455',
         otp: '9900',
         date: 'Yesterday',
         time: 'Completed',
         createdAt: new Date(NOW - 24 * 60 * 60 * 1000).toISOString(),
         completedAt: new Date(NOW - 22 * 60 * 60 * 1000).toISOString(),
-        dispute: {
-            isDisputed: true,
-            reason: 'Customer disputes extra ₹400 material surcharge added for busbar insulators without pre-authorization.',
-            reportedBy: 'customer',
-            status: 'open',
-            evidencePhotos: [
-                'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60'
-            ],
-            checkInTime: 'Yesterday, 03:15 PM',
-            completionTime: 'Yesterday, 04:45 PM',
-            refundRequested: 400
-        },
+        dispute: { isDisputed: true, reason: 'Customer disputes extra ₹400 material surcharge added for busbar insulators.', reportedBy: 'customer', status: 'open', refundRequested: 400 },
         payoutStatus: 'flagged'
     },
+
+    // ── THRISSUR HUB (Partner Arun Balan: 10.5276, 76.2144) ──
     {
-        id: 'b-completed-1',
-        customerName: 'Sreelakshmi R.',
-        customerPhone: '+91 98460 77889',
-        service: 'Ceiling Fan Rewinding & Regulator',
+        id: 'b-open-thrissur',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Bronze',
+        skillMatchPercent: 93,
+        customerName: 'Sankaran Namboothiri',
+        customerPhone: '+91 94470 33441',
+        service: 'Temple Illumination MCB Overload & Sparking',
+        serviceType: 'Emergency',
+        category: 'Electrical',
+        district: 'Thrissur',
+        taluk: 'Thrissur',
+        address: 'Round South, Near Swaraj Round, Thrissur',
+        latitude: 10.5250,
+        longitude: 76.2130,
+        distance: '1.5 km',
+        price: 550,
+        finalPrice: 550,
+        platformFee: 83, netPartnerPayout: 467,
+        status: 'open',
+        checkInOtp: '6611',
+        otp: '8844',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 22 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: 'East Gopuram Entry', meterLocation: 'Oottupura DB', faultHistory: 'Floodlight line sparking', siteAdvisory: 'Isolate main switch first' },
+        hardwareBills: []
+    },
+
+    // ── THIRUVANANTHAPURAM HUB (Partner Faisal K.: 8.5241, 76.9366) ──
+    {
+        id: 'b-open-trivandrum',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Silver',
+        skillMatchPercent: 95,
+        customerName: 'Deepa Sasidharan',
+        customerPhone: '+91 98471 44550',
+        service: 'Solar Inverter Changeover Switch Fault',
         serviceType: 'Electrical',
         category: 'Electrical',
-        district: 'Ernakulam',
-        taluk: 'Aluva',
-        address: 'Bank Junction, Aluva, Ernakulam',
-        distance: '2.1 km',
-        price: 499, finalPrice: 499, platformFee: 75, netPartnerPayout: 424,
-        status: 'completed',
-        assignedPartnerId: 'p3',
-        partnerName: 'Suresh Kumar',
-        assignedPartnerPhone: '+91 98765 00112',
-        checkInOtp: '1122',
-        otp: '3344',
-        paymentStatus: 'paid',
-        paymentMethod: 'online',
+        district: 'Thiruvananthapuram',
+        taluk: 'Trivandrum',
+        address: 'MG Road, Near Secretariat, Palayam, Trivandrum',
+        latitude: 8.5020,
+        longitude: 76.9510,
+        distance: '2.8 km',
+        price: 650,
+        finalPrice: 650,
+        platformFee: 98, netPartnerPayout: 552,
+        status: 'open',
+        checkInOtp: '7722',
+        otp: '9933',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 30 * 60 * 1000).toISOString(),
         payoutStatus: 'pending',
-        date: 'Yesterday',
-        time: 'Morning Slot',
-        createdAt: new Date(NOW - 28 * 60 * 60 * 1000).toISOString(),
-        completedAt: new Date(NOW - 26 * 60 * 60 * 1000).toISOString()
+        siteNotes: { gateCode: '#2201', meterLocation: 'Roof terrace solar panel DB', faultHistory: 'KSEB changeover stuck', siteAdvisory: 'Terrace key with security' },
+        hardwareBills: []
+    },
+
+    // ── KOTTAYAM HUB (Partner Manoj Pillai: 9.5916, 76.5222) ──
+    {
+        id: 'b-open-kottayam',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Bronze',
+        skillMatchPercent: 92,
+        customerName: 'Zachariah Joseph',
+        customerPhone: '+91 94472 88990',
+        service: 'Rubber Sheet Smokehouse Exhaust Fan Repair',
+        serviceType: 'Electrical',
+        category: 'Electrical',
+        district: 'Kottayam',
+        taluk: 'Kottayam',
+        address: 'Kanjikuzhy Junction, Baker Hill Road, Kottayam',
+        latitude: 9.5890,
+        longitude: 76.5260,
+        distance: '2.4 km',
+        price: 550,
+        finalPrice: 550,
+        platformFee: 83, netPartnerPayout: 467,
+        status: 'open',
+        checkInOtp: '1199',
+        otp: '3388',
+        date: 'Today',
+        time: 'Immediate (90-Min Emergency)',
+        slaMinutes: 90,
+        createdAt: new Date(NOW - 12 * 60 * 1000).toISOString(),
+        payoutStatus: 'pending',
+        siteNotes: { gateCode: 'Open Plantation Gate', meterLocation: 'Estate Office DB', faultHistory: 'Exhaust motor humming', siteAdvisory: 'Direct road access' },
+        hardwareBills: []
     }
 ];
 
@@ -298,8 +475,56 @@ export const calculateSLA = (booking) => {
 };
 
 // For Partner: Get "New Requests" (Open jobs)
-export const getOpenRequests = () => {
-    return bookings.filter(b => b.status === 'open');
+export const MAX_PARTNER_RADIUS_KM = 10;
+export const OPTIMAL_PARTNER_RADIUS_KM = 8;
+
+export const getOpenRequests = (partnerOrTaluk = "Thalassery", maxRadiusKm = 10) => {
+    // If partner object is passed
+    if (partnerOrTaluk && typeof partnerOrTaluk === 'object') {
+        // If partner is offline, do NOT broadcast any open requests
+        if (partnerOrTaluk.isAvailable === false) {
+            return [];
+        }
+        const pLat = partnerOrTaluk.latitude || 11.7480;
+        const pLon = partnerOrTaluk.longitude || 75.4894;
+        const maxRadius = partnerOrTaluk.maxDispatchRadiusKm || maxRadiusKm || 10;
+
+        return bookings
+            .filter(b => b.status === 'open')
+            .map(b => {
+                let dist = 999;
+                if (b.latitude && b.longitude) {
+                    dist = haversineDistanceKm(pLat, pLon, b.latitude, b.longitude);
+                } else if (b.distance) {
+                    dist = parseFloat(b.distance) || 999;
+                }
+                return {
+                    ...b,
+                    _distanceKm: parseFloat(dist.toFixed(1)),
+                    distance: `${dist.toFixed(1)} km`,
+                    eta: `${Math.max(8, Math.round(dist * 3.5 + 8))} mins`,
+                    territoryTag: 'Within 8–10 km Partner Territory'
+                };
+            })
+            .filter(b => b._distanceKm <= maxRadius)
+            .sort((a, b) => a._distanceKm - b._distanceKm);
+    }
+
+    // Fallback if taluk string was passed
+    return bookings
+        .filter(b => b.status === 'open')
+        .map(b => {
+            const d = parseFloat(b.distance) || 3.0;
+            return {
+                ...b,
+                _distanceKm: d,
+                distance: `${d.toFixed(1)} km`,
+                eta: `${Math.max(8, Math.round(d * 3.5 + 8))} mins`,
+                territoryTag: 'Within 8–10 km Partner Territory'
+            };
+        })
+        .filter(b => b._distanceKm <= (maxRadiusKm || 10))
+        .sort((a, b) => a._distanceKm - b._distanceKm);
 };
 
 // For Partner: Get "My Jobs"
@@ -630,29 +855,45 @@ export const searchCustomerBookings = (query) => {
     );
 };
 
-export const triggerMockJobPing = () => {
+export const triggerMockJobPing = (partner) => {
+    const pLat = partner?.latitude || 11.7480;
+    const pLon = partner?.longitude || 75.4894;
+    const pTaluk = partner?.taluk || 'Thalassery';
+    const pDistrict = partner?.district || 'Kannur';
+
+    // Generate coordinate strictly within 1.5 to 3.5 km of online partner
+    const offsetLat = (Math.random() - 0.5) * 0.035;
+    const offsetLon = (Math.random() - 0.5) * 0.035;
+    const jobLat = pLat + offsetLat;
+    const jobLon = pLon + offsetLon;
+    const distanceKm = haversineDistanceKm(pLat, pLon, jobLat, jobLon);
+
     const mockPing = {
         id: 'ping-' + Date.now(),
-        customerName: 'M. Ashraf',
+        customerName: 'K. M. Haris',
         customerPhone: '+91 98471 23456',
         service: 'Emergency Short Circuit & MCB Tripping',
         serviceType: 'Electrical',
         category: 'Electrical',
-        district: 'Kannur',
-        taluk: 'Thalassery',
-        address: 'Near Old Bus Stand, Goods Shed Road, Thalassery',
-        distance: '1.8 km',
+        district: pDistrict,
+        taluk: pTaluk,
+        address: `Town Ward, Near Main Road, ${pTaluk}`,
+        latitude: jobLat,
+        longitude: jobLon,
+        distance: `${distanceKm.toFixed(1)} km`,
+        maxRadiusPolicy: '8–10 km limit',
+        territoryTag: 'Within 8–10 km Partner Territory',
         price: 550,
         finalPrice: 550,
         platformFee: 83, netPartnerPayout: 467,
-        notes: 'Main DB tripping continuously with burning smell near MCB.',
+        notes: 'Main distribution board sparking continuously near 32A MCB.',
         requiredSkill: 'Electrical',
         requiredTier: 'Gold',
         skillMatchPercent: 98,
         siteNotes: {
             gateCode: '#9012',
             meterLocation: 'Behind porch pillar ground floor',
-            faultHistory: 'MCB sparking on heavy load during rain',
+            faultHistory: 'MCB sparking on heavy load during rainfall',
             siteAdvisory: 'Call upon gate arrival'
         },
         hardwareBills: [],

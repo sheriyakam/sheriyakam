@@ -14,10 +14,11 @@ import {
 } from 'lucide-react-native';
 
 import {
-    getCurrentPartner, logoutPartner, togglePartnerAvailability, DEFAULT_PARTNER_MOCK
+    getCurrentPartner, logoutPartner, togglePartnerAvailability, DEFAULT_PARTNER_MOCK,
+    KERALA_PARTNER_HUBS, switchActivePartner
 } from '../../constants/partnerStore';
 import {
-    getBookings, bookingEvents, acceptBookingByPartner, triggerMockJobPing
+    getBookings, bookingEvents, acceptBookingByPartner, triggerMockJobPing, getOpenRequests
 } from '../../constants/bookingStore';
 
 export default function PartnerDashboard() {
@@ -46,7 +47,7 @@ export default function PartnerDashboard() {
         ).start();
     }, []);
 
-    const refreshData = () => {
+        const refreshData = () => {
         const partner = getCurrentPartner() || DEFAULT_PARTNER_MOCK;
         setCurrentPartner(partner);
         setIsAvailable(partner.isAvailable ?? false);
@@ -60,7 +61,9 @@ export default function PartnerDashboard() {
         );
         setMyJobs(mine);
 
-        const openList = allBookings.filter(b => b.status === 'open');
+        // Dynamic 8-10 km Geo-Fencing: If offline, returns []. If online, dynamically calculates
+        // Haversine distance from the partner's real GPS coordinates and filters <= 10 km.
+        const openList = getOpenRequests(partner);
         setOpenRequests(openList);
     };
 
@@ -101,7 +104,7 @@ export default function PartnerDashboard() {
             return;
         }
 
-        const newPing = triggerMockJobPing();
+        const newPing = triggerMockJobPing(currentPartner);
         startJobPing(newPing);
     };
 
@@ -173,6 +176,47 @@ export default function PartnerDashboard() {
 
     return (
         <SafeAreaView style={styles.container}>
+{/* ALL-KERALA 8–10 KM ACTIVE TERRITORY SWITCHER */}
+            <View style={styles.keralaHubSwitcherBar}>
+                <View style={styles.keralaHubHeaderRow}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Compass size={14} color={COLORS.accent} />
+                        <Text style={styles.keralaHubTitle}>KERALA ACTIVE PARTNER HUBS (8–10 KM RADIUS)</Text>
+                    </View>
+                    <View style={[styles.keralaHubStatusPill, { backgroundColor: isAvailable ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)' }]}>
+                        <Text style={[styles.keralaHubStatusText, { color: isAvailable ? COLORS.success : COLORS.danger }]}>
+                            {isAvailable ? '🟢 SCANNING 10 KM' : '🔴 OFFLINE'}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* Hub Selection Scroll */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hubChipsScroll}>
+                    {KERALA_PARTNER_HUBS.map(hub => {
+                        const isSelected = currentPartner.id === hub.id;
+                        return (
+                            <TouchableOpacity
+                                key={hub.id}
+                                style={[styles.hubChip, isSelected && styles.hubChipActive]}
+                                onPress={() => {
+                                    const switched = switchActivePartner(hub.id);
+                                    refreshData();
+                                    Alert.alert(
+                                        '📍 Territory Switched',
+                                        `Active partner is now ${switched.name} in ${switched.taluk}, ${switched.district}. Showing customer jobs within 8–10 km of this hub.`
+                                    );
+                                }}
+                            >
+                                <MapPin size={11} color={isSelected ? '#fff' : COLORS.textTertiary} />
+                                <Text style={[styles.hubChipText, isSelected && styles.hubChipTextActive]}>
+                                    {hub.taluk} ({hub.name.split(' ')[0]})
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
+            </View>
+
             {/* Top Partner Brand Header */}
             <View style={styles.topHeader}>
                 <View style={styles.brandRow}>
@@ -180,12 +224,7 @@ export default function PartnerDashboard() {
                         <Zap size={18} color="#fff" fill="#fff" />
                     </View>
                     <View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <Text style={styles.brandName}>Sheriyakam Partner</Text>
-                            <View style={styles.kselbBadge}>
-                                <Text style={styles.kselbText}>KSELB LICENSED</Text>
-                            </View>
-                        </View>
+                        <Text style={styles.brandName}>Sheriyakam Partner</Text>
                         <Text style={styles.brandSub}>Thalassery HQ • Kerala District Hub</Text>
                     </View>
                 </View>
@@ -255,14 +294,6 @@ export default function PartnerDashboard() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Insurance & Safety Guarantee Strip */}
-                <View style={styles.insuranceStrip}>
-                    <Shield size={16} color={COLORS.gold} />
-                    <Text style={styles.insuranceText}>
-                        <Text style={{ fontWeight: '800', color: COLORS.gold }}>₹5 Lakh Cover: </Text>
-                        On-duty accidental & third-party trade protection active.
-                    </Text>
-                </View>
 
                 {/* Surge & Loyalty Badges Row */}
                 <View style={styles.perksRow}>
@@ -273,6 +304,61 @@ export default function PartnerDashboard() {
                     <View style={styles.loyaltyBadge}>
                         <Award size={14} color="#10B981" />
                         <Text style={styles.loyaltyBadgeText}>Gold Partner (1.5x Priority)</Text>
+                    </View>
+                </View>
+
+                {/* Value-Weighted Daily 10-Job Bonus Sprint Tracker + 8-10km Territory */}
+                <View style={styles.dailySprintCard}>
+                    <View style={styles.dailySprintHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Flame size={18} color="#F59E0B" />
+                            <Text style={styles.dailySprintTitle}>DAILY 10-JOB VALUE SPRINT</Text>
+                        </View>
+                        <View style={styles.sprintBonusBadge}>
+                            <Text style={styles.sprintBonusText}>+5% Daily Top-Up</Text>
+                        </View>
+                    </View>
+
+                    <Text style={styles.dailySprintSub}>
+                        Complete <Text style={{ fontWeight: '800', color: '#fff' }}>10 jobs</Text> or cross <Text style={{ fontWeight: '800', color: '#fff' }}>₹7,500</Text> in daily billing to unlock your 5% bonus top-up.
+                    </Text>
+
+                    {/* Progress Bar */}
+                    <View style={styles.sprintProgressTrack}>
+                        <View style={[styles.sprintProgressFill, { width: '33%' }]} />
+                    </View>
+
+                    <View style={styles.sprintMetricsRow}>
+                        <View style={styles.sprintMetricItem}>
+                            <Text style={styles.sprintMetricVal}>3 / 10 Jobs</Text>
+                            <Text style={styles.sprintMetricLabel}>7 remaining today</Text>
+                        </View>
+                        <View style={styles.sprintDivider} />
+                        <View style={styles.sprintMetricItem}>
+                            <Text style={styles.sprintMetricVal}>₹2,450 / ₹7,500</Text>
+                            <Text style={styles.sprintMetricLabel}>Billing progress</Text>
+                        </View>
+                        <View style={styles.sprintDivider} />
+                        <View style={styles.sprintMetricItem}>
+                            <Text style={[styles.sprintMetricVal, { color: COLORS.success }]}>₹375 Est.</Text>
+                            <Text style={styles.sprintMetricLabel}>5% Bonus Pool</Text>
+                        </View>
+                    </View>
+
+                    {/* Quality & Territory Guardrails Strip */}
+                    <View style={styles.guardrailsStrip}>
+                        <View style={styles.guardrailChip}>
+                            <Compass size={12} color={COLORS.gold} />
+                            <Text style={styles.guardrailChipText}>Max 8–10 km Territory</Text>
+                        </View>
+                        <View style={styles.guardrailChip}>
+                            <Shield size={12} color={COLORS.success} />
+                            <Text style={styles.guardrailChipText}>94% Acceptance (≥90%)</Text>
+                        </View>
+                        <View style={styles.guardrailChip}>
+                            <Star size={12} color={COLORS.gold} />
+                            <Text style={styles.guardrailChipText}>4.92★ (≥4.5★)</Text>
+                        </View>
                     </View>
                 </View>
 
@@ -476,7 +562,7 @@ export default function PartnerDashboard() {
                             onPress={() => setActiveTab('requests')}
                         >
                             <Text style={[styles.tabChipText, activeTab === 'requests' && styles.tabChipTextActive]}>
-                                Open Requests ({openRequests.length})
+                                Open Requests ({openRequests.length} within 8-10 km)
                             </Text>
                         </TouchableOpacity>
 
@@ -570,36 +656,70 @@ export default function PartnerDashboard() {
                 )}
 
                 {activeTab === 'requests' && (
-                    openRequests.length === 0 ? (
+                    !isAvailable ? (
                         <View style={styles.emptyCard}>
-                            <Bell size={36} color={COLORS.textTertiary} />
-                            <Text style={styles.emptyTitle}>No Pending Broadcasts</Text>
+                            <Power size={36} color={COLORS.danger} />
+                            <Text style={styles.emptyTitle}>You Are Currently Offline</Text>
                             <Text style={styles.emptySubtitle}>
-                                All open customer requests in your district have been claimed.
+                                Toggle your status to ONLINE above to instantly receive and view open customer service requests within 8–10 km of your location in {currentPartner.taluk || currentPartner.district}.
                             </Text>
+                            <TouchableOpacity style={styles.emptyActionBtn} onPress={handleToggleAvailability}>
+                                <Text style={styles.emptyActionBtnText}>Go Online Now</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : openRequests.length === 0 ? (
+                        <View style={styles.emptyCard}>
+                            <Compass size={36} color={COLORS.gold} />
+                            <Text style={styles.emptyTitle}>No Requests within 8–10 km</Text>
+                            <Text style={styles.emptySubtitle}>
+                                Currently scanning active jobs around {currentPartner.taluk}, {currentPartner.district} (within 8–10 km). When a customer books nearby, it will appear here immediately.
+                            </Text>
+                            <TouchableOpacity style={styles.emptyActionBtn} onPress={handleSimulateJobPing}>
+                                <Text style={styles.emptyActionBtnText}>Simulate Local Job Ping</Text>
+                            </TouchableOpacity>
                         </View>
                     ) : (
                         openRequests.map(job => (
                             <View key={job.id} style={styles.jobCard}>
                                 <View style={styles.jobCardTop}>
                                     <View style={{ flex: 1 }}>
-                                        <Text style={styles.jobServiceName}>{job.service}</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                            <Text style={styles.jobServiceName}>{job.service}</Text>
+                                            <View style={styles.localRadiusTag}>
+                                                <Text style={styles.localRadiusTagText}>WITHIN 8-10 KM</Text>
+                                            </View>
+                                        </View>
                                         <Text style={styles.jobCustomerName}>{job.customerName}</Text>
                                     </View>
                                     <View style={[styles.jobPriceBadge, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
                                         <Text style={[styles.jobPriceText, { color: COLORS.success }]}>₹{job.price}</Text>
                                     </View>
                                 </View>
+
                                 <View style={styles.jobAddressRow}>
-                                    <MapPin size={14} color={COLORS.textTertiary} />
+                                    <MapPin size={14} color={COLORS.accent} />
                                     <Text style={styles.jobAddressText}>{job.address}</Text>
                                 </View>
+
+                                <View style={styles.jobDetailsChipRow}>
+                                    <View style={styles.chipPill}>
+                                        <Compass size={12} color={COLORS.gold} />
+                                        <Text style={[styles.chipPillText, { color: COLORS.gold, fontWeight: '700' }]}>
+                                            {job.distance || '1.8 km'} from your hub
+                                        </Text>
+                                    </View>
+                                    <View style={styles.chipPill}>
+                                        <Clock size={12} color={COLORS.textTertiary} />
+                                        <Text style={styles.chipPillText}>{job.time || 'Immediate'}</Text>
+                                    </View>
+                                </View>
+
                                 <TouchableOpacity
                                     style={styles.acceptDirectBtn}
                                     onPress={() => handleAcceptPing(job)}
                                 >
                                     <Zap size={16} color="#000" />
-                                    <Text style={styles.acceptDirectBtnText}>Claim Job Now</Text>
+                                    <Text style={styles.acceptDirectBtnText}>Accept Job in Territory</Text>
                                 </TouchableOpacity>
                             </View>
                         ))
@@ -680,7 +800,7 @@ export default function PartnerDashboard() {
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                     <MapPin size={16} color={COLORS.accent} />
-                                    <Text style={styles.pingDistance}>{activePing?.distance || '1.8 km away'}</Text>
+                                    <Text style={styles.pingDistance}>{activePing?.distance || '1.8 km away'} (Within 8–10 km Max Territory)</Text>
                                 </View>
                                 <View style={styles.pingTierReqBadge}>
                                     <Award size={12} color={COLORS.gold} />
@@ -1621,6 +1741,175 @@ const styles = StyleSheet.create({
         color: '#60A5FA',
         fontSize: 11,
         fontWeight: '600',
+    },
+
+
+    /* Daily 10-Job Value Sprint & 8-10km Territory Styles */
+    dailySprintCard: {
+        backgroundColor: 'rgba(245, 158, 11, 0.08)',
+        borderRadius: 16,
+        padding: 14,
+        marginBottom: 12,
+        borderWidth: 1.5,
+        borderColor: 'rgba(245, 158, 11, 0.3)',
+    },
+    dailySprintHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    dailySprintTitle: {
+        color: '#F59E0B',
+        fontWeight: '900',
+        fontSize: 12,
+        letterSpacing: 0.5,
+    },
+    sprintBonusBadge: {
+        backgroundColor: '#F59E0B',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+    },
+    sprintBonusText: {
+        color: '#000',
+        fontWeight: '900',
+        fontSize: 10,
+    },
+    dailySprintSub: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        lineHeight: 16,
+        marginBottom: 10,
+    },
+    sprintProgressTrack: {
+        height: 8,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginBottom: 10,
+    },
+    sprintProgressFill: {
+        height: 8,
+        backgroundColor: '#F59E0B',
+        borderRadius: 4,
+    },
+    sprintMetricsRow: {
+        flexDirection: 'row',
+        backgroundColor: 'rgba(0,0,0,0.25)',
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 10,
+    },
+    sprintMetricItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    sprintMetricVal: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 13,
+    },
+    sprintMetricLabel: {
+        color: COLORS.textTertiary,
+        fontSize: 9,
+        marginTop: 2,
+    },
+    sprintDivider: {
+        width: 1,
+        height: '100%',
+        backgroundColor: 'rgba(255,255,255,0.08)',
+    },
+    guardrailsStrip: {
+        flexDirection: 'row',
+        gap: 6,
+        flexWrap: 'wrap',
+    },
+    guardrailChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    guardrailChipText: {
+        color: COLORS.textSecondary,
+        fontSize: 10,
+        fontWeight: '700',
+    },
+
+
+    /* All-Kerala Hub Switcher Styles */
+    keralaHubSwitcherBar: {
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        paddingHorizontal: SPACING.md,
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.08)',
+    },
+    keralaHubHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    keralaHubTitle: {
+        color: COLORS.accent,
+        fontWeight: '900',
+        fontSize: 10,
+        letterSpacing: 0.5,
+    },
+    keralaHubStatusPill: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    keralaHubStatusText: {
+        fontWeight: '900',
+        fontSize: 9,
+    },
+    hubChipsScroll: {
+        gap: 6,
+        paddingVertical: 2,
+    },
+    hubChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    hubChipActive: {
+        backgroundColor: COLORS.accent,
+        borderColor: COLORS.accent,
+    },
+    hubChipText: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    hubChipTextActive: {
+        color: '#fff',
+        fontWeight: '800',
+    },
+    localRadiusTag: {
+        backgroundColor: 'rgba(234, 179, 8, 0.15)',
+        paddingHorizontal: 5,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    localRadiusTagText: {
+        color: COLORS.gold,
+        fontSize: 8,
+        fontWeight: '900',
     },
 
 });

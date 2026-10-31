@@ -2,11 +2,17 @@
  * SHERIYAKAM — Smart Assignment Engine
  * Auto-assigns the nearest available partner to a booking
  * using the Haversine distance formula (accurate GPS distance)
+ * 
+ * STRICT TERRITORY RULE:
+ * Partner dispatch is strictly capped at maximum 8 to 10 km radius.
+ * This guarantees arrival within the marketed 90-minute SLA and prevents excessive transit fatigue.
  */
 
 import { getPartners } from './partnerStore';
 
-const MAX_RANGE_KM = 20;
+export const MAX_DISPATCH_RADIUS_KM = 10; // Maximum 8 to 10 km partner service radius
+export const OPTIMAL_DISPATCH_RADIUS_KM = 8; // Optimal target radius
+const MAX_RANGE_KM = MAX_DISPATCH_RADIUS_KM;
 
 /**
  * Haversine formula — calculates real-world distance between two GPS coordinates
@@ -31,7 +37,7 @@ export const haversineDistanceKm = (lat1, lon1, lat2, lon2) => {
  * Rules:
  *  1. Partner must be approved
  *  2. Partner must be available (isAvailable = true)
- *  3. Partner must be within MAX_RANGE_KM (20km)
+ *  3. Partner must be within MAX_RANGE_KM (Strictly 8 to 10 km max radius)
  *  4. Partner with LEAST distance is selected (closest first)
  *  5. If service type provided, match partner's specialties
  */
@@ -52,7 +58,7 @@ export const findBestPartner = (booking) => {
             // Must have location
             if (!p.latitude || !p.longitude) return false;
 
-            // Must be within 20km
+            // Must be within strictly maximum 8 to 10 km
             const dist = haversineDistanceKm(latitude, longitude, p.latitude, p.longitude);
             p._distanceKm = parseFloat(dist.toFixed(2)); // Cache for sorting
             return dist <= MAX_RANGE_KM;
@@ -71,7 +77,7 @@ export const findBestPartner = (booking) => {
         if (matched) return matched;
     }
 
-    // Fallback: return the simply closest available partner
+    // Fallback: return the closest available partner within 8-10 km
     return eligible[0];
 };
 
@@ -85,7 +91,7 @@ export const autoAssignPartner = (booking) => {
     if (!best) {
         return {
             success: false,
-            reason: 'No available partner found within 20km for this service'
+            reason: 'No available partner found within 8–10 km maximum service radius for this request'
         };
     }
 

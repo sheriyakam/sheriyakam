@@ -30,12 +30,6 @@ const DEFAULT_FAQS = [
         a: 'We are actively serving the Thalassery–Mahe corridor within a 12km radius, including Thalassery town, Mahe, Dharmadam, Kadirur, Chokli, New Mahe, and Azhiyur. If you are located nearby, our local electrician will confirm doorstep feasibility during the direct pre-dispatch phone confirmation.'
     },
     {
-        id: 'faq-2',
-        category: 'Pricing',
-        q: 'How does the ₹149 visitation and diagnosis fee work?',
-        a: 'The ₹149 visitation fee covers your local electrician\'s transit and comprehensive multimeter fault diagnosis. If you approve the quoted repair on-site, the ₹149 inspection charge is fully waived and adjusted against your repair labor. You only pay the ₹149 inspection fee if you choose not to proceed with the work after diagnosis.'
-    },
-    {
         id: 'faq-3',
         category: 'Materials',
         q: 'How are replacement electrical spare parts billed?',
@@ -56,7 +50,6 @@ const DEFAULT_FAQS = [
 ];
 
 const DEFAULT_TARIFFS = [
-    { id: 't-diag', name: 'Fault Inspection & Multimeter Diagnosis', price: 149, category: 'Electrical', time: '45 mins', desc: 'Doorstep visit and electrical diagnosis (waived if repair is approved on-site).' },
     { id: 't-switch', name: 'Switchboard, Socket & Plug Repair', price: 149, category: 'Electrical', time: '30 mins', desc: 'Sparking switches, burnt plugs, and 6A/16A power points (plus ISI spares).' },
     { id: 't-fan', name: 'Ceiling & Exhaust Fan Repair / Installation', price: 249, category: 'Electrical', time: '30 mins', desc: 'Capacitor replacement, speed regulator, or new fan mounting.' },
     { id: 't-mcb', name: 'MCB, RCCB & Fuse Box Tripping (DB Triage)', price: 349, category: 'Emergency', time: '45 mins', desc: 'Distribution board earth leakage trace & breaker isolation.' },

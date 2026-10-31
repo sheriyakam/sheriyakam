@@ -255,6 +255,39 @@ export default function PartnerEarnings() {
 
                 {/* Transaction Breakdown */}
                 {/* Material & Spare Parts Reimbursement Ledger */}
+                
+                {/* Core Economic Model: 85/15 Split + ₹499 Minimum Floor */}
+                <View style={styles.economicsExplainerCard}>
+                    <View style={styles.economicsExplainerHeader}>
+                        <Shield size={16} color={COLORS.accent} />
+                        <Text style={styles.economicsExplainerTitle}>SHERIYAKAM 85/15 FAIR SPLIT & ₹499 FLOOR</Text>
+                    </View>
+                    <View style={styles.economicsPillRow}>
+                        <View style={styles.economicsPill}>
+                            <Text style={styles.economicsPillLabel}>Minimum Floor</Text>
+                            <Text style={styles.economicsPillVal}>₹499</Text>
+                        </View>
+                        <View style={styles.economicsPill}>
+                            <Text style={styles.economicsPillLabel}>Electrician Share</Text>
+                            <Text style={[styles.economicsPillVal, { color: COLORS.success }]}>85%</Text>
+                        </View>
+                        <View style={styles.economicsPill}>
+                            <Text style={styles.economicsPillLabel}>Platform Commission</Text>
+                            <Text style={[styles.economicsPillVal, { color: '#60A5FA' }]}>15% (₹75 Min)</Text>
+                        </View>
+                        <View style={styles.economicsPill}>
+                            <Text style={styles.economicsPillLabel}>Material Bills</Text>
+                            <Text style={[styles.economicsPillVal, { color: COLORS.gold }]}>100% Pass-Through</Text>
+                        </View>
+                    </View>
+                    <Text style={styles.economicsExplainerText}>
+                        • <Text style={{ fontWeight: '800', color: '#fff' }}>The ₹499 Floor:</Text> Even small service calls generate a baseline ₹75 platform pool, funding your ₹5 Lakh insurance cover, customer support & live GPS dispatch.
+                    </Text>
+                    <Text style={styles.economicsExplainerText}>
+                        • <Text style={{ fontWeight: '800', color: '#fff' }}>The 85/15 Split:</Text> On a ₹1,000 job, you take home ₹850. Zero commissions are deducted from your local supplier hardware receipts.
+                    </Text>
+                </View>
+
                 <View style={styles.sectionHeaderRow}>
                     <Text style={styles.sectionTitle}>MATERIAL & SPARE PARTS EXPENSE LEDGER</Text>
                     <View style={styles.passThroughBadge}>
@@ -316,7 +349,7 @@ export default function PartnerEarnings() {
                             </View>
                         </View>
                         <View style={styles.txBottom}>
-                            <Text style={styles.txFeeBreakdown}>Billed ₹{tx.gross} • Platform fee ₹{tx.fee}</Text>
+                            <Text style={styles.txFeeBreakdown}>Billed ₹{tx.gross} • Electrician 85% (₹{tx.net}) • Platform 15% (₹{tx.fee})</Text>
                         </View>
                     </View>
                 ))}
@@ -927,6 +960,61 @@ const styles = StyleSheet.create({
         color: '#000',
         fontWeight: '900',
         fontSize: 13,
+    },
+
+
+    /* Economics Explainer Styles */
+    economicsExplainerCard: {
+        backgroundColor: 'rgba(79, 70, 229, 0.08)',
+        borderRadius: 14,
+        padding: 14,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(79, 70, 229, 0.25)',
+    },
+    economicsExplainerHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 10,
+    },
+    economicsExplainerTitle: {
+        color: COLORS.accent,
+        fontWeight: '900',
+        fontSize: 11,
+        letterSpacing: 0.5,
+    },
+    economicsPillRow: {
+        flexDirection: 'row',
+        gap: 6,
+        marginBottom: 10,
+    },
+    economicsPill: {
+        flex: 1,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        padding: 8,
+        borderRadius: 8,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+    },
+    economicsPillLabel: {
+        color: COLORS.textTertiary,
+        fontSize: 8,
+        fontWeight: '700',
+        textAlign: 'center',
+    },
+    economicsPillVal: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 12,
+        marginTop: 2,
+    },
+    economicsExplainerText: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        lineHeight: 16,
+        marginTop: 4,
     },
 
 });

@@ -10,16 +10,14 @@ import {
     ArrowLeft, MapPin, Clock, Users, ShieldCheck, Zap,
     Phone, MessageCircle, Star, CheckCircle2, ChevronRight,
     ChevronDown, ChevronUp, AlertTriangle, Award, Check,
-    Plus, ShoppingBag, Info, Wrench, Shield
+    Info, Wrench, Shield
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
 import { COLORS, SPACING } from '../constants/theme';
 import { KERALA_DISTRICTS } from '../constants/locations';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
-import FloatingCartBar from './FloatingCartBar';
 import StickyMobileCTA from './StickyMobileCTA';
 import BookingModal from './BookingModal';
 import { openWhatsApp } from '../utils/whatsapp';
@@ -48,7 +46,6 @@ export default function ServiceLandingView({
     const { width } = useWindowDimensions();
     const isDesktop = width >= 1024;
 
-    const { addToCart, items: cartItems } = useCart();
     const [selectedDistrict, setSelectedDistrict] = useState('Kozhikode');
     const [openFaqIndexes, setOpenFaqIndexes] = useState([0]);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -71,8 +68,6 @@ export default function ServiceLandingView({
         description: intro,
         warrantyDays: 30
     }), [serviceSlug, title, startingPrice, duration, intro]);
-
-    const inCart = cartItems?.some(item => item.id === serviceSlug || item.slug === serviceSlug);
 
     const handleCallHelpline = () => {
         const phoneUrl = `tel:+919447128901`;
@@ -209,38 +204,18 @@ export default function ServiceLandingView({
 
                     <View style={styles.heroBtnGroup}>
                         <TouchableOpacity
-                            onPress={() => addToCart(serviceObj)}
-                            style={[
-                                styles.addCartBtn,
-                                { backgroundColor: inCart ? '#10B981' : '#2563EB' }
-                            ]}
-                        >
-                            {inCart ? (
-                                <>
-                                    <Check size={16} color="#FFFFFF" />
-                                    <Text style={styles.btnText}>Added to Cart</Text>
-                                </>
-                            ) : (
-                                <>
-                                    <Plus size={16} color="#FFFFFF" />
-                                    <Text style={styles.btnText}>Add to Cart (₹{startingPrice})</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
                             onPress={() => setIsBookingModalOpen(true)}
-                            style={styles.bookNowBtn}
+                            style={[styles.bookNowBtn, { backgroundColor: '#2563EB', flex: 2 }]}
                         >
-                            <Zap size={15} color="#FFFFFF" fill="#FFFFFF" />
+                            <Zap size={16} color="#FFFFFF" fill="#FFFFFF" />
                             <Text style={styles.btnText}>Book Now</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={handleWhatsApp}
-                            style={styles.whatsappBtn}
+                            style={[styles.whatsappBtn, { flex: 1 }]}
                         >
-                            <MessageCircle size={15} color="#FFFFFF" />
+                            <MessageCircle size={16} color="#FFFFFF" />
                             <Text style={styles.btnText}>WhatsApp</Text>
                         </TouchableOpacity>
                     </View>
@@ -437,7 +412,6 @@ export default function ServiceLandingView({
                 onClose={() => setIsBookingModalOpen(false)}
             />
 
-            <FloatingCartBar />
             <StickyMobileCTA onBookPress={() => setIsBookingModalOpen(true)} />
         </SafeAreaView>
     );
@@ -544,17 +518,6 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         gap: 10,
         marginTop: 4,
-    },
-    addCartBtn: {
-        flex: 2,
-        minWidth: 170,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 6,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        borderRadius: 12,
     },
     bookNowBtn: {
         flex: 1,

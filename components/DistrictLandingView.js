@@ -10,10 +10,9 @@ import {
     ArrowLeft, MapPin, Clock, Users, ShieldCheck, Zap,
     Phone, MessageCircle, Star, CheckCircle2, ChevronRight,
     ChevronDown, ChevronUp, AlertTriangle, Award, Shield,
-    Check, Plus, ShoppingBag, Info
+    Info
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
 import { COLORS, SPACING } from '../constants/theme';
 import { DISTRICT_SEO_DATA, getDistrictSeoData } from '../constants/districtDetails';
 import { KERALA_DISTRICTS } from '../constants/locations';
@@ -21,7 +20,6 @@ import { getAllServices, CATEGORIES } from '../constants/catalog';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
-import FloatingCartBar from './FloatingCartBar';
 import StickyMobileCTA from './StickyMobileCTA';
 import BookingModal from './BookingModal';
 import { openWhatsApp } from '../utils/whatsapp';
@@ -35,7 +33,6 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
     const isDesktop = width >= 1024;
     const isTablet = width >= 640 && width < 1024;
 
-    const { addToCart, items: cartItems } = useCart();
     const [selectedServiceForModal, setSelectedServiceForModal] = useState(null);
     const [openFaqIndexes, setOpenFaqIndexes] = useState([0]);
 
@@ -64,10 +61,6 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
     const handleWhatsApp = () => {
         const text = `Hi Sheriyakam, I need an electrician in *${data.name}* (Locality: ${selectedLocality}). Please assign a licensed technician.`;
         openWhatsApp(text);
-    };
-
-    const isItemInCart = (serviceId) => {
-        return cartItems?.some(item => item.id === serviceId);
     };
 
     return (
@@ -390,7 +383,6 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
 
                     <View style={styles.serviceCardsList}>
                         {allServices.slice(0, 6).map((service) => {
-                            const inCart = isItemInCart(service.id);
                             return (
                                 <Card
                                     key={service.id}
@@ -421,37 +413,13 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                                     </View>
 
                                     <View style={styles.serviceCardActions}>
-                                        <TouchableOpacity
-                                            onPress={() => addToCart(service)}
-                                            style={[
-                                                styles.cartBtn,
-                                                {
-                                                    backgroundColor: inCart ? '#10B981' : (isDark ? '#27272A' : '#F1F5F9'),
-                                                    borderColor: inCart ? '#10B981' : (isDark ? '#3F3F46' : '#CBD5E1')
-                                                }
-                                            ]}
-                                            accessibilityRole="button"
-                                            accessibilityLabel={`Add ${service.title} to cart`}
-                                        >
-                                            {inCart ? (
-                                                <>
-                                                    <Check size={14} color="#FFFFFF" />
-                                                    <Text style={[styles.cartBtnText, { color: '#FFFFFF' }]}>Added</Text>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Plus size={14} color={colors.textPrimary} />
-                                                    <Text style={[styles.cartBtnText, { color: colors.textPrimary }]}>Add</Text>
-                                                </>
-                                            )}
-                                        </TouchableOpacity>
-
                                         <Button
                                             variant="primary"
                                             size="sm"
+                                            iconLeft={Zap}
                                             onPress={() => setSelectedServiceForModal(service)}
                                         >
-                                            Book
+                                            Book Now
                                         </Button>
                                     </View>
                                 </Card>
@@ -622,9 +590,6 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                 visible={!!selectedServiceForModal}
                 onClose={() => setSelectedServiceForModal(null)}
             />
-
-            {/* Multi-Item Persistent Cart Bar */}
-            <FloatingCartBar />
 
             {/* Sticky Mobile CTA */}
             <StickyMobileCTA onBookPress={() => setSelectedServiceForModal(allServices[0])} />
@@ -906,19 +871,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-    },
-    cartBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 10,
-        paddingVertical: 7,
-        borderRadius: 8,
-        borderWidth: 1,
-    },
-    cartBtnText: {
-        fontSize: 12,
-        fontWeight: '700',
     },
     trustBox: {
         flexDirection: 'row',

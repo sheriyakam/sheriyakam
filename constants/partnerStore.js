@@ -115,6 +115,9 @@ export const CORE_ECONOMICS = {
     platformFeeRate: 0.15,
     partnerShareRate: 0.85,
     minimumJobFloor: 499,
+    maxDispatchRadiusKm: 10,
+    optimalDispatchRadiusKm: 8,
+    serviceRadiusDescription: "Strict maximum 8 to 10 km territory radius per partner",
     baselinePlatformGross: 75, // 15% of ₹499 minimum floor
     dailySprint: {
         targetJobs: 10,
@@ -225,6 +228,10 @@ export const DEFAULT_PARTNER_MOCK = {
         unlocked: false,
         estimatedBonusAmount: 375
     },
+    serviceRadiusKm: 10,
+    maxDispatchRadiusKm: 10,
+    optimalDispatchRadiusKm: 8,
+    serviceRadiusLabel: "8–10 km Hyper-Local Territory",
     punctualityRate: 97,
     completionRate: 98,
     availableCreditLimit: 2000,
@@ -269,9 +276,28 @@ export const DEFAULT_PARTNER_MOCK = {
     ]
 };
 
-// Initial Mock Partners Directory across Kerala
-let partners = [
-    DEFAULT_PARTNER_MOCK,
+// Kerala Hubs & Certified Active Partners Directory
+export const KERALA_PARTNER_HUBS = [
+    {
+        id: 'p1',
+        name: 'Shyam Prasad',
+        phone: '9876543210',
+        email: 'shyam.electrician@sheriyakam.com',
+        status: 'approved',
+        isAvailable: true,
+        taluk: 'Thalassery',
+        district: 'Kannur',
+        latitude: 11.7480,
+        longitude: 75.4894,
+        experienceYears: 7,
+        kselbLicense: 'KSELB/WB-4102/KL',
+        insuranceCover: '₹5 Lakh Active Trade Cover (Policy #SH-KL-9921)',
+        serviceTypes: ['Electrical', 'AC', 'Plumbing', 'CCTV', 'Emergency'],
+        ratings: { overall: 4.92, totalReviews: 148, punctuality: 4.95, quality: 4.90, safety: 4.98 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
+    },
     {
         id: 'p2',
         name: 'Abdul Kader',
@@ -287,13 +313,10 @@ let partners = [
         kselbLicense: 'KSELB/WB-4102/KL',
         insuranceCover: '₹5 Lakh Active Trade Cover',
         serviceTypes: ['Electrical', 'Emergency'],
-        categoryCertifications: [
-            { category: 'Electrical', verified: true, score: '95%' },
-            { category: 'Emergency', verified: true, score: '98%' }
-        ],
-        ratings: { overall: 4.88, totalReviews: 210 },
-        totalJobsCompleted: 210,
-        suspensionLogs: []
+        ratings: { overall: 4.88, totalReviews: 210, punctuality: 4.92, quality: 4.86, safety: 4.95 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
     },
     {
         id: 'p3',
@@ -301,7 +324,7 @@ let partners = [
         phone: '8765432109',
         email: 'ramesh.babu@sheriyakam.com',
         status: 'approved',
-        isAvailable: false,
+        isAvailable: true,
         taluk: 'Thamarassery',
         district: 'Kozhikode',
         latitude: 11.4170,
@@ -310,67 +333,95 @@ let partners = [
         kselbLicense: 'KSELB/CA-9912/KL',
         insuranceCover: '₹5 Lakh Active Trade Cover',
         serviceTypes: ['Electrical', 'AC', 'CCTV'],
-        categoryCertifications: [
-            { category: 'Electrical', verified: true, score: '91%' },
-            { category: 'AC', verified: true, score: '88%' }
-        ],
-        ratings: { overall: 4.75, totalReviews: 86 },
-        totalJobsCompleted: 86,
-        suspensionLogs: []
+        ratings: { overall: 4.75, totalReviews: 86, punctuality: 4.80, quality: 4.72, safety: 4.85 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
     },
     {
         id: 'p4',
-        name: 'K. Sreeraj',
+        name: 'Praveen T.',
         phone: '9447199881',
-        email: 'sreeraj.wireman@gmail.com',
-        status: 'pending', // Pending KSELB review queue
-        isAvailable: false,
+        email: 'praveen.kochi@sheriyakam.com',
+        status: 'approved',
+        isAvailable: true,
         taluk: 'Kochi',
         district: 'Ernakulam',
         latitude: 9.9816,
         longitude: 76.2999,
-        experienceYears: 4,
+        experienceYears: 8,
         kselbLicense: 'KSELB/AP-8821/KL',
-        licenseDocUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=500',
-        policeClearanceStatus: 'Verified (Thrikkakara Station)',
-        insuranceCover: 'Pending Platform Enrolment',
-        serviceTypes: ['Electrical', 'AC'],
-        categoryCertifications: [
-            { category: 'Electrical', verified: false, score: 'Pending Practical Exam' }
-        ],
-        ratings: { overall: 0, totalReviews: 0 },
-        totalJobsCompleted: 0,
-        suspensionLogs: []
+        insuranceCover: '₹5 Lakh Active Trade Cover',
+        serviceTypes: ['Electrical', 'AC', 'CCTV', 'Emergency'],
+        ratings: { overall: 4.87, totalReviews: 124, punctuality: 4.89, quality: 4.85, safety: 4.92 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
     },
     {
         id: 'p5',
-        name: 'Vinod Nair',
+        name: 'Arun Balan',
         phone: '9846012349',
-        email: 'vinod.nair.kl@gmail.com',
-        status: 'suspended', // Suspended account for audit
-        isAvailable: false,
+        email: 'arun.thrissur@sheriyakam.com',
+        status: 'approved',
+        isAvailable: true,
         taluk: 'Thrissur',
         district: 'Thrissur',
         latitude: 10.5276,
         longitude: 76.2144,
-        experienceYears: 8,
+        experienceYears: 9,
         kselbLicense: 'KSELB/WB-2311/KL',
-        insuranceCover: 'Suspended',
-        serviceTypes: ['Electrical'],
-        categoryCertifications: [
-            { category: 'Electrical', verified: true, score: '89%' }
-        ],
-        ratings: { overall: 4.35, totalReviews: 64 },
-        totalJobsCompleted: 64,
-        suspensionLogs: [
-            {
-                suspendedAt: '15 Sep 2026',
-                suspendedBy: 'Admin Ops',
-                reason: 'Repeated off-platform billing dispute without KSELB compliance documentation.'
-            }
-        ]
+        insuranceCover: '₹5 Lakh Active Trade Cover',
+        serviceTypes: ['Electrical', 'Emergency'],
+        ratings: { overall: 4.85, totalReviews: 98, punctuality: 4.88, quality: 4.83, safety: 4.90 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
+    },
+    {
+        id: 'p6',
+        name: 'Faisal K.',
+        phone: '9745123990',
+        email: 'faisal.tvm@sheriyakam.com',
+        status: 'approved',
+        isAvailable: true,
+        taluk: 'Trivandrum',
+        district: 'Thiruvananthapuram',
+        latitude: 8.5241,
+        longitude: 76.9366,
+        experienceYears: 6,
+        kselbLicense: 'KSELB/WB-7712/KL',
+        insuranceCover: '₹5 Lakh Active Trade Cover',
+        serviceTypes: ['Electrical', 'AC', 'Emergency'],
+        ratings: { overall: 4.81, totalReviews: 76, punctuality: 4.85, quality: 4.79, safety: 4.88 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
+    },
+    {
+        id: 'p7',
+        name: 'Manoj Pillai',
+        phone: '9447012388',
+        email: 'manoj.kottayam@sheriyakam.com',
+        status: 'approved',
+        isAvailable: true,
+        taluk: 'Kottayam',
+        district: 'Kottayam',
+        latitude: 9.5916,
+        longitude: 76.5222,
+        experienceYears: 11,
+        kselbLicense: 'KSELB/CA-5519/KL',
+        insuranceCover: '₹5 Lakh Active Trade Cover',
+        serviceTypes: ['Electrical', 'Emergency'],
+        ratings: { overall: 4.84, totalReviews: 112, punctuality: 4.86, quality: 4.82, safety: 4.91 },
+        serviceRadiusKm: 10,
+        maxDispatchRadiusKm: 10,
+        optimalDispatchRadiusKm: 8
     }
 ];
+
+let partners = [...KERALA_PARTNER_HUBS];
+
 
 export const getSupervisorForPartner = (partner) => {
     if (!partner || !partner.taluk) return supervisors['default'];
@@ -576,6 +627,18 @@ export const KERALA_WEEKLY_LEADERBOARD = [
 ];
 
 export const getKeralaLeaderboard = () => KERALA_WEEKLY_LEADERBOARD;
+
+// ─── Switch Active Kerala Partner (Testing & Multi-District Operation) ─────────
+export const switchActivePartner = (partnerId) => {
+    const found = partners.find(p => p.id === partnerId) || partners[0];
+    currentPartner = {
+        ...DEFAULT_PARTNER_MOCK,
+        ...found,
+        isAvailable: true // Auto-online upon switching territory
+    };
+    return currentPartner;
+};
+
 
 // ─── Instant Cash-Out & Micro-Advance Ledger ────────────────────────────────
 export const getMicroAdvances = () => {

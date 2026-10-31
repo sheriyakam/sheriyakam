@@ -219,7 +219,7 @@ export default function PartnerSupport() {
                             desc: 'Customer insists on unpaid wiring work outside booked scope.',
                         },
                         {
-                            title: 'Payment / 90-10 Split Discrepancy',
+                            title: 'Payment / 85-15 Split Discrepancy',
                             desc: 'Query regarding itemized billing deduction or tip payout.',
                         }
                     ].map((issue, idx) => (

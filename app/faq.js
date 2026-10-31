@@ -79,16 +79,10 @@ export default function FAQScreen() {
                 </Accordion>
 
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    PRICING & ₹149 VISITATION FEE
+                    PRICING & PAYMENT
                 </Text>
                 <Accordion>
-                    <AccordionItem title="How does the ₹149 visit and diagnosis fee work?" defaultOpen={true}>
-                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            The ₹149 visitation fee covers your local electrician's transit and multimeter diagnostics. If you approve the quoted repair on-site, the ₹149 inspection charge is fully waived and adjusted against your final repair bill. You only pay the ₹149 fee if you decide not to proceed with the repair after diagnosis.
-                        </Text>
-                    </AccordionItem>
-
-                    <AccordionItem title="Do I have to pay anything in advance?">
+                    <AccordionItem title="Do I have to pay anything in advance?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
                             Zero advance payment. You pay via UPI (Google Pay, PhonePe, Paytm) or cash only after the work is completed, tested, and demonstrated safe.
                         </Text>

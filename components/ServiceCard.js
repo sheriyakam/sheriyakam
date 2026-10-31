@@ -1,9 +1,8 @@
 import React, { useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions, Animated, Pressable, Platform } from 'react-native';
-import { Star, Clock, MapPin, Zap, Plus, Check } from 'lucide-react-native';
+import { Star, Clock, MapPin, Zap } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
 
 const ServiceCard = ({
     id,
@@ -17,15 +16,11 @@ const ServiceCard = ({
     isEmergency = false,
     fullWidth = false,
     onPress,
-    onAddToCart
+    onBook
 }) => {
     const { width } = useWindowDimensions();
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
-    const { addItem, items } = useCart();
-
-    const cartItem = (items || []).find(i => i.id === id || i.title === name);
-    const inCartQty = cartItem ? cartItem.quantity : 0;
 
     const isSmallScreen = width < 768;
     const cardWidth = isSmallScreen
@@ -52,19 +47,12 @@ const ServiceCard = ({
         }).start();
     };
 
-    const handleAddClick = (e) => {
+    const handleBookClick = (e) => {
         e?.stopPropagation?.();
-        if (onAddToCart) {
-            onAddToCart();
-        } else {
-            addItem({
-                id: id || name.toLowerCase().replace(/\s+/g, '-'),
-                title: name,
-                price: Number(price) || 299,
-                category: specialty || 'Electrical',
-                duration: time || '45 mins',
-                image: typeof image === 'string' ? image : undefined
-            }, 1);
+        if (onPress) {
+            onPress();
+        } else if (onBook) {
+            onBook();
         }
     };
 
@@ -157,29 +145,21 @@ const ServiceCard = ({
                             </View>
 
                             <TouchableOpacity
-                                onPress={handleAddClick}
+                                onPress={handleBookClick}
                                 activeOpacity={0.8}
                                 style={[
                                     styles.bookBtn,
-                                    inCartQty > 0 ? {
-                                        backgroundColor: '#10B981',
-                                        borderColor: '#10B981',
-                                    } : {
+                                    {
                                         backgroundColor: isEmergency ? COLORS.danger : colors.accent
                                     }
                                 ]}
+                                accessibilityRole="button"
+                                accessibilityLabel={`Book ${name}`}
                             >
-                                {inCartQty > 0 ? (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Check size={13} color="#fff" />
-                                        <Text style={styles.bookBtnText}>Added ({inCartQty})</Text>
-                                    </View>
-                                ) : (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Plus size={13} color="#fff" />
-                                        <Text style={styles.bookBtnText}>Add</Text>
-                                    </View>
-                                )}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                                    <Zap size={13} color="#fff" fill="#fff" />
+                                    <Text style={styles.bookBtnText}>Book</Text>
+                                </View>
                             </TouchableOpacity>
                         </View>
                     </View>

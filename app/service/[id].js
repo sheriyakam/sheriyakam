@@ -81,17 +81,6 @@ export default function SingleServiceDetailScreen() {
     const addonsTotal = selectedAddons.reduce((sum, item) => sum + (item.price || 0), 0);
     const totalPrice = (service.startingPrice || service.price || 299) + addonsTotal;
 
-    const handleAddToCart = () => {
-        addItem({
-            id: service.id || service.slug,
-            title: service.title,
-            price: service.startingPrice || service.price || 299,
-            duration: service.duration,
-            category: service.categoryName || 'Electrical',
-        }, 1, selectedAddons);
-        success(`Added "${service.title}" to cart!`, 'Cart Updated');
-    };
-
     const handleBookNow = () => {
         addItem({
             id: service.id || service.slug,
@@ -100,7 +89,7 @@ export default function SingleServiceDetailScreen() {
             duration: service.duration,
             category: service.categoryName || 'Electrical',
         }, 1, selectedAddons);
-        router.push('/cart');
+        router.push('/checkout');
     };
 
     const handleWhatsAppInquiry = () => {

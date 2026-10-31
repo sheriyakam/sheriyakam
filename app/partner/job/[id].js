@@ -10,8 +10,8 @@ import {
     MapPin, Phone, Navigation, ArrowLeft, Clock, Calendar,
     CheckCircle, Shield, User, IndianRupee, Zap, Camera,
     FileText, AlertTriangle, CheckSquare, Square, X, ChevronRight,
-    MessageSquare, AlertOctagon, Plus, Minus, Trash2, QrCode,
-    Share2, Sparkles, ExternalLink, Banknote, Receipt, Key, PenTool, Upload, Lock, Unlock, CheckCheck, FileCheck, ClipboardCopy, ShieldAlert, CheckSquare2
+    MessageSquare, Plus, Minus, Trash2, QrCode,
+    Share2, Sparkles, ExternalLink, Banknote, Receipt, Key, PenTool, Upload, Lock, Unlock, CheckCheck, FileCheck, ShieldAlert, CheckSquare2
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../../constants/theme';
 import {
@@ -64,9 +64,7 @@ export default function JobDetails() {
     const [partsCategory, setPartsCategory] = useState('all');
     const [partsSearch, setPartsSearch] = useState('');
 
-    // Safety SOS & Dual Settlement states
-    const [sosModalVisible, setSosModalVisible] = useState(false);
-    const [sosActive, setSosActive] = useState(false);
+    // Dual Settlement states
     const [qrModalVisible, setQrModalVisible] = useState(false);
     const [cashPaid, setCashPaid] = useState(false);
 
@@ -314,17 +312,6 @@ export default function JobDetails() {
         );
     };
 
-    // Trigger SOS Emergency
-    const handleTriggerSOS = () => {
-        setSosActive(true);
-        setSosModalVisible(false);
-        Alert.alert(
-            '🚨 SOS DISTRESS BROADCASTED',
-            `Alert dispatched to Thalassery HQ Ops Room & Supervisor Suresh Kumar.\nGPS Coordinates: ${job.latitude.toFixed(4)}, ${job.longitude.toFixed(4)}\nJob Reference: #${job.id}`,
-            [{ text: 'Acknowledged', style: 'default' }]
-        );
-    };
-
     // Share payment link
     const handleSharePaymentLink = async () => {
         const payUrl = `https://sheriyakam.vercel.app/pay/${job.id}`;
@@ -338,11 +325,6 @@ export default function JobDetails() {
         }
     };
 
-
-    // Pre-visit Site Notes Gate Code Copy
-    const handleCopyGateCode = (code) => {
-        Alert.alert('Gate Code Copied', `Entry code ${code} copied to clipboard for community gate.`);
-    };
 
     // Diagnostic Assessment Handlers
     const handlePickDiagnosticPhoto = async () => {
@@ -464,10 +446,11 @@ export default function JobDetails() {
     // Calculations
     const hardwareBillsTotal = (hardwareBills || []).reduce((sum, h) => sum + (Number(h.amount) || 0), 0);
     const extraHoursCount = Math.max(0, (parseInt(hours) || 1) - 1);
-    const laborPrice = (job.price || 0) + (extraHoursCount * 100);
+    const baseLaborPrice = Math.max(499, job.price || 499);
+    const laborPrice = baseLaborPrice + (extraHoursCount * 100);
     const currentTotalBill = laborPrice + partsTotalCost + hardwareBillsTotal;
     // 10% platform fee applies to service labor & catalog spares only; local hardware bills are 100% reimbursed to partner!
-    const platformDeduction = Math.round((laborPrice + partsTotalCost) * 0.10);
+    const platformDeduction = Math.round((laborPrice + partsTotalCost) * 0.15);
     const partnerNetEarning = currentTotalBill - platformDeduction;
 
     // Filter parts for modal
@@ -489,15 +472,6 @@ export default function JobDetails() {
                     <Text style={styles.headerTitle}>Job Execution Flow</Text>
                     <Text style={styles.headerSub}>ID #{job.id} • KSELB Protocol</Text>
                 </View>
-
-                {/* Persistent SOS Emergency Button */}
-                <TouchableOpacity
-                    style={[styles.sosHeaderBtn, sosActive && { backgroundColor: '#DC2626' }]}
-                    onPress={() => setSosModalVisible(true)}
-                >
-                    <AlertOctagon size={16} color="#fff" />
-                    <Text style={styles.sosHeaderBtnText}>{sosActive ? 'SOS ACTIVE' : 'SOS'}</Text>
-                </TouchableOpacity>
 
                 <View style={[
                     styles.statusBadge,
@@ -523,16 +497,6 @@ export default function JobDetails() {
                     </Text>
                 </View>
             </View>
-
-            {/* Active SOS Warning Banner */}
-            {sosActive && (
-                <View style={styles.sosWarningBanner}>
-                    <AlertOctagon size={18} color="#fff" />
-                    <Text style={styles.sosWarningText}>
-                        EMERGENCY PROTOCOL ACTIVE: Thalassery Control Room is tracking your coordinates.
-                    </Text>
-                </View>
-            )}
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* 6-Stage Standardized Field Workflow */}
@@ -621,19 +585,16 @@ export default function JobDetails() {
                         <MapPin size={16} color={COLORS.accent} />
                         <Text style={styles.addressText}>{job.address}</Text>
                     </View>
+                    <View style={styles.distanceBadgeStrip}>
+                        <Compass size={13} color={COLORS.gold} />
+                        <Text style={styles.distanceBadgeText}>{job.distance || '1.4 km'} away • Within 8–10 km Service Limit</Text>
+                    </View>
 
                     {/* Pre-Visit Client Site Notes (Integrated Routing & Site Access) */}
                     <View style={styles.siteNotesContainer}>
                         <View style={styles.siteNotesHeader}>
                             <Key size={14} color={COLORS.accent} />
                             <Text style={styles.siteNotesTitle}>PRE-VISIT CLIENT SITE NOTES</Text>
-                        </View>
-                        <View style={styles.siteNoteRow}>
-                            <Text style={styles.siteNoteLabel}>🚪 Community Gate Code:</Text>
-                            <TouchableOpacity onPress={() => handleCopyGateCode(job.siteNotes?.gateCode || '#4821')} style={styles.gateCodeChip}>
-                                <Text style={styles.gateCodeText}>{job.siteNotes?.gateCode || '#4821'}</Text>
-                                <ClipboardCopy size={12} color={COLORS.accent} />
-                            </TouchableOpacity>
                         </View>
                         <View style={styles.siteNoteRow}>
                             <Text style={styles.siteNoteLabel}>⚡ Meter Box Location:</Text>
@@ -1022,11 +983,11 @@ export default function JobDetails() {
                                 <Text style={styles.invoiceTotalValue}>₹{currentTotalBill}</Text>
                             </View>
                             <View style={styles.invoiceRow}>
-                                <Text style={{ color: COLORS.textTertiary, fontSize: 11 }}>Platform Fee (10% on labor/catalog)</Text>
+                                <Text style={{ color: COLORS.textTertiary, fontSize: 11 }}>Platform Fee (15% Split • ₹499 Floor)</Text>
                                 <Text style={{ color: COLORS.textTertiary, fontSize: 11 }}>-₹{platformDeduction}</Text>
                             </View>
                             <View style={[styles.invoiceRow, { paddingTop: 4 }]}>
-                                <Text style={{ color: COLORS.success, fontWeight: '800', fontSize: 13 }}>Your Net Payout (Includes 100% Material Reimbursement)</Text>
+                                <Text style={{ color: COLORS.success, fontWeight: '800', fontSize: 13 }}>Your Net Take-Home (85% Labor + 100% Material Reimbursement)</Text>
                                 <Text style={{ color: COLORS.success, fontWeight: '900', fontSize: 16 }}>₹{partnerNetEarning}</Text>
                             </View>
                         </View>
@@ -1164,13 +1125,13 @@ export default function JobDetails() {
                                 <Text style={[styles.invoiceValue, { fontWeight: '900' }]}>₹{job.finalPrice || currentTotalBill}</Text>
                             </View>
                             <View style={styles.invoiceRow}>
-                                <Text style={styles.invoiceLabel}>Platform Commission (10%)</Text>
-                                <Text style={styles.invoiceValue}>-₹{Math.round((job.finalPrice || currentTotalBill) * 0.10)}</Text>
+                                <Text style={styles.invoiceLabel}>Platform Commission (15%)</Text>
+                                <Text style={styles.invoiceValue}>-₹{Math.round((job.finalPrice || currentTotalBill) * 0.15)}</Text>
                             </View>
                             <View style={[styles.invoiceRow, styles.invoiceTotalRow]}>
                                 <Text style={styles.invoiceTotalLabel}>Net Credited to Partner Wallet</Text>
                                 <Text style={[styles.invoiceTotalValue, { color: COLORS.success }]}>
-                                    ₹{job.netPartnerPayout || Math.round((job.finalPrice || currentTotalBill) * 0.90)}
+                                    ₹{job.netPartnerPayout || Math.round((job.finalPrice || currentTotalBill) * 0.85)}
                                 </Text>
                             </View>
                         </View>
@@ -1297,37 +1258,7 @@ export default function JobDetails() {
                 </View>
             </Modal>
 
-            {/* SOS EMERGENCY CONFIRMATION MODAL */}
-            <Modal
-                visible={sosModalVisible}
-                animationType="fade"
-                transparent
-                onRequestClose={() => setSosModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.qrModalContent, { borderColor: '#EF4444' }]}>
-                        <AlertOctagon size={54} color="#EF4444" />
-                        <Text style={[styles.qrModalTitle, { color: '#EF4444' }]}>EMERGENCY SOS ALERT</Text>
-                        <Text style={styles.qrModalSub}>
-                            Are you facing an electric hazard, violent dispute, or medical emergency? This immediately sends your live GPS coordinates to Thalassery Ops Room and supervisor.
-                        </Text>
-                        <View style={styles.sosActionRow}>
-                            <TouchableOpacity
-                                style={styles.sosCancelBtn}
-                                onPress={() => setSosModalVisible(false)}
-                            >
-                                <Text style={styles.sosCancelBtnText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.sosTriggerBtn}
-                                onPress={handleTriggerSOS}
-                            >
-                                <Text style={styles.sosTriggerBtnText}>SEND DISTRESS ALERT</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+            
         
             {/* LOCAL HARDWARE BILL SNAPPER MODAL */}
             <Modal
@@ -1559,22 +1490,6 @@ const styles = StyleSheet.create({
     },
     headerSub: {
         color: COLORS.textTertiary,
-        fontSize: 11,
-    },
-    sosHeaderBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-        borderWidth: 1,
-        borderColor: '#EF4444',
-        paddingHorizontal: 8,
-        paddingVertical: 5,
-        borderRadius: 8,
-    },
-    sosHeaderBtnText: {
-        color: '#EF4444',
-        fontWeight: '900',
         fontSize: 11,
     },
     statusBadge: {
@@ -2800,6 +2715,24 @@ const styles = StyleSheet.create({
         color: '#000',
         fontWeight: '900',
         fontSize: 11,
+    },
+
+
+    distanceBadgeStrip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
+        marginTop: 6,
+        alignSelf: 'flex-start',
+    },
+    distanceBadgeText: {
+        color: COLORS.gold,
+        fontSize: 11,
+        fontWeight: '700',
     },
 
 });
