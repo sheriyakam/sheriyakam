@@ -90,6 +90,11 @@ export default [
       "web-build/**",
       "*.min.js",
       "scratch/**",
+      ".agents/**",
+      ".claude/**",
+      ".github/**",
+      ".codex/**",
+      "agent/**",
     ],
   },
 ];

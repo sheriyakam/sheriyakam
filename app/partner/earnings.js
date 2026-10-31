@@ -9,7 +9,7 @@ import {
 } from 'lucide-react-native';
 import { Modal as RNModal, TextInput as RNTextInput } from 'react-native';
 import { COLORS, SPACING } from '../../constants/theme';
-import { getCurrentPartner, DEFAULT_PARTNER_MOCK, requestMicroAdvance, getMicroAdvances } from '../../constants/partnerStore';
+import { getCurrentPartner, DEFAULT_PARTNER_MOCK, requestMicroAdvance, getMicroAdvances, getPartnerInstantPayouts, updatePartnerUpiId } from '../../constants/partnerStore';
 import { getBookings } from '../../constants/bookingStore';
 
 export default function PartnerEarnings() {
@@ -21,6 +21,21 @@ export default function PartnerEarnings() {
     const [advanceReason, setAdvanceReason] = useState('Emergency MCB & Wire Purchase at Local Hardware Store');
     const [advancesList, setAdvancesList] = useState(getMicroAdvances());
     const [usedCredit, setUsedCredit] = useState(partner.usedCredit || 0);
+    const [upiModalVisible, setUpiModalVisible] = useState(false);
+    const [upiInput, setUpiInput] = useState(partner.bankDetails?.upiId || 'shyam.electrician@oksbi');
+    const [registeredUpi, setRegisteredUpi] = useState(partner.bankDetails?.upiId || 'shyam.electrician@oksbi');
+    const [instantPayouts, setInstantPayouts] = useState(getPartnerInstantPayouts());
+
+    const handleSaveUpi = () => {
+        const res = updatePartnerUpiId(upiInput);
+        if (res.success) {
+            setRegisteredUpi(res.upiId);
+            setUpiModalVisible(false);
+            Alert.alert('✅ Payout UPI Updated', 'Your instant 85% payouts will now be automatically routed to: ' + res.upiId);
+        } else {
+            Alert.alert('Validation Error', res.message);
+        }
+    };
 
     const availableLimit = partner.availableCreditLimit || 2000;
     const remainingCredit = Math.max(0, availableLimit - usedCredit);
@@ -53,7 +68,7 @@ export default function PartnerEarnings() {
     const completedJobs = allBookings.filter(b => b.status === 'completed');
 
     const totalGross = completedJobs.reduce((sum, j) => sum + (j.finalPrice || j.price || 0), 0) + 4850;
-    const platformShare = Math.round(totalGross * 0.10);
+    const platformShare = Math.round(totalGross * 0.15);
     const netPayout = totalGross - platformShare;
 
     const mockTransactions = [
@@ -115,7 +130,7 @@ export default function PartnerEarnings() {
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.headerTitle}>Earnings & Payouts</Text>
-                    <Text style={styles.headerSub}>Transparent 90/10 Partner Split</Text>
+                    <Text style={styles.headerSub}>Transparent 85/15 Partner Split & Instant UPI Payout</Text>
                 </View>
                 <TouchableOpacity onPress={handleDownloadStatement} style={styles.downloadBtn}>
                     <Download size={18} color={COLORS.accent} />
@@ -159,7 +174,7 @@ export default function PartnerEarnings() {
                         </View>
                         <View style={styles.heroDivider} />
                         <View style={styles.heroMetaItem}>
-                            <Text style={styles.heroMetaLabel}>Platform Fee (10%)</Text>
+                            <Text style={styles.heroMetaLabel}>Platform Fee (15%)</Text>
                             <Text style={[styles.heroMetaVal, { color: COLORS.danger }]}>-₹{period === 'today' ? '140' : platformShare}</Text>
                         </View>
                         <View style={styles.heroDivider} />
@@ -207,28 +222,36 @@ export default function PartnerEarnings() {
                     )}
                 </View>
 
-                {/* Bank Account Payout Schedule Card */}
+                {/* Instant 85/15 UPI Payout Destination Card */}
                 <View style={styles.bankCard}>
                     <View style={styles.bankHeader}>
-                        <View style={styles.bankIconWrap}>
-                            <Building size={20} color={COLORS.accent} />
+                        <View style={[styles.bankIconWrap, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
+                            <Zap size={20} color="#10B981" />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.bankName}>{partner.bankDetails?.bankName || 'State Bank of India'}</Text>
-                            <Text style={styles.bankAccount}>A/C: {partner.bankDetails?.accountNumber || '•••• 4821'} • IFSC: {partner.bankDetails?.ifsc || 'SBIN0070123'}</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Text style={styles.bankName}>Instant 85/15 UPI Payout</Text>
+                                <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                                    <Text style={{ color: '#10B981', fontSize: 10, fontWeight: '800' }}>85% YOUR SHARE</Text>
+                                </View>
+                            </View>
+                            <Text style={styles.bankAccount}>UPI ID: {registeredUpi} • {partner.bankDetails?.bankName || 'State Bank of India'}</Text>
                         </View>
-                        <View style={styles.verifiedBadge}>
-                            <CheckCircle size={12} color={COLORS.success} />
-                            <Text style={styles.verifiedBadgeText}>VERIFIED</Text>
-                        </View>
+                        <TouchableOpacity
+                            onPress={() => setUpiModalVisible(true)}
+                            style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                        >
+                            <Text style={{ color: COLORS.accent, fontSize: 12, fontWeight: '700' }}>Edit UPI</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.payoutScheduleStrip}>
-                        <Clock size={14} color={COLORS.gold} />
-                        <Text style={styles.payoutScheduleText}>
-                            Next Auto-Settlement: <Text style={{ fontWeight: '800', color: COLORS.gold }}>Tuesday (Weekly Batch)</Text>
+                    <View style={[styles.payoutScheduleStrip, { backgroundColor: 'rgba(16, 185, 129, 0.08)' }]}>
+                        <CheckCircle size={14} color="#10B981" />
+                        <Text style={[styles.payoutScheduleText, { color: '#10B981' }]}>
+                            Settlement Speed: <Text style={{ fontWeight: '800', color: '#10B981' }}>Instant (Transferred within 10s of OTP Completion)</Text>
                         </Text>
                     </View>
                 </View>
+
 
                 {/* Transaction Breakdown */}
                 {/* Material & Spare Parts Reimbursement Ledger */}
@@ -363,6 +386,50 @@ export default function PartnerEarnings() {
                 </View>
             </RNModal>
 
+                    {/* EDIT UPI MODAL */}
+            <RNModal
+                visible={upiModalVisible}
+                animationType="fade"
+                transparent
+                onRequestClose={() => setUpiModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.advanceModalContent, { maxWidth: 400 }]}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                            <Text style={styles.modalTitle}>Update Payout UPI ID</Text>
+                            <TouchableOpacity onPress={() => setUpiModalVisible(false)}>
+                                <X size={20} color={COLORS.textTertiary} />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={{ color: COLORS.textSecondary, fontSize: 12, marginBottom: 12 }}>
+                            Your 85% earnings will be transferred instantly via IMPS/UPI to this account upon customer OTP verification.
+                        </Text>
+                        <Text style={styles.inputLabel}>Enter UPI ID (Google Pay / PhonePe / Paytm / Bank)</Text>
+                        <RNTextInput
+                            style={styles.modalTextInput}
+                            placeholder="e.g. mobile@upi or name@oksbi"
+                            placeholderTextColor={COLORS.textTertiary}
+                            value={upiInput}
+                            onChangeText={setUpiInput}
+                            autoCapitalize="none"
+                        />
+                        <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+                            <TouchableOpacity
+                                style={[styles.modalBtnCancel, { flex: 1 }]}
+                                onPress={() => setUpiModalVisible(false)}
+                            >
+                                <Text style={styles.modalBtnCancelText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalBtnSubmit, { flex: 1, backgroundColor: '#10B981' }]}
+                                onPress={handleSaveUpi}
+                            >
+                                <Text style={[styles.modalBtnSubmitText, { color: '#000', fontWeight: '800' }]}>Save & Activate</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </RNModal>
         </SafeAreaView>
     );
 }

@@ -98,6 +98,8 @@ export default function JobDetails() {
     const [disputeModalVisible, setDisputeModalVisible] = useState(false);
     const [disputeReason, setDisputeReason] = useState('');
     const [disputeSubmitted, setDisputeSubmitted] = useState(false);
+    const [payoutModalVisible, setPayoutModalVisible] = useState(false);
+    const [settledPayout, setSettledPayout] = useState(null);
 
     // Interactive Checklist
     const [checklist, setChecklist] = useState([
@@ -291,9 +293,11 @@ export default function JobDetails() {
                     ...prev,
                     status: 'completed',
                     finalPrice: res.booking.finalPrice,
-                    netPartnerPayout: res.booking.netPartnerPayout
+                    netPartnerPayout: res.booking.netPartnerPayout,
+                    payoutUtr: res.booking.payoutUtr
                 }));
-                Alert.alert("🎉 Job Completed & Verified!", "Itemized bill generated for customer post-completion settlement.");
+                setSettledPayout(res.booking);
+                setPayoutModalVisible(true);
             } else {
                 Alert.alert("Error", res.message || "Invalid Completion OTP. Customer code: 1234");
             }
@@ -1397,6 +1401,79 @@ export default function JobDetails() {
                         <TouchableOpacity style={styles.modalDoneBtn} onPress={handleSaveHardwareBill}>
                             <Text style={styles.modalDoneBtnText}>Add to Customer Bill & Reimburse</Text>
                         </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* INSTANT 85/15 PARTNER SPLIT-PAYOUT MODAL */}
+            <Modal
+                visible={payoutModalVisible}
+                animationType="slide"
+                transparent
+                onRequestClose={() => setPayoutModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.qrModalContent, { borderColor: '#10B981', maxWidth: 420 }]}>
+                        <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: 14, borderRadius: 50, marginBottom: 8, alignItems: 'center', justifyContent: 'center' }}>
+                            <Zap size={36} color="#10B981" />
+                        </View>
+                        <Text style={[styles.qrModalTitle, { color: '#10B981', fontSize: 18, textAlign: 'center' }]}>
+                            ⚡ ₹{settledPayout?.netPartnerPayout || liveJob.netPartnerPayout || 467} DISPATCHED!
+                        </Text>
+                        <Text style={[styles.qrModalSub, { textAlign: 'center' }]}>
+                            Instant 85/15 Split Payout transferred directly to your UPI ID upon customer OTP verification.
+                        </Text>
+
+                        {/* Payout Breakdown Card */}
+                        <View style={{ backgroundColor: '#18181B', borderRadius: 12, padding: 14, width: '100%', marginVertical: 12, borderWidth: 1, borderColor: '#27272A' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                                <Text style={{ color: '#A1A1AA', fontSize: 13 }}>Gross Job Bill</Text>
+                                <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>₹{settledPayout?.finalPrice || liveJob.finalPrice || liveJob.price || 550}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                                <Text style={{ color: '#10B981', fontSize: 13, fontWeight: '700' }}>Your Net Payout (85%)</Text>
+                                <Text style={{ color: '#10B981', fontWeight: '900', fontSize: 15 }}>₹{settledPayout?.netPartnerPayout || liveJob.netPartnerPayout || 467}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                                <Text style={{ color: '#71717A', fontSize: 12 }}>Platform Assurance & Insurance (15%)</Text>
+                                <Text style={{ color: '#71717A', fontSize: 12 }}>-₹{settledPayout?.platformFee || Math.round((liveJob.price || 550) * 0.15)}</Text>
+                            </View>
+
+                            <View style={{ height: 1, backgroundColor: '#27272A', marginVertical: 4 }} />
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+                                <Text style={{ color: '#A1A1AA', fontSize: 11 }}>Destination UPI</Text>
+                                <Text style={{ color: '#38BDF8', fontWeight: '700', fontSize: 11 }}>{getCurrentPartner()?.bankDetails?.upiId || 'shyam.electrician@oksbi'}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                                <Text style={{ color: '#A1A1AA', fontSize: 11 }}>Bank Reference (UTR)</Text>
+                                <Text style={{ color: '#E4E4E7', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace', fontSize: 11 }}>
+                                    {settledPayout?.payoutUtr || liveJob.payoutUtr || 'UPI/2026/891024'}
+                                </Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                                <Text style={{ color: '#A1A1AA', fontSize: 11 }}>Status</Text>
+                                <Text style={{ color: '#10B981', fontWeight: '800', fontSize: 11 }}>🟢 SETTLED INSTANTLY</Text>
+                            </View>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+                            <TouchableOpacity
+                                style={[styles.sosCancelBtn, { flex: 1 }]}
+                                onPress={() => setPayoutModalVisible(false)}
+                            >
+                                <Text style={styles.sosCancelBtnText}>Dismiss</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.sosTriggerBtn, { flex: 1.5, backgroundColor: '#10B981' }]}
+                                onPress={() => {
+                                    setPayoutModalVisible(false);
+                                    router.push('/partner/earnings');
+                                }}
+                            >
+                                <Text style={[styles.sosTriggerBtnText, { color: '#000' }]}>VIEW EARNINGS</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>

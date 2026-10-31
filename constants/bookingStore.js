@@ -1,3 +1,4 @@
+import { recordPartnerInstantPayout } from './partnerStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { autoAssignPartner } from './assignmentEngine';
 import { sanitizePayload, validateIndianPhone } from '../utils/validation';
@@ -366,11 +367,16 @@ export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materi
             booking.materialCost = Number(materialCost) || 0;
             booking.hoursWorked = Number(hoursWorked) || 1;
             booking.finalPrice = laborPrice + catalogPartsCost + hardwareBillsTotal;
-            // 15% platform fee applies to service labor & catalog spares (85/15 split with ₹499 floor)
-            booking.platformFee = Math.round((laborPrice + catalogPartsCost) * 0.15);
+            // 15% platform fee applies to service labor (85/15 split; partner gets 85% labor + 100% material costs)
+            booking.platformFee = Math.round(laborPrice * 0.15);
             booking.netPartnerPayout = booking.finalPrice - booking.platformFee;
-            booking.paymentStatus = 'pending';
-            booking.payoutStatus = 'pending';
+            booking.paymentStatus = 'settled';
+            booking.payoutStatus = 'settled';
+            booking.splitRatio = '85/15';
+            booking.payoutMethod = 'Instant UPI (Razorpay Route / IMPS)';
+            booking.payoutUtr = 'UPI/2026/' + Date.now().toString().slice(-6) + Math.floor(1000 + Math.random() * 9000);
+            booking.payoutSettledAt = new Date().toISOString();
+            try { recordPartnerInstantPayout(booking); } catch (e) { console.warn('Payout sync warning:', e.message); }
 
             // Evidence & Parts
             booking.checklist = evidence.checklist || [];

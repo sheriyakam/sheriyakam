@@ -696,3 +696,71 @@ export const getDailySprintStatus = (partner = currentPartner || DEFAULT_PARTNER
         projectedBonus: Math.round(Math.max(billing, sprint.targetBilling) * 0.05)
     };
 };
+
+
+// ─── Instant 85/15 Partner Split-Payout & UPI Engine ───────────────────────
+export const updatePartnerUpiId = (newUpiId) => {
+    if (!newUpiId || !newUpiId.includes('@')) {
+        return { success: false, message: 'Please enter a valid UPI ID (e.g. mobile@upi or name@oksbi)' };
+    }
+    const target = currentPartner || DEFAULT_PARTNER_MOCK;
+    if (!target.bankDetails) target.bankDetails = {};
+    target.bankDetails.upiId = newUpiId.trim();
+    return { success: true, upiId: target.bankDetails.upiId };
+};
+
+export const recordPartnerInstantPayout = (payout) => {
+    const target = currentPartner || DEFAULT_PARTNER_MOCK;
+    if (!target.instantPayouts) target.instantPayouts = [];
+    const record = {
+        id: payout.id || ('payout-' + Date.now()),
+        bookingId: payout.bookingId || 'b-active-1',
+        service: payout.service || 'Electrical Diagnostic & Repair',
+        amount: Math.round(payout.technicianShare || payout.netPartnerPayout || payout.amount || 0),
+        gross: Math.round(payout.totalAmount || payout.finalPrice || payout.gross || 0),
+        fee: Math.round(payout.platformShare || payout.platformFee || payout.fee || 0),
+        utr: payout.utr || ('UPI/2026/' + Date.now().toString().slice(-6) + Math.floor(1000 + Math.random() * 9000)),
+        upiId: payout.technicianUpi || target.bankDetails?.upiId || 'shyam.electrician@oksbi',
+        timestamp: payout.timestamp || 'Just now',
+        status: 'settled',
+        splitRatio: '85/15'
+    };
+    target.instantPayouts.unshift(record);
+    target.todayEarnings = (target.todayEarnings || 0) + record.amount;
+    return record;
+};
+
+export const getPartnerInstantPayouts = () => {
+    const target = currentPartner || DEFAULT_PARTNER_MOCK;
+    if (!target.instantPayouts || target.instantPayouts.length === 0) {
+        target.instantPayouts = [
+            {
+                id: 'payout-init-1',
+                bookingId: 'b-active-1',
+                service: 'Ceiling Fan Rewinding & Regulator',
+                amount: 467,
+                gross: 550,
+                fee: 83,
+                utr: 'UPI/2026/891024/9128',
+                upiId: target.bankDetails?.upiId || 'shyam.electrician@oksbi',
+                timestamp: 'Today, 02:40 PM',
+                status: 'settled',
+                splitRatio: '85/15'
+            },
+            {
+                id: 'payout-init-2',
+                bookingId: 'b-102',
+                service: 'Short Circuit & MCB Replacement',
+                amount: 382,
+                gross: 450,
+                fee: 68,
+                utr: 'UPI/2026/782190/3412',
+                upiId: target.bankDetails?.upiId || 'shyam.electrician@oksbi',
+                timestamp: 'Yesterday, 11:15 AM',
+                status: 'settled',
+                splitRatio: '85/15'
+            }
+        ];
+    }
+    return target.instantPayouts;
+};

@@ -62,6 +62,10 @@ app.use('/api/notifications', notificationsRouter);
 const webhooksRouter = require('./routes/webhooks');
 app.use('/api/webhooks', webhooksRouter);
 
+// Instant 85/15 Partner Split-Payout Routes
+const payoutsRouter = require('./routes/payouts');
+app.use('/api/payouts', payoutsRouter);
+
 // Offline Mutation Batch Sync Routes
 const mutationsRouter = require('./routes/mutations');
 app.use('/api/v1/mutations', mutationsRouter);
