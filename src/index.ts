@@ -9,6 +9,7 @@ export * from './services/phoneValidator';
 export * from './services/ifscService';
 export * from './services/jobPhotoService';
 export * from './services/upiPaymentService';
+export * from './services/cloudClient';
 export * from './hooks/usePincodeLookup';
 export * from './hooks/useIfscLookup';
 export * from './components/JobPaymentQRModal';
