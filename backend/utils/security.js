@@ -80,7 +80,7 @@ async function cacheDel(key) {
 // ==========================================
 const ipRateLimiter = async (req, res, next) => {
     // Get client IP address
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const ip = req.ip || req.socket?.remoteAddress || '127.0.0.1';
     const key = `ratelimit:${ip}`;
     
     let requestTimestamps = await cacheGet(key) || [];

@@ -69,12 +69,28 @@ app.use('/api/v1/mutations', mutationsRouter);
 // Agent Orchestrator Daemon
 const AgentOrchestrator = require('./agents/AgentOrchestrator');
 
-// Basic route to test the server
+// Production Health Check: Verifies critical dependencies (MongoDB connection)
 app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'active',
-        message: 'Sheriyakam Backend API is running properly on unified port 8081',
-        port: 8081
+    const isDbConnected = mongoose.connection.readyState === 1;
+    const dbStatus = isDbConnected ? 'connected' : 'disconnected';
+    const statusCode = isDbConnected ? 200 : 503;
+
+    return res.status(statusCode).json({
+        status: isDbConnected ? 'healthy' : 'degraded',
+        timestamp: new Date().toISOString(),
+        database: dbStatus,
+        port: process.env.PORT || 8081
+    });
+});
+
+// Global Error Handler: Suppresses stack traces in production (OWASP / Pre-Deploy Checklist Check 2)
+app.use((err, req, res, next) => {
+    console.error('[Backend Unhandled Error]', err);
+    if (res.headersSent) return next(err);
+    res.status(err.status || 500).json({
+        error: process.env.NODE_ENV === 'production' 
+            ? 'An internal error occurred. Please try again later.' 
+            : (err.message || 'Internal Server Error')
     });
 });
 
