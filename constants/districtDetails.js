@@ -13,7 +13,7 @@ export const DISTRICT_SEO_DATA = {
         malayalam: 'തലശ്ശേരി',
         h1: 'Licensed Electrician in Thalassery — 45-Min Doorstep Service | Sheriyakam HQ',
         metaTitle: 'Electrician in Thalassery — 45-Min Doorstep Service | Sheriyakam HQ',
-        metaDescription: 'Book KSELB licensed electricians in Thalassery, Kannur. 45-min arrival in Thalassery town, Temple Gate, Dharmadam, Koduvally & Kadirur. ₹49 diagnostic visit.',
+        metaDescription: 'Book KSELB licensed electricians in Thalassery, Kannur. 45-min arrival in Thalassery town, Temple Gate, Dharmadam, Koduvally & Kadirur with transparent upfront rates & 30-day warranty.',
         canonical: 'https://sheriyakam.vercel.app/thalassery-electrician',
         tagline: 'Main Operations Hub • Serving Thalassery & Malabar',
         arrivalMins: 45,
@@ -43,8 +43,8 @@ export const DISTRICT_SEO_DATA = {
                 a: 'Sheriyakam is the digital doorstep on-demand platform serving North Malabar with transparent fixed rates and 45-minute arrival across Thalassery municipality.'
             },
             {
-                q: 'What is the diagnostic visit cost in Thalassery?',
-                a: 'A diagnostic visit by a certified wireman is just ₹49. If you proceed with any recommended repair or installation, this ₹49 fee is 100% adjusted against your final invoice.'
+                q: 'How does electrician pricing work in Thalassery?',
+                a: 'All repairs follow our transparent upfront rate card (e.g., switches from ₹149, fan repairs from ₹249) with 30-day rework warranty. You receive a clear quote before work starts.'
             }
         ]
     },
@@ -177,7 +177,7 @@ export const DISTRICT_SEO_DATA = {
         malayalam: 'മലപ്പുറം',
         h1: 'Reliable Electrician in Malappuram — 55-Min Doorstep Service | Sheriyakam',
         metaTitle: 'Electrician in Malappuram — 55-Min Doorstep Service | Sheriyakam',
-        metaDescription: 'Book KSELB licensed electricians in Malappuram district. Fast doorstep service in Malappuram Town, Manjeri, Perinthalmanna, Tirur, Ponnani & Kondotty. ₹49 diagnostic visit.',
+        metaDescription: 'Book KSELB licensed electricians in Malappuram district. Fast doorstep service in Malappuram Town, Manjeri, Perinthalmanna, Tirur, Ponnani & Kondotty with upfront rate cards & 30-day warranty.',
         canonical: 'https://sheriyakam.vercel.app/malappuram-electrician',
         tagline: 'Malappuram District Hub • 16+ Licensed Wiremen',
         arrivalMins: 55,

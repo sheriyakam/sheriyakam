@@ -27,7 +27,7 @@ const DEFAULT_FAQS = [
         id: 'faq-1',
         category: 'Pricing',
         q: 'How much does an electrician cost near me in Kerala?',
-        a: 'Doorstep diagnostic inspection starts at ₹49. Standard electrical repairs start at ₹149 for switch/socket replacements, ₹199 for fan capacitor/regulator fixes, ₹349 for MCB/RCCB tripping, and ₹649 for AC foam jet service. Every booking comes with an upfront transparent rate card and a 30-day rework warranty.'
+        a: 'Standard electrical repairs start at ₹149 for switch/socket replacements, ₹199 for fan capacitor/regulator fixes, ₹349 for MCB/RCCB tripping, and ₹649 for AC foam jet service. Every booking comes with an upfront transparent rate card and a 30-day rework warranty.'
     },
     {
         id: 'faq-2',
@@ -44,8 +44,8 @@ const DEFAULT_FAQS = [
     {
         id: 'faq-4',
         category: 'Pricing',
-        q: 'How does the ₹49 diagnostic visit fee work?',
-        a: 'If you have an ambiguous fault or need an on-site estimation, a master electrician arrives in 90 minutes, performs full multimeter and earth resistance testing, and gives an itemized quote. If you approve and proceed with the service, the ₹49 fee is 100% adjusted against your final bill.'
+        q: 'How does transparent upfront pricing work?',
+        a: 'Before any repair commences, a master electrician arrives on site, inspects the issue, and provides an itemized quote based on our published rate card. All completed repairs carry a 30-day free rework warranty.'
     },
     {
         id: 'faq-5',
@@ -56,7 +56,6 @@ const DEFAULT_FAQS = [
 ];
 
 const DEFAULT_TARIFFS = [
-    { id: 't-diag', name: 'Diagnostic Inspection Visit', price: 49, category: 'General', time: '45 mins', desc: 'Full multimeter fault finding, adjustable against final bill.' },
     { id: 't-fan', name: 'Ceiling Fan / Regulator Service', price: 199, category: 'Electrical', time: '30 mins', desc: 'Bearing noise check, capacitor swap, speed regulator install.' },
     { id: 't-switch', name: 'Switch / Socket Replacement', price: 149, category: 'Electrical', time: '20 mins', desc: 'Modular switch/plug wiring and continuous neutral check.' },
     { id: 't-mcb', name: 'MCB / RCCB Tripping Diagnostic', price: 349, category: 'Emergency', time: '45 mins', desc: 'Distribution board earth leakage trace & breaker isolation.' },

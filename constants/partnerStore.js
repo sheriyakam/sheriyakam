@@ -12,6 +12,119 @@ const supervisors = {
     'default': { id: 'sup0', name: 'Main Supervisor', phone: '9999999999', taluk: 'General' }
 };
 
+export const TIERS_CONFIG = [
+    {
+        tier: 'Bronze',
+        badge: '🥉 Bronze Partner',
+        minRating: 4.5,
+        minPunctuality: 85,
+        minCompletion: 88,
+        multiplier: '1.0x',
+        multiplierVal: 1.0,
+        perks: 'Standard Residential Service Calls • Weekly Settlement',
+        commercialAccess: 'Standard Residential Only',
+        unlockedLeads: ['Single Phase Domestic Wiring', 'Ceiling Fan & Switch Replacement'],
+        lockedLeads: ['3-Phase Commercial DB', 'HT/LT Substation Panels', 'Hospital ICU Backup AMC'],
+        color: '#CD7F32',
+        bgColor: 'rgba(205, 127, 50, 0.15)'
+    },
+    {
+        tier: 'Silver',
+        badge: '🥈 Silver Pro',
+        minRating: 4.7,
+        minPunctuality: 90,
+        minCompletion: 92,
+        multiplier: '1.2x',
+        multiplierVal: 1.2,
+        perks: '1.2x Dispatch Priority • Split AC AMC Contracts Access',
+        commercialAccess: 'Domestic + Small Retail Shops',
+        unlockedLeads: ['Inverter & Battery Bank Installations', 'Split AC Deep Cleaning AMC', 'Retail Shop LED & DB Setup'],
+        lockedLeads: ['Commercial 3-Phase HT/LT', 'Industrial Automation'],
+        color: '#94A3B8',
+        bgColor: 'rgba(148, 163, 184, 0.15)'
+    },
+    {
+        tier: 'Gold',
+        badge: '🏆 Gold Partner',
+        minRating: 4.85,
+        minPunctuality: 95,
+        minCompletion: 96,
+        multiplier: '1.5x',
+        multiplierVal: 1.5,
+        perks: '1.5x Dispatch Priority • 3-Phase Commercial Leads • 0% Platform Fee on Night Emergencies',
+        commercialAccess: 'Commercial Buildings & Showrooms',
+        unlockedLeads: ['3-Phase Busbar & Capacitor Banks', 'Commercial Mall DB Rewiring', 'Hotel Kitchen Exhaust & Rewire'],
+        lockedLeads: ['11kV HT Substation Inspections'],
+        color: '#EAB308',
+        bgColor: 'rgba(234, 179, 8, 0.15)'
+    },
+    {
+        tier: 'Platinum',
+        badge: '💎 Platinum Master',
+        minRating: 4.95,
+        minPunctuality: 98,
+        minCompletion: 99,
+        multiplier: '2.0x',
+        multiplierVal: 2.0,
+        perks: '2.0x Dispatch Priority • High-Value HT/LT Substation Access • Dedicated VIP Ops Manager',
+        commercialAccess: 'Industrial Plants, Substations & Hospitals',
+        unlockedLeads: ['11kV Substation Maintenance', 'Industrial HT/LT Switchgear', 'Hospital ICU Emergency Gen-set Sync'],
+        lockedLeads: [],
+        color: '#38BDF8',
+        bgColor: 'rgba(56, 189, 248, 0.15)'
+    }
+];
+
+export const ACTIVE_SURGES = [
+    {
+        id: 'surge-monsoon',
+        title: 'Monsoon Hazard Surge',
+        multiplier: 1.4,
+        badgeText: '🌧️ 1.4x Monsoon Surge',
+        districts: ['Kannur', 'Kozhikode', 'Wayanad', 'Malappuram'],
+        reason: 'Water Ingress & Heavy Rain Ground Faults',
+        active: true,
+        hours: 'Active 24 Hours during Red/Orange Alert'
+    },
+    {
+        id: 'surge-night',
+        title: 'Late Night Emergency',
+        multiplier: 1.5,
+        badgeText: '🌙 1.5x Night Surge',
+        districts: ['All 14 Kerala Districts'],
+        reason: 'Urgent Short Circuit & Darkness Hazards',
+        active: true,
+        hours: '09:00 PM - 06:00 AM'
+    },
+    {
+        id: 'surge-heatwave',
+        title: 'Heatwave AC Peak',
+        multiplier: 1.3,
+        badgeText: '☀️ 1.3x AC Peak Surge',
+        districts: ['Ernakulam', 'Palakkad', 'Thrissur'],
+        reason: 'High Compressor Overheat Breakdown Demand',
+        active: true,
+        hours: '11:00 AM - 04:00 PM'
+    }
+];
+
+
+export const CORE_ECONOMICS = {
+    platformFeePercent: 15,
+    partnerSharePercent: 85,
+    platformFeeRate: 0.15,
+    partnerShareRate: 0.85,
+    minimumJobFloor: 499,
+    baselinePlatformGross: 75, // 15% of ₹499 minimum floor
+    dailySprint: {
+        targetJobs: 10,
+        targetBilling: 7500,
+        bonusPercent: 5,
+        minAcceptanceRate: 90,
+        minRatingFloor: 4.5
+    }
+};
+
 export const DEFAULT_PARTNER_MOCK = {
     id: 'p1',
     name: 'Shyam Prasad',
@@ -96,6 +209,60 @@ export const DEFAULT_PARTNER_MOCK = {
         alertStatus: 'warning',
         renewalUrl: 'https://kselb.kerala.gov.in'
     },
+        dailySprint: {
+        targetJobs: 10,
+        completedJobsToday: 3,
+        targetBilling: 7500,
+        currentBillingToday: 2450,
+        bonusPercent: 5,
+        minJobFloor: 499,
+        platformFeeRate: 0.15,
+        partnerShareRate: 0.85,
+        acceptanceRate: 94,
+        minAcceptanceRate: 90,
+        ratingFloor: 4.5,
+        currentRating: 4.92,
+        unlocked: false,
+        estimatedBonusAmount: 375
+    },
+    punctualityRate: 97,
+    completionRate: 98,
+    availableCreditLimit: 2000,
+    usedCredit: 0,
+    microAdvances: [
+        {
+            id: 'adv-1',
+            amount: 1500,
+            reason: 'Emergency MCB & 4 sq mm Finolex wire roll purchase at Malabar Electricals',
+            requestedAt: '24 Sep 2026, 04:15 PM',
+            status: 'settled',
+            deductedFromPayout: 'TX-2026-SEP-W4'
+        }
+    ],
+    apprentices: [
+        {
+            id: 'app-1',
+            name: 'Arjun K. Vijayan',
+            phone: '94472 88102',
+            role: 'Assistant Wireman',
+            aadhaarLast4: '8812',
+            kselbTraineeId: 'KSELB/TR-9021',
+            status: 'active',
+            joinedDate: '15 Aug 2026',
+            jobsAssisted: 34
+        },
+        {
+            id: 'app-2',
+            name: 'Rahul C. M.',
+            phone: '98463 11209',
+            role: 'AC & Refrigeration Helper',
+            aadhaarLast4: '4190',
+            kselbTraineeId: 'KSELB/TR-9450',
+            status: 'active',
+            joinedDate: '01 Sep 2026',
+            jobsAssisted: 18
+        }
+    ],
     blockedSlots: [
         { id: 'blk-1', date: 'Sunday, 27 Sep', timeSlot: '02:00 PM - 06:00 PM', reason: 'Family Function' },
         { id: 'blk-2', date: 'Friday, 02 Oct', timeSlot: '12:00 PM - 03:00 PM', reason: 'Friday Prayer & Rest' }
@@ -409,3 +576,123 @@ export const KERALA_WEEKLY_LEADERBOARD = [
 ];
 
 export const getKeralaLeaderboard = () => KERALA_WEEKLY_LEADERBOARD;
+
+// ─── Instant Cash-Out & Micro-Advance Ledger ────────────────────────────────
+export const getMicroAdvances = () => {
+    return currentPartner?.microAdvances || DEFAULT_PARTNER_MOCK.microAdvances || [];
+};
+
+export const requestMicroAdvance = (amount, reason, notes = '') => {
+    const num = Number(amount);
+    if (isNaN(num) || num <= 0) return { success: false, message: 'Invalid advance amount' };
+    const limit = currentPartner?.availableCreditLimit ?? 2000;
+    const used = currentPartner?.usedCredit ?? 0;
+    const available = limit - used;
+
+    if (num > available) {
+        return {
+            success: false,
+            message: `Requested ₹${num} exceeds available credit balance of ₹${available}. Complete verified jobs to unlock more.`
+        };
+    }
+
+    const newAdvance = {
+        id: `adv-${Date.now()}`,
+        amount: num,
+        reason: reason || 'Emergency spare parts purchase',
+        notes,
+        requestedAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        status: 'approved',
+        autoSettledAt: 'Next Batch Tuesday',
+        deductedFromPayout: 'Upcoming Settlement'
+    };
+
+    if (!currentPartner.microAdvances) currentPartner.microAdvances = [];
+    currentPartner.microAdvances.unshift(newAdvance);
+    currentPartner.usedCredit = used + num;
+
+    return {
+        success: true,
+        advance: newAdvance,
+        remainingCredit: available - num
+    };
+};
+
+// ─── Team & Apprentice Onboarding Engine ─────────────────────────────────────
+export const getApprentices = () => {
+    return currentPartner?.apprentices || DEFAULT_PARTNER_MOCK.apprentices || [];
+};
+
+export const addApprentice = (data) => {
+    if (!data.name || !data.phone) {
+        return { success: false, message: 'Apprentice name and mobile number required.' };
+    }
+    const newApp = {
+        id: `app-${Date.now()}`,
+        name: data.name,
+        phone: data.phone,
+        role: data.role || 'Assistant Wireman',
+        aadhaarLast4: data.aadhaarLast4 || 'XXXX',
+        kselbTraineeId: data.kselbTraineeId || 'KSELB/TR-PENDING',
+        status: 'active',
+        joinedDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        jobsAssisted: 0
+    };
+
+    if (!currentPartner.apprentices) currentPartner.apprentices = [];
+    currentPartner.apprentices.unshift(newApp);
+
+    return { success: true, apprentice: newApp };
+};
+
+export const removeApprentice = (id) => {
+    if (currentPartner?.apprentices) {
+        currentPartner.apprentices = currentPartner.apprentices.filter(a => a.id !== id);
+        return true;
+    }
+    return false;
+};
+
+export const toggleApprenticeStatus = (id) => {
+    if (currentPartner?.apprentices) {
+        const item = currentPartner.apprentices.find(a => a.id === id);
+        if (item) {
+            item.status = item.status === 'active' ? 'inactive' : 'active';
+            return { success: true, status: item.status };
+        }
+    }
+    return { success: false };
+};
+
+
+// ─── Value-Weighted Daily 10-Job Bonus Sprint Helper ───────────────────────
+export const getDailySprintStatus = (partner = currentPartner || DEFAULT_PARTNER_MOCK) => {
+    const sprint = partner.dailySprint || DEFAULT_PARTNER_MOCK.dailySprint;
+    const completed = sprint.completedJobsToday || 0;
+    const billing = sprint.currentBillingToday || 0;
+    const jobsProgress = Math.min(100, Math.round((completed / sprint.targetJobs) * 100));
+    const billingProgress = Math.min(100, Math.round((billing / sprint.targetBilling) * 100));
+    const overallProgress = Math.max(jobsProgress, billingProgress);
+
+    const meetsAcceptance = (sprint.acceptanceRate || 94) >= sprint.minAcceptanceRate;
+    const meetsRating = (partner.ratings?.overall || 4.92) >= sprint.ratingFloor;
+    const meetsFloor = (billing / (completed || 1)) >= sprint.minJobFloor;
+
+    const isQualified = (completed >= sprint.targetJobs || billing >= sprint.targetBilling) && meetsAcceptance && meetsRating;
+    const bonusEarned = isQualified ? Math.round(billing * 0.05) : 0;
+
+    return {
+        ...sprint,
+        jobsProgress,
+        billingProgress,
+        overallProgress,
+        meetsAcceptance,
+        meetsRating,
+        meetsFloor,
+        isQualified,
+        bonusEarned,
+        jobsRemaining: Math.max(0, sprint.targetJobs - completed),
+        billingRemaining: Math.max(0, sprint.targetBilling - billing),
+        projectedBonus: Math.round(Math.max(billing, sprint.targetBilling) * 0.05)
+    };
+};

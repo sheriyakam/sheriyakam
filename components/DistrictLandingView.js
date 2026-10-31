@@ -282,7 +282,7 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                             accessibilityRole="button"
                         >
                             <Zap size={16} color="#FFFFFF" fill="#FFFFFF" />
-                            <Text style={styles.bookDiagnosticBtnText}>Book Diagnostic Visit (₹49)</Text>
+                            <Text style={styles.bookDiagnosticBtnText}>Book Electrician Visit</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity

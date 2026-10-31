@@ -4,16 +4,50 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
     ArrowLeft, TrendingUp, IndianRupee, Calendar, Download,
-    CheckCircle, Clock, ChevronRight, Shield, CreditCard, Building
+    CheckCircle, Clock, ChevronRight, Shield, CreditCard, Building,
+    Zap, Receipt, Plus, AlertCircle, ArrowUpRight, DollarSign, Modal, X, TextInput
 } from 'lucide-react-native';
+import { Modal as RNModal, TextInput as RNTextInput } from 'react-native';
 import { COLORS, SPACING } from '../../constants/theme';
-import { getCurrentPartner, DEFAULT_PARTNER_MOCK } from '../../constants/partnerStore';
+import { getCurrentPartner, DEFAULT_PARTNER_MOCK, requestMicroAdvance, getMicroAdvances } from '../../constants/partnerStore';
 import { getBookings } from '../../constants/bookingStore';
 
 export default function PartnerEarnings() {
     const router = useRouter();
     const partner = getCurrentPartner() || DEFAULT_PARTNER_MOCK;
-    const [period, setPeriod] = useState('weekly'); // 'today', 'weekly', 'monthly'
+    const [period, setPeriod] = useState('weekly');
+    const [advanceModalVisible, setAdvanceModalVisible] = useState(false);
+    const [advanceAmount, setAdvanceAmount] = useState('1000');
+    const [advanceReason, setAdvanceReason] = useState('Emergency MCB & Wire Purchase at Local Hardware Store');
+    const [advancesList, setAdvancesList] = useState(getMicroAdvances());
+    const [usedCredit, setUsedCredit] = useState(partner.usedCredit || 0);
+
+    const availableLimit = partner.availableCreditLimit || 2000;
+    const remainingCredit = Math.max(0, availableLimit - usedCredit);
+
+    const handleRequestAdvance = () => {
+        const num = Number(advanceAmount);
+        if (isNaN(num) || num <= 0) {
+            Alert.alert('Validation Error', 'Please enter a valid amount.');
+            return;
+        }
+        if (num > remainingCredit) {
+            Alert.alert('Limit Exceeded', `Requested ₹${num} exceeds available advance balance of ₹${remainingCredit}.`);
+            return;
+        }
+        const res = requestMicroAdvance(num, advanceReason);
+        if (res.success) {
+            setAdvancesList(getMicroAdvances());
+            setUsedCredit(prev => prev + num);
+            setAdvanceModalVisible(false);
+            Alert.alert(
+                '⚡ Micro-Advance Dispatched Instantly!',
+                `₹${num} has been transferred to your registered UPI (shyam.electrician@oksbi) for urgent material purchase. This will be automatically reconciled in Tuesday's weekly batch.`
+            );
+        } else {
+            Alert.alert('Error', res.message);
+        }
+    }; // 'today', 'weekly', 'monthly'
 
     const allBookings = getBookings();
     const completedJobs = allBookings.filter(b => b.status === 'completed');
@@ -111,15 +145,16 @@ export default function PartnerEarnings() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Hero Net Payout Card */}
+                {/* Hero Net Payout Card with 4-Way Breakdown */}
                 <View style={styles.heroCard}>
                     <Text style={styles.heroLabel}>TOTAL NET EARNINGS ({period.toUpperCase()})</Text>
                     <Text style={styles.heroAmount}>
-                        ₹{period === 'today' ? '1,240' : period === 'weekly' ? netPayout : (netPayout * 3.8).toFixed(0)}
+                        ₹{period === 'today' ? '1,620' : period === 'weekly' ? (netPayout + 1850) : ((netPayout * 3.8) + 4200).toFixed(0)}
                     </Text>
+
                     <View style={styles.heroMetaRow}>
                         <View style={styles.heroMetaItem}>
-                            <Text style={styles.heroMetaLabel}>Gross Billed</Text>
+                            <Text style={styles.heroMetaLabel}>Gross Service Labor</Text>
                             <Text style={styles.heroMetaVal}>₹{period === 'today' ? '1,380' : totalGross}</Text>
                         </View>
                         <View style={styles.heroDivider} />
@@ -127,7 +162,49 @@ export default function PartnerEarnings() {
                             <Text style={styles.heroMetaLabel}>Platform Fee (10%)</Text>
                             <Text style={[styles.heroMetaVal, { color: COLORS.danger }]}>-₹{period === 'today' ? '140' : platformShare}</Text>
                         </View>
+                        <View style={styles.heroDivider} />
+                        <View style={styles.heroMetaItem}>
+                            <Text style={[styles.heroMetaLabel, { color: COLORS.success }]}>100% Material Reimbursement</Text>
+                            <Text style={[styles.heroMetaVal, { color: COLORS.success }]}>+₹{period === 'today' ? '380' : '1,850'}</Text>
+                        </View>
                     </View>
+                </View>
+
+                {/* Instant Cash-Out & Micro-Advance Ledger Card */}
+                <View style={styles.advanceCard}>
+                    <View style={styles.advanceHeader}>
+                        <View style={styles.advanceIconWrap}>
+                            <Zap size={20} color={COLORS.gold} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.advanceCardTitle}>Instant Cash-Out & Micro-Advance</Text>
+                            <Text style={styles.advanceCardSub}>Draw emergency cash for hardware materials against completed jobs</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.advanceLimitRow}>
+                        <View>
+                            <Text style={styles.advanceLimitLabel}>AVAILABLE ADVANCE LIMIT</Text>
+                            <Text style={styles.advanceLimitValue}>₹{remainingCredit} <Text style={{ fontSize: 12, color: COLORS.textTertiary }}>/ ₹{availableLimit}</Text></Text>
+                        </View>
+                        <TouchableOpacity
+                            style={[styles.drawAdvanceBtn, remainingCredit <= 0 && { opacity: 0.5 }]}
+                            onPress={() => setAdvanceModalVisible(true)}
+                            disabled={remainingCredit <= 0}
+                        >
+                            <Zap size={14} color="#000" />
+                            <Text style={styles.drawAdvanceBtnText}>Draw Advance</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {advancesList.length > 0 && (
+                        <View style={styles.recentAdvanceStrip}>
+                            <Clock size={12} color={COLORS.textTertiary} />
+                            <Text style={styles.recentAdvanceText}>
+                                Last Draw: ₹{advancesList[0].amount} on {advancesList[0].requestedAt} • Auto-settles Tuesday
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 {/* Bank Account Payout Schedule Card */}
@@ -154,6 +231,44 @@ export default function PartnerEarnings() {
                 </View>
 
                 {/* Transaction Breakdown */}
+                {/* Material & Spare Parts Reimbursement Ledger */}
+                <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionTitle}>MATERIAL & SPARE PARTS EXPENSE LEDGER</Text>
+                    <View style={styles.passThroughBadge}>
+                        <Text style={styles.passThroughBadgeText}>100% REIMBURSEMENT (0% FEE)</Text>
+                    </View>
+                </View>
+
+                <View style={styles.materialReimburseCard}>
+                    <View style={styles.materialReimburseRow}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.materialStoreName}>Malabar Electrical Hardware, Thalassery</Text>
+                            <Text style={styles.materialStoreMeta}>Bill #ME-8841 • Havells 32A C-Curve MCB + 2m conduit</Text>
+                            <Text style={styles.materialStoreDate}>Today, 03:15 PM • Job #b-active-1</Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={styles.materialAmount}>+₹380</Text>
+                            <View style={styles.payoutStatusPillPending}>
+                                <Text style={styles.payoutStatusPillTextPending}>In Tuesday Batch</Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={[styles.materialReimburseRow, { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 10, marginTop: 8 }]}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.materialStoreName}>Kannur Power Electricals, Temple Gate</Text>
+                            <Text style={styles.materialStoreMeta}>Bill #KP-1029 • 4 sq mm Finolex Wire (15m) + Copper Lugs</Text>
+                            <Text style={styles.materialStoreDate}>18 Sep 2026 • Job #b-enroute-1</Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={styles.materialAmount}>+₹1,470</Text>
+                            <View style={styles.payoutStatusPillSettled}>
+                                <Text style={styles.payoutStatusPillTextSettled}>Settled</Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+
                 <Text style={styles.sectionTitle}>RECENT SERVICE PAYOUTS</Text>
                 {mockTransactions.map(tx => (
                     <View key={tx.id} style={styles.txCard}>
@@ -183,6 +298,71 @@ export default function PartnerEarnings() {
                     </View>
                 ))}
             </ScrollView>
+        
+            {/* MICRO-ADVANCE CASH-OUT MODAL */}
+            <RNModal
+                visible={advanceModalVisible}
+                animationType="slide"
+                transparent
+                onRequestClose={() => setAdvanceModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.advanceModalContent}>
+                        <View style={styles.modalHeader}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.modalTitle}>Request Instant Micro-Advance</Text>
+                                <Text style={styles.modalSub}>Auto-transferred to UPI: shyam.electrician@oksbi</Text>
+                            </View>
+                            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setAdvanceModalVisible(false)}>
+                                <X size={20} color={COLORS.textPrimary} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.advanceBalanceStrip}>
+                            <Zap size={16} color={COLORS.gold} />
+                            <Text style={styles.advanceBalanceText}>Available to Draw: ₹{remainingCredit}</Text>
+                        </View>
+
+                        <Text style={styles.inputFieldLabel}>Advance Amount (₹) *</Text>
+                        <RNTextInput
+                            style={styles.modalInput}
+                            placeholder="e.g., 1000"
+                            placeholderTextColor={COLORS.textTertiary}
+                            value={advanceAmount}
+                            onChangeText={setAdvanceAmount}
+                            keyboardType="numeric"
+                        />
+
+                        {/* Quick Amount Chips */}
+                        <View style={styles.quickChipsRow}>
+                            {['500', '1000', '1500', '2000'].map(amt => (
+                                <TouchableOpacity
+                                    key={amt}
+                                    style={[styles.quickChip, advanceAmount === amt && styles.quickChipActive]}
+                                    onPress={() => setAdvanceAmount(amt)}
+                                >
+                                    <Text style={[styles.quickChipText, advanceAmount === amt && styles.quickChipTextActive]}>₹{amt}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <Text style={[styles.inputFieldLabel, { marginTop: 12 }]}>Reason for Micro-Advance</Text>
+                        <RNTextInput
+                            style={styles.modalInput}
+                            placeholder="e.g., Emergency MCB & Wire Purchase"
+                            placeholderTextColor={COLORS.textTertiary}
+                            value={advanceReason}
+                            onChangeText={setAdvanceReason}
+                        />
+
+                        <TouchableOpacity style={styles.submitAdvanceBtn} onPress={handleRequestAdvance}>
+                            <Zap size={18} color="#000" />
+                            <Text style={styles.submitAdvanceBtnText}>Transfer ₹{advanceAmount || '0'} to UPI Now</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </RNModal>
+
         </SafeAreaView>
     );
 }
@@ -417,4 +597,269 @@ const styles = StyleSheet.create({
         color: COLORS.textTertiary,
         fontSize: 11,
     },
+
+    /* Micro-Advance Styles */
+    advanceCard: {
+        backgroundColor: 'rgba(234, 179, 8, 0.08)',
+        borderRadius: 14,
+        padding: 14,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(234, 179, 8, 0.25)',
+    },
+    advanceHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 12,
+    },
+    advanceIconWrap: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: 'rgba(234, 179, 8, 0.2)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    advanceCardTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '800',
+        fontSize: 14,
+    },
+    advanceCardSub: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+    },
+    advanceLimitRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        padding: 12,
+        borderRadius: 10,
+    },
+    advanceLimitLabel: {
+        color: COLORS.textTertiary,
+        fontSize: 9,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    advanceLimitValue: {
+        color: COLORS.gold,
+        fontWeight: '900',
+        fontSize: 20,
+    },
+    drawAdvanceBtn: {
+        backgroundColor: COLORS.gold,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
+    drawAdvanceBtnText: {
+        color: '#000',
+        fontWeight: '900',
+        fontSize: 12,
+    },
+    recentAdvanceStrip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 10,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(234, 179, 8, 0.15)',
+    },
+    recentAdvanceText: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+    },
+
+    /* Material Reimbursement Styles */
+    sectionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    passThroughBadge: {
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 4,
+    },
+    passThroughBadgeText: {
+        color: COLORS.success,
+        fontWeight: '900',
+        fontSize: 9,
+    },
+    materialReimburseCard: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        marginBottom: 16,
+    },
+    materialReimburseRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    materialStoreName: {
+        color: COLORS.textPrimary,
+        fontWeight: '700',
+        fontSize: 13,
+    },
+    materialStoreMeta: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        marginTop: 2,
+    },
+    materialStoreDate: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        marginTop: 2,
+    },
+    materialAmount: {
+        color: COLORS.success,
+        fontWeight: '900',
+        fontSize: 15,
+    },
+    payoutStatusPillPending: {
+        backgroundColor: 'rgba(234, 179, 8, 0.15)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        marginTop: 4,
+    },
+    payoutStatusPillTextPending: {
+        color: COLORS.gold,
+        fontSize: 9,
+        fontWeight: '800',
+    },
+    payoutStatusPillSettled: {
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        marginTop: 4,
+    },
+    payoutStatusPillTextSettled: {
+        color: COLORS.success,
+        fontSize: 9,
+        fontWeight: '800',
+    },
+
+    /* Advance Modal Styles */
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.75)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+    },
+    advanceModalContent: {
+        width: '94%',
+        maxWidth: 440,
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 16,
+        padding: 18,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 14,
+    },
+    modalTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 16,
+    },
+    modalSub: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        marginTop: 2,
+    },
+    modalCloseBtn: {
+        padding: 4,
+    },
+    advanceBalanceStrip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(234, 179, 8, 0.12)',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 14,
+    },
+    advanceBalanceText: {
+        color: COLORS.gold,
+        fontWeight: '800',
+        fontSize: 12,
+    },
+    inputFieldLabel: {
+        color: COLORS.textTertiary,
+        fontSize: 11,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    modalInput: {
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        color: COLORS.textPrimary,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        fontSize: 13,
+    },
+    quickChipsRow: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 8,
+    },
+    quickChip: {
+        flex: 1,
+        paddingVertical: 8,
+        borderRadius: 6,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    quickChipActive: {
+        backgroundColor: 'rgba(234, 179, 8, 0.2)',
+        borderColor: COLORS.gold,
+    },
+    quickChipText: {
+        color: COLORS.textSecondary,
+        fontWeight: '700',
+        fontSize: 12,
+    },
+    quickChipTextActive: {
+        color: COLORS.gold,
+    },
+    submitAdvanceBtn: {
+        backgroundColor: COLORS.gold,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 12,
+        borderRadius: 10,
+        marginTop: 18,
+    },
+    submitAdvanceBtnText: {
+        color: '#000',
+        fontWeight: '900',
+        fontSize: 13,
+    },
+
 });

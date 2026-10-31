@@ -36,6 +36,26 @@ const NOW = Date.now();
 const INITIAL_BOOKINGS = [
     {
         id: 'b-active-1',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Gold',
+        skillMatchPercent: 98,
+        siteNotes: {
+            gateCode: '#4821',
+            meterLocation: 'Ground floor external stairwell on left',
+            faultHistory: 'Main MCB tripped twice yesterday during heavy rain',
+            siteAdvisory: 'Beware of pet dog in front porch. Ring calling bell twice.'
+        },
+        hardwareBills: [
+            {
+                id: 'hb-demo-1',
+                photoUri: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500',
+                supplierName: 'Malabar Electrical Hardware, Thalassery',
+                billNo: 'ME-8841',
+                amount: 380,
+                date: 'Today, 03:15 PM',
+                items: 'Havells 32A C-Curve MCB + 2m conduit'
+            }
+        ],
         customerName: 'K.V. Raghu',
         customerPhone: '+91 94471 28901',
         service: 'Emergency Repair Specialist',
@@ -47,8 +67,7 @@ const INITIAL_BOOKINGS = [
         distance: '1.4 km',
         price: 550,
         finalPrice: 550,
-        platformFee: 55,
-        netPartnerPayout: 495,
+        platformFee: 83, netPartnerPayout: 467,
         status: 'accepted',
         assignedPartnerId: 'p1',
         partnerName: 'Shyam Prasad',
@@ -64,6 +83,16 @@ const INITIAL_BOOKINGS = [
     },
     {
         id: 'b-ping-1',
+        requiredSkill: 'AC',
+        requiredTier: 'Silver',
+        skillMatchPercent: 92,
+        siteNotes: {
+            gateCode: 'Open Entry',
+            meterLocation: 'First floor balcony AC outdoor unit panel',
+            faultHistory: 'AC condenser fan making grinding noise; low cooling',
+            siteAdvisory: 'Ladder is available on-site with building security'
+        },
+        hardwareBills: [],
         customerName: 'Fatima Zohra',
         customerPhone: '+91 98470 55432',
         service: 'Inverter AC Fan & Gas Leak Check',
@@ -75,8 +104,7 @@ const INITIAL_BOOKINGS = [
         distance: '2.3 km',
         price: 650,
         finalPrice: 650,
-        platformFee: 65,
-        netPartnerPayout: 585,
+        platformFee: 98, netPartnerPayout: 552,
         status: 'open',
         checkInOtp: '1234',
         otp: '8890',
@@ -99,8 +127,7 @@ const INITIAL_BOOKINGS = [
         distance: '4.2 km',
         price: 750,
         finalPrice: 750,
-        platformFee: 75,
-        netPartnerPayout: 675,
+        platformFee: 113, netPartnerPayout: 637,
         status: 'open',
         checkInOtp: '5566',
         otp: '7788',
@@ -123,8 +150,7 @@ const INITIAL_BOOKINGS = [
         distance: '2.4 km',
         price: 1250,
         finalPrice: 1250,
-        platformFee: 125,
-        netPartnerPayout: 1125,
+        platformFee: 188, netPartnerPayout: 1062,
         status: 'arrived',
         assignedPartnerId: 'p1',
         partnerName: 'Shyam Prasad',
@@ -151,8 +177,7 @@ const INITIAL_BOOKINGS = [
         distance: '3.8 km',
         price: 1800,
         finalPrice: 2200,
-        platformFee: 220,
-        netPartnerPayout: 1980,
+        platformFee: 330, netPartnerPayout: 1870,
         status: 'disputed',
         assignedPartnerId: 'p2',
         partnerName: 'Abdul Kader',
@@ -188,10 +213,7 @@ const INITIAL_BOOKINGS = [
         taluk: 'Aluva',
         address: 'Bank Junction, Aluva, Ernakulam',
         distance: '2.1 km',
-        price: 450,
-        finalPrice: 450,
-        platformFee: 45,
-        netPartnerPayout: 405,
+        price: 499, finalPrice: 499, platformFee: 75, netPartnerPayout: 424,
         status: 'completed',
         assignedPartnerId: 'p3',
         partnerName: 'Suresh Kumar',
@@ -337,10 +359,15 @@ export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materi
             booking.completedAt = new Date().toISOString();
 
             const extraHours = Math.max(0, hoursWorked - 1);
+            const laborPrice = (booking.price || 0) + (extraHours * 100);
+            const catalogPartsCost = Number(materialCost) || 0;
+            const hardwareBillsTotal = (booking.hardwareBills || []).reduce((sum, h) => sum + (Number(h.amount) || 0), 0);
+            booking.hardwareBillsTotal = hardwareBillsTotal;
             booking.materialCost = Number(materialCost) || 0;
             booking.hoursWorked = Number(hoursWorked) || 1;
-            booking.finalPrice = (booking.price || 0) + (extraHours * 100) + (Number(materialCost) || 0);
-            booking.platformFee = Math.round(booking.finalPrice * 0.10);
+            booking.finalPrice = laborPrice + catalogPartsCost + hardwareBillsTotal;
+            // 15% platform fee applies to service labor & catalog spares (85/15 split with ₹499 floor)
+            booking.platformFee = Math.round((laborPrice + catalogPartsCost) * 0.15);
             booking.netPartnerPayout = booking.finalPrice - booking.platformFee;
             booking.paymentStatus = 'pending';
             booking.payoutStatus = 'pending';
@@ -351,6 +378,12 @@ export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materi
             booking.afterPhoto = evidence.afterPhoto || null;
             booking.workNotes = evidence.workNotes || '';
             booking.sparePartsUsed = evidence.sparePartsUsed || evidence.selectedParts || [];
+            if (evidence.customerSignature) {
+                booking.customerSignature = evidence.customerSignature;
+            }
+            if (evidence.diagnosticAssessment) {
+                booking.diagnosticAssessment = evidence.diagnosticAssessment;
+            }
 
             bookingEvents.emit('change');
             saveData();
@@ -358,6 +391,95 @@ export const completeBookingByPartner = (id, enteredOtp, hoursWorked = 1, materi
         } else {
             return { success: false, message: rateCheck.allowed ? 'Invalid Completion OTP' : rateCheck.message };
         }
+    }
+    return { success: false, message: 'Booking not found' };
+};
+
+// ─── Diagnostic Assessment Gate ──────────────────────────────────────────────
+export const recordDiagnosticAssessment = (bookingId, { photoUri, faultDescription }) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking) {
+        booking.diagnosticAssessment = {
+            photoUri,
+            faultDescription,
+            recordedAt: new Date().toISOString()
+        };
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, diagnosticAssessment: booking.diagnosticAssessment };
+    }
+    return { success: false, message: 'Booking not found' };
+};
+
+// ─── Digital Estimate Approval ──────────────────────────────────────────────
+export const submitEstimateQuote = (bookingId, { parts = [], extraHours = 0, totalEstimate = 0, quoteNotes = '' }) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking) {
+        booking.estimateApproval = {
+            parts,
+            extraHours,
+            totalEstimate,
+            quoteNotes,
+            submittedAt: new Date().toISOString(),
+            isApproved: false,
+            approvedAt: null
+        };
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, estimateApproval: booking.estimateApproval };
+    }
+    return { success: false, message: 'Booking not found' };
+};
+
+export const approveEstimateQuote = (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking && booking.estimateApproval) {
+        booking.estimateApproval.isApproved = true;
+        booking.estimateApproval.approvedAt = new Date().toISOString();
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, booking };
+    }
+    return { success: false, message: 'Estimate not found' };
+};
+
+// ─── Local Hardware Bill Snapper ────────────────────────────────────────────
+export const addHardwareBill = (bookingId, { photoUri, supplierName, billNo, amount, items }) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking) {
+        if (!booking.hardwareBills) booking.hardwareBills = [];
+        const newBill = {
+            id: `hb-${Date.now()}`,
+            photoUri: photoUri || 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500',
+            supplierName: supplierName || 'Local Electrical Hardware Store',
+            billNo: billNo || `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+            amount: Number(amount) || 0,
+            items: items || 'Electrical hardware parts',
+            recordedAt: new Date().toISOString(),
+            reimbursementStatus: 'pending_reimbursement'
+        };
+        booking.hardwareBills.push(newBill);
+
+        // Recalculate bill
+        const hardwareTotal = booking.hardwareBills.reduce((sum, h) => sum + (Number(h.amount) || 0), 0);
+        booking.hardwareBillsTotal = hardwareTotal;
+
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, newBill, hardwareBills: booking.hardwareBills };
+    }
+    return { success: false, message: 'Booking not found' };
+};
+
+// ─── Digital Job Sign-Off ───────────────────────────────────────────────────
+export const signOffBooking = (bookingId, signatureUri) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking) {
+        booking.customerSignature = signatureUri || 'DIGITAL_ACKNOWLEDGED_BY_CLIENT';
+        booking.signedOffAt = new Date().toISOString();
+        bookingEvents.emit('change');
+        saveData();
+        return { success: true, booking };
     }
     return { success: false, message: 'Booking not found' };
 };
@@ -516,9 +638,18 @@ export const triggerMockJobPing = () => {
         distance: '1.8 km',
         price: 550,
         finalPrice: 550,
-        platformFee: 55,
-        netPartnerPayout: 495,
+        platformFee: 83, netPartnerPayout: 467,
         notes: 'Main DB tripping continuously with burning smell near MCB.',
+        requiredSkill: 'Electrical',
+        requiredTier: 'Gold',
+        skillMatchPercent: 98,
+        siteNotes: {
+            gateCode: '#9012',
+            meterLocation: 'Behind porch pillar ground floor',
+            faultHistory: 'MCB sparking on heavy load during rain',
+            siteAdvisory: 'Call upon gate arrival'
+        },
+        hardwareBills: [],
         date: 'Today',
         time: 'Immediate (90-Min Emergency)',
         status: 'open',
@@ -588,7 +719,7 @@ export const addSparePartsToBooking = (id, parts = []) => {
         booking.materialCost = partsTotal;
         const extraHours = Math.max(0, (booking.hoursWorked || 1) - 1);
         booking.finalPrice = (booking.price || 0) + (extraHours * 100) + partsTotal;
-        booking.platformFee = Math.round(booking.finalPrice * 0.10);
+        booking.platformFee = Math.round(booking.finalPrice * 0.15);
         booking.netPartnerPayout = booking.finalPrice - booking.platformFee;
         bookingEvents.emit('change');
         saveData();
@@ -618,7 +749,9 @@ export const createBooking = (newBooking) => {
         id,
         status: sanitized.status || (assignment.success ? 'assigned' : 'open'),
         paymentStatus: sanitized.paymentStatus || 'pending',
-        finalPrice: sanitized.price || 0,
+        finalPrice: Math.max(499, sanitized.price || 499),
+        platformFee: Math.round(Math.max(499, sanitized.price || 499) * 0.15),
+        netPartnerPayout: Math.round(Math.max(499, sanitized.price || 499) * 0.85),
         customerPhone: phoneVal.isValid ? phoneVal.formatted : (sanitized.customerPhone || '+91 00000 00000'),
         distance: assignment.success ? `${assignment.distanceKm} km` : 'N/A',
         assignedPartnerId: assignment.success ? assignment.partner.id : null,

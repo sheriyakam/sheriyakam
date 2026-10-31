@@ -4,10 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
     ArrowLeft, Star, Award, Shield, CheckCircle,
-    TrendingUp, ThumbsUp, HeartHandshake, Zap, Info
+    TrendingUp, ThumbsUp, HeartHandshake, Zap, Info,
+    Lock, CheckCheck, Flame, Compass, Sparkles, Building
 } from 'lucide-react-native';
 import { COLORS, SPACING } from '../../constants/theme';
-import { getCurrentPartner, DEFAULT_PARTNER_MOCK } from '../../constants/partnerStore';
+import { getCurrentPartner, DEFAULT_PARTNER_MOCK, TIERS_CONFIG } from '../../constants/partnerStore';
 
 export default function PartnerRatings() {
     const router = useRouter();
@@ -88,40 +89,86 @@ export default function PartnerRatings() {
                     </View>
                 </View>
 
-                {/* Transparent Job Priority Tier Explanation */}
+                {/* Transparent 4-Tier Performance Matrix */}
                 <View style={styles.priorityCard}>
                     <View style={styles.priorityHeader}>
-                        <Zap size={18} color={COLORS.gold} fill={COLORS.gold} />
-                        <Text style={styles.priorityTitle}>How Your Rating Impacts Job Priority</Text>
+                        <Award size={20} color={COLORS.gold} />
+                        <Text style={styles.priorityTitle}>Tiered Grading & Commercial Dispatch</Text>
                     </View>
                     <Text style={styles.priorityDescription}>
-                        Sheriyakam operates a transparent, merit-based dispatch system. Partners with high customer satisfaction automatically receive priority job pings:
+                        Your rating, on-time punctuality, and job completion rate directly determine your priority dispatch multiplier and unlock high-value commercial leads across Kerala:
                     </Text>
 
+                    {/* Operational Performance Metrics */}
+                    <View style={styles.metricsSummaryRow}>
+                        <View style={styles.metricSummaryBox}>
+                            <Text style={styles.metricSummaryVal}>{partner.punctualityRate || 97}%</Text>
+                            <Text style={styles.metricSummaryLabel}>Punctuality</Text>
+                        </View>
+                        <View style={styles.metricSummaryBox}>
+                            <Text style={styles.metricSummaryVal}>{partner.completionRate || 98}%</Text>
+                            <Text style={styles.metricSummaryLabel}>Completion Rate</Text>
+                        </View>
+                        <View style={styles.metricSummaryBox}>
+                            <Text style={[styles.metricSummaryVal, { color: COLORS.gold }]}>1.5x</Text>
+                            <Text style={styles.metricSummaryLabel}>Ping Priority</Text>
+                        </View>
+                    </View>
+
+                    {/* 4 Tiers List */}
                     <View style={styles.tierList}>
-                        <View style={[styles.tierRow, styles.activeTierRow]}>
-                            <View style={[styles.tierDot, { backgroundColor: COLORS.gold }]} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.tierName, { color: COLORS.gold }]}>Tier 1: 4.8 – 5.0 Rating (Your Current Status)</Text>
-                                <Text style={styles.tierBenefit}>• 1.5x Emergency Pings • Preferred District Assignment • Lower Platform Share</Text>
-                            </View>
-                        </View>
+                        {TIERS_CONFIG.map(t => {
+                            const isCurrent = (partner.loyaltyTier?.tier || 'Gold') === t.tier;
+                            return (
+                                <View
+                                    key={t.tier}
+                                    style={[
+                                        styles.tierCard,
+                                        isCurrent && { borderColor: t.color, backgroundColor: t.bgColor }
+                                    ]}
+                                >
+                                    <View style={styles.tierCardHeader}>
+                                        <View style={{ flex: 1 }}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                                <Text style={[styles.tierCardBadge, { color: t.color }]}>{t.badge}</Text>
+                                                {isCurrent && (
+                                                    <View style={[styles.currentTierTag, { backgroundColor: t.color }]}>
+                                                        <Text style={styles.currentTierTagText}>CURRENT STATUS</Text>
+                                                    </View>
+                                                )}
+                                            </View>
+                                            <Text style={styles.tierReqText}>
+                                                Rating ≥ {t.minRating}★ • Punctuality ≥ {t.minPunctuality}% • Completion ≥ {t.minCompletion}%
+                                            </Text>
+                                        </View>
+                                        <View style={[styles.multiplierBadge, { borderColor: t.color }]}>
+                                            <Text style={[styles.multiplierBadgeText, { color: t.color }]}>{t.multiplier} Pings</Text>
+                                        </View>
+                                    </View>
 
-                        <View style={styles.tierRow}>
-                            <View style={[styles.tierDot, { backgroundColor: COLORS.accent }]} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.tierName}>Tier 2: 4.5 – 4.7 Rating</Text>
-                                <Text style={styles.tierBenefit}>• Standard On-Demand Pings • Scheduled AMC Access</Text>
-                            </View>
-                        </View>
+                                    <Text style={styles.tierPerksText}>• {t.perks}</Text>
 
-                        <View style={styles.tierRow}>
-                            <View style={[styles.tierDot, { backgroundColor: COLORS.textTertiary }]} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.tierName}>Tier 3: Below 4.5 Rating</Text>
-                                <Text style={styles.tierBenefit}>• Free refresher training modules offered to boost satisfaction</Text>
-                            </View>
-                        </View>
+                                    {/* Commercial Leads Scope */}
+                                    <View style={styles.leadsScopeBox}>
+                                        <Text style={styles.leadsScopeTitle}>COMMERCIAL DISPATCH ACCESS:</Text>
+                                        <View style={styles.leadsList}>
+                                            {t.unlockedLeads.map((lead, idx) => (
+                                                <View key={idx} style={styles.unlockedLeadRow}>
+                                                    <CheckCheck size={13} color={COLORS.success} />
+                                                    <Text style={styles.unlockedLeadText}>{lead}</Text>
+                                                </View>
+                                            ))}
+                                            {t.lockedLeads.map((lead, idx) => (
+                                                <View key={idx} style={styles.lockedLeadRow}>
+                                                    <Lock size={12} color={COLORS.textTertiary} />
+                                                    <Text style={styles.lockedLeadText}>{lead} (Locked)</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                </View>
+                            );
+                        })}
                     </View>
                 </View>
 
@@ -366,4 +413,119 @@ const styles = StyleSheet.create({
         color: COLORS.textTertiary,
         fontSize: 10,
     },
+
+    /* Enhanced Tier Grading Styles */
+    metricsSummaryRow: {
+        flexDirection: 'row',
+        gap: 10,
+        marginVertical: 12,
+    },
+    metricSummaryBox: {
+        flex: 1,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderRadius: 10,
+        padding: 10,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+    },
+    metricSummaryVal: {
+        color: COLORS.textPrimary,
+        fontWeight: '900',
+        fontSize: 18,
+    },
+    metricSummaryLabel: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        marginTop: 2,
+    },
+    tierCard: {
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    tierCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 6,
+    },
+    tierCardBadge: {
+        fontWeight: '900',
+        fontSize: 14,
+    },
+    currentTierTag: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    currentTierTagText: {
+        color: '#000',
+        fontWeight: '900',
+        fontSize: 8,
+        letterSpacing: 0.5,
+    },
+    tierReqText: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        marginTop: 2,
+    },
+    multiplierBadge: {
+        borderWidth: 1,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+    },
+    multiplierBadgeText: {
+        fontWeight: '900',
+        fontSize: 11,
+    },
+    tierPerksText: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        lineHeight: 16,
+        marginBottom: 8,
+    },
+    leadsScopeBox: {
+        backgroundColor: 'rgba(0,0,0,0.25)',
+        borderRadius: 8,
+        padding: 8,
+        marginTop: 4,
+    },
+    leadsScopeTitle: {
+        color: COLORS.textTertiary,
+        fontSize: 9,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+        marginBottom: 4,
+    },
+    leadsList: {
+        gap: 3,
+    },
+    unlockedLeadRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    unlockedLeadText: {
+        color: COLORS.textPrimary,
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    lockedLeadRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        opacity: 0.6,
+    },
+    lockedLeadText: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        textDecorationLine: 'line-through',
+    },
+
 });

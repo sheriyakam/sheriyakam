@@ -14,9 +14,9 @@ import {
 } from 'react-native';
 import {
     X, User, LogIn, FileText, ChevronRight, Moon, Sun, LogOut,
-    Settings, HelpCircle, Zap, Shield, Search,
-    ShoppingCart, Phone, Scale, HardHat, Award, Building2,
-    Sparkles, AlertTriangle, Briefcase, CheckCircle2
+    Settings, Shield, Search,
+    ShoppingCart, Phone, Scale, HardHat, Award,
+    Sparkles
 } from 'lucide-react-native';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
@@ -181,27 +181,6 @@ export default function MenuModal({ visible, onClose }) {
                             <>
                                 <View style={styles.section}>
                                     <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>MARKETPLACE SERVICES</Text>
-                                    <MenuItem
-                                        icon={Zap}
-                                        label="All Services & Rate Cards"
-                                        subtitle="Browse full multi-category directory"
-                                        highlight
-                                        onPress={() => navigateTo('/services')}
-                                    />
-                                    
-                                    <MenuItem
-                                        icon={Zap}
-                                        label="Instant Price & Load Estimator"
-                                        subtitle="Transparent Kerala electrical rate calculator"
-                                        onPress={() => navigateTo('/pricing-calculator')}
-                                    />
-                                    <MenuItem
-                                        icon={AlertTriangle}
-                                        label="24/7 Emergency Triage"
-                                        subtitle="90-min urgent dispatch across Kerala"
-                                        badge="24/7"
-                                        onPress={() => navigateTo('/emergency-electrician')}
-                                    />
                                     <MenuItem
                                         icon={Sparkles}
                                         label="CV & LinkedIn Optimizer"

@@ -16,46 +16,6 @@ export const CATEGORIES = [
         available: true,
         subcategories: [
             {
-                id: 'diagnostic',
-                name: 'Inspection & Consultation',
-                description: 'Low-cost fault diagnosis with upfront quote before repair.',
-                services: [
-                    {
-                        id: 'diagnostic-visit',
-                        slug: 'doorstep-diagnostic-visit',
-                        title: 'Book a Diagnostic & Fault Inspection Visit',
-                        category: 'electrical',
-                        subcategory: 'diagnostic',
-                        startingPrice: 49,
-                        price: 49,
-                        duration: '30–45 mins',
-                        rating: 5.0,
-                        reviewsCount: 412,
-                        completedJobs: '1,890+',
-                        warrantyDays: 30,
-                        description: 'Low-cost doorstep diagnostic visit for ambiguous faults. Master electrician inspects the fault on-site, isolates the issue, and provides a clear itemized quote before work starts. If you proceed with the repair, the ₹49 fee is fully adjusted against your final bill.',
-                        problemsCovered: [
-                            'Not sure what is causing the electrical trip or burning smell',
-                            'Multiple switchboards or appliances malfunctioning simultaneously',
-                            'Need on-site assessment for full house rewiring or renovation quote',
-                            'Pre-purchase electrical health check for rented flat/house'
-                        ],
-                        inclusions: [
-                            'Complete doorstep arrival by KSELB licensed electrician within 90 mins',
-                            'Digital multimeter voltage, phase & earth leakage test',
-                            'Fault isolation & safety advisory report',
-                            'Upfront transparent price estimate before any repair commences',
-                            '100% inspection fee waiver when service is approved'
-                        ],
-                        exclusions: [
-                            'Physical component replacement labor (quoted on arrival based on rate card)'
-                        ],
-                        materialsPolicy: 'Genuine ISI certified replacement spares provided with bill at MRP.',
-                        addons: []
-                    }
-                ]
-            },
-            {
                 id: 'switch-socket',
                 name: 'Switches, Sockets & MCB',
                 description: 'Repair burned switches, 16A power plugs, tripping breakers & DB boards.',
@@ -799,6 +759,10 @@ export const CATEGORIES = [
             }
         ]
     },
+];
+
+// Future expansion categories (hidden for future release)
+export const FUTURE_CATEGORIES = [
     {
         id: 'commercial',
         name: 'Commercial Electrical',

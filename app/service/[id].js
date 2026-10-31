@@ -40,7 +40,7 @@ export default function SingleServiceDetailScreen() {
         id: id || 'custom-service',
         title: typeof id === 'string' ? id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Electrical Service',
         categoryName: 'Electrical',
-        subcategoryName: 'Diagnostics & Repair',
+        subcategoryName: 'Wiring & Repairs',
         startingPrice: 299,
         duration: '45–60 mins',
         rating: 4.8,
@@ -190,7 +190,7 @@ export default function SingleServiceDetailScreen() {
                                         {service.startingPrice || service.price || 299}
                                     </Text>
                                     <Text style={[styles.startingAtText, { color: colors.textTertiary }]}>
-                                        (Upfront Diagnostic & Service Labour)
+                                        (Standard Service Labour)
                                     </Text>
                                 </View>
                             </View>

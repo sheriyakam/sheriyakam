@@ -652,11 +652,54 @@ export default function PartnerDashboard() {
                             </View>
                         </View>
 
-                        {/* Payout & Service */}
+                        {/* Payout & Service with Skill Match & Dynamic Surge */}
                         <View style={styles.pingHero}>
-                            <Text style={styles.pingEstLabel}>ESTIMATED NET PAYOUT</Text>
-                            <Text style={styles.pingEstAmount}>₹{Math.round((activePing?.price || 550) * 0.90)}</Text>
+                            {/* Skill Match Chip */}
+                            <View style={styles.pingSkillMatchBadge}>
+                                <Sparkles size={13} color="#10B981" />
+                                <Text style={styles.pingSkillMatchText}>
+                                    {activePing?.skillMatchPercent || 98}% Skill Match • {activePing?.requiredSkill || 'Electrical'} Certified
+                                </Text>
+                            </View>
+
+                            <Text style={styles.pingEstLabel}>ESTIMATED NET PAYOUT (SURGE INCLUDED)</Text>
+                            <Text style={styles.pingEstAmount}>
+                                ₹{Math.round(((activePing?.price || 550) * 1.4) * 0.90)}
+                            </Text>
+
+                            <View style={styles.pingSurgeRow}>
+                                <Flame size={14} color="#F59E0B" />
+                                <Text style={styles.pingSurgeText}>Includes 1.4x Monsoon Weather Ingress Surge</Text>
+                            </View>
+
                             <Text style={styles.pingServiceTitle}>{activePing?.service}</Text>
+                        </View>
+
+                        {/* Location & Pre-visit Site Details */}
+                        <View style={styles.pingLocationCard}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <MapPin size={16} color={COLORS.accent} />
+                                    <Text style={styles.pingDistance}>{activePing?.distance || '1.8 km away'}</Text>
+                                </View>
+                                <View style={styles.pingTierReqBadge}>
+                                    <Award size={12} color={COLORS.gold} />
+                                    <Text style={styles.pingTierReqText}>{activePing?.requiredTier || 'Gold'} Tier</Text>
+                                </View>
+                            </View>
+                            <Text style={styles.pingAddress}>{activePing?.address}</Text>
+
+                            {activePing?.siteNotes && (
+                                <View style={styles.pingSiteNotesBox}>
+                                    <Text style={styles.pingSiteNotesText}>
+                                        🚪 Gate: {activePing.siteNotes.gateCode || '#4821'} • ⚡ {activePing.siteNotes.meterLocation || 'Ground floor panel'}
+                                    </Text>
+                                </View>
+                            )}
+
+                            {activePing?.notes && (
+                                <Text style={styles.pingNotes}>Note: "{activePing.notes}"</Text>
+                            )}
                         </View>
 
                         {/* Location Details */}
@@ -1445,4 +1488,139 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         fontSize: 14,
     },
+
+    /* Dynamic Surge & Tier Styles */
+    dynamicSurgeBanner: {
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        borderRadius: 14,
+        padding: 12,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(245, 158, 11, 0.3)',
+    },
+    dynamicSurgeHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    dynamicSurgeTitle: {
+        color: '#F59E0B',
+        fontWeight: '900',
+        fontSize: 11,
+        letterSpacing: 0.5,
+    },
+    liveSurgePill: {
+        backgroundColor: '#F59E0B',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    liveSurgePillText: {
+        color: '#000',
+        fontWeight: '900',
+        fontSize: 9,
+    },
+    dynamicSurgeDesc: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        lineHeight: 16,
+    },
+    tierStatusWidget: {
+        backgroundColor: COLORS.bgSecondary,
+        borderRadius: 14,
+        padding: 12,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(234, 179, 8, 0.25)',
+    },
+    tierStatusTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    tierIconBadge: {
+        width: 38,
+        height: 38,
+        borderRadius: 10,
+        backgroundColor: 'rgba(234, 179, 8, 0.15)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    tierStatusTitle: {
+        color: COLORS.textPrimary,
+        fontWeight: '800',
+        fontSize: 13,
+    },
+    tierPriorityTag: {
+        backgroundColor: 'rgba(234, 179, 8, 0.2)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    tierPriorityTagText: {
+        color: COLORS.gold,
+        fontWeight: '900',
+        fontSize: 8,
+    },
+    tierStatusSub: {
+        color: COLORS.textTertiary,
+        fontSize: 10,
+        marginTop: 2,
+    },
+
+    /* Ping Modal Enhancements */
+    pingSkillMatchBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 6,
+        marginBottom: 8,
+    },
+    pingSkillMatchText: {
+        color: COLORS.success,
+        fontWeight: '800',
+        fontSize: 11,
+    },
+    pingSurgeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+        marginBottom: 6,
+    },
+    pingSurgeText: {
+        color: '#F59E0B',
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    pingTierReqBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(234, 179, 8, 0.15)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    pingTierReqText: {
+        color: COLORS.gold,
+        fontWeight: '800',
+        fontSize: 10,
+    },
+    pingSiteNotesBox: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: 6,
+        borderRadius: 6,
+        marginTop: 6,
+    },
+    pingSiteNotesText: {
+        color: '#60A5FA',
+        fontSize: 11,
+        fontWeight: '600',
+    },
+
 });

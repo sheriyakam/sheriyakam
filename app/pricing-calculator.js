@@ -15,7 +15,6 @@ import { soundFx } from '../services/audioFx';
 import { openWhatsApp } from '../utils/whatsapp';
 
 const SERVICES_CATALOG = [
-  { id: 'diag', name: 'Diagnostic & Fault Inspection Visit', basePrice: 49, time: '45 min', desc: 'On-site multimeter fault triage & upfront quote. 100% adjustable against repair.' },
   { id: 'switch', name: 'Switch & Socket Replacement', basePrice: 149, time: '30 min', desc: 'Sparking switch, burnt plug socket, 6A/16A power points replacement.' },
   { id: 'fan', name: 'Fan Repair & Installation', basePrice: 249, time: '30 min', desc: 'Ceiling, exhaust, or wall fan installation, capacitor replacement, wobble alignment.' },
   { id: 'mcb', name: 'MCB & Distribution Box Tripping Fix', basePrice: 349, time: '45 min', desc: 'Breaker replacement, RCCB nuisance tripping diagnosis, phase balancing.' },
@@ -25,7 +24,7 @@ const SERVICES_CATALOG = [
 
 export default function PricingCalculatorScreen() {
   const router = useRouter();
-  const [quantities, setQuantities] = useState({ diag: 1 });
+  const [quantities, setQuantities] = useState({ switch: 1 });
   const [showBookingModal, setShowBookingModal] = useState(false);
 
   const handleQuantity = (id, delta) => {
@@ -73,7 +72,7 @@ export default function PricingCalculatorScreen() {
         <title>Transparent Electrical Pricing & Instant Calculator | Sheriyakam</title>
         <meta
           name="description"
-          content="Kerala's 100% transparent electrical service rate card. Starting at ₹49 diagnostic visit. No surge pricing, zero material markup, 30-day warranty."
+          content="Kerala's 100% transparent electrical service rate card. Starting at ₹149 for switch/socket replacement. No surge pricing, zero material markup, 30-day warranty."
         />
       </Head>
       <StatusBar barStyle="light-content" backgroundColor="#050814" />
