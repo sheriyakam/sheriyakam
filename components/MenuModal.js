@@ -255,7 +255,7 @@ export default function MenuModal({ visible, onClose }) {
                                     <MenuItem
                                         icon={Phone}
                                         label="24/7 Helpline Support"
-                                        subtitle="+91 495 280 0000"
+                                        subtitle="+91 94471 28901"
                                         onPress={() => navigateTo('/contact')}
                                     />
                                 </View>

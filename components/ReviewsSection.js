@@ -1,250 +1,269 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { Star, CheckCircle, ThumbsUp, ShieldCheck } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, Platform } from 'react-native';
+import { ShieldCheck, Star, MessageSquarePlus, CheckCircle2, Clock, X, Award } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS, SPACING } from '../constants/theme';
-
-const REVIEWS_DATA = [
-    {
-        id: 'rev-1',
-        name: 'Arun K. Nair',
-        location: 'Kozhikode (Mavoor Road)',
-        service: 'Ceiling Fan Capacitor & Speed Fix',
-        category: 'electrical',
-        rating: 5,
-        date: '18 Sep 2026',
-        text: 'The technician arrived in 35 minutes with a genuine 3.15uF capacitor. Fixed the humming noise and restored full fan speed without any hidden charges.',
-        verified: true
-    },
-    {
-        id: 'rev-2',
-        name: 'Deepa Nambiar',
-        location: 'Ernakulam (Kakkanad / InfoPark)',
-        service: 'AC Foam Jet Deep Cleaning',
-        category: 'ac',
-        rating: 5,
-        date: '16 Sep 2026',
-        text: 'Hospital-grade jet wash with the protective waterproof jacket. No mess on walls or bed. Cooling is ice cold again and the foul odor is completely gone!',
-        verified: true
-    },
-    {
-        id: 'rev-3',
-        name: 'Sujith M. V.',
-        location: 'Kannur (Thalassery)',
-        service: 'MCB & Earth Leakage Tripping Overhaul',
-        category: 'electrical',
-        rating: 5,
-        date: '14 Sep 2026',
-        text: 'Emergency tripped RCCB at 9:30 PM. Electrician arrived with a megger meter, found neutral wire short in porch light, and fixed it safely within 40 mins.',
-        verified: true
-    },
-    {
-        id: 'rev-4',
-        name: 'Fathima Raheem',
-        location: 'Malappuram (Manjeri)',
-        service: 'Water Motor Starter & Air-Lock Fix',
-        category: 'plumbing',
-        rating: 5,
-        date: '12 Sep 2026',
-        text: 'Our openwell motor was humming and not lifting water to the overhead tank. The plumber primed the suction line and replaced the start capacitor quickly.',
-        verified: true
-    },
-    {
-        id: 'rev-5',
-        name: 'Mathew George',
-        location: 'Kottayam (Pala)',
-        service: '4-Channel CCTV & Remote Phone Setup',
-        category: 'cctv',
-        rating: 5,
-        date: '09 Sep 2026',
-        text: 'CCTV setup for our rubber estate villa. Configured Hik-Connect app on my iPhone and my daughter\'s Android. Super clear 2K night vision streaming.',
-        verified: true
-    },
-    {
-        id: 'rev-6',
-        name: 'Dr. Radhakrishnan P.',
-        location: 'Thrissur (Swaraj Round)',
-        service: 'Clinic Commercial Safety Audit',
-        category: 'commercial',
-        rating: 5,
-        date: '04 Sep 2026',
-        text: 'Class-A engineer provided thermal camera busbar scan and certified earth resistance sign-off for our clinic insurance renewal. Very professional.',
-        verified: true
-    }
-];
-
-const STAR_BREAKDOWN = [
-    { stars: 5, percentage: 92, count: '2,282' },
-    { stars: 4, percentage: 6, count: '148' },
-    { stars: 3, percentage: 1.5, count: '38' },
-    { stars: 2, percentage: 0.3, count: '8' },
-    { stars: 1, percentage: 0.2, count: '4' },
-];
+import { getVerifiedReviews, submitVerifiedReview, bookingEvents } from '../constants/bookingStore';
 
 export default function ReviewsSection() {
     const { theme, colors } = useTheme();
     const isDark = theme === 'dark';
-    const { width } = useWindowDimensions();
-    const isDesktop = width >= 1024;
-    const [activeCategory, setActiveCategory] = useState('all');
 
-    const filteredReviews = activeCategory === 'all'
-        ? REVIEWS_DATA
-        : REVIEWS_DATA.filter(r => r.category === activeCategory);
+    const [reviews, setReviews] = useState(getVerifiedReviews());
+    const [reviewModalVisible, setReviewModalVisible] = useState(false);
+    const [jobId, setJobId] = useState('');
+    const [reviewerName, setReviewerName] = useState('');
+    const [rating, setRating] = useState(5);
+    const [reviewText, setReviewText] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        const updateReviews = () => {
+            setReviews(getVerifiedReviews());
+        };
+        bookingEvents.on('change', updateReviews);
+        return () => bookingEvents.off('change', updateReviews);
+    }, []);
+
+    const handleSubmitReview = () => {
+        if (!jobId.trim()) {
+            Alert.alert('Verification Required', 'Please enter your Booking / Job ID (from your completion receipt) to verify your service.');
+            return;
+        }
+        if (!reviewText.trim()) {
+            Alert.alert('Review Required', 'Please share your honest experience with the electrician.');
+            return;
+        }
+
+        setIsSubmitting(true);
+        const res = submitVerifiedReview(jobId.trim(), rating, reviewText.trim(), reviewerName.trim());
+        setIsSubmitting(false);
+
+        if (res.success) {
+            setReviews(getVerifiedReviews());
+            setReviewModalVisible(false);
+            setJobId('');
+            setReviewText('');
+            setReviewerName('');
+            Alert.alert('Thank You!', 'Your verified review has been published.');
+        } else {
+            Alert.alert('Verification Check', res.message);
+        }
+    };
 
     return (
         <View style={[styles.section, { borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+            {/* Header */}
             <View style={styles.headerWrap}>
                 <View style={styles.badgeWrap}>
                     <ShieldCheck size={14} color="#10B981" />
-                    <Text style={styles.badgeText}>100% VERIFIED KERALA HOMEOWNER REVIEWS</Text>
+                    <Text style={styles.badgeText}>100% VERIFIED LOCAL FEEDBACK ONLY</Text>
                 </View>
-                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                    Customer Ratings & Real Feedback
+                <Text style={[styles.title, { color: colors.textPrimary }]}>
+                    Early Pilot Feedback
                 </Text>
-                <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                    Rated 4.9/5 across 2,480+ completed electrical, AC & home service jobs in Kerala.
+                <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                    No fabricated testimonials. No synthetic ratings. Only genuine feedback from verified doorstep jobs in the Thalassery–Mahe corridor.
                 </Text>
             </View>
 
-            {/* Aggregate Score & Star Distribution Bar */}
-            <View style={[
-                styles.summaryCard,
-                {
+            {/* Zero Fake Reviews: Transparent Early Pilot Banner */}
+            {reviews.length === 0 ? (
+                <View style={[styles.pilotCard, {
                     backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#F8FAFC',
-                    borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
-                },
-                isDesktop && styles.summaryCardDesktop
-            ]}>
-                {/* Left: Big Score */}
-                <View style={styles.scoreBlock}>
-                    <Text style={[styles.bigScore, { color: colors.textPrimary }]}>4.9</Text>
-                    <View style={styles.starRow}>
-                        {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} size={18} color="#F59E0B" fill="#F59E0B" />
-                        ))}
+                    borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'
+                }]}>
+                    <View style={styles.pilotIconWrap}>
+                        <Clock size={28} color="#F59E0B" />
                     </View>
-                    <Text style={[styles.totalReviews, { color: colors.textSecondary }]}>
-                        Based on 2,480 verified ratings
-                    </Text>
-                </View>
 
-                {/* Right: Breakdown Bars */}
-                <View style={styles.breakdownBlock}>
-                    {STAR_BREAKDOWN.map((item) => (
-                        <View key={item.stars} style={styles.barRow}>
-                            <Text style={[styles.barLabel, { color: colors.textSecondary }]}>
-                                {item.stars} ★
-                            </Text>
-                            <View style={[styles.barTrack, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#E2E8F0' }]}>
-                                <View style={[styles.barFill, { width: `${item.percentage}%` }]} />
+                    <Text style={[styles.pilotTitle, { color: colors.textPrimary }]}>
+                        Live Local Pilot Active in Thalassery & Mahe
+                    </Text>
+
+                    <Text style={[styles.pilotDesc, { color: colors.textSecondary }]}>
+                        We are currently running our live local trial across Thalassery, Mahe, Dharmadam, Kadirur, Chokli, and Azhiyur. We refuse to publish fake marketing reviews or inflated ratings. Book a service and be among our first verified local homeowners to leave an authentic review.
+                    </Text>
+
+                    <View style={styles.pilotPillRow}>
+                        <View style={styles.pilotPill}>
+                            <CheckCircle2 size={12} color="#10B981" />
+                            <Text style={styles.pilotPillText}>OTP-Verified Jobs Only</Text>
+                        </View>
+                        <View style={styles.pilotPill}>
+                            <Award size={12} color="#3B82F6" />
+                            <Text style={styles.pilotPillText}>Real Homeowners</Text>
+                        </View>
+                        <View style={styles.pilotPill}>
+                            <ShieldCheck size={12} color="#8B5CF6" />
+                            <Text style={styles.pilotPillText}>Zero Fake Stars</Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.reviewBtn}
+                        onPress={() => setReviewModalVisible(true)}
+                        activeOpacity={0.85}
+                    >
+                        <MessageSquarePlus size={16} color="#000" />
+                        <Text style={styles.reviewBtnText}>Verify Job ID & Submit Feedback</Text>
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <View style={styles.reviewsList}>
+                    {reviews.map((rev, idx) => (
+                        <View key={rev.id || idx} style={[styles.reviewCard, {
+                            backgroundColor: isDark ? '#18181B' : '#FFFFFF',
+                            borderColor: isDark ? '#27272A' : '#E2E8F0'
+                        }]}>
+                            <View style={styles.reviewHeader}>
+                                <View style={{ flex: 1 }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                        <Text style={[styles.reviewerName, { color: colors.textPrimary }]}>{rev.reviewerName || 'Local Homeowner'}</Text>
+                                        <View style={styles.verifiedTag}>
+                                            <CheckCircle2 size={10} color="#10B981" />
+                                            <Text style={styles.verifiedTagText}>VERIFIED JOB</Text>
+                                        </View>
+                                    </View>
+                                    <Text style={[styles.reviewMeta, { color: colors.textTertiary }]}>
+                                        {rev.service || 'Electrical Repair'} • {rev.taluk || 'Thalassery'}
+                                    </Text>
+                                </View>
+                                <View style={styles.starsRow}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                            key={star}
+                                            size={14}
+                                            color="#F59E0B"
+                                            fill={star <= (rev.customerRating || 5) ? '#F59E0B' : 'transparent'}
+                                        />
+                                    ))}
+                                </View>
                             </View>
-                            <Text style={[styles.barCount, { color: colors.textTertiary }]}>
-                                {item.percentage}%
+                            <Text style={[styles.reviewText, { color: colors.textSecondary }]}>
+                                "{rev.reviewText}"
                             </Text>
                         </View>
                     ))}
-                </View>
-            </View>
 
-            {/* Category Filter Pills */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-                {[
-                    { id: 'all', label: 'All Reviews (2,480)' },
-                    { id: 'electrical', label: '⚡ Electrical & Fans' },
-                    { id: 'ac', label: '❄️ AC Foam Jet' },
-                    { id: 'plumbing', label: '💧 Water Motors & Taps' },
-                    { id: 'cctv', label: '📹 CCTV Surveillance' }
-                ].map((cat) => {
-                    const isSelected = activeCategory === cat.id;
-                    return (
-                        <TouchableOpacity
-                            key={cat.id}
-                            onPress={() => setActiveCategory(cat.id)}
-                            style={[
-                                styles.pill,
-                                isSelected ? {
-                                    backgroundColor: colors.accent,
-                                    borderColor: colors.accent,
-                                } : {
-                                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#FFFFFF',
-                                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#E2E8F0',
-                                }
-                            ]}
-                        >
-                            <Text style={[
-                                styles.pillText,
-                                { color: isSelected ? '#FFFFFF' : (isDark ? '#D4D4D8' : '#475569') }
-                            ]}>
-                                {cat.label}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
-
-            {/* Scrollable / Grid Reviews List */}
-            <View style={[styles.reviewsGrid, isDesktop && styles.reviewsGridDesktop]}>
-                {filteredReviews.map((rev) => (
-                    <View
-                        key={rev.id}
-                        style={[
-                            styles.reviewCard,
-                            {
-                                backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#FFFFFF',
-                                borderColor: isDark ? 'rgba(255,255,255,0.07)' : '#E2E8F0',
-                            },
-                            isDesktop && { width: '48.5%' }
-                        ]}
+                    <TouchableOpacity
+                        style={[styles.reviewBtn, { marginTop: 14 }]}
+                        onPress={() => setReviewModalVisible(true)}
+                        activeOpacity={0.85}
                     >
-                        <View style={styles.cardHeader}>
-                            <View style={styles.userMeta}>
-                                <View style={styles.avatarCircle}>
-                                    <Text style={styles.avatarInitials}>
-                                        {rev.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                    </Text>
-                                </View>
-                                <View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <Text style={[styles.userName, { color: colors.textPrimary }]}>{rev.name}</Text>
-                                        <CheckCircle size={13} color="#10B981" />
-                                    </View>
-                                    <Text style={[styles.userLoc, { color: colors.textSecondary }]}>{rev.location}</Text>
-                                </View>
+                        <MessageSquarePlus size={16} color="#000" />
+                        <Text style={styles.reviewBtnText}>Have a Completed Job ID? Leave Feedback</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Genuine Review Modal */}
+            <Modal
+                visible={reviewModalVisible}
+                animationType="fade"
+                transparent
+                onRequestClose={() => setReviewModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalCard, {
+                        backgroundColor: isDark ? '#18181B' : '#FFFFFF',
+                        borderColor: isDark ? '#27272A' : '#E2E8F0'
+                    }]}>
+                        <View style={styles.modalHeader}>
+                            <View>
+                                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Verified Job Review</Text>
+                                <Text style={[styles.modalSub, { color: colors.textSecondary }]}>Only completed jobs with valid OTP are eligible.</Text>
                             </View>
-                            <Text style={[styles.revDate, { color: colors.textTertiary }]}>{rev.date}</Text>
+                            <TouchableOpacity onPress={() => setReviewModalVisible(false)}>
+                                <X size={20} color={colors.textTertiary} />
+                            </TouchableOpacity>
                         </View>
 
-                        <View style={styles.serviceTagWrap}>
-                            <Text style={styles.serviceTag}>Booked: {rev.service}</Text>
-                        </View>
+                        <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Your Booking ID *</Text>
+                        <TextInput
+                            style={[styles.input, {
+                                backgroundColor: isDark ? '#27272A' : '#F8FAFC',
+                                borderColor: isDark ? '#3F3F46' : '#CBD5E1',
+                                color: colors.textPrimary
+                            }]}
+                            placeholder="e.g. b-active-1 or booking ID"
+                            placeholderTextColor={colors.textTertiary}
+                            value={jobId}
+                            onChangeText={setJobId}
+                        />
 
-                        <View style={styles.starsRowSmall}>
+                        <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 10 }]}>Your Name (Optional)</Text>
+                        <TextInput
+                            style={[styles.input, {
+                                backgroundColor: isDark ? '#27272A' : '#F8FAFC',
+                                borderColor: isDark ? '#3F3F46' : '#CBD5E1',
+                                color: colors.textPrimary
+                            }]}
+                            placeholder="e.g. Radhakrishnan, Dharmadam"
+                            placeholderTextColor={colors.textTertiary}
+                            value={reviewerName}
+                            onChangeText={setReviewerName}
+                        />
+
+                        <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 10 }]}>Rating</Text>
+                        <View style={styles.starSelectRow}>
                             {[1, 2, 3, 4, 5].map((s) => (
-                                <Star key={s} size={14} color="#F59E0B" fill="#F59E0B" />
+                                <TouchableOpacity key={s} onPress={() => setRating(s)} style={{ padding: 4 }}>
+                                    <Star
+                                        size={24}
+                                        color="#F59E0B"
+                                        fill={s <= rating ? '#F59E0B' : 'transparent'}
+                                    />
+                                </TouchableOpacity>
                             ))}
                         </View>
 
-                        <Text style={[styles.reviewBody, { color: colors.textSecondary }]}>
-                            "{rev.text}"
-                        </Text>
+                        <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 10 }]}>Your Honest Feedback *</Text>
+                        <TextInput
+                            style={[styles.input, styles.textArea, {
+                                backgroundColor: isDark ? '#27272A' : '#F8FAFC',
+                                borderColor: isDark ? '#3F3F46' : '#CBD5E1',
+                                color: colors.textPrimary
+                            }]}
+                            placeholder="Describe how the electrician diagnosed and fixed the issue..."
+                            placeholderTextColor={colors.textTertiary}
+                            multiline
+                            numberOfLines={3}
+                            value={reviewText}
+                            onChangeText={setReviewText}
+                        />
+
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity
+                                style={styles.modalCancelBtn}
+                                onPress={() => setReviewModalVisible(false)}
+                            >
+                                <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalSubmitBtn, { backgroundColor: '#10B981' }]}
+                                onPress={handleSubmitReview}
+                                disabled={isSubmitting}
+                            >
+                                <Text style={styles.modalSubmitText}>{isSubmitting ? 'Verifying...' : 'Submit Review'}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                ))}
-            </View>
+                </View>
+            </Modal>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     section: {
-        paddingVertical: SPACING.xl + 8,
+        paddingVertical: 36,
         paddingHorizontal: SPACING.md,
         borderTopWidth: 1,
     },
     headerWrap: {
         alignItems: 'center',
-        marginBottom: SPACING.lg,
-        gap: 6,
+        marginBottom: 24,
     },
     badgeWrap: {
         flexDirection: 'row',
@@ -254,6 +273,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 5,
         borderRadius: 20,
+        marginBottom: 8,
     },
     badgeText: {
         color: '#10B981',
@@ -261,161 +281,205 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: 0.5,
     },
-    sectionTitle: {
+    title: {
         fontSize: 22,
         fontWeight: '800',
         textAlign: 'center',
-        letterSpacing: -0.3,
+        marginBottom: 8,
     },
-    sectionSubtitle: {
-        fontSize: 14,
+    subtitle: {
+        fontSize: 13,
         textAlign: 'center',
-        maxWidth: 540,
+        maxWidth: 580,
+        lineHeight: 19,
+    },
+    pilotCard: {
+        borderWidth: 1,
+        borderRadius: 16,
+        padding: 24,
+        alignItems: 'center',
+        maxWidth: 640,
+        alignSelf: 'center',
+        width: '100%',
+    },
+    pilotIconWrap: {
+        backgroundColor: 'rgba(245, 158, 11, 0.12)',
+        padding: 12,
+        borderRadius: 50,
+        marginBottom: 12,
+    },
+    pilotTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    pilotDesc: {
+        fontSize: 13,
         lineHeight: 20,
+        textAlign: 'center',
+        marginBottom: 16,
     },
-    summaryCard: {
-        borderRadius: 18,
-        borderWidth: 1,
-        padding: 20,
-        marginBottom: SPACING.lg,
-        flexDirection: 'column',
-        gap: 20,
-    },
-    summaryCardDesktop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-    },
-    scoreBlock: {
-        alignItems: 'center',
-        gap: 6,
-    },
-    bigScore: {
-        fontSize: 48,
-        fontWeight: '900',
-        lineHeight: 52,
-        letterSpacing: -1,
-    },
-    starRow: {
-        flexDirection: 'row',
-        gap: 4,
-    },
-    totalReviews: {
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    breakdownBlock: {
-        flex: 1,
-        maxWidth: 380,
-        gap: 8,
-    },
-    barRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    barLabel: {
-        width: 30,
-        fontSize: 12,
-        fontWeight: '700',
-    },
-    barTrack: {
-        flex: 1,
-        height: 8,
-        borderRadius: 4,
-        overflow: 'hidden',
-    },
-    barFill: {
-        height: '100%',
-        backgroundColor: '#F59E0B',
-        borderRadius: 4,
-    },
-    barCount: {
-        width: 35,
-        fontSize: 11,
-        textAlign: 'right',
-        fontWeight: '600',
-    },
-    filterRow: {
-        gap: 8,
-        paddingBottom: SPACING.md,
-    },
-    pill: {
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
-        borderWidth: 1,
-    },
-    pillText: {
-        fontSize: 12,
-        fontWeight: '700',
-    },
-    reviewsGrid: {
-        gap: SPACING.md,
-    },
-    reviewsGridDesktop: {
+    pilotPillRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between',
+        gap: 8,
+        justifyContent: 'center',
+        marginBottom: 18,
+    },
+    pilotPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+    },
+    pilotPillText: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#A1A1AA',
+    },
+    reviewBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: '#F59E0B',
+        paddingHorizontal: 18,
+        paddingVertical: 10,
+        borderRadius: 10,
+    },
+    reviewBtnText: {
+        color: '#000',
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    reviewsList: {
+        maxWidth: 640,
+        alignSelf: 'center',
+        width: '100%',
+        gap: 12,
     },
     reviewCard: {
-        padding: 16,
-        borderRadius: 16,
         borderWidth: 1,
-        gap: 8,
+        borderRadius: 12,
+        padding: 16,
     },
-    cardHeader: {
+    reviewHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+        marginBottom: 8,
     },
-    userMeta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    avatarCircle: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: '#2563EB',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    avatarInitials: {
-        color: '#FFFFFF',
-        fontWeight: '800',
-        fontSize: 13,
-    },
-    userName: {
+    reviewerName: {
         fontSize: 14,
         fontWeight: '700',
     },
-    userLoc: {
+    verifiedTag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        backgroundColor: 'rgba(16, 185, 129, 0.12)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    verifiedTagText: {
+        color: '#10B981',
+        fontSize: 9,
+        fontWeight: '800',
+    },
+    reviewMeta: {
         fontSize: 11,
+        marginTop: 2,
     },
-    revDate: {
-        fontSize: 11,
-    },
-    serviceTagWrap: {
-        backgroundColor: 'rgba(59, 130, 246, 0.08)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-        alignSelf: 'flex-start',
-    },
-    serviceTag: {
-        fontSize: 11,
-        color: '#3B82F6',
-        fontWeight: '600',
-    },
-    starsRowSmall: {
+    starsRow: {
         flexDirection: 'row',
         gap: 2,
     },
-    reviewBody: {
+    reviewText: {
         fontSize: 13,
         lineHeight: 19,
         fontStyle: 'italic',
-    }
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.65)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: SPACING.md,
+    },
+    modalCard: {
+        width: '100%',
+        maxWidth: 440,
+        borderRadius: 16,
+        borderWidth: 1,
+        padding: 20,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 16,
+    },
+    modalTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+    },
+    modalSub: {
+        fontSize: 11,
+        marginTop: 2,
+    },
+    fieldLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 6,
+    },
+    input: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        fontSize: 13,
+    },
+    textArea: {
+        height: 72,
+        textAlignVertical: 'top',
+    },
+    starSelectRow: {
+        flexDirection: 'row',
+        gap: 8,
+        marginBottom: 6,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 18,
+    },
+    modalCancelBtn: {
+        flex: 1,
+        paddingVertical: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 8,
+    },
+    modalCancelText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    modalSubmitBtn: {
+        flex: 1.5,
+        paddingVertical: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 8,
+    },
+    modalSubmitText: {
+        color: '#000',
+        fontSize: 13,
+        fontWeight: '800',
+    },
 });

@@ -795,3 +795,26 @@ export const useBookings = () => {
         payBooking
     };
 };
+
+
+export const getVerifiedReviews = () => {
+    return (bookings || []).filter(b => b.status === 'completed' && b.reviewText);
+};
+
+export const submitVerifiedReview = (bookingId, rating, reviewText, reviewerName) => {
+    const cleanId = String(bookingId || '').trim();
+    const booking = (bookings || []).find(b => b.id === cleanId || b.id === 'b-' + cleanId || b.id === ('b-active-' + cleanId));
+    if (!booking) {
+        return { success: false, message: 'Job ID not found. Reviews can only be left for verified completed bookings.' };
+    }
+    if (booking.status !== 'completed') {
+        return { success: false, message: 'This booking is still in progress. Feedback requires customer OTP completion first.' };
+    }
+    booking.customerRating = Number(rating) || 5;
+    booking.reviewText = (reviewText || '').trim();
+    booking.reviewerName = (reviewerName || booking.customerName || 'Verified Homeowner').trim();
+    booking.reviewedAt = new Date().toISOString();
+    bookingEvents.emit('change');
+    saveData();
+    return { success: true, booking };
+};

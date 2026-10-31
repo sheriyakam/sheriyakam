@@ -75,7 +75,7 @@ export default function ServiceLandingView({
     const inCart = cartItems?.some(item => item.id === serviceSlug || item.slug === serviceSlug);
 
     const handleCallHelpline = () => {
-        const phoneUrl = `tel:+914952800000`;
+        const phoneUrl = `tel:+919447128901`;
         if (Platform.OS === 'web') window.location.href = phoneUrl;
         else Linking.openURL(phoneUrl);
     };
@@ -107,7 +107,7 @@ export default function ServiceLandingView({
                         "provider": {
                             "@type": "HomeAndConstructionBusiness",
                             "name": "Sheriyakam",
-                            "telephone": "+91 495 280 0000",
+                            "telephone": "+91 94471 28901",
                             "url": "https://sheriyakam.vercel.app",
                             "address": {
                                 "@type": "PostalAddress",

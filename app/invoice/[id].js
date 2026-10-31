@@ -254,7 +254,7 @@ export default function DigitalInvoiceScreen() {
                                 GRIEVANCE REDRESSAL & SUPPORT (48-HR SLA)
                             </Text>
                             <Text style={[styles.grievanceText, { color: colors.textSecondary }]}>
-                                For complaints, contact our Grievance Officer at <Text style={{ color: colors.accent, fontWeight: '700' }}>grievance@sheriyakam.com</Text> or call +91 495 280 0001. Acknowledged within 48 hours under Indian E-Commerce Rules.
+                                For complaints, contact our Grievance Officer at <Text style={{ color: colors.accent, fontWeight: '700' }}>grievance@sheriyakam.com</Text> or call +91 94471 28901. Acknowledged within 48 hours under Indian E-Commerce Rules.
                             </Text>
                         </View>
                     </View>

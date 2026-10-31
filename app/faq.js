@@ -60,68 +60,65 @@ export default function FAQScreen() {
                     </Text>
                 </View>
 
-                {/* FAQ Accordions: EMERGENCY & ARRIVAL */}
+                {/* FAQ Accordions: HONEST PILOT FAQS */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                    SERVICE BOOKING & ARRIVAL
+                    PILOT SERVICE AREA & DISPATCH
                 </Text>
                 <Accordion>
-                    <AccordionItem title="What is the arrival time for electrical visits?" defaultOpen={true}>
+                    <AccordionItem title="What exact areas do you serve in Kerala?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Our master electrician typically arrives at your doorstep within 45 to 90 minutes across Thalassery, Kannur, and Kozhikode areas. We call you immediately after booking to confirm the exact arrival time.
+                            We are actively running our local pilot across the Thalassery–Mahe corridor within a 12km radius. This includes Thalassery Municipality, Mahe, Dharmadam, Kadirur, Chokli, New Mahe, and Azhiyur. Before any technician is dispatched, you receive a direct phone confirmation from your electrician to verify your location and timing.
                         </Text>
                     </AccordionItem>
 
-                    <AccordionItem title="How does emergency electrical triage work?">
+                    <AccordionItem title="How fast does the electrician arrive?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            For critical hazards like sparking switchboards, burning smell, or total blackout tripping, our master wireman prioritizes your request. We provide immediate breaker isolation advice over the phone while on the way.
+                            For urgent electrical issues (sparking switchboards, burning smells, tripping MCB blackouts), our local technician arrives within 45 to 90 minutes. For scheduled visits, you select your preferred 2-hour morning or afternoon window.
                         </Text>
                     </AccordionItem>
                 </Accordion>
 
-                {/* FAQ Accordions: CONTRACTOR VETTING & SAFETY */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    SAFETY & QUALITY GUARANTEE
+                    PRICING & ₹149 VISITATION FEE
                 </Text>
                 <Accordion>
-                    <AccordionItem title="Are Sheriyakam technicians licensed?" defaultOpen={true}>
+                    <AccordionItem title="How does the ₹149 visit and diagnosis fee work?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            Yes. Every job is executed or inspected by an experienced, certified wireman holding recognized electrical credentials. All repairs come backed with our 30-day rework warranty.
+                            The ₹149 visitation fee covers your local electrician's transit and multimeter diagnostics. If you approve the quoted repair on-site, the ₹149 inspection charge is fully waived and adjusted against your final repair bill. You only pay the ₹149 fee if you decide not to proceed with the repair after diagnosis.
                         </Text>
                     </AccordionItem>
 
-                    <AccordionItem title="What if an issue recurs after the fix?">
-                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            If the same problem returns within 30 days of completion, simply call us or message on WhatsApp. We will revisit and resolve it at zero additional charge.
-                        </Text>
-                    </AccordionItem>
-                </Accordion>
-
-                {/* FAQ Accordions: PRICING & DIAGNOSTIC VISITS */}
-                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    PRICING & PAYMENT
-                </Text>
-                <Accordion>
                     <AccordionItem title="Do I have to pay anything in advance?">
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            No advance payment is needed. You pay safely via UPI or cash only after the work is fully completed, tested, and verified to your satisfaction.
-                        </Text>
-                    </AccordionItem>
-
-                    <AccordionItem title="How are prices determined?">
-                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            All standard repairs follow our transparent upfront rate card (e.g., switches from ₹149, fan repairs from ₹249). For custom wiring or DB overhaul, an itemized quote is provided before starting any work.
+                            Zero advance payment. You pay via UPI (Google Pay, PhonePe, Paytm) or cash only after the work is completed, tested, and demonstrated safe.
                         </Text>
                     </AccordionItem>
                 </Accordion>
 
-                {/* FAQ Accordions: WARRANTY & REWORKS */}
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
-                    WARRANTY & REWORKS
+                    SPARE PARTS & BILLING
                 </Text>
                 <Accordion>
-                    <AccordionItem title="How does the 30-day rework warranty work?">
+                    <AccordionItem title="How are replacement spare parts billed?" defaultOpen={true}>
                         <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
-                            If the exact issue recurs within 30 days of service completion, simply go to your Bookings tab or call support. We will dispatch a master technician to fix it for free with zero visit charges.
+                            You have complete control: you can provide your own ISI-marked spare parts (switches, MCBs, fan capacitors, wires), or your electrician can purchase them from a local hardware store on your behalf. In all cases, replacement parts are billed strictly at MRP / actual store receipt cost with zero markup, and the hardware shop bill is photographed for your records.
+                        </Text>
+                    </AccordionItem>
+                </Accordion>
+
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 18 }]}>
+                    WARRANTY & SAFETY
+                </Text>
+                <Accordion>
+                    <AccordionItem title="What warranty is provided on electrical repairs?" defaultOpen={true}>
+                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                            Every completed repair includes our direct 30-day workmanship warranty on the exact point repaired. If the same issue recurs within 30 days, simply contact us via WhatsApp or phone, and a senior electrician will revisit to resolve it at ₹0 visit fee.
+                        </Text>
+                    </AccordionItem>
+
+                    <AccordionItem title="Are your electricians licensed wiremen?">
+                        <Text style={[styles.faqAnswer, { color: colors.textSecondary }]}>
+                            Yes. All Sheriyakam technicians are experienced, trade-tested local wiremen certified by the Kerala State Electricity Licensing Board (KSELB) standards.
                         </Text>
                     </AccordionItem>
                 </Accordion>

@@ -1,3 +1,4 @@
+import { SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY, PILOT_ZONE } from '../constants/contact';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -32,7 +33,7 @@ export default function ContactScreen() {
         setIsSubmitting(true);
         setTimeout(() => {
             setIsSubmitting(false);
-            success('Your inquiry has been received! Our Kozhikode desk will call you shortly.', 'Message Sent');
+            success('Your inquiry has been received! Our Thalassery & Mahe desk will call you shortly.', 'Message Sent');
             setName('');
             setEmail('');
             setPhone('');
@@ -41,8 +42,8 @@ export default function ContactScreen() {
     };
 
     const handleCallHelpline = () => {
-        Linking.openURL('tel:+914952800000').catch(() => {
-            success('Connecting to Kozhikode 24/7 Hotline (+91 495 280 0000)');
+        Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`).catch(() => {
+            success(`Connecting to Thalassery & Mahe Desk (${SUPPORT_PHONE_DISPLAY})`);
         });
     };
 
@@ -82,7 +83,7 @@ export default function ContactScreen() {
                         onPress={handleCallHelpline}
                         style={{ marginTop: 12 }}
                     >
-                        Call Emergency Hotline (0495 280 0000)
+                        Call Thalassery & Mahe Helpline (94471 28901)
                     </Button>
                 </Card>
 
@@ -99,7 +100,7 @@ export default function ContactScreen() {
                                 Sheriyakam Technologies Pvt Ltd
                             </Text>
                             <Text style={[styles.infoSub, { color: colors.textSecondary }]}>
-                                3rd Floor, Malabar Trade Centre, Civil Station Road, Kozhikode, Kerala - 673020
+                                Sheriyakam Service Workshop, Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala - 670101
                             </Text>
                         </View>
                     </View>

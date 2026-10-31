@@ -1,3 +1,4 @@
+import { PILOT_ZONE, SUPPORT_PHONE_DISPLAY } from '../constants/contact';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image,
@@ -51,39 +52,39 @@ const IMAGE_MAP = {
 const MOCK_SERVICES = [
   {
     id: 1,
-    name: "Diagnostic & Fault Inspection Visit",
+    name: "Fault Inspection & Multimeter Diagnosis",
     rating: 4.9,
-    specialty: "Multimeter Fault Finding & Upfront Quote (Adjustable)",
+    specialty: "Visitation fee (waived/adjusted if repair is approved on-site)",
     time: "45 min",
-    price: 49,
+    price: 149,
     category: "Electrical",
     image: require('../assets/images/emergency.png')
   },
   {
     id: 2,
-    name: "Fan Repair & Installation",
-    rating: 4.8,
-    specialty: "Ceiling & Exhaust Fans, Capacitor & Bearing Fix",
-    time: "30 min",
-    price: 249,
-    category: "Electrical",
-    image: require('../assets/images/light_fan.png')
-  },
-  {
-    id: 3,
-    name: "Switch & Socket Replacement",
+    name: "Switchboard, Socket & Plug Repair",
     rating: 4.9,
-    specialty: "Sparking Switches, Burnt Plugs & 6A/16A Points",
+    specialty: "Sparking switches, burnt plugs & 6A/16A points (plus ISI spares at MRP)",
     time: "30 min",
     price: 149,
     category: "Electrical",
     image: require('../assets/images/switch.png')
   },
   {
-    id: 4,
-    name: "MCB & Fuse Box Tripping (DB Repair)",
+    id: 3,
+    name: "Ceiling & Exhaust Fan Repair / Installation",
     rating: 4.9,
-    specialty: "Blackout Triage, Tripping Breakers & Safety Switch",
+    specialty: "Capacitor replacement, speed regulator, or new fan mounting",
+    time: "30 min",
+    price: 249,
+    category: "Electrical",
+    image: require('../assets/images/light_fan.png')
+  },
+  {
+    id: 4,
+    name: "MCB, RCCB & Fuse Box Tripping (DB Triage)",
+    rating: 4.9,
+    specialty: "Earth leakage trace, blackout triage & breaker replacement",
     time: "45 min",
     price: 349,
     category: "Electrical",
@@ -91,23 +92,23 @@ const MOCK_SERVICES = [
   },
   {
     id: 5,
-    name: "Complete Home Wiring & Safety Earthing",
+    name: "Inverter & Battery Wiring Setup",
+    rating: 5.0,
+    specialty: "Single/double battery wiring & backup load routing",
+    time: "1 hr",
+    price: 499,
+    category: "Electrical",
+    image: require('../assets/images/inverter.png')
+  },
+  {
+    id: 6,
+    name: "House Wiring, Additional Points & Earthing",
     rating: 4.9,
-    specialty: "Full House Rewiring, Shock Check & Ground Rod",
+    specialty: "Full house rewiring, earth pit rod & custom quote after inspection",
     time: "1-2 hrs",
     price: 550,
     category: "Electrical",
     image: require('../assets/images/wiring.png')
-  },
-  {
-    id: 6,
-    name: "Inverter & Battery Wiring",
-    rating: 5.0,
-    specialty: "Battery Wiring, Changeover Switch & Backup Test",
-    time: "1 hr",
-    price: 500,
-    category: "Electrical",
-    image: require('../assets/images/inverter.png')
   },
 ];
 
@@ -115,7 +116,7 @@ const HOW_IT_WORKS = [
   {
     step: '01',
     title: 'Select Problem / Service',
-    description: 'Choose from 6 clear services or select ₹49 on-site diagnostic inspection.',
+    description: 'Choose from 6 genuine electrical services or select ₹149 on-site diagnostic inspection (waived if work is approved).',
     color: '#2563EB',
   },
   {
@@ -139,38 +140,13 @@ const HOW_IT_WORKS = [
 ];
 
 
-const TESTIMONIALS = [
-  {
-    name: 'Anoop Krishnan',
-    location: 'Kozhikode District',
-    rating: 5,
-    text: 'Called at 9 PM for a short circuit. Electrician arrived in 25 minutes. Transparent pricing, no surprises. Best service in Kerala!',
-    initials: 'AK',
-    color: '#2563EB',
-  },
-  {
-    name: 'Sreelakshmi Ramesh',
-    location: 'Ernakulam District',
-    rating: 5,
-    text: 'Booked AC service through the app. OTP verification gave me confidence. Technician was professional and charged exactly what was quoted.',
-    initials: 'SR',
-    color: '#10B981',
-  },
-  {
-    name: 'Mohammed Faisal',
-    location: 'Kannur District',
-    rating: 5,
-    text: 'Complete house rewiring in 2 days. Punctual, clean, quality materials. Upfront pricing saved me from overcharging. Highly recommended!',
-    initials: 'MF',
-    color: '#F59E0B',
-  },
-];
+// Fabricated testimonials removed in Truth & Authenticity overhaul
 
-const STATS = [
-  { value: '2,400+', label: 'App Bookings', icon: CheckCircle },
-  { value: '4.9★', label: '1,480+ Reviews', icon: Star },
-  { value: '14', label: 'Kerala Districts', icon: MapPin },
-  { value: '90min', label: 'Doorstep Arrival', icon: Clock },
+const TRUST_PILLARS = [
+  { value: 'Thalassery & Mahe', label: 'Active Local Dispatch Zone', icon: MapPin },
+  { value: 'Upfront Rate Card', label: 'Approve Quote Before Work Starts', icon: Shield },
+  { value: 'Experienced Wiremen', label: 'Local Trade-Tested Electricians', icon: CheckCircle },
+  { value: 'Pay After Testing', label: 'UPI QR or Cash on Completion', icon: Clock },
 ];
 
 export default function HomeScreen() {
@@ -419,16 +395,16 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <Head>
-        <title>Sheriyakam — Professional Electrician Services in Kerala | 24/7 Emergency</title>
-        <meta name="description" content="Book trusted, licensed electricians across 14 districts of Kerala. Emergency response in 90 minutes. Fan repair, wiring, AC service, CCTV — transparent pricing from ₹350." />
-        <meta name="keywords" content="electrician Kerala, emergency electrician near me, fan repair Kerala, AC repair, wiring, CCTV setup, sheriyakam, home repair Kerala, electrical service" />
+        <title>Sheriyakam — Verified Electricians in Thalassery & Mahe</title>
+        <meta name="description" content="Book verified, trade-tested local electricians in Thalassery & Mahe. Fast doorstep repairs across Thalassery, Mahe, Dharmadam, Kadirur, Chokli & Azhiyur. Upfront rates & 30-day warranty." />
+        <meta name="keywords" content="electrician Thalassery, electrician Mahe, fan repair Thalassery, MCB repair Mahe, house rewiring Dharmadam, Kadirur electrician, Chokli electrical repair, sheriyakam" />
         <link rel="canonical" href="https://sheriyakam.vercel.app/" />
         <meta name="robots" content="index, follow" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Sheriyakam — Book Expert Electricians in 60 Seconds" />
-        <meta property="og:description" content="Licensed electricians across Kerala. 2400+ jobs completed. 4.9★ rating. Emergency dispatch in 90 minutes." />
+        <meta property="og:description" content="Verified trade-tested local electricians in Thalassery & Mahe. Upfront rates, direct phone confirmation, and 30-day workmanship warranty." />
         <meta property="og:url" content="https://sheriyakam.vercel.app/" />
         <meta property="og:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
         <meta property="og:image:width" content="1200" />
@@ -439,7 +415,7 @@ export default function HomeScreen() {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Sheriyakam — Book Expert Electricians in 60 Seconds" />
-        <meta name="twitter:description" content="Licensed electricians across Kerala. 2400+ jobs completed. 4.9★ rating. Emergency dispatch in 90 minutes." />
+        <meta name="twitter:description" content="Verified trade-tested local electricians in Thalassery & Mahe. Upfront rates, direct phone confirmation, and 30-day workmanship warranty." />
         <meta name="twitter:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
         <meta name="twitter:image:alt" content="Sheriyakam Home and Electrical Services in Kerala" />
 
@@ -509,7 +485,7 @@ export default function HomeScreen() {
                     "name": "Diagnostic & Fault Inspection Visit",
                     "description": "Multimeter fault finding & upfront quote, adjustable against final bill."
                   },
-                  "price": "49",
+                  "price": "149",
                   "priceCurrency": "INR"
                 },
                 {
@@ -563,13 +539,6 @@ export default function HomeScreen() {
                   "priceCurrency": "INR"
                 }
               ]
-            },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": "2400",
-              "bestRating": "5",
-              "worstRating": "1"
             }
           })}
         </script>
@@ -639,7 +608,7 @@ export default function HomeScreen() {
                 "name": "How fast does an emergency electrician arrive in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Sheriyakam electricians arrive on-site within 45 to 90 minutes across Thalassery, Kannur, Kozhikode, and Wayanad for urgent power outages, short circuits, and sparking hazards. Customers receive a direct confirmation call prior to technician arrival."
+                  "text": "Sheriyakam electricians arrive on-site within 45 to 90 minutes across the Thalassery–Mahe corridor for urgent power outages, short circuits, and sparking hazards. Customers receive a direct confirmation call prior to technician arrival."
                 }
               },
               {
@@ -647,7 +616,7 @@ export default function HomeScreen() {
                 "name": "Are Sheriyakam electricians certified and insured?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every visit is backed by a ₹5,00,000 domestic safety protection cover against accidental equipment damage."
+                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every visit is backed by strict Central Electricity Authority safety protocols, on-site testing verification, and a 30-day direct workmanship rework warranty."
                 }
               }
             ]
@@ -789,7 +758,7 @@ export default function HomeScreen() {
                 <View style={styles.trustRow}>
                   <View style={styles.trustItem}>
                     <Clock size={13} color="#F59E0B" />
-                    <Text style={styles.trustText}>90-Min Arrival Across Kerala</Text>
+                    <Text style={styles.trustText}>Active Local Dispatch: Thalassery–Mahe Corridor</Text>
                   </View>
                 </View>
 
@@ -864,7 +833,7 @@ export default function HomeScreen() {
           {/* ═══════════════════════════════════════════════════════ */}
           <View style={[styles.statsBanner, { backgroundColor: colors.primary }]}>
             <View style={styles.statsInner}>
-              {STATS.map((stat, index) => {
+              {TRUST_PILLARS.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
                   <View key={index} style={styles.statItem}>
@@ -1097,79 +1066,40 @@ export default function HomeScreen() {
                 <Text style={{ color: colors.accent, fontWeight: '800' }}>yakam</Text>
               </Text>
               <Text style={[styles.footerTagline, { color: colors.textTertiary }]}>
-                Kerala's Certified On-Demand Electrical Services • Upfront Pricing • 30-Day Warranty • 2,400+ App Dispatches
+                Thalassery–Mahe Local Electrical Pilot • Upfront Pricing • 30-Day Workmanship Warranty
               </Text>
               <Text style={[styles.footerLicense, { color: colors.textTertiary }]}>
-                Verified & Background-Checked Electrical Technicians Across 14 Districts
+                Verified Trade-Tested Electrical Technicians • Local Thalassery Hub
               </Text>
             </View>
 
             {/* High-Intent Specialized Services Links */}
             <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 4, width: '100%' }}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textSecondary, letterSpacing: 0.8, marginBottom: 8, textTransform: 'uppercase' }}>
-                Popular Electrical Specializations in Kerala
+                Active Local Service Zone (Thalassery–Mahe Corridor)
               </Text>
               <View style={styles.footerDistrictsWrap}>
-                <TouchableOpacity onPress={() => router.push('/emergency-electrician-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2', borderColor: '#EF444433', borderWidth: 1 }]}>
-                  <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '700' }}>⚡ 24/7 Emergency Electrician</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/fan-repair-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
-                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>Ceiling Fan & BLDC Repair</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/cctv-installation-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
-                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>CCTV Camera Setup</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/ac-repair-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
-                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>AC Foam Jet Wash</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/house-rewiring-kerala')} style={[styles.footerDistrictTag, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]}>
-                  <Text style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.75)', fontSize: 12, fontWeight: '600' }}>House Rewiring & DB Repair</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* District Coverage */}
-            <View style={{ alignItems: 'center', marginTop: 8, marginBottom: 4, width: '100%' }}>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textSecondary, letterSpacing: 0.8, marginBottom: 8, textTransform: 'uppercase' }}>
-                Electricians Across All 14 Kerala Districts
-              </Text>
-              <View style={styles.footerDistrictsWrap}>
-                <TouchableOpacity
-                  onPress={() => router.push('/thalassery-electrician')}
-                  style={[
-                    styles.footerDistrictTag,
-                    {
-                      backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : '#EFF6FF',
-                      borderColor: '#2563EB44',
-                      borderWidth: 1,
-                    }
-                  ]}
-                >
-                  <Text style={{
-                    color: colors.accent,
-                    fontSize: 12,
-                    fontWeight: '700'
-                  }}>
-                    Thalassery HQ (തലശ്ശേരി)
-                  </Text>
-                </TouchableOpacity>
-                {KERALA_DISTRICTS.map((d) => (
+                {PILOT_ZONE.activeTowns.map((town) => (
                   <TouchableOpacity
-                    key={d.id || d}
-                    onPress={() => router.push(d.id === 'kannur' ? '/kannur-electrician' : `/${d.id}-electrician`)}
+                    key={town.id}
+                    onPress={() => router.push('/thalassery-electrician')}
                     style={[
                       styles.footerDistrictTag,
-                      {
+                      town.id === 'thalassery' ? {
+                        backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : '#EFF6FF',
+                        borderColor: '#2563EB44',
+                        borderWidth: 1,
+                      } : {
                         backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
                       }
                     ]}
                   >
                     <Text style={{
-                      color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)',
+                      color: town.id === 'thalassery' ? colors.accent : (isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)'),
                       fontSize: 12,
-                      fontWeight: '600'
+                      fontWeight: '700'
                     }}>
-                      {d.name || d}
+                      {town.name} ({town.pincode})
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -1212,7 +1142,7 @@ export default function HomeScreen() {
             <View style={styles.footerContact}>
               <View style={styles.footerContactItem}>
                 <Phone size={14} color={colors.textTertiary} />
-                <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>+91 495 280 0000</Text>
+                <Text style={[styles.footerContactText, { color: colors.textTertiary }]}>{SUPPORT_PHONE_DISPLAY}</Text>
               </View>
               <View style={styles.footerContactItem}>
                 <Mail size={14} color={colors.textTertiary} />
@@ -1220,7 +1150,7 @@ export default function HomeScreen() {
               </View>
             </View>
             <Text style={[styles.footerCopy, { color: colors.textTertiary }]}>
-              © 2026 Sheriyakam. All rights reserved. Serving all 14 districts of Kerala.
+              © 2026 Sheriyakam. All rights reserved. Active Local Pilot in Thalassery & Mahe.
             </Text>
           </View>
 

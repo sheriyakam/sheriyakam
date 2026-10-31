@@ -53,10 +53,10 @@ export default function MaintenanceScreen() {
                         size="md"
                         fullWidth
                         iconLeft={Phone}
-                        onPress={() => success('Emergency hotline: 0495 280 0000')}
+                        onPress={() => success('Emergency hotline: 94471 28901')}
                         style={{ marginTop: 8 }}
                     >
-                        Emergency Hotline (0495 280 0000)
+                        Emergency Hotline (94471 28901)
                     </Button>
                 </View>
             </View>

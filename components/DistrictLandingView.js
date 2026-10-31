@@ -56,7 +56,7 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
     };
 
     const handleCallHelpline = () => {
-        const phoneUrl = `tel:${data.phone || '+914952800000'}`;
+        const phoneUrl = `tel:${data.phone || '+919447128901'}`;
         if (Platform.OS === 'web') window.location.href = phoneUrl;
         else Linking.openURL(phoneUrl);
     };
@@ -93,9 +93,9 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                         "@id": `${data.canonical}#localbusiness`,
                         "name": `Sheriyakam Electrician Services — ${data.name}`,
                         "url": data.canonical,
-                        "telephone": data.phone || "+91 495 280 0000",
+                        "telephone": data.phone || "+91 94471 28901",
                         "email": "support@sheriyakam.in",
-                        "priceRange": "₹49 - ₹1,499",
+                        "priceRange": "₹149 - ₹1,499",
                         "image": "https://sheriyakam.vercel.app/og-image.png",
                         "provider": {
                             "@type": "Organization",

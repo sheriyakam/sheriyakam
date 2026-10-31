@@ -1,3 +1,4 @@
+import { SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY, PILOT_ZONE } from '../constants/contact';
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -16,7 +17,7 @@ export default function AboutScreen() {
     const isDark = theme === 'dark';
 
     const handleCall = () => {
-        const url = 'tel:+914952800000';
+        const url = `tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`;
         if (Platform.OS === 'web') window.location.href = url;
         else Linking.openURL(url);
     };
@@ -30,8 +31,8 @@ export default function AboutScreen() {
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F8FAFC' }]}>
             <Head>
-                <title>About Sheriyakam | Kerala</title>
-                <meta name="description" content="Discover how Sheriyakam brings trusted, transparent electrical repairs and verified technicians to all 14 Kerala districts." />
+                <title>About Sheriyakam | Thalassery & Mahe Electrical Pilot</title>
+                <meta name="description" content="Discover Sheriyakam local electrical pilot serving the Thalassery–Mahe corridor. Trade-tested electricians, transparent rates, and a 30-day workmanship warranty." />
                 <link rel="canonical" href="https://sheriyakam.vercel.app/about" />
             </Head>
 
@@ -50,10 +51,10 @@ export default function AboutScreen() {
                 </TouchableOpacity>
                 <View style={{ flex: 1, paddingHorizontal: 8 }}>
                     <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>About Sheriyakam</Text>
-                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Verified Technicians • Upfront Pricing • 14 Districts</Text>
+                    <Text style={[styles.headerSub, { color: colors.textSecondary }]}>Verified Technicians • Upfront Pricing • Thalassery & Mahe</Text>
                 </View>
                 <TouchableOpacity onPress={() => router.push('/locations')} style={styles.hubBtn}>
-                    <Badge variant="info" size="sm">14 Districts</Badge>
+                    <Badge variant="info" size="sm">Thalassery–Mahe</Badge>
                 </TouchableOpacity>
             </View>
 
@@ -82,24 +83,24 @@ export default function AboutScreen() {
                         <Award size={28} color="#F59E0B" />
                         <View style={{ flex: 1 }}>
                             <Text style={styles.storyPretitle}>OUR MISSION</Text>
-                            <Text style={styles.storyTitle}>Quality Electrical Care Across Kerala</Text>
+                            <Text style={styles.storyTitle}>Quality Doorstep Electrical Care in Thalassery & Mahe</Text>
                         </View>
                     </View>
                     <Text style={styles.storyText}>
                         <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Sheriyakam</Text> ("ശരിയാക്കാം" — "We will fix it") was created to solve everyday domestic and commercial electrical emergencies with honest diagnostics, zero cut corners, and strict safety compliance under the Kerala State Electricity Licensing Board (KSELB).
                     </Text>
                     <Text style={styles.storyText}>
-                        With more than <Text style={{ fontWeight: '800', color: '#60A5FA' }}>18,000+ verified installations and repairs</Text>, Sheriyakam delivers professional craftsmanship directly to your smartphone with transparent fixed rates and 45–90 minute doorstep dispatch across all 14 districts of Kerala.
+                        Operating directly from our local workshop in Thalassery, Sheriyakam connects homeowners and local businesses across the Thalassery–Mahe corridor with skilled, trade-tested wiremen. Every repair is pre-confirmed by phone, priced by published rate card, and protected by our 30-day workmanship warranty.
                     </Text>
                 </Card>
 
                 {/* Stats Row */}
                 <View style={styles.statsRow}>
                     {[
-                        { value: '4.9★', label: 'Customer Rating', icon: Award, color: '#F59E0B' },
-                        { value: '18,000+', label: 'Lifetime Fixes', icon: CheckCircle, color: '#10B981' },
-                        { value: '250+', label: 'Licensed Wiremen', icon: Users, color: '#2563EB' },
-                        { value: '14/14', label: 'Districts Active', icon: MapPin, color: '#8B5CF6' },
+                        { value: 'Local Hub', label: 'Thalassery & Mahe', icon: MapPin, color: '#2563EB' },
+                        { value: 'Fixed Rates', label: 'Upfront Rate Card', icon: Award, color: '#F59E0B' },
+                        { value: 'Trade-Tested', label: 'Certified Wiremen', icon: UserCheck, color: '#10B981' },
+                        { value: '30-Day', label: 'Rework Warranty', icon: ShieldCheck, color: '#8B5CF6' },
                     ].map((stat, i) => {
                         const Icon = stat.icon;
                         return (
@@ -125,41 +126,11 @@ export default function AboutScreen() {
 
                     <View style={{ gap: 14, marginTop: 10 }}>
                         <View style={styles.pillarItem}>
-                            <ShieldCheck size={20} color="#10B981" style={{ marginTop: 2 }} />
-                            <View style={{ flex: 1, gap: 2 }}>
-                                <Text style={[styles.pillarTitle, { color: colors.textPrimary }]}>100% KSELB Certified Technicians</Text>
-                                <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                    Every technician dispatched to your home holds an active wireman or supervisor permit certified by the Kerala Electrical Inspectorate.
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.pillarItem}>
-                            <CheckCircle size={20} color="#2563EB" style={{ marginTop: 2 }} />
-                            <View style={{ flex: 1, gap: 2 }}>
-                                <Text style={[styles.pillarTitle, { color: colors.textPrimary }]}>Transparent "Pay After Work" Rates</Text>
-                                <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                    No inflated doorstep bargaining. You see fixed rate cards before booking and pay only after you test the completed repair.
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.pillarItem}>
-                            <Zap size={20} color="#F59E0B" style={{ marginTop: 2 }} />
-                            <View style={{ flex: 1, gap: 2 }}>
-                                <Text style={[styles.pillarTitle, { color: colors.textPrimary }]}>30-Day Free Rework Guarantee</Text>
-                                <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                    If the same issue reoccurs within 30 days, a senior supervisor revisits and fixes it at ₹0 visit fee.
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.pillarItem}>
                             <Shield size={20} color="#8B5CF6" style={{ marginTop: 2 }} />
                             <View style={{ flex: 1, gap: 2 }}>
-                                <Text style={[styles.pillarTitle, { color: colors.textPrimary }]}>₹5,00,000 Safety Protection Cover</Text>
+                                <Text style={[styles.pillarTitle, { color: colors.textPrimary }]}>Strict KSELB Safety & Isolation Standards</Text>
                                 <Text style={[styles.pillarDesc, { color: colors.textSecondary }]}>
-                                    Every home visit is backed by ₹5 Lakh third-party property damage coverage against accidental electrical hazards.
+                                    Every job strictly complies with Central Electricity Authority (CEA) protocols, physical neutral isolation, and calibrated multimeter load testing before handover.
                                 </Text>
                             </View>
                         </View>
@@ -179,8 +150,8 @@ export default function AboutScreen() {
                         >
                             <Phone size={18} color={colors.accent} />
                             <View style={{ flex: 1 }}>
-                                <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Central Helpline (All 14 Districts)</Text>
-                                <Text style={[styles.contactValue, { color: colors.textPrimary }]}>+91 495 280 0000</Text>
+                                <Text style={[styles.contactLabel, { color: colors.textTertiary }]}>Local Dispatch Desk (Thalassery–Mahe)</Text>
+                                <Text style={[styles.contactValue, { color: colors.textPrimary }]}>{SUPPORT_PHONE_DISPLAY}</Text>
                             </View>
                         </TouchableOpacity>
 
@@ -213,7 +184,7 @@ export default function AboutScreen() {
                         © 2026 Sheriyakam. All rights reserved.
                     </Text>
                     <Text style={[styles.footerSubtext, { color: colors.textTertiary }]}>
-                        Crafted with pride in Thalassery for all 14 Kerala Districts
+                        Crafted with pride in Thalassery for the Thalassery–Mahe Corridor
                     </Text>
                 </View>
             </ScrollView>

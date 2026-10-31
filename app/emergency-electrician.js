@@ -80,7 +80,7 @@ export default function EmergencyElectricianScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleCallHelpline = () => {
-        const phoneUrl = 'tel:+914952800000';
+        const phoneUrl = 'tel:+919447128901';
         if (Platform.OS === 'web') {
             window.location.href = phoneUrl;
         } else {
@@ -175,7 +175,7 @@ export default function EmergencyElectricianScreen() {
                     <View style={styles.heroActionRow}>
                         <TouchableOpacity onPress={handleCallHelpline} style={styles.callNowBtn}>
                             <PhoneCall size={18} color="#FFFFFF" />
-                            <Text style={styles.callNowBtnText}>Call Emergency Hotline: +91 495 280 0000</Text>
+                            <Text style={styles.callNowBtnText}>Call Emergency Hotline: +91 94471 28901</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={handleWhatsAppDispatch} style={styles.whatsappNowBtn}>

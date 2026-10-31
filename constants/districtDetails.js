@@ -20,7 +20,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 16,
         rating: '4.9★ (640+ Reviews)',
         hubAddress: 'Main Road, Near Old Bus Stand, Thalassery, Kannur, Kerala 670101',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Thalassery Town', 'Temple Gate', 'Dharmadam', 'Koduvally', 'Kadirur',
             'Chonadam', 'Muzhappilangad', 'Eranholi', 'Pinarayi', 'Koolibazar',
@@ -63,7 +63,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 18,
         rating: '4.9★ (520+ Reviews)',
         hubAddress: 'Civil Station Road, Kozhikode, Kerala 673020',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kozhikode Corporation', 'Mavoor Road', 'Palayam', 'Cyberpark / Hilite City',
             'Vadakara', 'Koyilandy', 'Ramanattukara', 'Feroke', 'Thamarassery',
@@ -106,7 +106,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 14,
         rating: '4.9★ (480+ Reviews)',
         hubAddress: 'Fort Road, Kannur, Kerala 670001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kannur Corporation', 'Thalassery', 'Payyanur', 'Taliparamba',
             'Mattannur (Airport Zone)', 'Iritty', 'Thottada', 'Mele Chovva',
@@ -145,7 +145,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 24,
         rating: '4.9★ (780+ Reviews)',
         hubAddress: 'MG Road, Near Metro Station, Kochi, Kerala 682016',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kochi Corporation', 'Kakkanad (InfoPark & SmartCity)', 'MG Road', 'Edappally',
             'Aluva', 'Kalamassery', 'Tripunithura', 'Maradu', 'Perumbavoor',
@@ -184,7 +184,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 16,
         rating: '4.9★ (390+ Reviews)',
         hubAddress: 'Down Hill, Malappuram, Kerala 676505',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Malappuram Municipality', 'Manjeri', 'Perinthalmanna', 'Tirur',
             'Ponnani', 'Kondotty', 'Kottakkal', 'Nilambur', 'Valanchery',
@@ -219,7 +219,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 15,
         rating: '4.9★ (440+ Reviews)',
         hubAddress: 'Swaraj Round North, Thrissur, Kerala 680001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Thrissur Corporation', 'Swaraj Round', 'Guruvayur', 'Chalakkudy',
             'Kodungallur', 'Kunnamkulam', 'Irinjalakuda', 'Ollur', 'Ayyanthole',
@@ -254,7 +254,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 20,
         rating: '4.9★ (610+ Reviews)',
         hubAddress: 'Statue Junction, MG Road, Thiruvananthapuram, Kerala 695001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Thiruvananthapuram Corporation', 'Kazhakkoottam (Technopark Phase 1-3)',
             'Kowdiar', 'Pattom', 'Statue', 'Vellayambalam', 'Neyyattinkara',
@@ -289,7 +289,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 11,
         rating: '4.9★ (310+ Reviews)',
         hubAddress: 'TB Road, Near KSRTC, Palakkad, Kerala 678001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Palakkad Municipality', 'Ottapalam', 'Shoranur', 'Chittur-Thathamangalam',
             'Mannarkkad', 'Alathur', 'Pattambi', 'Kanjikode Industrial Zone'
@@ -323,7 +323,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 12,
         rating: '4.9★ (350+ Reviews)',
         hubAddress: 'Chinnakada, Kollam, Kerala 691001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kollam Corporation', 'Chinnakada', 'Paravur', 'Karunagappally',
             'Punalur', 'Kottarakkara', 'Ashtamudi', 'Kadakkal', 'Chathannoor'
@@ -357,7 +357,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 10,
         rating: '4.9★ (290+ Reviews)',
         hubAddress: 'Boat Jetty Road, Alappuzha, Kerala 688001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Alappuzha Municipality', 'Cherthala', 'Kayamkulam', 'Mavelikkara',
             'Chengannur', 'Ambalapuzha', 'Haripad', 'Kuttanad Water Belt'
@@ -391,7 +391,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 12,
         rating: '4.9★ (380+ Reviews)',
         hubAddress: 'Collectorate Road, Kottayam, Kerala 686001',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kottayam Municipality', 'Changanassery', 'Pala', 'Ettumanoor',
             'Vaikom', 'Erattupetta', 'Kanjirappally', 'Manarcad', 'Pampady'
@@ -425,7 +425,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 8,
         rating: '4.9★ (220+ Reviews)',
         hubAddress: 'Vidyanagar, Kasaragod, Kerala 671123',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kasaragod Municipality', 'Kanhangad', 'Nileshwar', 'Uppala',
             'Cheruvathur', 'Bekal', 'Kumbla', 'Manjeshwar'
@@ -458,7 +458,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 7,
         rating: '4.9★ (210+ Reviews)',
         hubAddress: 'Main Road, Kalpetta, Wayanad, Kerala 673121',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Kalpetta Municipality', 'Sulthan Bathery', 'Mananthavady',
             'Meenangadi', 'Vythiri', 'Pulpally', 'Panamaram', 'Ambalavayal'
@@ -491,7 +491,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 8,
         rating: '4.9★ (240+ Reviews)',
         hubAddress: 'Ring Road, Pathanamthitta, Kerala 689645',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Pathanamthitta Municipality', 'Thiruvalla', 'Adoor', 'Pandalam',
             'Ranni', 'Konni', 'Kozhencherry', 'Mallappally'
@@ -524,7 +524,7 @@ export const DISTRICT_SEO_DATA = {
         activeTechs: 7,
         rating: '4.9★ (195+ Reviews)',
         hubAddress: 'Main Road, Thodupuzha, Idukki, Kerala 685584',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         localities: [
             'Thodupuzha Municipality', 'Kattappana', 'Adimali', 'Munnar',
             'Nedumkandam', 'Kumily (Thekkady)', 'Peermade', 'Painavu'

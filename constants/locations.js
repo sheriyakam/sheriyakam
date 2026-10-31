@@ -11,7 +11,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Civil Station, Kozhikode',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 18,
         averageArrivalMins: 45,
         municipalities: [
@@ -32,7 +32,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Fort Road, Kannur',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 14,
         averageArrivalMins: 50,
         municipalities: [
@@ -51,7 +51,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'MG Road, Kochi',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 24,
         averageArrivalMins: 40,
         municipalities: [
@@ -72,7 +72,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Down Hill, Malappuram',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 16,
         averageArrivalMins: 55,
         municipalities: [
@@ -91,7 +91,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Swaraj Round, Thrissur',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 15,
         averageArrivalMins: 50,
         municipalities: [
@@ -109,7 +109,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Statue, Thiruvananthapuram',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 20,
         averageArrivalMins: 45,
         municipalities: [
@@ -128,7 +128,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'TB Road, Palakkad',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 11,
         averageArrivalMins: 55,
         municipalities: [
@@ -146,7 +146,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Chinnakada, Kollam',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 12,
         averageArrivalMins: 50,
         municipalities: [
@@ -164,7 +164,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Boat Jetty Road, Alappuzha',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 10,
         averageArrivalMins: 55,
         municipalities: [
@@ -182,7 +182,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Full Coverage',
         hq: 'Collectorate Road, Kottayam',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 12,
         averageArrivalMins: 50,
         municipalities: [
@@ -201,7 +201,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Active Hub',
         hq: 'Vidyanagar, Kasaragod',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 8,
         averageArrivalMins: 60,
         municipalities: [
@@ -218,7 +218,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Active Hub',
         hq: 'Kalpetta, Wayanad',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 7,
         averageArrivalMins: 65,
         municipalities: [
@@ -235,7 +235,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Active Hub',
         hq: 'Ring Road, Pathanamthitta',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 8,
         averageArrivalMins: 60,
         municipalities: [
@@ -253,7 +253,7 @@ export const KERALA_DISTRICTS = [
         active: true,
         coverageBadge: 'Active Hub',
         hq: 'Painavu / Thodupuzha',
-        phone: '+91 495 280 0000',
+        phone: '+91 94471 28901',
         availableTechnicians: 7,
         averageArrivalMins: 70,
         municipalities: [

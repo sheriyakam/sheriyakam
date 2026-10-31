@@ -193,7 +193,7 @@ export default function PrivacyScreen() {
                             Email: grievance@sheriyakam.in • dpo@sheriyakam.in
                         </Text>
                         <Text style={[styles.officerContact, { color: colors.textSecondary }]}>
-                            Phone: +91 495 280 0000 (Mon–Sat, 9:00 AM – 6:00 PM IST)
+                            Phone: +91 94471 28901 (Mon–Sat, 9:00 AM – 6:00 PM IST)
                         </Text>
                         <View style={styles.slaBadgeRow}>
                             <Badge variant="success" size="sm">24-Hr Acknowledgment</Badge>

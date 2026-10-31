@@ -65,7 +65,7 @@ export default function DamageClaimScreen() {
 
     const handleEmergencyCall = () => {
         Linking.openURL('tel:+914952800001').catch(() => {
-            success('Calling Emergency Safety Desk (+91 495 280 0001)');
+            success('Calling Emergency Safety Desk (+91 94471 28901)');
         });
     };
 
@@ -102,7 +102,7 @@ export default function DamageClaimScreen() {
 
                 {/* Hero */}
                 <View style={styles.hero}>
-                    <Badge variant="gold" size="md">₹5,00,000 Safety Cover Guarantee</Badge>
+                    <Badge variant="gold" size="md">Direct Workmanship Resolution</Badge>
                     <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
                         Property Damage & Burnout Claims
                     </Text>
@@ -247,7 +247,7 @@ export default function DamageClaimScreen() {
                     <ShieldCheck size={22} color="#10B981" />
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.guaranteeTitle, { color: colors.textPrimary }]}>
-                            ₹5,00,000 Zero-Deductible Policy
+                            Supervisor Safety & Rework Policy
                         </Text>
                         <Text style={[styles.guaranteeDesc, { color: colors.textSecondary }]}>
                             If an authorized on-platform electrician causes accidental electrical damage to your wiring, appliances, or premises, Sheriyakam covers 100% of approved repair/replacement costs.

@@ -129,7 +129,7 @@ export default function TermsScreen() {
                         </Text>
                         <View style={{ paddingLeft: 16, gap: 4 }}>
                             <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
-                                1. Inform the technician and raise a dispute in the app or call support (+91 495 280 0000).
+                                1. Inform the technician and raise a dispute in the app or call support (+91 94471 28901).
                             </Text>
                             <Text style={[styles.subBullet, { color: colors.textSecondary }]}>
                                 2. A senior electrical supervisor will review the job photos and multitester readings within 24 hours.

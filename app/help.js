@@ -147,14 +147,14 @@ export default function HelpCenterScreen() {
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleCallEmergency = () => {
-        Linking.openURL('tel:+914952800000').catch(() => {
-            success('Calling 24/7 Emergency Incident Desk (+91 495 280 0000)');
+        Linking.openURL('tel:+919447128901').catch(() => {
+            success('Calling 24/7 Emergency Incident Desk (+91 94471 28901)');
         });
     };
 
     const handleCallOfficer = () => {
         Linking.openURL('tel:+914952800001').catch(() => {
-            success('Calling Grievance Desk (+91 495 280 0001)');
+            success('Calling Grievance Desk (+91 94471 28901)');
         });
     };
 
@@ -186,7 +186,7 @@ export default function HelpCenterScreen() {
                 <View style={styles.damageSection}>
                     <View style={styles.sectionHeaderRow}>
                         <View style={{ flex: 1 }}>
-                            <Badge variant="danger" size="sm">₹5,00,000 Insurance Protection</Badge>
+                            <Badge variant="danger" size="sm">Workmanship & Safety Guarantee</Badge>
                             <Text style={[styles.damageMainTitle, { color: colors.textPrimary }]}>
                                 Property Damage Claim Desk
                             </Text>
@@ -196,7 +196,7 @@ export default function HelpCenterScreen() {
                         </View>
                     </View>
                     <Text style={[styles.damageMainSubtitle, { color: colors.textSecondary }]}>
-                        In the rare event of accidental property damage, appliance burnout, or electrical fire during or immediately after a booking, our Commercial General Liability (CGL) policy provides up to ₹5,00,000 coverage.
+                        In the rare event of accidental property damage, appliance burnout, or electrical fire during or immediately after a booking, our Commercial General Liability (CGL) policy provides up to immediate rework & resolution coverage.
                     </Text>
 
                     {/* Damage Protocol Points */}
@@ -315,7 +315,7 @@ export default function HelpCenterScreen() {
                             </View>
                             <View style={styles.metaRow}>
                                 <Phone size={14} color={colors.textTertiary} />
-                                <Text style={[styles.metaText, { color: colors.textSecondary }]}>+91 495 280 0001 (Mon–Sat, 9AM–6PM)</Text>
+                                <Text style={[styles.metaText, { color: colors.textSecondary }]}>+91 94471 28901 (Mon–Sat, 9AM–6PM)</Text>
                             </View>
                             <View style={styles.metaRow}>
                                 <Clock size={14} color="#10B981" />

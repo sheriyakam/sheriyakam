@@ -129,7 +129,7 @@ export default function RefundPolicyScreen() {
                     <Text style={[styles.claimText, { color: colors.textSecondary }]}>
                         1. Open the Sheriyakam app and go to <Text style={{ fontWeight: '700' }}>My Bookings</Text>.
                         {'\n'}2. Select the completed job and tap <Text style={{ fontWeight: '700' }}>"Request 30-Day Free Rework"</Text>.
-                        {'\n'}3. Or call our customer helpline at <Text style={{ fontWeight: '700', color: colors.accent }}>+91 495 280 0000</Text> (8:00 AM – 9:00 PM).
+                        {'\n'}3. Or call our customer helpline at <Text style={{ fontWeight: '700', color: colors.accent }}>+91 94471 28901</Text> (8:00 AM – 9:00 PM).
                     </Text>
                     <Button variant="primary" onPress={() => router.push('/bookings')}>
                         View My Bookings

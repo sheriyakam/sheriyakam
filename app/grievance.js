@@ -60,7 +60,7 @@ export default function GrievanceRedressalScreen() {
     };
 
     const handleCallOfficer = () => {
-        const url = 'tel:+914952800000';
+        const url = 'tel:+919447128901';
         if (Platform.OS === 'web') window.location.href = url;
         else Linking.openURL(url);
     };
@@ -139,7 +139,7 @@ export default function GrievanceRedressalScreen() {
                         <View style={styles.contactRow}>
                             <Phone size={16} color={colors.accent} />
                             <Text style={[styles.contactText, { color: colors.textSecondary }]}>
-                                +91 495 280 0000 (Mon–Sat, 9:00 AM – 6:00 PM IST)
+                                +91 94471 28901 (Mon–Sat, 9:00 AM – 6:00 PM IST)
                             </Text>
                         </View>
                     </View>

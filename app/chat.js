@@ -80,8 +80,8 @@ export default function ChatScreen() {
     };
 
     const handleCall = () => {
-        Linking.openURL('tel:+914952800000').catch(() => {
-            success('Connecting via Masked VoIP PBX Bridge (+91 495 280 0000) to protect private numbers.', 'Masked Calling Active');
+        Linking.openURL('tel:+919447128901').catch(() => {
+            success('Connecting via Masked VoIP PBX Bridge (+91 94471 28901) to protect private numbers.', 'Masked Calling Active');
         });
     };
 
