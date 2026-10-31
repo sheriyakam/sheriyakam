@@ -15,6 +15,7 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Searchbar } from '../components/ui/Searchbar';
 import { Button } from '../components/ui/Button';
+import { SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY } from '../constants/contact';
 
 const HELP_CATEGORIES = [
     {
@@ -147,14 +148,14 @@ export default function HelpCenterScreen() {
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleCallEmergency = () => {
-        Linking.openURL('tel:+919447128901').catch(() => {
-            success('Calling 24/7 Emergency Incident Desk (+91 94471 28901)');
+        Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`).catch(() => {
+            success(`Calling 24/7 Emergency Incident Desk (${SUPPORT_PHONE_DISPLAY})`);
         });
     };
 
     const handleCallOfficer = () => {
-        Linking.openURL('tel:+914952800001').catch(() => {
-            success('Calling Grievance Desk (+91 94471 28901)');
+        Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`).catch(() => {
+            success(`Calling Grievance Desk (${SUPPORT_PHONE_DISPLAY})`);
         });
     };
 

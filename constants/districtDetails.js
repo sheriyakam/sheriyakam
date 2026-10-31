@@ -44,7 +44,7 @@ export const DISTRICT_SEO_DATA = {
             },
             {
                 q: 'How does electrician pricing work in Thalassery?',
-                a: 'All repairs follow our transparent upfront rate card (e.g., switches from ₹149, fan repairs from ₹249) with 30-day rework warranty. You receive a clear quote before work starts.'
+                a: 'All repairs follow our transparent upfront rate card (e.g., switches and diagnostic visits from ₹499, fan repairs from ₹549) with 30-day rework warranty. You receive a clear quote before work starts.'
             }
         ]
     },

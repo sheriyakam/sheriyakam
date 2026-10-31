@@ -10,9 +10,16 @@ import { formatINR } from '../utils/validation';
 export default function FloatingCartBar() {
     const router = useRouter();
     const pathname = usePathname();
-    const { itemCount, cartTotal } = useCart();
+    const { itemCount, cartTotal, total, items = [] } = useCart();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+
+    // Calculate pure item total fallback
+    const computedTotal = (cartTotal !== undefined && cartTotal > 0)
+        ? cartTotal 
+        : ((total !== undefined && total > 0) 
+            ? total 
+            : items.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 1)), 0));
 
     // Hide on cart and checkout pages to avoid redundancy
     if (!itemCount || itemCount === 0 || pathname === '/cart' || pathname === '/checkout') {
@@ -40,7 +47,7 @@ export default function FloatingCartBar() {
                             {itemCount} {itemCount === 1 ? 'Service' : 'Services'} Selected
                         </Text>
                         <Text style={styles.totalText}>
-                            Total: <Text style={styles.totalAmount}>{formatINR(cartTotal)}</Text>
+                            Total: <Text style={styles.totalAmount}>{formatINR(computedTotal)}</Text>
                         </Text>
                     </View>
                 </View>
@@ -63,12 +70,12 @@ export default function FloatingCartBar() {
 const styles = StyleSheet.create({
     outerWrapper: {
         position: 'absolute',
-        bottom: 16,
+        bottom: 76,
         left: 0,
         right: 0,
         alignItems: 'center',
         paddingHorizontal: 16,
-        zIndex: 9999,
+        zIndex: 50,
         pointerEvents: 'box-none',
     },
     container: {

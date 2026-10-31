@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions, Animated, Pressable, Platform } from 'react-native';
-import { Star, Clock, MapPin, Zap } from 'lucide-react-native';
+import { Clock, MapPin, Zap, ShieldCheck } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
 
@@ -31,7 +31,7 @@ const ServiceCard = ({
 
     const onPressIn = () => {
         Animated.spring(scaleValue, {
-            toValue: 0.96,
+            toValue: 0.98,
             useNativeDriver: true,
             speed: 25,
             bounciness: 8,
@@ -61,12 +61,12 @@ const ServiceCard = ({
 
     return (
         <Pressable
-            onPress={onPress}
+            onPress={handleBookClick}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ hovered }) => [
                 fullWidth ? { width: '100%' } : { width: cardWidth },
-                !fullWidth && !isSmallScreen && { maxWidth: 300 },
+                !fullWidth && !isSmallScreen && { maxWidth: 360 },
             ]}
         >
             {({ hovered }) => (
@@ -98,21 +98,24 @@ const ServiceCard = ({
                         {/* Subtle gradient overlay */}
                         <View style={styles.imageOverlay} />
 
-                        <View style={[
-                            styles.badge,
-                            isEmergency ? styles.badgeEmergency : {
-                                backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.92)',
-                            }
-                        ]}>
-                            <Star size={11} color={isEmergency ? "#fff" : "#F59E0B"} fill={isEmergency ? "#fff" : "#F59E0B"} />
-                            <Text style={[styles.badgeText, { color: isEmergency ? '#fff' : (isDark ? '#fff' : '#1a1a1a') }]}>{rating}</Text>
+                        {/* Top-Left: 30-Day Warranty Badge */}
+                        <View style={styles.warrantyBadge}>
+                            <ShieldCheck size={11} color="#10B981" />
+                            <Text style={styles.warrantyText}>30-DAY WARRANTY</Text>
                         </View>
 
-                        {rating >= 4.9 && (
-                            <View style={styles.topRatedBadge}>
-                                <Text style={styles.topRatedText}>TOP RATED</Text>
-                            </View>
-                        )}
+                        {/* Top-Right: Estimated Duration Badge */}
+                        <View style={[
+                            styles.durationBadge,
+                            {
+                                backgroundColor: isDark ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.92)',
+                            }
+                        ]}>
+                            <Clock size={11} color={colors.accent} />
+                            <Text style={[styles.durationText, { color: isDark ? '#fff' : '#0F172A' }]}>
+                                {(time || '30 MIN').toUpperCase()}
+                            </Text>
+                        </View>
                     </View>
 
                     {/* Content Section */}
@@ -122,7 +125,7 @@ const ServiceCard = ({
                             {isEmergency && <Zap size={16} color={COLORS.danger} fill={COLORS.danger} style={{ marginTop: 3 }} />}
                         </View>
 
-                        <Text style={[styles.specialty, { color: colors.accent }]}>{specialty}</Text>
+                        <Text style={[styles.specialty, { color: colors.accent }]} numberOfLines={2}>{specialty}</Text>
 
                         <View style={styles.metaContainer}>
                             {distance && (
@@ -187,7 +190,7 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     imageContainer: {
-        height: 120,
+        height: 130,
         width: '100%',
         position: 'relative',
     },
@@ -197,9 +200,33 @@ const styles = StyleSheet.create({
     },
     imageOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.06)',
     },
-    badge: {
+    warrantyBadge: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        gap: 4,
+        backgroundColor: 'rgba(6, 78, 59, 0.90)',
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.35)',
+        ...Platform.select({
+            web: { backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' },
+            default: {},
+        }),
+    },
+    warrantyText: {
+        color: '#A7F3D0',
+        fontSize: 9.5,
+        fontWeight: '800',
+        letterSpacing: 0.5,
+    },
+    durationBadge: {
         position: 'absolute',
         top: 8,
         right: 8,
@@ -207,43 +234,45 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 10,
+        borderRadius: 8,
         gap: 4,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.15)',
         ...Platform.select({
-            web: { backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' },
+            web: { backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' },
             default: {},
         }),
     },
-    badgeEmergency: {
-        backgroundColor: COLORS.danger,
-    },
-    badgeText: {
-        fontSize: 12,
+    durationText: {
+        fontSize: 10,
         fontWeight: '700',
+        letterSpacing: 0.4,
     },
     content: {
-        padding: 12,
+        padding: 14,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 3,
+        marginBottom: 4,
     },
     name: {
         fontSize: 15,
         fontWeight: '700',
         flex: 1,
         letterSpacing: -0.2,
+        lineHeight: 20,
     },
     specialty: {
-        fontSize: 11,
+        fontSize: 11.5,
         fontWeight: '500',
         marginBottom: 8,
+        lineHeight: 16,
     },
     metaContainer: {
         flexDirection: 'row',
-        gap: 10,
+        gap: 12,
         marginBottom: 10,
     },
     metaItem: {
@@ -259,10 +288,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 2,
-        paddingTop: 8,
+        marginTop: 4,
+        paddingTop: 10,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(128,128,128,0.1)',
+        borderTopColor: 'rgba(128,128,128,0.12)',
     },
     price: {
         fontSize: 18,
@@ -270,12 +299,12 @@ const styles = StyleSheet.create({
         letterSpacing: -0.3,
     },
     bookBtn: {
-        minHeight: 44,
-        minWidth: 44,
+        minHeight: 40,
+        minWidth: 80,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 9,
         borderRadius: 10,
     },
     bookBtnText: {
@@ -284,27 +313,6 @@ const styles = StyleSheet.create({
         fontSize: 12.5,
         letterSpacing: 0.2,
     },
-    topRatedBadge: {
-        position: 'absolute',
-        top: 8,
-        left: 8,
-        backgroundColor: '#1E40AF',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
-        elevation: 3,
-        shadowColor: "#1E40AF",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-    },
-    topRatedText: {
-        color: '#ffffff',
-        fontSize: 9,
-        fontWeight: '800',
-        textTransform: 'uppercase',
-        letterSpacing: 0.8,
-    }
 });
 
 export default React.memo(ServiceCard);

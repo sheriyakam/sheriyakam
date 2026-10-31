@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useCart } from '../context/CartContext';
 import { COLORS } from '../constants/theme';
 import { openWhatsApp } from '../utils/whatsapp';
+import { SUPPORT_PHONE } from '../constants/contact';
 
 export default function StickyMobileCTA({ onBookPress }) {
     const router = useRouter();
@@ -26,7 +27,7 @@ export default function StickyMobileCTA({ onBookPress }) {
     if (pathname && hiddenPaths.some(p => pathname.startsWith(p))) return null;
 
     const handleCall = () => {
-        const phoneUrl = 'tel:+914952800000';
+        const phoneUrl = `tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`;
         if (Platform.OS === 'web') {
             window.location.href = phoneUrl;
         } else {

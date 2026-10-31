@@ -1,4 +1,5 @@
 import { PILOT_ZONE, SUPPORT_PHONE_DISPLAY } from '../constants/contact';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image,
@@ -47,6 +48,7 @@ const IMAGE_MAP = {
   'ac.png': require('../assets/images/ac.png'),
   'cctv.png': require('../assets/images/cctv.png'),
   'automation.png': require('../assets/images/automation.png'),
+  'mcb.png': { uri: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80' },
 };
 
 const MOCK_SERVICES = [
@@ -88,7 +90,7 @@ const MOCK_SERVICES = [
     time: "45 min",
     price: 349,
     category: "Electrical",
-    image: require('../assets/images/emergency.png')
+    image: { uri: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80' }
   },
   {
     id: 5,
@@ -156,7 +158,7 @@ export default function HomeScreen() {
   const isTablet = screenWidth >= 640 && screenWidth < 1024;
   const isDesktop = screenWidth >= 1024;
   const isWide = screenWidth >= 768;
-  const cardWidth = isDesktop ? '23.8%' : isTablet ? '31.6%' : '48.5%';
+  const cardWidth = isDesktop ? '31.8%' : isTablet ? '48.5%' : '100%';
 
   const [selectedService, setSelectedService] = useState(null);
   const [quickLeadModalVisible, setQuickLeadModalVisible] = useState(false);
@@ -164,6 +166,30 @@ export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
   const [locationName, setLocationName] = useState('Thalassery, Kerala');
+  useEffect(() => {
+    async function loadSavedLocation() {
+      try {
+        const saved = await AsyncStorage.getItem('sheriyakam_selected_location');
+        if (saved) {
+          setLocationName(saved);
+        } else if (Platform.OS === 'web' && typeof localStorage !== 'undefined') {
+          const webSaved = localStorage.getItem('sheriyakam_selected_location');
+          if (webSaved) setLocationName(webSaved);
+        }
+      } catch (e) {}
+    }
+    loadSavedLocation();
+  }, []);
+
+  const handleLocationSelect = async (loc) => {
+    setLocationName(loc);
+    try {
+      await AsyncStorage.setItem('sheriyakam_selected_location', loc);
+      if (Platform.OS === 'web' && typeof localStorage !== 'undefined') {
+        localStorage.setItem('sheriyakam_selected_location', loc);
+      }
+    } catch (e) {}
+  };
   const [locationCoords, setLocationCoords] = useState(null);
   const [services, setServices] = useState(MOCK_SERVICES);
   const [searchQuery, setSearchQuery] = useState('');
@@ -280,7 +306,7 @@ export default function HomeScreen() {
     openQuickLead({
       id: service.id || (service.name || '').toLowerCase().replace(/\s+/g, '-'),
       label: service.name,
-      price: typeof service.price === 'number' ? `From ₹${service.price}` : (service.price || 'From ₹249'),
+      price: typeof service.price === 'number' ? `From ₹${service.price}` : (service.price || 'From ₹499'),
       desc: service.specialty || service.description || 'Verified master electrician service'
     });
   }, [openQuickLead]);
@@ -485,7 +511,7 @@ export default function HomeScreen() {
                     "name": "Diagnostic & Fault Inspection Visit",
                     "description": "Multimeter fault finding & upfront quote, adjustable against final bill."
                   },
-                  "price": "149",
+                  "price": "499",
                   "priceCurrency": "INR"
                 },
                 {
@@ -495,7 +521,7 @@ export default function HomeScreen() {
                     "name": "Ceiling & Exhaust Fan Repair",
                     "description": "Capacitor fix, bearing noise troubleshooting, and regulator replacement."
                   },
-                  "price": "249",
+                  "price": "549",
                   "priceCurrency": "INR"
                 },
                 {
@@ -505,7 +531,7 @@ export default function HomeScreen() {
                     "name": "Switch & Socket Replacement",
                     "description": "Replace sparking switches, loose plug sockets, and burned 6A/16A points."
                   },
-                  "price": "149",
+                  "price": "499",
                   "priceCurrency": "INR"
                 },
                 {
@@ -515,7 +541,7 @@ export default function HomeScreen() {
                     "name": "MCB & Fuse Box Tripping (DB Repair)",
                     "description": "Distribution board short circuit isolation and tripping MCB troubleshooting."
                   },
-                  "price": "349",
+                  "price": "649",
                   "priceCurrency": "INR"
                 },
                 {
@@ -525,7 +551,7 @@ export default function HomeScreen() {
                     "name": "Complete Home Wiring & Safety Earthing",
                     "description": "Full house rewiring, electric shock prevention, and earth pit installation."
                   },
-                  "price": "550",
+                  "price": "899",
                   "priceCurrency": "INR"
                 },
                 {
@@ -535,7 +561,7 @@ export default function HomeScreen() {
                     "name": "Inverter & Battery Wiring",
                     "description": "Battery wiring, changeover switch connection, and power backup testing."
                   },
-                  "price": "500",
+                  "price": "749",
                   "priceCurrency": "INR"
                 }
               ]
@@ -600,7 +626,7 @@ export default function HomeScreen() {
                 "name": "How much does an electrician cost in Kerala?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Standard electrical repairs start at ₹149 for switch replacements and ₹249 for fan repairs through Sheriyakam. All bookings include upfront transparent pricing, verified wireman licensing, and a 30-day rework warranty."
+                  "text": "Standard electrical repairs start at ₹499 for switch replacements and diagnostic inspections through Sheriyakam. All bookings include upfront transparent pricing, verified wireman licensing, and a 30-day rework warranty."
                 }
               },
               {
@@ -633,7 +659,7 @@ export default function HomeScreen() {
           <Zap size={14} color="#FCA5A5" fill="#FCA5A5" />
         </Animated.View>
         <Text style={styles.emergencyStripText}>
-          24/7 Emergency Dispatch — 90 Min Response Across Kerala
+          ⚡ Local Dispatch — 90 Min Response in Thalassery & Mahe
         </Text>
       </View>
 
@@ -799,7 +825,7 @@ export default function HomeScreen() {
                   <Search size={18} color="#94a3b8" />
                   <TextInput
                     style={styles.searchInput}
-                    placeholder="Search services — Fan, Switch, MCB, Inverter, Wiring..."
+                    placeholder="Search 6 core electrical services..."
                     placeholderTextColor="#94a3b8"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -852,7 +878,7 @@ export default function HomeScreen() {
           {/* SERVICES SECTION — 6 Core Streamlined Options           */}
           {/* ═══════════════════════════════════════════════════════ */}
           <SectionErrorBoundary name="Services Catalog">
-          <View style={{ marginHorizontal: SPACING.md, marginTop: SPACING.lg, marginBottom: SPACING.sm }}>
+          <View nativeID="services" id="services" style={{ marginHorizontal: SPACING.md, marginTop: SPACING.lg, marginBottom: SPACING.sm }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>
                 Core Electrical Services
@@ -869,18 +895,38 @@ export default function HomeScreen() {
           {filteredServices.length === 0 ? (
             <View style={styles.emptyServices}>
               <Search size={40} color={colors.textTertiary} />
-              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
-                No services found for "{searchQuery}"
+              <Text style={[styles.emptyText, { color: colors.textPrimary, fontWeight: "700", fontSize: 16, marginTop: 8 }]}>
+                No matching service for "{searchQuery}"
+              </Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 13, textAlign: "center", maxWidth: 440, marginVertical: 6, lineHeight: 18 }}>
+                Not sure what is broken? Book our ₹149 Fault Inspection instead — our licensed wireman will test on-site with a digital multimeter and provide an upfront quote before any work starts.
               </Text>
               <TouchableOpacity
-                style={[styles.resetBtn, { borderColor: colors.accent }]}
+                style={[styles.bookInspectionBtn, { backgroundColor: colors.accent }]}
+                onPress={() => handleServiceClick(MOCK_SERVICES[0])}
+                activeOpacity={0.85}
+              >
+                <Zap size={15} color="#fff" fill="#fff" />
+                <Text style={{ color: "#fff", fontWeight: "700", fontSize: 13.5 }}>
+                  Book ₹149 Fault Inspection Instead
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.resetBtn, { borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)", marginTop: 8 }]}
                 onPress={() => setSearchQuery('')}
               >
-                <Text style={{ color: colors.accent, fontWeight: '600' }}>Show All Services</Text>
+                <Text style={{ color: colors.textSecondary, fontWeight: "600", fontSize: 12.5 }}>Show All 6 Services</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.grid}>
+            <View style={[
+              styles.grid,
+              Platform.OS === "web" && {
+                display: "grid",
+                gridTemplateColumns: isDesktop ? "repeat(3, minmax(0, 1fr))" : isTablet ? "repeat(2, minmax(0, 1fr))" : "1fr",
+                gap: 20,
+              }
+            ]}>
               {filteredServices.map((service, index) => {
                 const cardOpacity = cardsAnim.interpolate({
                   inputRange: [0, 1],
@@ -894,7 +940,10 @@ export default function HomeScreen() {
                 return (
                   <Animated.View
                     key={service.id}
-                    style={{ opacity: cardOpacity, transform: [{ translateY: cardTranslateY }], width: cardWidth, marginBottom: SPACING.md }}
+                    style={[
+                      { opacity: cardOpacity, transform: [{ translateY: cardTranslateY }], marginBottom: SPACING.md },
+                      Platform.OS === "web" ? { width: "100%" } : { width: cardWidth }
+                    ]}
                   >
                     <ServiceCard
                       {...service}
@@ -1169,7 +1218,7 @@ export default function HomeScreen() {
       <LocationModal
         visible={locationVisible}
         onClose={() => setLocationVisible(false)}
-        onLocationSelect={(loc) => setLocationName(loc)}
+        onLocationSelect={(loc) => handleLocationSelect(loc)}
         currentLocation={locationCoords}
       />
 
@@ -1201,7 +1250,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 80,
+    paddingBottom: 160,
     maxWidth: 1280,
     width: '100%',
     marginHorizontal: 'auto',
@@ -1503,7 +1552,8 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    gap: 16,
     alignItems: 'stretch',
     paddingHorizontal: SPACING.md,
   },
@@ -1517,6 +1567,16 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     textAlign: 'center',
+  },
+  bookInspectionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 6,
   },
   resetBtn: {
     paddingHorizontal: 20,

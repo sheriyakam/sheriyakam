@@ -78,12 +78,16 @@ export const CartProvider = ({ children }) => {
 
     const addItem = useCallback((service, quantity = 1, addons = [], notes = '') => {
         setItems((prev) => {
+            const rawPrice = service.price !== undefined ? service.price : (service.startingPrice || 299);
+            const numPrice = Number(rawPrice) || 0;
             const existingIndex = prev.findIndex((i) => i.id === service.id);
             if (existingIndex > -1) {
                 const updated = [...prev];
+                const newQty = (Number(updated[existingIndex].quantity) || 0) + (Number(quantity) || 1);
                 updated[existingIndex] = {
                     ...updated[existingIndex],
-                    quantity: updated[existingIndex].quantity + quantity,
+                    price: numPrice,
+                    quantity: newQty,
                     addons: addons.length > 0 ? addons : updated[existingIndex].addons,
                     notes: notes || updated[existingIndex].notes,
                 };
@@ -91,13 +95,14 @@ export const CartProvider = ({ children }) => {
             } else {
                 return [...prev, {
                     id: service.id,
-                    title: service.title,
-                    price: service.price || 299,
-                    originalPrice: service.originalPrice || Math.round((service.price || 299) * 1.3),
-                    category: service.category || 'Electrical Repair',
+                    title: service.title || service.name || 'Electrical Service',
+                    name: service.name || service.title || 'Electrical Service',
+                    price: numPrice,
+                    originalPrice: Number(service.originalPrice) || Math.round(numPrice * 1.3),
+                    category: service.category || 'Electrical',
                     image: service.image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=80',
-                    duration: service.duration || '45-60 mins',
-                    quantity,
+                    duration: service.duration || service.time || '45 mins',
+                    quantity: Number(quantity) || 1,
                     addons,
                     notes,
                 }];
@@ -110,11 +115,12 @@ export const CartProvider = ({ children }) => {
     }, []);
 
     const updateQuantity = useCallback((serviceId, quantity) => {
-        if (quantity <= 0) {
+        const numQty = Number(quantity) || 0;
+        if (numQty <= 0) {
             removeItem(serviceId);
             return;
         }
-        setItems((prev) => prev.map((i) => i.id === serviceId ? { ...i, quantity } : i));
+        setItems((prev) => prev.map((i) => i.id === serviceId ? { ...i, quantity: numQty } : i));
     }, [removeItem]);
 
     const clearCart = useCallback(() => {
@@ -131,8 +137,10 @@ export const CartProvider = ({ children }) => {
 
         const promo = PROMO_CODES[cleanCode];
         const currentSubtotal = items.reduce((acc, item) => {
-            const itemBase = item.price * item.quantity;
-            const addonTotal = (item.addons || []).reduce((sum, a) => sum + (a.price || 0), 0) * item.quantity;
+            const numPrice = Number(item.price) || 0;
+            const numQty = Number(item.quantity) || 1;
+            const itemBase = numPrice * numQty;
+            const addonTotal = (item.addons || []).reduce((sum, a) => sum + (Number(a.price) || 0), 0) * numQty;
             return acc + itemBase + addonTotal;
         }, 0);
 
@@ -153,11 +161,13 @@ export const CartProvider = ({ children }) => {
         setPromoData(null);
     }, []);
 
-    // Price Calculations
+    // Price Calculations - strictly pure numbers
     const subtotal = useMemo(() => {
         return items.reduce((acc, item) => {
-            const itemBase = item.price * item.quantity;
-            const addonTotal = (item.addons || []).reduce((sum, a) => sum + (a.price || 0), 0) * item.quantity;
+            const numPrice = Number(item.price) || 0;
+            const numQty = Number(item.quantity) || 1;
+            const itemBase = numPrice * numQty;
+            const addonTotal = (item.addons || []).reduce((sum, a) => sum + (Number(a.price) || 0), 0) * numQty;
             return acc + itemBase + addonTotal;
         }, 0);
     }, [items]);
@@ -191,7 +201,7 @@ export const CartProvider = ({ children }) => {
     }, [subtotal, promoDiscount, emergencyFee, gst, platformFee]);
 
     const itemCount = useMemo(() => {
-        return items.reduce((acc, curr) => acc + curr.quantity, 0);
+        return items.reduce((acc, curr) => acc + (Number(curr.quantity) || 1), 0);
     }, [items]);
 
     const selectedAddress = useMemo(() => {
@@ -225,6 +235,7 @@ export const CartProvider = ({ children }) => {
             gst,
             platformFee,
             total,
+            cartTotal: subtotal,
             addresses,
             selectedAddress,
             selectedAddressId,
@@ -249,6 +260,7 @@ export const useCart = () => {
             tax: 0,
             deliveryFee: 0,
             total: 0,
+            cartTotal: 0,
             promoCode: '',
             promoData: null,
             selectedAddress: null,

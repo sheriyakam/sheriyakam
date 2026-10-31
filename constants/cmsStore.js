@@ -50,11 +50,11 @@ const DEFAULT_FAQS = [
 ];
 
 const DEFAULT_TARIFFS = [
-    { id: 't-switch', name: 'Switchboard, Socket & Plug Repair', price: 149, category: 'Electrical', time: '30 mins', desc: 'Sparking switches, burnt plugs, and 6A/16A power points (plus ISI spares).' },
-    { id: 't-fan', name: 'Ceiling & Exhaust Fan Repair / Installation', price: 249, category: 'Electrical', time: '30 mins', desc: 'Capacitor replacement, speed regulator, or new fan mounting.' },
-    { id: 't-mcb', name: 'MCB, RCCB & Fuse Box Tripping (DB Triage)', price: 349, category: 'Emergency', time: '45 mins', desc: 'Distribution board earth leakage trace & breaker isolation.' },
-    { id: 't-inverter', name: 'Inverter & Battery Wiring Setup', price: 499, category: 'Electrical', time: '60 mins', desc: 'Single/double battery wiring & backup load routing.' },
-    { id: 't-wiring', name: 'House Wiring, Additional Points & Earthing', price: 550, category: 'Electrical', time: '1-2 hrs', desc: 'Full house rewiring, earth pit rod & custom quote after on-site inspection.' }
+    { id: 't-switch', name: 'Switchboard, Socket & Plug Repair', price: 499, category: 'Electrical', time: '30 mins', desc: 'Sparking switches, burnt plugs, and 6A/16A power points (plus ISI spares).' },
+    { id: 't-fan', name: 'Ceiling & Exhaust Fan Repair / Installation', price: 549, category: 'Electrical', time: '30 mins', desc: 'Capacitor replacement, speed regulator, or new fan mounting.' },
+    { id: 't-mcb', name: 'MCB, RCCB & Fuse Box Tripping (DB Triage)', price: 649, category: 'Emergency', time: '45 mins', desc: 'Distribution board earth leakage trace & breaker isolation.' },
+    { id: 't-inverter', name: 'Inverter & Battery Wiring Setup', price: 749, category: 'Electrical', time: '60 mins', desc: 'Single/double battery wiring & backup load routing.' },
+    { id: 't-wiring', name: 'House Wiring, Additional Points & Earthing', price: 899, category: 'Electrical', time: '1-2 hrs', desc: 'Full house rewiring, earth pit rod & custom quote after on-site inspection.' }
 ];
 
 const DEFAULT_DISTRICTS = [

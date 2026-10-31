@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { AlertTriangle, RefreshCw, Phone } from 'lucide-react-native';
 import { captureException } from '../services/sentry';
+import { SUPPORT_PHONE } from '../constants/contact';
 
 export default class SectionErrorBoundary extends React.Component {
     constructor(props) {
@@ -50,7 +51,7 @@ export default class SectionErrorBoundary extends React.Component {
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 style={styles.phoneBtn}
-                                onPress={() => Linking.openURL('tel:04902996789')}
+                                onPress={() => Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`)}
                                 activeOpacity={0.8}
                             >
                                 <Phone size={13} color="#2563EB" style={{ marginRight: 5 }} />

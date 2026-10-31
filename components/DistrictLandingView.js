@@ -88,7 +88,7 @@ export default function DistrictLandingView({ districtKey = 'kozhikode' }) {
                         "url": data.canonical,
                         "telephone": data.phone || "+91 94471 28901",
                         "email": "support@sheriyakam.in",
-                        "priceRange": "₹149 - ₹1,499",
+                        "priceRange": "₹499 - ₹2,499",
                         "image": "https://sheriyakam.vercel.app/og-image.png",
                         "provider": {
                             "@type": "Organization",

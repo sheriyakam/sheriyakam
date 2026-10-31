@@ -95,7 +95,7 @@ export default function CartScreen() {
                 {items.map((item) => (
                     <Card key={item.id} variant="default" style={styles.itemCard}>
                         <View style={styles.itemRow}>
-                            <Image source={{ uri: item.image }} style={styles.itemImage} />
+                            <Image source={typeof item.image === 'string' ? { uri: item.image } : (item.image || { uri: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=80' })} style={styles.itemImage} />
 
                             <View style={styles.itemInfo}>
                                 <Text style={[styles.itemTitle, { color: colors.textPrimary }]}>

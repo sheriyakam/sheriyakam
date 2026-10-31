@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useRouter } from 'expo-router';
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Copy, Check, Home, Phone, MessageCircle } from 'lucide-react-native';
 import { captureException } from '../services/sentry';
+import { SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY, SUPPORT_WHATSAPP } from '../constants/contact';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -183,7 +184,7 @@ const ErrorFallbackUI = ({ error, errorInfo, onRetry, fallbackMessage }) => {
                     <View style={styles.supportRow}>
                         <TouchableOpacity 
                             style={[styles.supportBtn, { backgroundColor: '#10B981' }]} 
-                            onPress={() => Linking.openURL('https://wa.me/917594056789?text=Hi%20Sheriyakam%20Team%2C%20I%20faced%20an%20error%20on%20the%20website%20and%20need%20help.')}
+                            onPress={() => Linking.openURL(`https://wa.me/${SUPPORT_WHATSAPP}?text=Hi%20Sheriyakam%20Team%2C%20I%20faced%20an%20error%20on%20the%20website%20and%20need%20help.`)}
                             activeOpacity={0.8}
                         >
                             <MessageCircle size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
@@ -191,11 +192,11 @@ const ErrorFallbackUI = ({ error, errorInfo, onRetry, fallbackMessage }) => {
                         </TouchableOpacity>
                         <TouchableOpacity 
                             style={[styles.supportBtn, { backgroundColor: colors.bgSecondary, borderColor: colors.border, borderWidth: 1 }]} 
-                            onPress={() => Linking.openURL('tel:04902996789')}
+                            onPress={() => Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`)}
                             activeOpacity={0.8}
                         >
                             <Phone size={15} color={colors.textPrimary} style={{ marginRight: 6 }} />
-                            <Text style={[styles.supportBtnText, { color: colors.textPrimary }]}>0490 299 6789</Text>
+                            <Text style={[styles.supportBtnText, { color: colors.textPrimary }]}>{SUPPORT_PHONE_DISPLAY}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

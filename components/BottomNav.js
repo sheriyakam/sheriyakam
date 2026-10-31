@@ -40,7 +40,7 @@ export default function BottomNav() {
         {
             name: 'Bookings',
             icon: History,
-            path: '/dashboard',
+            path: '/bookings',
         },
         {
             name: user ? 'Account' : 'Login',
@@ -55,6 +55,27 @@ export default function BottomNav() {
     };
 
     const handlePress = (item) => {
+        if (item.name === 'Services') {
+            if (pathname === '/') {
+                if (Platform.OS === 'web' && typeof document !== 'undefined') {
+                    const el = document.getElementById('services');
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth' });
+                        return;
+                    }
+                }
+            }
+            router.push('/services');
+            return;
+        }
+        if (item.name === 'Emergency') {
+            router.push('/emergency-electrician');
+            return;
+        }
+        if (item.name === 'Bookings') {
+            router.push('/bookings');
+            return;
+        }
         router.push(item.path);
     };
 
@@ -129,9 +150,12 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
+        height: 64,
+        zIndex: 40,
         borderTopWidth: 1,
-        paddingBottom: Platform.OS === 'ios' ? 26 : 8,
-        paddingTop: 6,
+        justifyContent: 'center',
+        paddingBottom: Platform.OS === 'ios' ? 16 : 4,
+        paddingTop: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -8 },
         shadowOpacity: 0.08,

@@ -13,16 +13,17 @@ import { COLORS } from '../constants/theme';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import { openWhatsApp } from '../utils/whatsapp';
+import { SUPPORT_PHONE } from '../constants/contact';
 import { createBooking } from '../constants/bookingStore';
 import { ClaudeAiService } from '../services/claudeAiService';
 import { findCustomerByPhone, recordCustomerBooking } from '../constants/customerStore';
 
 const PROBLEM_OPTIONS = [
-    { id: 'fan', label: 'Fan Repair / Slow Speed / Noise', price: 'From ₹249', icon: Fan, desc: 'Capacitor fix, bearing noise, or regulator change' },
-    { id: 'switch', label: 'Switch & Socket Sparking / Burned', price: 'From ₹149', icon: Plug, desc: 'Replace burned 6A/16A switchboards or AC points' },
-    { id: 'mcb', label: 'Power Outage / MCB Fuse Box Tripping', price: 'From ₹349', icon: Zap, desc: 'Find short circuits & fix tripping distribution box' },
-    { id: 'wiring', label: 'Wiring & Safety Earthing (Shock Fix)', price: 'From ₹550', icon: ShieldCheck, desc: 'Full home wiring, shock hazard check & ground rod' },
-    { id: 'inverter', label: 'Inverter / Battery / UPS Wiring', price: 'From ₹500', icon: BatteryCharging, desc: 'Battery terminal connection & changeover switch' },
+    { id: 'fan', label: 'Fan Repair / Slow Speed / Noise', price: 'From ₹549', icon: Fan, desc: 'Capacitor fix, bearing noise, or regulator change' },
+    { id: 'switch', label: 'Switch & Socket Sparking / Burned', price: 'From ₹499', icon: Plug, desc: 'Replace burned 6A/16A switchboards or AC points' },
+    { id: 'mcb', label: 'Power Outage / MCB Fuse Box Tripping', price: 'From ₹649', icon: Zap, desc: 'Find short circuits & fix tripping distribution box' },
+    { id: 'wiring', label: 'Wiring & Safety Earthing (Shock Fix)', price: 'From ₹899', icon: ShieldCheck, desc: 'Full home wiring, shock hazard check & ground rod' },
+    { id: 'inverter', label: 'Inverter / Battery / UPS Wiring', price: 'From ₹749', icon: BatteryCharging, desc: 'Battery terminal connection & changeover switch' },
     { id: 'callback', label: 'Just call me — I have another question', price: 'Free', icon: Phone, desc: 'Direct phone callback from master electrician' },
 ];
 
@@ -69,7 +70,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                 const matchedObj = PROBLEM_OPTIONS.find(p => p.id === triage.matchedServiceId) || {
                     id: triage.matchedServiceId || 'ai-custom',
                     label: triage.matchedServiceName,
-                    price: triage.estimatedPrice || 'From ₹249',
+                    price: triage.estimatedPrice || 'From ₹499',
                     icon: Zap,
                     desc: triage.diagnosisNote || 'AI Diagnosed Service'
                 };
@@ -129,7 +130,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
                 district: 'Kannur',
                 taluk: 'Thalassery',
                 address: location || 'Thalassery / Kannur',
-                price: parseInt((selectedProblem.price || '249').replace(/\D/g, ''), 10) || 249,
+                price: parseInt((selectedProblem.price || '499').replace(/\D/g, ''), 10) || 499,
                 status: 'open',
                 preferredTime: preferredTime,
                 source: 'QuickLeadModal Web',
@@ -154,7 +155,7 @@ export default function QuickLeadModal({ visible, onClose, initialService = null
     };
 
     const handleCallHelpline = () => {
-        const phoneUrl = 'tel:+914952800000';
+        const phoneUrl = `tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`;
         if (Platform.OS === 'web') window.location.href = phoneUrl;
         else Linking.openURL(phoneUrl);
     };

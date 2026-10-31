@@ -20,6 +20,8 @@ import LocationMap from './LocationMap';
 import { LocationsAPI } from '../services/supabaseAPI';
 import { mapplsService } from '../services/mapplsService';
 import { KERALA_DISTRICTS } from '../constants/locations';
+import { PILOT_ZONE } from '../constants/contact';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DEFAULT_KERALA_CITIES = KERALA_DISTRICTS.flatMap(d => [
     `${d.name}, Kerala`,
@@ -195,6 +197,18 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
         onClose();
     };
 
+    const handleTownSelect = async (town) => {
+        const displayStr = `${town.name} (${town.pincode})`;
+        try {
+            await AsyncStorage.setItem('sheriyakam_selected_location', displayStr);
+            if (Platform.OS === 'web' && typeof localStorage !== 'undefined') {
+                localStorage.setItem('sheriyakam_selected_location', displayStr);
+            }
+        } catch (e) {}
+        onLocationSelect(displayStr);
+        onClose();
+    };
+
     return (
         <Modal
             visible={visible}
@@ -275,7 +289,46 @@ const LocationModal = ({ visible, onClose, onLocationSelect, currentLocation }) 
                             </View>
                         </TouchableOpacity>
 
-                        <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>SUGGESTED CITIES</Text>
+                        <Text style={[styles.sectionTitle, { color: '#10B981', fontWeight: '700', letterSpacing: 0.5 }]}>
+                            ⚡ ACTIVE 90-MIN PILOT AREAS
+                        </Text>
+                        <View style={{ marginBottom: 14 }}>
+                            {PILOT_ZONE.activeTowns.filter(t => !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.pincode.includes(searchQuery)).map((town) => (
+                                <TouchableOpacity
+                                    key={town.id}
+                                    style={[
+                                        styles.cityItem,
+                                        {
+                                            borderColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.25)',
+                                            backgroundColor: isDark ? 'rgba(16, 185, 129, 0.05)' : 'rgba(16, 185, 129, 0.04)',
+                                            paddingVertical: 10,
+                                            paddingHorizontal: 12,
+                                            borderRadius: 10,
+                                            marginBottom: 6,
+                                        }
+                                    ]}
+                                    onPress={() => handleTownSelect(town)}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                            <MapPin size={16} color='#10B981' />
+                                            <View>
+                                                <Text style={{ fontSize: 13.5, fontWeight: '700', color: colors.textPrimary }}>
+                                                    {town.name} ({town.pincode})
+                                                </Text>
+                                                <Text style={{ fontSize: 11, color: colors.textTertiary }}>
+                                                    {town.type}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                                            <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>90 MIN</Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        <Text style={[styles.sectionTitle, { color: colors.textTertiary, marginTop: 4 }]}>OTHER KERALA LOCATIONS</Text>
 
                         {/* City List */}
                         <ScrollView style={{ maxHeight: 240 }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>

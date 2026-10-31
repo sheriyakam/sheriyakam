@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Download, WifiOff, X, Sparkles } from 'lucide-react-native';
 import { COLORS } from '../constants/theme';
+import { useCart } from '../context/CartContext';
 
 export default function PwaInstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [isInstallable, setIsInstallable] = useState(false);
     const [isOffline, setIsOffline] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
+    const { itemCount } = useCart();
 
     useEffect(() => {
         if (Platform.OS !== 'web' || typeof window === 'undefined') return;
@@ -49,7 +51,7 @@ export default function PwaInstallPrompt() {
         setDeferredPrompt(null);
     };
 
-    if (isDismissed) return null;
+    if (isDismissed || (itemCount && itemCount > 0)) return null;
 
     if (isOffline) {
         return (
@@ -96,7 +98,7 @@ export default function PwaInstallPrompt() {
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        bottom: 74, // Sits comfortably above BottomNav
+        bottom: 76, // Sits comfortably above BottomNav
         left: 16,
         right: 16,
         maxWidth: 500,

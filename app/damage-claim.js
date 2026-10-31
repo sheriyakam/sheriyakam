@@ -11,6 +11,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Input, TextArea } from '../components/ui/Input';
 import { Dropdown } from '../components/ui/Dropdown';
+import { SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY } from '../constants/contact';
 
 const INCIDENT_TYPES = [
     { label: 'Appliance Burnout (AC, Inverter, Fridge)', value: 'appliance_burnout' },
@@ -64,8 +65,8 @@ export default function DamageClaimScreen() {
     };
 
     const handleEmergencyCall = () => {
-        Linking.openURL('tel:+914952800001').catch(() => {
-            success('Calling Emergency Safety Desk (+91 94471 28901)');
+        Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`).catch(() => {
+            success(`Calling Emergency Safety Desk (${SUPPORT_PHONE_DISPLAY})`);
         });
     };
 

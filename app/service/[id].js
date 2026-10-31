@@ -41,7 +41,7 @@ export default function SingleServiceDetailScreen() {
         title: typeof id === 'string' ? id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Electrical Service',
         categoryName: 'Electrical',
         subcategoryName: 'Wiring & Repairs',
-        startingPrice: 299,
+        startingPrice: 499,
         duration: '45–60 mins',
         rating: 4.8,
         reviewsCount: 180,
@@ -79,13 +79,13 @@ export default function SingleServiceDetailScreen() {
     };
 
     const addonsTotal = selectedAddons.reduce((sum, item) => sum + (item.price || 0), 0);
-    const totalPrice = (service.startingPrice || service.price || 299) + addonsTotal;
+    const totalPrice = (service.startingPrice || service.price || 499) + addonsTotal;
 
     const handleBookNow = () => {
         addItem({
             id: service.id || service.slug,
             title: service.title,
-            price: service.startingPrice || service.price || 299,
+            price: service.startingPrice || service.price || 499,
             duration: service.duration,
             category: service.categoryName || 'Electrical',
         }, 1, selectedAddons);
@@ -100,8 +100,8 @@ export default function SingleServiceDetailScreen() {
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
             <Head>
-                <title>{`${service.title} in Kerala | ₹${service.startingPrice || 299} | Sheriyakam`}</title>
-                <meta name="description" content={`Book professional ${service.title} across Kerala. KSELB licensed technicians, upfront pricing of ₹${service.startingPrice || 299}, 30-day warranty & 90-min dispatch.`} />
+                <title>{`${service.title} in Kerala | ₹${service.startingPrice || 499} | Sheriyakam`}</title>
+                <meta name="description" content={`Book professional ${service.title} across Kerala. KSELB licensed technicians, upfront pricing of ₹${service.startingPrice || 499}, 30-day warranty & 90-min dispatch.`} />
                 <link rel="canonical" href={`https://sheriyakam.vercel.app/service/${id}`} />
             </Head>
 
@@ -176,7 +176,7 @@ export default function SingleServiceDetailScreen() {
                                 <View style={styles.priceRow}>
                                     <Text style={[styles.currencySymbol, { color: colors.accent }]}>₹</Text>
                                     <Text style={[styles.priceVal, { color: colors.accent }]}>
-                                        {service.startingPrice || service.price || 299}
+                                        {service.startingPrice || service.price || 499}
                                     </Text>
                                     <Text style={[styles.startingAtText, { color: colors.textTertiary }]}>
                                         (Standard Service Labour)
@@ -362,7 +362,7 @@ export default function SingleServiceDetailScreen() {
 
                                 <View style={styles.summaryItemRow}>
                                     <Text style={[styles.summaryItemLabel, { color: colors.textSecondary }]}>{service.title}</Text>
-                                    <Text style={[styles.summaryItemVal, { color: colors.textPrimary }]}>₹{service.startingPrice || 299}</Text>
+                                    <Text style={[styles.summaryItemVal, { color: colors.textPrimary }]}>₹{service.startingPrice || 499}</Text>
                                 </View>
 
                                 {selectedAddons.map(add => (

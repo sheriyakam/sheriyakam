@@ -122,7 +122,7 @@ export default function SingleBlogPostScreen() {
                         </Text>
                     </View>
                     <Text style={[styles.ctaDesc, { color: colors.textSecondary }]}>
-                        Book a certified master electrician in Kozhikode for a complete 18-point safety and voltage diagnostic for just ₹149.
+                        Book a certified master electrician in Kozhikode for a complete 18-point safety and voltage diagnostic for just ₹499.
                     </Text>
                     <Button
                         variant="primary"
@@ -131,7 +131,7 @@ export default function SingleBlogPostScreen() {
                         onPress={() => router.push('/search')}
                         style={{ marginTop: 12 }}
                     >
-                        Schedule Safety Diagnostic (₹149)
+                        Schedule Safety Diagnostic (₹499)
                     </Button>
                 </Card>
             </ScrollView>

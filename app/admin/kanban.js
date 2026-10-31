@@ -12,18 +12,18 @@ import { Button } from '../../components/ui/Button';
 
 const INITIAL_KANBAN = {
     new: [
-        { id: 'b_101', title: 'Main MCB Tripping Diagnostic', customer: 'Dr. Radhakrishnan', taluk: 'Kozhikode', time: '5m ago', price: 499, emergency: true },
-        { id: 'b_102', title: 'Exhaust Fan Installation', customer: 'Fathima Noor', taluk: 'Vadakara', time: '12m ago', price: 299, emergency: false },
+        { id: 'b_101', title: 'Main MCB Tripping Diagnostic', customer: 'Dr. Radhakrishnan', taluk: 'Kozhikode', time: '5m ago', price: 649, emergency: true },
+        { id: 'b_102', title: 'Exhaust Fan Installation', customer: 'Fathima Noor', taluk: 'Vadakara', time: '12m ago', price: 549, emergency: false },
     ],
     assigned: [
-        { id: 'b_103', title: 'Inverter Battery DC Cabling', customer: 'Manoj Kumar', partner: 'Sanoop K.', taluk: 'Kozhikode', time: '20m ago', price: 599, emergency: false },
+        { id: 'b_103', title: 'Inverter Battery DC Cabling', customer: 'Manoj Kumar', partner: 'Sanoop K.', taluk: 'Kozhikode', time: '20m ago', price: 749, emergency: false },
     ],
     in_progress: [
         { id: 'b_104', title: '3-Phase Switchboard Rewiring', customer: 'Grand Sweets', partner: 'Vinod M.', taluk: 'Thamarassery', time: '45m ago', price: 850, emergency: true },
     ],
     completed: [
-        { id: 'b_105', title: 'Ceiling Fan Capacitor Fix', customer: 'Kavitha R.', partner: 'Sanoop K.', taluk: 'Kozhikode', time: '2h ago', price: 249, emergency: false },
-        { id: 'b_106', title: 'AC 25A Isolator Mounting', customer: 'Dr. Anoop', partner: 'Rahim P.', taluk: 'Koyilandy', time: '3h ago', price: 449, emergency: false },
+        { id: 'b_105', title: 'Ceiling Fan Capacitor Fix', customer: 'Kavitha R.', partner: 'Sanoop K.', taluk: 'Kozhikode', time: '2h ago', price: 549, emergency: false },
+        { id: 'b_106', title: 'AC 25A Isolator Mounting', customer: 'Dr. Anoop', partner: 'Rahim P.', taluk: 'Koyilandy', time: '3h ago', price: 599, emergency: false },
     ],
 };
 

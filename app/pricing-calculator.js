@@ -15,11 +15,11 @@ import { soundFx } from '../services/audioFx';
 import { openWhatsApp } from '../utils/whatsapp';
 
 const SERVICES_CATALOG = [
-  { id: 'switch', name: 'Switch & Socket Replacement', basePrice: 149, time: '30 min', desc: 'Sparking switch, burnt plug socket, 6A/16A power points replacement.' },
-  { id: 'fan', name: 'Fan Repair & Installation', basePrice: 249, time: '30 min', desc: 'Ceiling, exhaust, or wall fan installation, capacitor replacement, wobble alignment.' },
-  { id: 'mcb', name: 'MCB & Distribution Box Tripping Fix', basePrice: 349, time: '45 min', desc: 'Breaker replacement, RCCB nuisance tripping diagnosis, phase balancing.' },
-  { id: 'inverter', name: 'Inverter & Battery Wiring', basePrice: 500, time: '60 min', desc: 'Dual-battery cabling, changeover switch installation, bypass testing.' },
-  { id: 'rewiring', name: 'Complete Home Rewiring Assessment', basePrice: 550, time: '90 min', desc: 'Full-house insulation resistance testing, load calculation, line tracer mapping.' },
+  { id: 'switch', name: 'Switch & Socket Replacement', basePrice: 499, time: '30 min', desc: 'Sparking switch, burnt plug socket, 6A/16A power points replacement.' },
+  { id: 'fan', name: 'Fan Repair & Installation', basePrice: 549, time: '30 min', desc: 'Ceiling, exhaust, or wall fan installation, capacitor replacement, wobble alignment.' },
+  { id: 'mcb', name: 'MCB & Distribution Box Tripping Fix', basePrice: 649, time: '45 min', desc: 'Breaker replacement, RCCB nuisance tripping diagnosis, phase balancing.' },
+  { id: 'inverter', name: 'Inverter & Battery Wiring', basePrice: 749, time: '60 min', desc: 'Dual-battery cabling, changeover switch installation, bypass testing.' },
+  { id: 'rewiring', name: 'Complete Home Rewiring Assessment', basePrice: 899, time: '90 min', desc: 'Full-house insulation resistance testing, load calculation, line tracer mapping.' },
 ];
 
 export default function PricingCalculatorScreen() {
@@ -72,7 +72,7 @@ export default function PricingCalculatorScreen() {
         <title>Transparent Electrical Pricing & Instant Calculator | Sheriyakam</title>
         <meta
           name="description"
-          content="Kerala's 100% transparent electrical service rate card. Starting at ₹149 for switch/socket replacement. No surge pricing, zero material markup, 30-day warranty."
+          content="Kerala's 100% transparent electrical service rate card. Starting at ₹499 for switch/socket replacement. No surge pricing, zero material markup, 30-day warranty."
         />
       </Head>
       <StatusBar barStyle="light-content" backgroundColor="#050814" />

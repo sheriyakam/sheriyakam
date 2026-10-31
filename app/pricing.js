@@ -10,12 +10,12 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 
 const STANDARD_RATES = [
-    { title: 'Home Inspection & Fault Diagnostic', price: '₹149', desc: 'Full testing of switchboard, earthing, and line shorts. Waived if service booked.' },
-    { title: 'Ceiling / Exhaust Fan Repair', price: '₹249', desc: 'Capacitor fix, noise troubleshooting, and regulator replacement.' },
-    { title: 'Modular Switchboard Fix (Up to 4 switches)', price: '₹299', desc: 'Burn repair, wiring restoration, and socket replacement.' },
-    { title: 'MCB Tripping & Short Circuit Resolution', price: '₹499', desc: 'High-voltage leakage detection and distribution box repair.' },
-    { title: 'Inverter & Battery Wiring Setup', price: '₹599', desc: 'DC cabling, bypass wiring, and power balancing.' },
-    { title: 'Emergency Night Breakdown Callout (Post 7 PM)', price: '₹799', desc: 'Immediate dispatch within 30 minutes in Kozhikode.' },
+    { title: 'Home Inspection & Fault Diagnostic', price: '₹499', desc: 'Full testing of switchboard, earthing, and line shorts. Waived if service booked.' },
+    { title: 'Modular Switchboard Fix (Up to 4 switches)', price: '₹499', desc: 'Burn repair, wiring restoration, and socket replacement.' },
+    { title: 'Ceiling / Exhaust Fan Repair', price: '₹549', desc: 'Capacitor fix, noise troubleshooting, and regulator replacement.' },
+    { title: 'MCB Tripping & Short Circuit Resolution', price: '₹649', desc: 'High-voltage leakage detection and distribution box repair.' },
+    { title: 'Inverter & Battery Wiring Setup', price: '₹749', desc: 'DC cabling, bypass wiring, and power balancing.' },
+    { title: 'Emergency Night Breakdown Callout (Post 7 PM)', price: '₹999', desc: 'Immediate dispatch within 30 minutes in Kozhikode.' },
 ];
 
 export default function PricingScreen() {
