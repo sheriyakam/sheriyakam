@@ -39,6 +39,16 @@ app.use((req, res, next) => {
 // Global rate limiting
 app.use(ipRateLimiter);
 
+// Request timeout protection (15s) to prevent hung connections (Pre-Deploy Check 10: Fault Tolerance)
+app.use((req, res, next) => {
+    req.setTimeout(15000, () => {
+        if (!res.headersSent) {
+            res.status(504).json({ error: 'Request timeout' });
+        }
+    });
+    next();
+});
+
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sheriyakam';
 
