@@ -1,34 +1,28 @@
 # Sheriyakam
+> Doorstep electrical repairs and licensed wiremen in Thalassery, Mahe, and North Malabar. Upfront transparent rate card starting from ₹499 with direct phone confirmation and 30-day workmanship warranty.
 
-> Sheriyakam is Kerala's verified on-demand electrical, AC, CCTV, and home maintenance service platform. We connect residential and commercial customers with licensed, background-checked electricians and technicians across all 14 districts in Kerala.
+## Key Capabilities & Real Facts
+- **Direct Wireman Dispatch**: Fast on-site response across Thalassery, Mahe, Dharmadam, Kadirur, Chokli, New Mahe, and Azhiyur.
+- **KSELB Certified Wiremen**: 100% of technicians hold valid wireman or supervisor licenses certified by the Kerala State Electricity Licensing Board.
+- **Upfront Standard Pricing**: Minimum starting rate of ₹499 for fault diagnostics and switchboard repairs; clear quote approved before any work begins.
+- **Pay After Completion**: Pay only after the repair is tested and demonstrated via UPI QR or cash.
+- **Workmanship Warranty**: 30-day rework warranty on all labor and service points repaired.
+- **Emergency Blackout Response**: Rapid triage for sparking, short circuits, tripping MCBs, and main line power outages.
 
-## Core Capabilities & Key Facts
-- **Rapid Emergency Dispatch**: 90-minute on-site response for power outages, short circuits, and critical electrical failures.
-- **Government Licensed Professionals**: 100% verified wireman and supervisor licenses certified by the Kerala Electrical Inspectorate.
-- **Transparent Pricing**: Upfront inspection tariffs starting from ₹350 with itemized rate cards before work begins.
-- **Domestic Safety Protection**: Every booking includes up to ₹5,00,000 accidental damage protection cover.
-- **Service Warranty**: 30-day rework guarantee on all completed installations and repairs.
-- **Operating Hours**: 24/7 emergency dispatch; 8:00 AM – 9:00 PM standard appointments.
+## Key Services & Starting Rates
+- [Fault Inspection & Multimeter Diagnosis](https://sheriyakam.vercel.app/): Comprehensive on-site diagnosis and line testing. Starting at ₹499 (adjustable against approved work).
+- [Switchboard, Socket & Plug Repair](https://sheriyakam.vercel.app/): Replacement of sparking switches, burnt sockets, and 16A points. Starting at ₹499.
+- [Ceiling & Exhaust Fan Repair / Installation](https://sheriyakam.vercel.app/fan-repair-kerala): Capacitor replacement, bearing noise fix, and new fan mounting. Starting at ₹549.
+- [MCB, RCCB & Fuse Box Tripping (DB Triage)](https://sheriyakam.vercel.app/emergency-electrician): Earth leakage trace, short circuit isolation, and breaker replacement. Starting at ₹649.
+- [Inverter & Battery Wiring Setup](https://sheriyakam.vercel.app/): Single/double battery DC cabling, changeover switch, and backup load routing. Starting at ₹749.
+- [House Wiring, Additional Points & Earthing](https://sheriyakam.vercel.app/house-rewiring-kerala): Concealed conduit wire pulling, earth pit installation, and safety assessment. Starting at ₹899.
+- [Emergency Night Breakdown Callout](https://sheriyakam.vercel.app/emergency-electrician): Priority dispatch for urgent power outages and fire hazards. Starting at ₹999.
 
-## Primary Services & Pricing
-- [Emergency Repair Specialist](https://sheriyakam.vercel.app/): 24/7 priority triage for short circuits, sparking, and blackout faults. Starting at ₹550.
-- [Fan Repair & Installation](https://sheriyakam.vercel.app/): Ceiling, exhaust, and BLDC fan installation and capacitor repairs. Starting at ₹350.
-- [Complete Home & Office Wiring](https://sheriyakam.vercel.app/): Concealed conduits, 3-phase load distribution, rewiring, and surge protection. Starting at ₹550.
-- [Distribution Board (DB) & Switchgear](https://sheriyakam.vercel.app/): MCB/RCCB tripping diagnostics, breaker replacements, and DB overhaul. Starting at ₹450.
-- [Inverter & UPS Setup](https://sheriyakam.vercel.app/): Battery water top-up, backup load optimization, and inverter wiring. Starting at ₹500.
-- [Air Conditioner (AC) Service & Repair](https://sheriyakam.vercel.app/): Jet wash cleaning, gas leakage refilling, capacitor replacements, and uninstallation. Starting at ₹650.
-- [CCTV Security Camera Setup](https://sheriyakam.vercel.app/): IP/HD camera mounting, DVR/NVR configuration, and remote mobile viewing. Starting at ₹550.
-- [Smart Home Automation](https://sheriyakam.vercel.app/): WiFi smart switches, automated lighting, and voice-controlled relays. Starting at ₹500.
+## Operating Region
+- **Active Pilot Zone**: Thalassery, Mahe, Dharmadam, Kadirur, Chokli, New Mahe, and Azhiyur (Kannur & Kozhikode borders).
 
-## Geographic Coverage
-Sheriyakam services all 14 districts across Kerala:
-- Thiruvananthapuram, Kollam, Pathanamthitta, Alappuzha, Kottayam, Idukki, Ernakulam (Kochi), Thrissur, Palakkad, Malappuram, Kozhikode, Wayanad, Kannur, and Kasaragod.
-
-## Key URLs & Resources
-- [Main Website & Booking App](https://sheriyakam.vercel.app/): Instant 60-second booking with verified partners.
-- [Frequently Asked Questions](https://sheriyakam.vercel.app/faq): Answers regarding licensing, pricing, and warranties.
-- [Transparent Pricing](https://sheriyakam.vercel.app/pricing): Full tariff cards and hourly labour estimates.
-- [About Sheriyakam](https://sheriyakam.vercel.app/about): Company mission, team, and service standards.
-- [Customer Reviews & Testimonials](https://sheriyakam.vercel.app/testimonials): Real customer ratings and feedback across 2,400+ jobs.
-- [Terms & Cancellation Policy](https://sheriyakam.vercel.app/terms): Customer policies and safety guidelines.
-- [Full LLM Knowledge Dossier](https://sheriyakam.vercel.app/llms-full.txt): Complete detailed service specifications and technical schema.
+## Contact & Booking
+- **Website**: https://sheriyakam.vercel.app
+- **WhatsApp & Call Helpline**: +91 94471 28901
+- **Email**: support@sheriyakam.in
+- **Operating Hours**: 24/7 Emergency Dispatch; 8:00 AM – 8:00 PM Standard Repairs

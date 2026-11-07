@@ -35,8 +35,10 @@ yarn-error.*
 *.pem
 
 # Local env files
-.env*.local
 .env
+.env.*
+.env*.local
+!.env.example
 
 # Vercel
 .vercel
@@ -47,6 +49,8 @@ yarn-error.*
 # IDE
 .vscode/
 .idea/
+.gradle/
+build/
 
 # Binaries
 *.exe
