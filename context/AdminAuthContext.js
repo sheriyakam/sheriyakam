@@ -57,7 +57,8 @@ export const AdminAuthProvider = ({ children }) => {
                 const { data: dbUser } = await UsersAPI.findByIdentifier(cleanUsername);
                 if (dbUser && dbUser.role === 'admin') {
                     const hashed = hashPassword(password);
-                    if (dbUser.password === password || dbUser.password === hashed) {
+                    // Safe cryptographic hash verification (no plain-text comparison)
+                    if (dbUser.password === hashed) {
                         const sessionPayload = {
                             user: { username: cleanUsername, role: 'admin', id: dbUser.id },
                             timestamp: Date.now()
@@ -73,11 +74,11 @@ export const AdminAuthProvider = ({ children }) => {
             }
         }
 
-        // 2. Check Environment Variable credentials (no plain text hardcoded in repo)
-        const envAdminUser = (process.env.EXPO_PUBLIC_ADMIN_USERNAME || 'admin').toLowerCase();
-        const envAdminPass = process.env.EXPO_PUBLIC_ADMIN_PASSWORD || 'sheriyakam_admin_2026';
+        // 2. Fallback to explicitly configured environment variables (disabled in production if unset)
+        const envAdminUser = (process.env.EXPO_PUBLIC_ADMIN_USERNAME || (__DEV__ ? 'admin' : '')).toLowerCase();
+        const envAdminPass = process.env.EXPO_PUBLIC_ADMIN_PASSWORD || (__DEV__ ? 'sheriyakam_admin_2026' : '');
 
-        if (cleanUsername === envAdminUser && password === envAdminPass) {
+        if (envAdminUser && envAdminPass && cleanUsername === envAdminUser && password === envAdminPass) {
             const sessionPayload = {
                 user: { username: cleanUsername, role: 'admin' },
                 timestamp: Date.now()

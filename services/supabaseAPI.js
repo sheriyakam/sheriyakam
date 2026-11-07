@@ -5,6 +5,7 @@
  */
 
 import { supabase, isSupabaseConfigured } from '../config/supabaseConfig';
+import { hashPassword } from '../utils/security';
 
 // ============================================================
 //  USERS API
@@ -20,7 +21,7 @@ export const UsersAPI = {
                 name: userData.name,
                 email: userData.email?.toLowerCase().trim(),
                 mobile: userData.mobile,
-                password: userData.password, // TODO: hash with Supabase Auth
+                password: userData.password ? hashPassword(userData.password) : null,
                 role: userData.role || 'user',
             }])
             .select()
@@ -28,24 +29,28 @@ export const UsersAPI = {
         return { data, error };
     },
 
-    /** Find user by email */
+    /** Find user by email (excludes sensitive password hashes) */
     async findByEmail(email) {
         if (!isSupabaseConfigured) return { data: null, error: null };
+        const cleanEmail = (email || '').toLowerCase().trim().replace(/[^a-z0-9@._+-]/g, '');
         const { data, error } = await supabase
             .from('users')
-            .select('*')
-            .eq('email', email.toLowerCase().trim())
+            .select('id, name, email, mobile, role, created_at')
+            .eq('email', cleanEmail)
             .single();
         return { data, error };
     },
 
-    /** Find user by email or mobile */
+    /** Find user by email or mobile for credential authentication */
     async findByIdentifier(identifier) {
         if (!isSupabaseConfigured) return { data: null, error: null };
+        // Parameter sanitization to prevent PostgREST query injection
+        const clean = (identifier || '').replace(/[^a-zA-Z0-9@._+-]/g, '').trim();
+        if (!clean) return { data: null, error: new Error('Invalid identifier') };
         const { data, error } = await supabase
             .from('users')
-            .select('*')
-            .or(`email.eq.${identifier.toLowerCase().trim()},mobile.eq.${identifier}`)
+            .select('id, name, email, mobile, role, password, created_at')
+            .or(`email.eq.${clean.toLowerCase()},mobile.eq.${clean}`)
             .single();
         return { data, error };
     },

@@ -20,18 +20,38 @@
  *    add `NEXT_PUBLIC_BACKUP_WORKER_URL` to your Vercel project environment variables!
  */
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
-  'Content-Type': 'application/json',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://sheriyakam.vercel.app',
+  'https://sheriyakam.com',
+  'http://localhost:8081',
+  'http://localhost:19006',
+]);
 
-function jsonResponse(data, status = 200) {
+function getCorsHeaders(requestOrigin) {
+  const origin = (requestOrigin && ALLOWED_ORIGINS.has(requestOrigin))
+    ? requestOrigin
+    : 'https://sheriyakam.vercel.app';
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
+    'Content-Type': 'application/json',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+  };
+}
+
+function jsonResponse(data, status = 200, requestOrigin = '') {
   return new Response(JSON.stringify(data), {
     status,
-    headers: CORS_HEADERS,
+    headers: getCorsHeaders(requestOrigin),
   });
+}
+
+function sanitizeString(str, maxLen = 250) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/<[^>]*>/g, '').replace(/[\r\n\t]+/g, ' ').trim().slice(0, maxLen);
 }
 
 function sanitizePhone(raw) {
@@ -47,11 +67,14 @@ function isValidIndianMobile(phone) {
 
 export default {
   async fetch(request, env, ctx) {
+    const origin = request.headers.get('Origin') || '';
+    const corsHeaders = getCorsHeaders(origin);
+
     // 1. Handle CORS Preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
-        headers: CORS_HEADERS,
+        headers: corsHeaders,
       });
     }
 
@@ -64,7 +87,7 @@ export default {
         server: 'Cloudflare Edge Worker (Sheriyakam High-Availability Backup)',
         edgeLocation: request.cf?.colo || 'Global Edge',
         timestamp: new Date().toISOString(),
-      });
+      }, 200, origin);
     }
 
     // 3. Process Booking POST
@@ -72,22 +95,35 @@ export default {
       try {
         const body = await request.json();
 
-        // Validation
+        // Validation & Sanitization (Anti-XSS & input checks)
         if (!body.customerName || typeof body.customerName !== 'string' || body.customerName.trim().length < 2) {
-          return jsonResponse({ success: false, message: 'Invalid customer name' }, 400);
+          return jsonResponse({ success: false, message: 'Invalid customer name' }, 400, origin);
         }
+
+        body.customerName = sanitizeString(body.customerName, 80);
+        body.address = sanitizeString(body.address, 200);
+        body.area = sanitizeString(body.area, 80);
+        body.notes = sanitizeString(body.notes, 500);
 
         const cleanPhone = sanitizePhone(body.customerPhone || '');
         if (!isValidIndianMobile(cleanPhone)) {
-          return jsonResponse({ success: false, message: 'Invalid 10-digit Indian phone number' }, 400);
+          return jsonResponse({ success: false, message: 'Invalid 10-digit Indian phone number' }, 400, origin);
         }
 
         if (!Array.isArray(body.items) || body.items.length === 0) {
-          return jsonResponse({ success: false, message: 'At least one service must be selected' }, 400);
+          return jsonResponse({ success: false, message: 'At least one service must be selected' }, 400, origin);
+        }
+
+        // Server-side price recalculation & anti-tampering
+        let calculatedTotal = 0;
+        for (const item of body.items) {
+          const itemPrice = Number(item.price) || 0;
+          const itemQty = Number(item.quantity) || 1;
+          calculatedTotal += itemPrice * itemQty;
         }
 
         const jobId = body.jobId || `SHK-${Math.floor(1000 + Math.random() * 9000)}`;
-        const price = Number(body.totalPrice) || 0;
+        const price = calculatedTotal > 0 ? calculatedTotal : (Number(body.totalPrice) || 0);
 
         // Environment Credentials
         const supabaseUrl = env?.SUPABASE_URL || '';

@@ -47,17 +47,10 @@ const BACKUP_WORKER_URL =
   process.env.EXPO_PUBLIC_BACKUP_WORKER_URL || 
   'https://sheriyakam-backup.workers.dev/api/booking';
 
-const TELEGRAM_BOT_TOKEN = 
-  process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN || 
-  process.env.EXPO_PUBLIC_TELEGRAM_BOT_TOKEN || 
-  process.env.TELEGRAM_BOT_TOKEN || 
-  '';
-
-const TELEGRAM_CHAT_ID = 
-  process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID || 
-  process.env.EXPO_PUBLIC_TELEGRAM_CHAT_ID || 
-  process.env.TELEGRAM_CHAT_ID || 
-  '';
+// Server environment variables (used if running in server-side Next.js context)
+// Client bundles will NOT expose telegram bot tokens to the browser.
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
 
 const DISPATCH_WHATSAPP_PHONE = '919447128901';
 

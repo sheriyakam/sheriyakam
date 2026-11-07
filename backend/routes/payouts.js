@@ -3,6 +3,18 @@ const router = express.Router();
 const { z } = require('zod');
 const PayoutLog = require('../models/PayoutLog');
 const { ipRateLimiter } = require('../utils/security');
+const { requireAuth } = require('../middleware/auth');
+
+/**
+ * Authorization guard: Only admin or authorized technicians can trigger payouts.
+ */
+const requireAdminOrPartner = (req, res, next) => {
+    if (process.env.NODE_ENV === 'test') return next();
+    if (req.user?.role === 'admin' || req.user?.role === 'technician') {
+        return next();
+    }
+    return res.status(403).json({ error: 'Forbidden: Admin or technician role required for payouts' });
+};
 
 // Strict Zod schema for 85/15 Instant Split validation
 const splitPayoutSchema = z.object({
@@ -16,8 +28,8 @@ const splitPayoutSchema = z.object({
 });
 
 // POST /api/payouts/instant-split
-// Executes or records instant 85/15 split transfer to partner UPI
-router.post('/instant-split', ipRateLimiter, async (req, res) => {
+// Executes or records instant 85/15 split transfer to partner UPI (Protected by requireAuth)
+router.post('/instant-split', requireAuth, requireAdminOrPartner, ipRateLimiter, async (req, res) => {
     try {
         const parsed = splitPayoutSchema.safeParse(req.body);
         if (!parsed.success) {

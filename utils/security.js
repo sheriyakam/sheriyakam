@@ -3,7 +3,7 @@
  * Input sanitization, validation, and security helpers
  */
 
-import { sanitizeText, validateIndianPhone } from './validation';
+import { sanitizeText, validateIndianPhone } from './validation.js';
 
 // ============================================================
 //  INPUT SANITIZATION

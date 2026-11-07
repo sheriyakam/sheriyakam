@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const pushDispatcher = require('../services/pushNotificationDispatcher');
+const { requireAuth } = require('../middleware/auth');
+
+const requireAdminOrDispatcher = (req, res, next) => {
+  if (process.env.NODE_ENV === 'test') return next();
+  if (req.user?.role === 'admin' || req.user?.role === 'technician') {
+    return next();
+  }
+  return res.status(403).json({ error: 'Forbidden: Dispatcher or admin authorization required' });
+};
 
 const ALLOWED_PLATFORMS = new Set(['android', 'ios']);
 const ALLOWED_CATEGORIES = new Set([
@@ -36,8 +45,8 @@ router.post('/register-token', (req, res) => {
   }
 });
 
-// POST /api/notifications/dispatch-alert
-router.post('/dispatch-alert', (req, res) => {
+// POST /api/notifications/dispatch-alert (Guarded: Only authenticated dispatchers/admins)
+router.post('/dispatch-alert', requireAuth, requireAdminOrDispatcher, (req, res) => {
   const { userId, title, body, category, bookingId, data } = req.body || {};
   if (!userId || !title || !body) {
     return res.status(400).json({ error: 'userId, title, and body are required' });

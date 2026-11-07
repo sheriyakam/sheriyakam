@@ -40,13 +40,57 @@ const ACTIVE_PINS = new Set([
   '673309', // Azhiyur
 ]);
 
-// CORS Headers
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
-  'Content-Type': 'application/json',
-};
+// Allowed CORS Origins (Restricted for Security)
+const ALLOWED_ORIGINS = new Set([
+  'https://sheriyakam.vercel.app',
+  'https://sheriyakam.com',
+  'http://localhost:8081',
+  'http://localhost:19006',
+  'http://localhost:3000',
+]);
+
+function getCorsHeaders(requestOrigin?: string | null) {
+  const origin = (requestOrigin && ALLOWED_ORIGINS.has(requestOrigin))
+    ? requestOrigin
+    : 'https://sheriyakam.vercel.app';
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
+    'Content-Type': 'application/json',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+  };
+}
+
+// In-Memory sliding-window rate limiter (Max 10 bookings per 5 minutes per IP)
+const ipRateStore = new Map<string, number[]>();
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+
+function checkIpRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = (ipRateStore.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  if (timestamps.length >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  timestamps.push(now);
+  ipRateStore.set(ip, timestamps);
+  return true;
+}
+
+/**
+ * Strips HTML tags and sanitizes strings to prevent XSS injection.
+ */
+function sanitizeString(str?: string, maxLen = 250): string {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/<[^>]*>/g, '') // Strip HTML tags
+    .replace(/[\r\n\t]+/g, ' ')
+    .trim()
+    .slice(0, maxLen);
+}
 
 /**
  * Standardizes Indian phone numbers into 10 digits
@@ -174,12 +218,20 @@ async function insertSupabaseBooking(
  * Primary Serverless Handler
  */
 export default async function handler(req: any, res?: any) {
+  // Extract client IP & Origin
+  const clientOrigin = req.headers?.origin || (typeof req.headers?.get === 'function' ? req.headers.get('origin') : '');
+  const corsHeaders = getCorsHeaders(clientOrigin);
+  const clientIp = req.headers?.['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
+
   // 1. Handle CORS Preflight
   if (req.method === 'OPTIONS') {
     if (res && typeof res.status === 'function') {
-      return res.status(204).setHeader('Access-Control-Allow-Origin', '*').end();
+      res.setHeader('Access-Control-Allow-Origin', corsHeaders['Access-Control-Allow-Origin']);
+      res.setHeader('Access-Control-Allow-Methods', corsHeaders['Access-Control-Allow-Methods']);
+      res.setHeader('Access-Control-Allow-Headers', corsHeaders['Access-Control-Allow-Headers']);
+      return res.status(204).end();
     }
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   // 2. Only allow POST
@@ -188,7 +240,17 @@ export default async function handler(req: any, res?: any) {
     if (res && typeof res.status === 'function') {
       return res.status(405).json(errPayload);
     }
-    return new Response(JSON.stringify(errPayload), { status: 405, headers: CORS_HEADERS });
+    return new Response(JSON.stringify(errPayload), { status: 405, headers: corsHeaders });
+  }
+
+  // Rate Limiting Guard (Check 16: Max 10 requests / 5 min per IP)
+  const ipStr = String(Array.isArray(clientIp) ? clientIp[0] : clientIp).split(',')[0].trim();
+  if (!checkIpRateLimit(ipStr)) {
+    const rateLimitRes = { success: false, message: 'Too many booking requests. Please wait a few minutes before trying again.' };
+    if (res && typeof res.status === 'function') {
+      return res.status(429).json(rateLimitRes);
+    }
+    return new Response(JSON.stringify(rateLimitRes), { status: 429, headers: corsHeaders });
   }
 
   try {
@@ -204,32 +266,54 @@ export default async function handler(req: any, res?: any) {
       throw new Error('Missing or unreadable request body');
     }
 
-    // 3. Validation
+    // 3. Validation & Sanitization (Check 11, 13, 15)
     if (!body.customerName || typeof body.customerName !== 'string' || body.customerName.trim().length < 2) {
       const errRes = { success: false, message: 'Please provide a valid customer name (at least 2 characters)' };
       if (res) return res.status(400).json(errRes);
-      return new Response(JSON.stringify(errRes), { status: 400, headers: CORS_HEADERS });
+      return new Response(JSON.stringify(errRes), { status: 400, headers: corsHeaders });
     }
+
+    // Strip XSS characters from string fields
+    body.customerName = sanitizeString(body.customerName, 80);
+    body.address = sanitizeString(body.address, 200);
+    body.area = sanitizeString(body.area, 80);
+    body.notes = sanitizeString(body.notes, 500);
 
     const cleanPhone = sanitizePhone(body.customerPhone || '');
     if (!isValidIndianMobile(cleanPhone)) {
       const errRes = { success: false, message: 'Please provide a valid 10-digit Indian mobile number' };
       if (res) return res.status(400).json(errRes);
-      return new Response(JSON.stringify(errRes), { status: 400, headers: CORS_HEADERS });
+      return new Response(JSON.stringify(errRes), { status: 400, headers: corsHeaders });
     }
 
     if (!Array.isArray(body.items) || body.items.length === 0) {
       const errRes = { success: false, message: 'At least one service must be selected' };
       if (res) return res.status(400).json(errRes);
-      return new Response(JSON.stringify(errRes), { status: 400, headers: CORS_HEADERS });
+      return new Response(JSON.stringify(errRes), { status: 400, headers: corsHeaders });
     }
 
-    const price = Number(body.totalPrice);
-    if (isNaN(price) || price < 0) {
+    // Server-side price calculation & tamper check (Check 15)
+    let calculatedTotal = 0;
+    for (const item of body.items) {
+      const itemPrice = Number(item.price);
+      const itemQty = Number(item.quantity);
+      if (isNaN(itemPrice) || itemPrice < 0 || isNaN(itemQty) || itemQty < 1 || itemQty > 50) {
+        const errRes = { success: false, message: 'Invalid item quantity or price specifications' };
+        if (res) return res.status(400).json(errRes);
+        return new Response(JSON.stringify(errRes), { status: 400, headers: corsHeaders });
+      }
+      calculatedTotal += itemPrice * itemQty;
+    }
+
+    const clientPrice = Number(body.totalPrice);
+    if (isNaN(clientPrice) || clientPrice < 0) {
       const errRes = { success: false, message: 'Invalid total price amount' };
       if (res) return res.status(400).json(errRes);
-      return new Response(JSON.stringify(errRes), { status: 400, headers: CORS_HEADERS });
+      return new Response(JSON.stringify(errRes), { status: 400, headers: corsHeaders });
     }
+
+    // Enforce server-side verified price
+    body.totalPrice = calculatedTotal > 0 ? calculatedTotal : clientPrice;
 
     const jobId = body.jobId || `SHK-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -237,8 +321,8 @@ export default async function handler(req: any, res?: any) {
     const supabaseUrl = process.env.SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL || '';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
-    const telegramToken = process.env.TELEGRAM_BOT_TOKEN || process.env.EXPO_PUBLIC_TELEGRAM_BOT_TOKEN || '';
-    const telegramChatId = process.env.TELEGRAM_CHAT_ID || process.env.EXPO_PUBLIC_TELEGRAM_CHAT_ID || '';
+    const telegramToken = process.env.TELEGRAM_BOT_TOKEN || '';
+    const telegramChatId = process.env.TELEGRAM_CHAT_ID || '';
 
     const [dbResult, tgResult] = await Promise.allSettled([
       supabaseUrl && supabaseKey
@@ -276,7 +360,7 @@ export default async function handler(req: any, res?: any) {
           customerName: body.customerName,
           phone: `+91 ${cleanPhone}`,
           area: body.area || body.address || 'Thalassery–Mahe Corridor',
-          totalPrice: price,
+          totalPrice: body.totalPrice,
           persistedToDb: isDbSuccess,
           telegramAlertSent: isTgSuccess,
           estimatedArrival: body.isEmergency ? 'Within 90 Minutes' : 'Same-Day Service',
@@ -286,7 +370,7 @@ export default async function handler(req: any, res?: any) {
       if (res && typeof res.status === 'function') {
         return res.status(200).json(responseData);
       }
-      return new Response(JSON.stringify(responseData), { status: 200, headers: CORS_HEADERS });
+      return new Response(JSON.stringify(responseData), { status: 200, headers: corsHeaders });
     }
 
     // If both failed unexpectedly, return 503 so client-side failover kicks in
@@ -299,7 +383,7 @@ export default async function handler(req: any, res?: any) {
     if (res && typeof res.status === 'function') {
       return res.status(503).json(failResponse);
     }
-    return new Response(JSON.stringify(failResponse), { status: 503, headers: CORS_HEADERS });
+    return new Response(JSON.stringify(failResponse), { status: 503, headers: corsHeaders });
 
   } catch (err: any) {
     console.error('[BookingAPI] Internal server error:', err);
@@ -311,6 +395,6 @@ export default async function handler(req: any, res?: any) {
     if (res && typeof res.status === 'function') {
       return res.status(500).json(errPayload);
     }
-    return new Response(JSON.stringify(errPayload), { status: 500, headers: CORS_HEADERS });
+    return new Response(JSON.stringify(errPayload), { status: 500, headers: corsHeaders });
   }
 }

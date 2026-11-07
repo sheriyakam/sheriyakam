@@ -21,9 +21,18 @@ export async function POST(req: NextRequest) {
       const textParam = formData.get('text') as string | null;
 
       if (file) {
-        // Enforce max 10MB limit
+        // Enforce max 10MB limit (Check 14: Restrict file uploads)
         if (file.size > 10 * 1024 * 1024) {
           return NextResponse.json({ error: 'File exceeds maximum allowed size of 10MB.' }, { status: 400 });
+        }
+
+        // Validate MIME type and file extension
+        const allowedMimeTypes = ['application/pdf', 'text/plain'];
+        const fileName = (file.name || '').toLowerCase();
+        const hasValidExt = fileName.endsWith('.pdf') || fileName.endsWith('.txt');
+
+        if (!hasValidExt || (file.type && !allowedMimeTypes.includes(file.type))) {
+          return NextResponse.json({ error: 'Unsupported file type. Only PDF and TXT files are allowed.' }, { status: 400 });
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
