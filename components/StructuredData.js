@@ -7,6 +7,8 @@
  * 2. AreaServed (7 Postal Zones in Thalassery–Mahe Corridor)
  * 3. hasOfferCatalog (6 Core Electrical Services with exact INR prices starting from ₹499)
  * 4. FAQPage (High-intent 40–60 word BLUF answers for AI Answer Engine citations)
+ * 5. BreadcrumbList (Topical Authority Hub-and-Spoke structure)
+ * 6. hasCredential & reviewedBy (Practitioner Experience & Credential Engine)
  */
 
 import React from 'react';
@@ -29,6 +31,20 @@ export const UNIFIED_GRAPH_SCHEMA = {
       "priceRange": "₹499 - ₹4999",
       "currenciesAccepted": "INR",
       "paymentAccepted": "Cash, UPI, Credit Card, Debit Card, Net Banking",
+      "hasCredential": [
+        {
+          "@type": "EducationalOccupationalCredential",
+          "credentialCategory": "Class-B Electrical Wireman & Supervisor License",
+          "recognizedBy": {
+            "@type": "GovernmentOrganization",
+            "name": "Department of Electrical Inspectorate, Government of Kerala"
+          }
+        }
+      ],
+      "reviewedBy": {
+        "@type": "GovernmentOrganization",
+        "name": "Kerala State Electricity Licensing Board (KSELB)"
+      },
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Thalassery Main Road",
@@ -184,6 +200,36 @@ export const UNIFIED_GRAPH_SCHEMA = {
           }
         ]
       }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://sheriyakam.vercel.app/#breadcrumbs",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sheriyakam.vercel.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Services Catalogue",
+          "item": "https://sheriyakam.vercel.app/services"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Upfront Pricing",
+          "item": "https://sheriyakam.vercel.app/pricing"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Thalassery & Mahe Pilot Dispatch Hub",
+          "item": "https://sheriyakam.vercel.app/thalassery-electrician"
+        }
+      ]
     },
     {
       "@type": "FAQPage",

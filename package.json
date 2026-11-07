@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "test": "node --test tests/*.test.js",
     "check": "eslint . && expo export -p web",
-    "server": "node backend/server.js"
+    "server": "node backend/server.js",
+    "seo:check": "node scripts/verify-seo-geo.mjs",
+    "index:ping": "node scripts/ping-indexnow.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

@@ -6,7 +6,7 @@ import {
     ArrowLeft, Search, Calendar, CreditCard, ShieldCheck, Zap,
     User, HelpCircle, ChevronRight, Scale, Mail, Phone, Clock,
     AlertTriangle, ShieldAlert, CheckCircle2, FileText, Sparkles,
-    Flame, DollarSign, Wrench, Shield, RefreshCw, BookOpen, Layers, Award
+    Flame, Wrench, Shield, RefreshCw, BookOpen, Layers, Award
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../constants/theme';
@@ -61,7 +61,7 @@ const LEGAL_POLICIES = [
     },
     {
         title: 'Terms of Service',
-        desc: 'Plain-language terms: Pay Safely, 30-day warranty, and ₹5 Lakh property protection.',
+        desc: 'Plain-language terms: Pay Safely, 30-day rework warranty, and transparent pricing.',
         route: '/terms',
         icon: FileText,
         badge: '₹5L Cover',
@@ -123,7 +123,7 @@ const ESCALATION_TIERS = [
         tier: 'Tier 2',
         title: 'KSELB Technical Supervisor',
         time: 'Within 2-24 Hours',
-        desc: 'On-site technical inspection for workmanship issues, burnout diagnostics, or ₹5 Lakh property claims.',
+        desc: 'On-site technical inspection for workmanship issues and burnout diagnostics.',
         action: 'File Damage Claim',
         route: '/damage-claim',
         badgeColor: 'amber'
@@ -153,11 +153,7 @@ export default function HelpCenterScreen() {
         });
     };
 
-    const handleCallOfficer = () => {
-        Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s+/g, '')}`).catch(() => {
-            success(`Calling Grievance Desk (${SUPPORT_PHONE_DISPLAY})`);
-        });
-    };
+
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F9FAFB' }]}>
@@ -202,16 +198,7 @@ export default function HelpCenterScreen() {
 
                     {/* Damage Protocol Points */}
                     <View style={styles.damageGrid}>
-                        <View style={[styles.damagePointCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                            <Clock size={18} color="#F59E0B" />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.pointTitle, { color: colors.textPrimary }]}>2-Hour On-Site Inspection</Text>
-                                <Text style={[styles.pointDesc, { color: colors.textSecondary }]}>
-                                    Senior KSELB certified supervisor dispatches with calibrated Megger insulation testers.
-                                </Text>
-                            </View>
-                        </View>
-
+                        
                         <View style={[styles.damagePointCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
                             <Flame size={18} color="#EF4444" />
                             <View style={{ flex: 1 }}>
@@ -222,15 +209,7 @@ export default function HelpCenterScreen() {
                             </View>
                         </View>
 
-                        <View style={[styles.damagePointCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: isDark ? '#27272A' : '#E4E4E7' }]}>
-                            <DollarSign size={18} color="#10B981" />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.pointTitle, { color: colors.textPrimary }]}>Direct Payout / Insurance</Text>
-                                <Text style={[styles.pointDesc, { color: colors.textSecondary }]}>
-                                    Fast-track settlement up to ₹5,000 warranty cap or full CGL insurance claim up to ₹5 Lakh.
-                                </Text>
-                            </View>
-                        </View>
+                        
                     </View>
 
                     {/* Claim Desk Actions */}
@@ -294,58 +273,7 @@ export default function HelpCenterScreen() {
                         ))}
                     </View>
 
-                    {/* Resident Grievance Officer Quick Card */}
-                    <Card variant="elevated" style={[styles.officerCard, { backgroundColor: isDark ? '#111827' : '#FFFFFF' }]}>
-                        <View style={styles.officerHeader}>
-                            <View style={[styles.officerAvatar, { backgroundColor: colors.accent + '20' }]}>
-                                <Scale size={20} color={colors.accent} />
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.officerRole, { color: colors.textTertiary }]}>RESIDENT GRIEVANCE OFFICER</Text>
-                                <Text style={[styles.officerName, { color: colors.textPrimary }]}>Adv. S. Nair, LL.M</Text>
-                                <Text style={[styles.officerDesignation, { color: colors.textSecondary }]}>
-                                    Head of Legal & Statutory Redressal (India)
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.officerMeta}>
-                            <View style={styles.metaRow}>
-                                <Mail size={14} color={colors.textTertiary} />
-                                <Text style={[styles.metaText, { color: colors.textSecondary }]}>grievance@sheriyakam.in</Text>
-                            </View>
-                            <View style={styles.metaRow}>
-                                <Phone size={14} color={colors.textTertiary} />
-                                <Text style={[styles.metaText, { color: colors.textSecondary }]}>+91 94471 28901 (Mon–Sat, 9AM–6PM)</Text>
-                            </View>
-                            <View style={styles.metaRow}>
-                                <Clock size={14} color="#10B981" />
-                                <Text style={[styles.metaText, { color: '#10B981', fontWeight: '600' }]}>
-                                    Statutory SLA: 24-Hr Ack · 15-Day Final Disposal
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.officerActions}>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                style={{ flex: 1 }}
-                                onPress={handleCallOfficer}
-                            >
-                                Call Desk
-                            </Button>
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                style={{ flex: 1.5 }}
-                                onPress={() => router.push('/grievance')}
-                            >
-                                Submit Grievance
-                            </Button>
-                        </View>
-                    </Card>
-                </View>
+                                    </View>
 
                 {/* ────────────────── LEGAL, TERMS & STATUTORY POLICIES ────────────────── */}
                 <View style={styles.legalSection}>

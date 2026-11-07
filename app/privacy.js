@@ -184,7 +184,7 @@ export default function PrivacyScreen() {
                     </Text>
                     <View style={[styles.officerBox, { backgroundColor: isDark ? '#27272A' : '#F1F5F9' }]}>
                         <Text style={[styles.officerName, { color: colors.textPrimary }]}>
-                            K. Suresh Kumar (Chief Grievance Redressal Officer)
+                            Resident Grievance Redressal Desk
                         </Text>
                         <Text style={[styles.officerDetail, { color: colors.textSecondary }]}>
                             Sheriyakam Technologies, Main Road, Thalassery, Kannur, Kerala - 670101

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { ArrowLeft, Shield, CheckCircle, AlertTriangle, Scale, Lock, ShieldCheck, FileCheck, Phone, ChevronRight, MapPin, Zap } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, AlertTriangle, Lock, ShieldCheck, FileCheck, Phone, ChevronRight, MapPin, Zap } from 'lucide-react-native';
 import { COLORS, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
@@ -19,7 +19,7 @@ export default function TermsScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#09090B' : '#F8FAFC' }]}>
             <Head>
                 <title>Terms of Service & Customer Guarantee | Sheriyakam</title>
-                <meta name="description" content="Sheriyakam Terms of Service: Transparent pricing, OTP verification, Pay Safely terms, 30-day rework warranty, and ₹5 Lakh property damage protection across 14 Kerala districts." />
+                <meta name="description" content="Sheriyakam Terms of Service: Transparent pricing, OTP verification, Pay Safely terms, and 30-day rework warranty across 14 Kerala districts." />
                 <link rel="canonical" href="https://sheriyakam.vercel.app/terms" />
             </Head>
 
@@ -58,7 +58,6 @@ export default function TermsScreen() {
                     <View style={styles.badgeRow}>
                         <Badge variant="success">Pay After Work</Badge>
                         <Badge variant="info">30-Day Free Rework</Badge>
-                        <Badge variant="gold">₹5 Lakh Safety Cover</Badge>
                         <Badge variant="purple">All 14 Kerala Districts</Badge>
                     </View>
                     <Text style={styles.lastUpdatedText}>
@@ -94,10 +93,7 @@ export default function TermsScreen() {
                         </Text>
                     </View>
                     <View style={styles.bulletList}>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>KSELB Certified Wiremen</Text>: All dispatches are assigned to technicians holding active wireman/supervisor permits issued by the Kerala Electrical Inspectorate.
-                        </Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
+                                                <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
                             • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Two-Way OTP Verification</Text>: For your security, the electrician will request a Start-OTP upon arrival to begin work, and an End-OTP after you test and confirm the completed fix.
                         </Text>
                         <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
@@ -141,43 +137,8 @@ export default function TermsScreen() {
                     </View>
                 </Card>
 
-                {/* Section 4: ₹5,00,000 Property Damage Protection Cover */}
-                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF', borderColor: '#10B98144' }]}>
-                    <View style={styles.sectionHeader}>
-                        <Shield size={20} color="#10B981" />
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            4. ₹5 Lakh Property Damage Protection Cover
-                        </Text>
-                    </View>
-                    <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Every verified booking completed through the Sheriyakam platform is backed by our commercial third-party domestic protection policy up to <Text style={{ fontWeight: '700', color: '#10B981' }}>₹5,00,000</Text>:
-                    </Text>
-                    <View style={styles.bulletList}>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>What is Covered</Text>: Accidental short-circuit fires, appliance burnouts, or structural electrical damage proven to have occurred directly during authorized on-platform work due to technician oversight.
-                        </Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>What is NOT Covered</Text>: Pre-existing degraded wiring beyond the repair scope, acts of nature (direct lightning strikes, flood waterlogging), appliances with pre-existing internal board failures, or unapproved side-deals arranged outside the Sheriyakam platform.
-                        </Text>
-                        <Text style={[styles.bulletPoint, { color: colors.textSecondary }]}>
-                            • <Text style={{ fontWeight: '700', color: colors.textPrimary }}>Claim Process</Text>: Submit claim within 72 hours via the app or <Text style={{ color: colors.accent, fontWeight: '700' }}>claims@sheriyakam.in</Text> with photos and description. A technical supervisor will inspect on-site within 24 hours.
-                        </Text>
-                    </View>
-                </Card>
-
-                {/* Section 5: Limitation of Liability */}
-                <Card variant="default" style={[styles.sectionCard, { backgroundColor: isDark ? '#18181B' : '#FFFFFF' }]}>
-                    <View style={styles.sectionHeader}>
-                        <Scale size={20} color="#8B5CF6" />
-                        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                            5. Platform Liability & Governing Jurisdiction
-                        </Text>
-                    </View>
-                    <Text style={[styles.sectionText, { color: colors.textSecondary }]}>
-                        Sheriyakam operates as an on-demand technology service connecting consumers with licensed, verified electrical wiremen. In all non-insured claims, platform liability is capped at the total fee charged for that specific service visit. These terms are governed exclusively by the laws of India, and courts in Kannur / Kozhikode, Kerala hold jurisdiction.
-                    </Text>
-                </Card>
-
+                
+                
                 {/* Statutory Contact */}
                 <View style={styles.contactRow}>
                     <View style={{ flex: 1 }}>

@@ -36,6 +36,10 @@ import { getFaqs } from '../constants/cmsStore';
 import QuickLeadModal from '../components/QuickLeadModal';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
+import PractitionerVerificationBadge from '../components/PractitionerVerificationBadge';
+import DiagnosticRateMatrix from '../components/DiagnosticRateMatrix';
+import VerifiedFieldDispatchLog from '../components/VerifiedFieldDispatchLog';
+import InstantDiagnosticEstimator from '../components/InstantDiagnosticEstimator';
 import { soundFx } from '../services/audioFx';
 
 export { ErrorBoundary };
@@ -649,7 +653,9 @@ export default function HomeScreen() {
                       <Text style={{ color: '#94a3b8', fontSize: 18 }}>✕</Text>
                     </TouchableOpacity>
                   )}
-                </View>
+                
+                {/* E-E-A-T Practitioner Verification Badge */}
+                <PractitionerVerificationBadge /></View>
 
               </View>
             </View>
@@ -684,6 +690,14 @@ export default function HomeScreen() {
           </View>
 
           {/* ═══════════════════════════════════════════════════════ */}
+          {/* INSTANT PROBLEM DIAGNOSTIC ESTIMATOR (E-E-A-T & AEO) */}
+          <SectionErrorBoundary name="Diagnostic Estimator">
+            <InstantDiagnosticEstimator onBookService={(serviceItem) => {
+              const matchedService = MOCK_SERVICES.find(s => s.id === serviceItem.serviceId) || MOCK_SERVICES[0];
+              handleServiceClick(matchedService);
+            }} />
+          </SectionErrorBoundary>
+
           {/* SERVICES SECTION — 6 Core Streamlined Options           */}
           {/* ═══════════════════════════════════════════════════════ */}
           <SectionErrorBoundary name="Services Catalog">
@@ -859,6 +873,16 @@ export default function HomeScreen() {
           </SectionErrorBoundary>
 
           {/* ═══════════════════════════════════════════════════════ */}
+          {/* E-E-A-T DIAGNOSTIC RATE MATRIX (SEMANTIC HTML TABLE) */}
+          <SectionErrorBoundary name="Diagnostic Rate Matrix">
+            <DiagnosticRateMatrix />
+          </SectionErrorBoundary>
+
+          {/* E-E-A-T VERIFIED FIELD DISPATCH LOG (LIVE ACTIVITY) */}
+          <SectionErrorBoundary name="Field Dispatch Log">
+            <VerifiedFieldDispatchLog />
+          </SectionErrorBoundary>
+
           {/* FAQ SECTION (ALL QUESTIONS & COMPLETE ANSWERS)          */}
           {/* ═══════════════════════════════════════════════════════ */}
           <SectionErrorBoundary name="FAQ Section">
