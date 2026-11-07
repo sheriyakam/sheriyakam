@@ -1,10 +1,11 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import React from 'react';
+import { UNIFIED_GRAPH_SCHEMA } from '../components/StructuredData';
 
 /**
  * Root HTML document template for Sheriyakam Web Export.
  * Configures font-display: swap, font preconnects, mobile responsive viewport,
- * and zero-layout-shift resets for optimal Core Web Vitals.
+ * geo-meta tags, canonical link, OpenGraph protocols, and Unified Schema.org JSON-LD @graph.
  */
 export default function Root({ children }) {
   return (
@@ -22,6 +23,46 @@ export default function Root({ children }) {
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Sheriyakam" />
         <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* Canonical & Core SEO Metadata */}
+        <link rel="canonical" href="https://sheriyakam.vercel.app/" />
+        <meta
+          name="description"
+          content="Book verified KSELB-licensed electricians in Thalassery and Mahe. Upfront rates starting from ₹499, 90-minute doorstep dispatch, and 30-day workmanship warranty."
+        />
+
+        {/* Geo-Targeting Metadata for Local GEO / AEO */}
+        <meta name="geo.region" content="IN-KL" />
+        <meta name="geo.placename" content="Thalassery, Kannur, Kerala" />
+        <meta name="geo.position" content="11.7495;75.4891" />
+        <meta name="ICBM" content="11.7495, 75.4891" />
+
+        {/* OpenGraph Protocols */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Book Verified Electricians in Thalassery & Mahe | Sheriyakam" />
+        <meta
+          property="og:description"
+          content="Doorstep electrical repairs across Thalassery, Mahe & Dharmadam by KSELB certified wiremen. Upfront pricing from ₹499, 90-min dispatch & 30-day warranty."
+        />
+        <meta property="og:url" content="https://sheriyakam.vercel.app/" />
+        <meta property="og:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
+        <meta property="og:site_name" content="Sheriyakam" />
+        <meta property="og:locale" content="en_IN" />
+
+        {/* Twitter Cards */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Book Verified Electricians in Thalassery & Mahe | Sheriyakam" />
+        <meta
+          name="twitter:description"
+          content="Doorstep electrical repairs across Thalassery, Mahe & Dharmadam by KSELB certified wiremen. Upfront pricing from ₹499, 90-min dispatch & 30-day warranty."
+        />
+        <meta name="twitter:image" content="https://sheriyakam.vercel.app/assets/images/emergency.png" />
+
+        {/* Unified Schema.org JSON-LD Entity Graph (@graph) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(UNIFIED_GRAPH_SCHEMA) }}
+        />
 
         {/* PWA Manifest & App Icons */}
         <link rel="manifest" href="/manifest.json" />

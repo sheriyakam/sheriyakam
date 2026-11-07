@@ -1,5 +1,6 @@
 import { PILOT_ZONE, SUPPORT_PHONE_DISPLAY } from '../constants/contact';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UNIFIED_GRAPH_SCHEMA } from '../components/StructuredData';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   StyleSheet, Text, View, ScrollView, StatusBar, Dimensions, Image,
@@ -58,7 +59,7 @@ const MOCK_SERVICES = [
     rating: 4.9,
     specialty: "Visitation fee (waived/adjusted if repair is approved on-site)",
     time: "45 min",
-    price: 149,
+    price: 499,
     category: "Electrical",
     image: require('../assets/images/emergency.png')
   },
@@ -68,7 +69,7 @@ const MOCK_SERVICES = [
     rating: 4.9,
     specialty: "Sparking switches, burnt plugs & 6A/16A points (plus ISI spares at MRP)",
     time: "30 min",
-    price: 149,
+    price: 499,
     category: "Electrical",
     image: require('../assets/images/switch.png')
   },
@@ -78,7 +79,7 @@ const MOCK_SERVICES = [
     rating: 4.9,
     specialty: "Capacitor replacement, speed regulator, or new fan mounting",
     time: "30 min",
-    price: 249,
+    price: 549,
     category: "Electrical",
     image: require('../assets/images/light_fan.png')
   },
@@ -88,7 +89,7 @@ const MOCK_SERVICES = [
     rating: 4.9,
     specialty: "Earth leakage trace, blackout triage & breaker replacement",
     time: "45 min",
-    price: 349,
+    price: 649,
     category: "Electrical",
     image: { uri: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80' }
   },
@@ -108,7 +109,7 @@ const MOCK_SERVICES = [
     rating: 4.9,
     specialty: "Full house rewiring, earth pit rod & custom quote after inspection",
     time: "1-2 hrs",
-    price: 550,
+    price: 899,
     category: "Electrical",
     image: require('../assets/images/wiring.png')
   },
@@ -118,7 +119,7 @@ const HOW_IT_WORKS = [
   {
     step: '01',
     title: 'Select Problem / Service',
-    description: 'Choose from 6 genuine electrical services or select ₹149 on-site diagnostic inspection (waived if work is approved).',
+    description: 'Choose from 6 genuine electrical services or select ₹499 on-site diagnostic inspection (waived if work is approved).',
     color: '#2563EB',
   },
   {
@@ -446,208 +447,11 @@ export default function HomeScreen() {
         <meta name="twitter:image:alt" content="Sheriyakam Home and Electrical Services in Kerala" />
 
         {/* ═══════════════════════════════════════════════════════ */}
-        {/* 1. SCHEMA.ORG & GOOGLE RICH RESULTS DUAL-VALIDATED JSON-LD */}
-        {/* ═══════════════════════════════════════════════════════ */}
-
-        {/* LocalBusiness & HomeAndConstructionBusiness */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "HomeAndConstructionBusiness",
-            "name": "Sheriyakam",
-            "alternateName": "Sheriyakam Home & Electrical Services Kerala",
-            "image": "https://sheriyakam.vercel.app/assets/images/emergency.png",
-            "@id": "https://sheriyakam.vercel.app/#organization",
-            "url": "https://sheriyakam.vercel.app",
-            "telephone": "+919876543210",
-            "priceRange": "₹₹",
-            "currenciesAccepted": "INR",
-            "paymentAccepted": "Cash, UPI, Credit Card, Debit Card, Net Banking",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "Thalassery Main Road",
-              "addressLocality": "Kannur",
-              "addressRegion": "Kerala",
-              "postalCode": "670101",
-              "addressCountry": "IN"
-            },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": 11.7495,
-              "longitude": 75.4891
-            },
-            "areaServed": [
-              { "@type": "AdministrativeArea", "name": "Kasaragod" },
-              { "@type": "AdministrativeArea", "name": "Kannur" },
-              { "@type": "AdministrativeArea", "name": "Wayanad" },
-              { "@type": "AdministrativeArea", "name": "Kozhikode" },
-              { "@type": "AdministrativeArea", "name": "Malappuram" },
-              { "@type": "AdministrativeArea", "name": "Palakkad" },
-              { "@type": "AdministrativeArea", "name": "Thrissur" },
-              { "@type": "AdministrativeArea", "name": "Ernakulam" },
-              { "@type": "AdministrativeArea", "name": "Idukki" },
-              { "@type": "AdministrativeArea", "name": "Kottayam" },
-              { "@type": "AdministrativeArea", "name": "Alappuzha" },
-              { "@type": "AdministrativeArea", "name": "Pathanamthitta" },
-              { "@type": "AdministrativeArea", "name": "Kollam" },
-              { "@type": "AdministrativeArea", "name": "Thiruvananthapuram" }
-            ],
-            "openingHoursSpecification": {
-              "@type": "OpeningHoursSpecification",
-              "dayOfWeek": [
-                "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-              ],
-              "opens": "00:00",
-              "closes": "23:59"
-            },
-            "hasOfferCatalog": {
-              "@type": "OfferCatalog",
-              "name": "Electrical & Home Services Kerala",
-              "itemListElement": [
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Diagnostic & Fault Inspection Visit",
-                    "description": "Multimeter fault finding & upfront quote, adjustable against final bill."
-                  },
-                  "price": "499",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Ceiling & Exhaust Fan Repair",
-                    "description": "Capacitor fix, bearing noise troubleshooting, and regulator replacement."
-                  },
-                  "price": "549",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Switch & Socket Replacement",
-                    "description": "Replace sparking switches, loose plug sockets, and burned 6A/16A points."
-                  },
-                  "price": "499",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "MCB & Fuse Box Tripping (DB Repair)",
-                    "description": "Distribution board short circuit isolation and tripping MCB troubleshooting."
-                  },
-                  "price": "649",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Complete Home Wiring & Safety Earthing",
-                    "description": "Full house rewiring, electric shock prevention, and earth pit installation."
-                  },
-                  "price": "899",
-                  "priceCurrency": "INR"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Inverter & Battery Wiring",
-                    "description": "Battery wiring, changeover switch connection, and power backup testing."
-                  },
-                  "price": "749",
-                  "priceCurrency": "INR"
-                }
-              ]
-            }
-          })}
-        </script>
-
-        {/* WebSite Schema with Google Sitelinks SearchBox EntryPoint */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Sheriyakam",
-            "url": "https://sheriyakam.vercel.app",
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": {
-                "@type": "EntryPoint",
-                "urlTemplate": "https://sheriyakam.vercel.app/search?q={search_term_string}"
-              },
-              "query-input": "required name=search_term_string"
-            }
-          })}
-        </script>
-
-        {/* BreadcrumbList Schema for Google Rich Results */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://sheriyakam.vercel.app/"
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Services",
-                "item": "https://sheriyakam.vercel.app/#services"
-              },
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "Pricing",
-                "item": "https://sheriyakam.vercel.app/pricing"
-              }
-            ]
-          })}
-        </script>
-
-        {/* 40-60 Word Quotable FAQPage Schema (Google Rich Results & AEO Validated) */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "How much does an electrician cost in Kerala?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Standard electrical repairs start at ₹499 for switch replacements and diagnostic inspections through Sheriyakam. All bookings include upfront transparent pricing, verified wireman licensing, and a 30-day rework warranty."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "How fast does an emergency electrician arrive in Kerala?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Sheriyakam electricians arrive on-site within 45 to 90 minutes across the Thalassery–Mahe corridor for urgent power outages, short circuits, and sparking hazards. Customers receive a direct confirmation call prior to technician arrival."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Are Sheriyakam electricians certified and insured?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes, 100% of Sheriyakam electricians hold government wireman or supervisor licenses certified by the Kerala Electrical Inspectorate. Every visit is backed by strict Central Electricity Authority safety protocols, on-site testing verification, and a 30-day direct workmanship rework warranty."
-                }
-              }
-            ]
-          })}
-        </script>
+        {/* 1. UNIFIED SCHEMA.ORG JSON-LD ENTITY GRAPH (@graph) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(UNIFIED_GRAPH_SCHEMA) }}
+        />
       </Head>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.bgPrimary} />
 
@@ -769,9 +573,14 @@ export default function HomeScreen() {
                 </View>
 
                 {/* Hero Title */}
-                <Text style={styles.heroTitle}>
-                  Book an Electrician in <Text style={styles.heroHighlight}>60 Seconds</Text>{'\n'}
-                  At Your Door in 90 Min
+                <Text accessibilityRole="header" aria-level={1} style={styles.heroTitle}>
+                  Book a Verified Local Electrician in Thalassery & Mahe{'\n'}
+                  <Text style={styles.heroHighlight}>Upfront Rates from ₹499</Text>
+                </Text>
+
+                {/* 40-60 Word BLUF Direct Answer Block for AI Retrieval & GEO */}
+                <Text style={styles.blufBlock}>
+                  Need a verified electrician in Thalassery or Mahe? Sheriyakam dispatches Kerala State Electricity Licensing Board (KSELB) certified wiremen within 90 minutes. Upfront standard rates start at ₹499 with digital multimeter diagnosis, ISI-standard parts at MRP, and a 30-day workmanship warranty across PINs 670101 to 673310.
                 </Text>
 
                 {/* Hero Subtitle */}
@@ -880,7 +689,7 @@ export default function HomeScreen() {
           <SectionErrorBoundary name="Services Catalog">
           <View nativeID="services" id="services" style={{ marginHorizontal: SPACING.md, marginTop: SPACING.lg, marginBottom: SPACING.sm }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-              <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>
+              <Text accessibilityRole="header" aria-level={2} style={[styles.sectionTitle, dynamicStyles.sectionTitle, { marginBottom: 0 }]}>
                 Core Electrical Services
               </Text>
               <TouchableOpacity onPress={() => router.push('/services')}>
@@ -899,7 +708,7 @@ export default function HomeScreen() {
                 No matching service for "{searchQuery}"
               </Text>
               <Text style={{ color: colors.textSecondary, fontSize: 13, textAlign: "center", maxWidth: 440, marginVertical: 6, lineHeight: 18 }}>
-                Not sure what is broken? Book our ₹149 Fault Inspection instead — our licensed wireman will test on-site with a digital multimeter and provide an upfront quote before any work starts.
+                Not sure what is broken? Book our ₹499 Fault Inspection instead — our licensed wireman will test on-site with a digital multimeter and provide an upfront quote before any work starts.
               </Text>
               <TouchableOpacity
                 style={[styles.bookInspectionBtn, { backgroundColor: colors.accent }]}
@@ -908,7 +717,7 @@ export default function HomeScreen() {
               >
                 <Zap size={15} color="#fff" fill="#fff" />
                 <Text style={{ color: "#fff", fontWeight: "700", fontSize: 13.5 }}>
-                  Book ₹149 Fault Inspection Instead
+                  Book ₹499 Fault Inspection Instead
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1056,7 +865,7 @@ export default function HomeScreen() {
           <View style={[styles.faqSection, { borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
               <Badge variant="info">Clear & Transparent</Badge>
-              <Text style={[styles.sectionTitleCenter, { color: colors.textPrimary, marginTop: 8 }]}>
+              <Text accessibilityRole="header" aria-level={2} style={[styles.sectionTitleCenter, { color: colors.textPrimary, marginTop: 8 }]}>
                 Frequently Asked Questions
               </Text>
               <Text style={[styles.sectionSubtitleCenter, { color: colors.textSecondary }]}>
@@ -1084,20 +893,24 @@ export default function HomeScreen() {
                     ]}
                   >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <Text style={[styles.faqQuestion, { color: colors.textPrimary, flex: 1, marginRight: 16, marginBottom: 0 }]}>{faq.q}</Text>
+                      <Text accessibilityRole="header" aria-level={3} style={[styles.faqQuestion, { color: colors.textPrimary, flex: 1, marginRight: 16, marginBottom: 0 }]}>{faq.q}</Text>
                       {isExpanded ? (
                         <ChevronUp size={18} color={colors.accent} />
                       ) : (
                         <ChevronDown size={18} color={colors.textSecondary} />
                       )}
                     </View>
-                    {isExpanded && (
-                      <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0' }}>
-                        <Text style={[styles.faqAnswer, { color: colors.textSecondary, lineHeight: 22 }]}>
-                          {faq.a}
-                        </Text>
-                      </View>
-                    )}
+                    <View
+                      style={[
+                        { marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0' },
+                        !isExpanded && { display: 'none' }
+                      ]}
+                      aria-hidden={!isExpanded}
+                    >
+                      <Text style={[styles.faqAnswer, { color: colors.textSecondary, lineHeight: 22 }]}>
+                        {faq.a}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -1416,6 +1229,19 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 1.5,
     marginBottom: 12,
+  },
+  blufBlock: {
+    color: '#E2E8F0',
+    fontSize: 13.5,
+    lineHeight: 20,
+    backgroundColor: 'rgba(37, 99, 235, 0.12)',
+    borderColor: 'rgba(37, 99, 235, 0.3)',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginVertical: 10,
+    letterSpacing: 0.1,
   },
   heroTitle: {
     color: '#ffffff',

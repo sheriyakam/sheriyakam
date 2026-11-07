@@ -50,6 +50,7 @@ const DEFAULT_FAQS = [
 ];
 
 const DEFAULT_TARIFFS = [
+    { id: 't-inspection', name: 'Fault Inspection & Multimeter Diagnosis', price: 499, category: 'Electrical', time: '45 mins', desc: 'On-site multimeter diagnosis and line triage (fee adjusted if repair approved).' },
     { id: 't-switch', name: 'Switchboard, Socket & Plug Repair', price: 499, category: 'Electrical', time: '30 mins', desc: 'Sparking switches, burnt plugs, and 6A/16A power points (plus ISI spares).' },
     { id: 't-fan', name: 'Ceiling & Exhaust Fan Repair / Installation', price: 549, category: 'Electrical', time: '30 mins', desc: 'Capacitor replacement, speed regulator, or new fan mounting.' },
     { id: 't-mcb', name: 'MCB, RCCB & Fuse Box Tripping (DB Triage)', price: 649, category: 'Emergency', time: '45 mins', desc: 'Distribution board earth leakage trace & breaker isolation.' },

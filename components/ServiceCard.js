@@ -58,8 +58,8 @@ const ServiceCard = ({
     const quantity = cartItem ? (Number(cartItem.quantity) || 0) : 0;
 
     // Services 1 and 6: Strict toggle only (max quantity 1)
-    // 1: Fault Inspection & Multimeter Diagnosis (₹149)
-    // 6: House Wiring, Additional Points & Earthing (₹550)
+    // 1: Fault Inspection & Multimeter Diagnosis (₹499)
+    // 6: House Wiring, Additional Points & Earthing (₹899)
     const isToggleOnly = id === 1 || id === 6 || (name && (
         name.toLowerCase().includes('fault inspection') || 
         name.toLowerCase().includes('house wiring')
@@ -71,7 +71,7 @@ const ServiceCard = ({
             id,
             name,
             title: name,
-            price: Number(price) || 149,
+            price: Number(price) > 0 ? Number(price) : 499,
             time,
             duration: time,
             image,
